@@ -11,9 +11,9 @@ Guarantee that total AI spend in a calendar month never exceeds the configured b
 | Element | Description |
 |---|---|
 | `AI_MONTHLY_BUDGET_USD` | The cap across both providers. Default 25. Setting it to 0 stops every AI call. |
-| `AI_FREE_USER_DAILY_BUDGET_USD`, `AI_PREMIUM_USER_DAILY_BUDGET_USD` | Per-user limit per UTC day. Defaults 0.5 and 2.0. Admins are exempt. |
+| `AI_FREE_USER_DAILY_BUDGET_USD`, `AI_PREMIUM_USER_DAILY_BUDGET_USD` | Per-user limit per UTC day. Defaults 1.0 and 3.0, sized so a learner reaches the daily phrase quota (20 free, 100 Premium) before this limit. Admins are exempt. |
 | `AI_PRICE_TABLE` | JSON keyed by model id: `input_per_mtok`, `output_per_mtok`, `cache_write_per_mtok`, `cache_read_per_mtok` in USD per million tokens, and `audio_per_minute` in USD for speech-to-text models |
-| `AI_MAX_OUTPUT_TOKENS`, `AI_MAX_AUDIO_SECONDS` | The ceilings used for worst-case estimates |
+| `ANTHROPIC_GRADING_MAX_TOKENS`, `ANTHROPIC_UTILITY_MAX_TOKENS`, `AI_MAX_AUDIO_SECONDS` | The ceilings used for worst-case estimates |
 | `ai_usage_events` table | One row per provider call: time, user id, purpose, provider, model, input/output/cache tokens, speech duration in ms (`stt_ms`), cost in micro-USD, and whether the cost was estimated |
 
 ## Operations
@@ -29,7 +29,9 @@ The only way an adapter reaches its provider.
 5. `measure(result)` returns the actual usage from the provider's response. Its cost is recorded as one ledger row. If the provider reported no usage, the worst case is recorded and marked estimated.
 6. If `call` fails and `billed_on_error(exception)` is true (a timeout after the request was sent), the worst case is recorded and marked estimated. Other failures record nothing.
 
-Worst-case estimates: for Claude, the character count of the prompt and payload plus a fixed overhead as the input bound (a token is at least one character) and `AI_MAX_OUTPUT_TOKENS` as the output bound. For speech-to-text, `AI_MAX_AUDIO_SECONDS`.
+Worst-case estimates: for Claude, the system prompt's character count priced as a cache write, plus the payload's character count and a fixed overhead priced as input (a token is at least one character), plus the role's output ceiling. For speech-to-text, `AI_MAX_AUDIO_SECONDS`.
+
+Retries are made by the adapter, not inside the provider SDK, so **each attempt** is a separate `run`: checked, and recorded if it may have been billed. A timed-out attempt followed by a successful retry produces two ledger rows.
 
 ### `BudgetGuard.status() -> {month_start, budget, spent, remaining}`
 

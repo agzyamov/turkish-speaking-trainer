@@ -20,8 +20,8 @@ Audit date: 2026-11-20. Every test file was read and judged against the views, c
 | Phase | Tests affected | Change |
 |---|---|---|
 | 3 (Turkish) | About 30 backend files, 20 frontend unit files, 12 e2e specs | `_sr` → `_tr` fields; Serbian samples → Turkish; `alphabet` field and Latin/Cyrillic cases removed; country `serbia` → `turkey` |
-| 3 | `test_ekavica_policy.py`, `test_transcription_adapter.py`, `serbianScript.test.ts` | Retired. Replaced by Turkish text-policy tests (C-17) and the ElevenLabs adapter tests, which already exist |
-| 3 | 12 backend files that construct the legacy OpenAI adapters | Ported to the provider-neutral fakes, then the OpenAI adapters are deleted |
+| 3 | `test_ekavica_policy.py`, `test_transcription_adapter.py`, `serbianScript.test.ts` | Backend files retired 2026-11-20, replaced by `test_turkish_text.py` and the ElevenLabs adapter tests. `serbianScript.test.ts` goes with the frontend alphabet toggle (Phase 4) |
+| 3 | 12 backend files that constructed the OpenAI adapters | Done 2026-11-20: ported to the Claude and ElevenLabs adapters over fake clients (`backend/tests/providers.py`); OpenAI adapters deleted |
 | 4 (frontend restructure) | 11 unit files (about 110 assertions) and 35 e2e files (about 200 class locators, 50 bounding-box checks, 35 hardcoded colors) | Selectors moved from CSS classes and pixel geometry to roles and labels **before** the restyle; pixel and color checks become Phase 6 screenshot baselines |
 | 5 (rebrand) | About 15 files | SerboTalk, `serbotalk.app`, `com.serbiantalk.trainer`, the review alias and the previous owner's name and email replaced by the single brand module and synthetic identities |
 
@@ -48,10 +48,10 @@ Audit date: 2026-11-20. Every test file was read and judged against the views, c
 | C-11 configuration | Model ids and limits, yes. Prices and budget, yes (new) |
 | C-12, Q-6 validated output | Yes for both the legacy and the new adapters |
 | C-13 timeouts and bounded retries | Yes for the new adapters |
-| C-14 no real provider in tests | By convention only: fakes are opt-in and nothing blocks the network. CI holds no provider keys, which is the actual safeguard |
+| C-14 no real provider in tests | Partly structural: an autouse fixture gives every test a throwaway spend ledger, and adapter tests use fake clients; nothing blocks the network itself. CI holds no provider keys, which is the actual safeguard |
 | C-15 skill catalogue | Yes |
 | C-16 versioned prompts | No |
-| C-17 Turkish text rules | No (Phase 3) |
+| C-17 Turkish text rules | Yes: `test_turkish_text.py`, plus Turkish casing in hint alignment and suffix-negation guards |
 | C-19 both locales | One direction only (every English entry is used). Parity test planned for Phase 4 |
 | C-20, C-22 frontend boundaries | No (dependency-cruiser, Phases 1 and 4) |
 | C-21, Q-10 tokens, accessibility, visual | No (Phase 6) |

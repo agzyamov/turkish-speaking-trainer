@@ -14,8 +14,8 @@ logger = logging.getLogger("app.failures")
 class FailureDiagnostic(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True)
     kind: Literal["external_model", "response_parse", "response_return"]
-    stage: Literal["configuration", "budget", "provider_request", "structured_output", "serbian_policy", "grounding", "persistence", "serialization", "server_return"]
-    reason: Literal["not_configured", "budget_exhausted", "user_daily_budget_exhausted", "price_unknown", "timeout", "connection", "rate_limit", "quota", "authentication", "provider_status", "provider_failure", "model_refusal", "incomplete_output", "canonical_changed", "invalid_schema", "internal_parse_failure", "missing_output", "ekavica_violation", "unknown_skill", "invalid_severity", "unsupported_evidence", "non_lexical_correction", "contradictory_verdict", "missing_issue", "dialect_verdict", "persistence_failed", "serialization_failed", "server_return_failed"]
+    stage: Literal["configuration", "budget", "provider_request", "structured_output", "target_policy", "grounding", "persistence", "serialization", "server_return"]
+    reason: Literal["not_configured", "budget_exhausted", "user_daily_budget_exhausted", "price_unknown", "timeout", "connection", "rate_limit", "quota", "authentication", "provider_status", "provider_failure", "model_refusal", "incomplete_output", "canonical_changed", "invalid_schema", "internal_parse_failure", "missing_output", "script_violation", "unknown_skill", "invalid_severity", "unsupported_evidence", "non_lexical_correction", "contradictory_verdict", "missing_issue", "persistence_failed", "serialization_failed", "server_return_failed"]
     retryable: bool
     diagnostic_id: str
     provider_status: int | None = None
@@ -36,7 +36,7 @@ def _sdk_error_types(name: str) -> tuple[type[BaseException], ...]:
     """The same-named error class from each provider SDK that is installed."""
     import importlib
     found: list[type[BaseException]] = []
-    for sdk in ("anthropic", "openai"):
+    for sdk in ("anthropic",):
         try:
             found.append(getattr(importlib.import_module(sdk), name))
         except (ImportError, AttributeError):

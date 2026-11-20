@@ -12,7 +12,6 @@ dependencies = [
   "fastapi>=0.115,<1",
   "httpx>=0.28,<1",
   "PyJWT[crypto]>=2.10,<3",
-  "openai>=2.54,<3",
   "pydantic-settings>=2.7,<3",
   "psycopg[binary]>=3.2,<4",
   "python-multipart>=0.0.20,<1",
@@ -88,7 +87,7 @@ name = "C-03 services do not import FastAPI"
 type = "forbidden"
 source_modules = ["app.services", "app.repositories", "app.models"]
 forbidden_modules = ["fastapi", "starlette"]
-# Known deviation, removed in Phase 2 (see docs/architecture/views/module-layered.md). Do not add more.
+# Known deviation (see docs/architecture/views/module-layered.md). Do not add more.
 ignore_imports = ["app.services.transcription_service -> fastapi"]
 
 [[tool.importlinter.contracts]]
@@ -98,7 +97,4 @@ source_modules = ["app"]
 forbidden_modules = ["anthropic", "openai"]
 ignore_imports = [
   "app.services.anthropic_adapter -> anthropic",
-  # Legacy OpenAI adapters, kept until their tests are ported. Removed in Phase 3. Do not add more.
-  "app.services.ai_adapter -> openai",
-  "app.services.transcription_adapter -> openai",
 ]

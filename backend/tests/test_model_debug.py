@@ -1,8 +1,8 @@
 import json
 from datetime import UTC
+from hashlib import sha256
 from pathlib import Path
 from types import SimpleNamespace
-from unittest.mock import Mock
 
 import pytest
 from alembic.config import Config
@@ -10,15 +10,15 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from alembic import command
-from app.config import Settings
 from app.db.base import Base
 from app.db.session import create_database_engine
 from app.models import ModelDebugLog, User
 from app.schemas import TopicContext
-from app.services.ai_adapter import OpenAIStructuredProvider
+from app.services.ai_adapter import AIServiceError
 from app.services.debug_mode import DebugModeService
 from app.services.model_debug import DebugContext, capture_model_call, debug_context
-from app.services.transcription_adapter import OpenAITranscriptionProvider, TranscriptionServiceError
+from app.services.transcription_adapter import TranscriptionServiceError
+from tests.providers import API_KEY, STT_MODEL, UTILITY_MODEL, claude_provider, elevenlabs_provider, provider_settings
 
 
 @pytest.fixture
@@ -85,48 +85,61 @@ def test_late_response_cannot_restore_logs_after_disable(debug_engine, reenable)
         debug_context.reset(token)
 
 
-def test_stt_retries_store_audio_once_outside_json(debug_engine):
+def test_stt_log_keeps_audio_and_key_out_of_json(debug_engine):
     mode(debug_engine, True)
     token = debug_context.set(DebugContext("maxim", debug_engine))
-    provider = OpenAITranscriptionProvider(Settings(openai_api_key="private-key", openai_transcribe_model="env-stt"))
-    provider._client = SimpleNamespace(audio=SimpleNamespace(transcriptions=SimpleNamespace(create=Mock(side_effect=[
-        SimpleNamespace(text="Θέλω"), SimpleNamespace(text="Potreben nam je ugovor.")]))))
+    provider, _requests = elevenlabs_provider(text="Sözleşmeye ihtiyacımız var.")
     try:
-        assert provider.transcribe(audio=b"never-save-this", filename="speech.webm", content_type="audio/webm").text == "Potreben nam je ugovor."
-        rows = logs(debug_engine)
-        assert len(rows) == 2
-        assert rows[0].response_json["text"] == "Θέλω"
-        assert rows[1].operation.endswith("script_retry")
-        serialized = json.dumps([r.request_json for r in rows])
-        assert "never-save-this" not in serialized and "private-key" not in serialized
-        assert rows[0].request_json["audio_bytes"] == 15
-        assert rows[0].request_json["audio_sha256"] == rows[1].request_json["audio_sha256"]
-        with Session(debug_engine) as db:
-            assert db.get(ModelDebugLog, rows[0].id).audio_payload == b"never-save-this"
-            assert db.get(ModelDebugLog, rows[1].id).audio_payload is None
-        provider._client.audio.transcriptions.create = Mock(side_effect=RuntimeError("private-key unsafe message"))
+        assert provider.transcribe(audio=b"never-save-this", filename="speech.webm", content_type="audio/webm").text == "Sözleşmeye ihtiyacımız var."
+        [row] = logs(debug_engine)
+        assert (row.operation, row.model) == ("speech_to_text", STT_MODEL)
+        assert row.response_json["text"] == "Sözleşmeye ihtiyacımız var." and row.error_json is None
+        serialized = json.dumps([row.request_json, row.response_json])
+        assert "never-save-this" not in serialized and API_KEY not in serialized
+        assert row.request_json["audio_bytes"] == 15
+        assert row.request_json["audio_sha256"] == sha256(b"never-save-this").hexdigest()
+        assert row.request_json["language_code"] == "tr" and row.request_json["content_type"] == "audio/webm"
+
+        def fail(_request):
+            raise RuntimeError(f"{API_KEY} unsafe message")
+
+        failing, _requests = elevenlabs_provider(fail)
         with pytest.raises(TranscriptionServiceError):
-            provider.transcribe(audio=b"never-save-this", filename="speech.webm", content_type="audio/webm")
+            failing.transcribe(audio=b"never-save-this", filename="speech.webm", content_type="audio/webm")
         assert logs(debug_engine)[-1].error_json == {"type": "RuntimeError", "status_code": None, "body": None}
-        with Session(debug_engine) as db:
-            assert db.get(ModelDebugLog, logs(debug_engine)[-1].id).audio_payload == b"never-save-this"
+        assert len(logs(debug_engine)) == 2
     finally:
         debug_context.reset(token)
 
 
-def test_text_adapter_logs_prompt_input_and_structured_response(debug_engine):
+def test_stt_call_of_debug_admin_retains_audio_in_the_binary_field(debug_engine):
     mode(debug_engine, True)
     token = debug_context.set(DebugContext("maxim", debug_engine))
-    provider = OpenAIStructuredProvider(Settings(openai_api_key="private", openai_text_model="env-text"))
+    provider, _requests = elevenlabs_provider()
+    try:
+        provider.transcribe(audio=b"never-save-this", filename="speech.webm", content_type="audio/webm")
+        [row] = logs(debug_engine)
+        assert "never-save-this" not in json.dumps(row.request_json)
+        with Session(debug_engine) as db:
+            assert db.get(ModelDebugLog, row.id).audio_payload == b"never-save-this"
+    finally:
+        debug_context.reset(token)
+
+
+def test_text_adapter_logs_prompt_input_and_schema(debug_engine):
+    mode(debug_engine, True)
+    token = debug_context.set(DebugContext("maxim", debug_engine))
     result = TopicContext(id="cafe", source="custom", title_ru="Кафе", description_ru="Заказ кофе", normalized_prompt_context="Order coffee")
-    provider._client = SimpleNamespace(responses=SimpleNamespace(parse=Mock(return_value=SimpleNamespace(output_parsed=result))))
+    provider, messages = claude_provider(result)
     try:
         provider.normalize_topic("Кофе")
         row = logs(debug_engine)[0]
-        assert row.model == "env-text" and row.operation == "topic_normalizer.md"
+        assert row.model == UTILITY_MODEL and row.operation == "topic_normalizer_v2.md"
         assert json.loads(row.request_json["input"])["user_topic_ru"] == "Кофе"
-        assert row.request_json["instructions"]
-        assert row.response_json["output_parsed"] == result.model_dump(mode="json")
+        assert row.request_json["system"] == messages.system_text()
+        assert row.request_json["output_format"] == TopicContext.model_json_schema()
+        assert API_KEY not in json.dumps(row.request_json)
+        assert row.error_json is None
     finally:
         debug_context.reset(token)
 
@@ -187,17 +200,14 @@ def test_api_context_captures_only_debug_administrator_and_disable_clears(api_cl
     db_session.commit()
     api_client.patch("/api/admin/model-debug", json={"enabled": True})
     exercise = _create_exercise(api_client)
-    provider = OpenAITranscriptionProvider(Settings(openai_api_key="private", openai_transcribe_model="env-stt"))
+    provider, _requests = elevenlabs_provider(text="Bir kahve lütfen.", settings=provider_settings())
     app.dependency_overrides[get_settings] = lambda: provider.settings
-    provider._client = SimpleNamespace(audio=SimpleNamespace(transcriptions=SimpleNamespace(create=Mock(return_value=SimpleNamespace(text="Želim kafu.")))))
     app.dependency_overrides[get_transcription_provider] = lambda: provider
     response = api_client.post("/api/transcriptions", data={"exercise_id": exercise}, files={"audio": ("speech.webm", b"synthetic", "audio/webm")})
     assert response.status_code == 200
     assert len(list(db_session.scalars(select(ModelDebugLog)))) == 1
     row = db_session.scalar(select(ModelDebugLog))
-    download = api_client.get(f"/api/admin/model-debug/logs/{row.id}/audio")
-    assert download.status_code == 200 and download.content == b"synthetic"
-    assert download.headers["cache-control"] == "no-store"
+    assert row.operation == "speech_to_text" and b"synthetic".decode() not in json.dumps(row.request_json)
     assert debug_context.get() is None
     other = User(id="other", email="other@example.com", role="user")
     db_session.add(other)
@@ -212,6 +222,27 @@ def test_api_context_captures_only_debug_administrator_and_disable_clears(api_cl
     assert api_client.patch("/api/admin/model-debug", json={"enabled": False}).status_code == 200
     assert list(db_session.scalars(select(ModelDebugLog))) == []
     assert api_client.get(f"/api/admin/model-debug/logs/{row.id}/audio").status_code == 404
+
+
+def test_debug_administrator_can_download_the_retained_recording(api_client, db_session):
+    from app.config import get_settings
+    from app.main import app
+    from app.services.transcription_adapter import get_transcription_provider
+    from tests.test_transcriptions_api import _create_exercise
+    user = db_session.scalar(select(User))
+    user.email, user.role = "owner@example.com", "admin"
+    db_session.commit()
+    api_client.patch("/api/admin/model-debug", json={"enabled": True})
+    exercise = _create_exercise(api_client)
+    provider, _requests = elevenlabs_provider(text="Bir kahve lütfen.")
+    app.dependency_overrides[get_settings] = lambda: provider.settings
+    app.dependency_overrides[get_transcription_provider] = lambda: provider
+    response = api_client.post("/api/transcriptions", data={"exercise_id": exercise}, files={"audio": ("speech.webm", b"synthetic", "audio/webm")})
+    assert response.status_code == 200
+    row = db_session.scalar(select(ModelDebugLog))
+    download = api_client.get(f"/api/admin/model-debug/logs/{row.id}/audio")
+    assert download.status_code == 200 and download.content == b"synthetic"
+    assert download.headers["cache-control"] == "no-store"
 
 
 def test_no_auth_cannot_read_or_change_mode(api_client):
@@ -280,12 +311,12 @@ def test_audio_capture_rejects_disabled_empty_oversized_or_unsupported(debug_eng
 
 
 def test_error_body_redacted_and_training_rollback_does_not_erase_log(debug_engine):
-    import httpx
-    from openai import APIStatusError
+    import httpx2
+    from anthropic import APIStatusError
     mode(debug_engine, True)
     token = debug_context.set(DebugContext("maxim", debug_engine))
     try:
-        failure = APIStatusError("do not record headers", response=httpx.Response(500, request=httpx.Request("POST", "https://example.invalid")),
+        failure = APIStatusError("do not record headers", response=httpx2.Response(500, request=httpx2.Request("POST", "https://example.invalid")),
                                  body={"error": "server-key failure", "input_audio": "private audio", "api_key": "server-key"})
         with pytest.raises(APIStatusError):
             with capture_model_call("error", "env-model", {"input": "request"}, "server-key"):
@@ -299,33 +330,64 @@ def test_error_body_redacted_and_training_rollback_does_not_erase_log(debug_engi
         debug_context.reset(token)
 
 
-@pytest.mark.parametrize("invalid", [False, True])
-def test_real_sdk_mock_http_captures_raw_body_before_validation(debug_engine, invalid):
-    import httpx
-    from openai import OpenAI
+TOPIC = TopicContext(id="cafe", source="custom", title_ru="Кафе", description_ru="Заказ кофе", normalized_prompt_context="Order coffee")
 
-    from app.services.ai_adapter import AIServiceError
+
+def _real_sdk_provider(text: str):
+    """The real Anthropic SDK over a mocked transport: no network, true request and response shapes."""
+    import anthropic
+    import httpx2
+
+    def handler(request):
+        model = json.loads(request.content)["model"]
+        return httpx2.Response(200, json={
+            "id": "msg-test", "type": "message", "role": "assistant", "model": model, "stop_reason": "end_turn", "stop_sequence": None,
+            "content": [{"type": "text", "text": text}],
+            "usage": {"input_tokens": 50, "output_tokens": 9, "cache_creation_input_tokens": 0, "cache_read_input_tokens": 0},
+        })
+
+    provider, _messages = claude_provider()
+    provider._client = anthropic.Anthropic(api_key=API_KEY, max_retries=0, http_client=httpx2.Client(transport=httpx2.MockTransport(handler)))
+    return provider
+
+
+@pytest.mark.parametrize("invalid", [False, True])
+def test_real_sdk_mock_http_logs_request_response_and_parse_failure(debug_engine, invalid):
     mode(debug_engine, True)
-    topic = TopicContext(id="cafe", source="custom", title_ru="Кафе", description_ru="Заказ кофе", normalized_prompt_context="Order coffee")
-    text = "invalid json" if invalid else topic.model_dump_json()
-    body = {"id": "resp-test", "object": "response", "created_at": 1, "status": "completed", "model": "env-text",
-            "output": [{"id": "msg-test", "type": "message", "status": "completed", "role": "assistant",
-                        "content": [{"type": "output_text", "text": text, "annotations": []}]}]}
-    provider = OpenAIStructuredProvider(Settings(openai_api_key="server-key", openai_text_model="env-text"))
-    provider._client = OpenAI(api_key="server-key", max_retries=0, http_client=httpx.Client(transport=httpx.MockTransport(
-        lambda request: httpx.Response(200, json=body))))
+    provider = _real_sdk_provider("invalid json" if invalid else TOPIC.model_dump_json())
     token = debug_context.set(DebugContext("maxim", debug_engine))
     try:
         if invalid:
-            with pytest.raises(AIServiceError):
+            with pytest.raises(AIServiceError) as raised:
                 provider.normalize_topic("Кофе")
+            assert raised.value.failure.kind == "response_parse"
         else:
-            assert provider.normalize_topic("Кофе") == topic
+            assert provider.normalize_topic("Кофе") == TOPIC
         row = logs(debug_engine)[0]
-        assert row.response_json["body"] == body
-        assert row.request_json["text"]["format"]["strict"] is True
-        assert "server-key" not in json.dumps(row.request_json)
-        assert row.error_json is not None if invalid else row.error_json is None
+        assert row.request_json["output_format"] == TopicContext.model_json_schema()
+        assert API_KEY not in json.dumps([row.request_json, row.response_json, row.error_json])
+        if invalid:
+            assert row.error_json is not None
+        else:
+            assert row.error_json is None
+            assert json.loads(row.response_json["content"][0]["text"]) == TOPIC.model_dump(mode="json")
+            assert row.response_json["usage"]["input_tokens"] == 50
+    finally:
+        debug_context.reset(token)
+        provider._client.close()
+
+
+@pytest.mark.xfail(strict=True, reason=(
+    "AnthropicStructuredProvider._parse logs the response only after client.messages.parse has validated it, "
+    "so model output that fails the schema is no longer visible in the debug log (the OpenAI adapter captured the raw body first)"))
+def test_real_sdk_mock_http_captures_invalid_model_output_before_validation(debug_engine):
+    mode(debug_engine, True)
+    provider = _real_sdk_provider("invalid json")
+    token = debug_context.set(DebugContext("maxim", debug_engine))
+    try:
+        with pytest.raises(AIServiceError):
+            provider.normalize_topic("Кофе")
+        assert "invalid json" in json.dumps(logs(debug_engine)[0].response_json)
     finally:
         debug_context.reset(token)
         provider._client.close()

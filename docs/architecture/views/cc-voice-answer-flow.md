@@ -46,11 +46,11 @@ sequenceDiagram
 
 | Step | Behaviour | Status |
 |---|---|---|
-| Quota check | Per-user daily limit; applies to both requests | Existing on `/attempts` only; extended in Phase 2 |
+| Quota check | Daily phrase quota on grading, and the per-user daily spend limit on every AI call | Existing |
 | Budget check | Refuses the call if month-to-date spend, or this user's spend today, plus this call's worst case exceeds its limit | Existing |
-| Transcription | Audio is held in memory for the call and then released | Existing behaviour; provider changes in Phase 2 |
-| Exact match | Normalised comparison using Turkish rules; no AI | Existing; Turkish rules in Phase 3 |
-| Grading | Structured output validated against `AnswerAnalysis`; unknown skills discarded | Existing; provider changes in Phase 2 |
+| Transcription | Audio is held in memory for the call and then released | Existing |
+| Exact match | Normalised comparison using Turkish rules; no AI. Look-alike Cyrillic letters inside Latin words are repaired first | Existing |
+| Grading | Structured output validated against `AnswerAnalysis`; unknown skills discarded | Existing |
 | Cost recording | One ledger row per provider call, from measured usage | Existing |
 | Idempotency | An attempt is reserved with a lease so a retried request is not graded or charged twice | Existing |
 

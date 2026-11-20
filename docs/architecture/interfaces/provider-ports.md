@@ -23,7 +23,9 @@ Status: Existing.
 
 | Operation | Returns | Used for |
 |---|---|---|
-| `transcribe(audio, filename, content_type)` | `TranscriptionResponse` | Spoken answers and spoken feedback |
+| `transcribe(audio, filename, content_type)` | `TranscriptionResponse` | Spoken answers |
+| `transcribe_feedback(audio, filename, content_type)` | `FeedbackTranscript` | Spoken feedback; the language is detected, not fixed |
+| `for_model(model)` | the same provider on another configured model | The debug admin's diagnostic model choice; makes no call |
 | `is_available` | `bool` | |
 
 ### Transcription assistance (`TranscriptionAssistanceProvider`)
@@ -41,7 +43,7 @@ Status: Existing.
 | Structured AI, Transcription assistance | `anthropic_adapter.py`: Claude through the official `anthropic` SDK, structured outputs parsed into the schema, system prompt cached | Grading uses `ANTHROPIC_GRADING_MODEL`; everything else uses `ANTHROPIC_UTILITY_MODEL` |
 | Transcription | `elevenlabs_adapter.py`: ElevenLabs Scribe over HTTPS with language `TARGET_LANGUAGE_CODE` (`tr`) | Spoken feedback omits the language so the provider detects it |
 
-The legacy OpenAI adapters are still in the code for tests not yet ported. They are not wired into the application and are removed in Phase 3.
+The OpenAI adapters were removed on 2026-11-20.
 
 ## Requirements on every adapter
 

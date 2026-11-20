@@ -18,7 +18,7 @@ sys.path.insert(0, str(ROOT / "backend"))
 from app.config import get_settings
 from app.db.topic_phrases import TOPIC_PHRASES
 from app.db.topic_phrases_en import TOPIC_PHRASES_EN
-from app.services.ai_adapter import OpenAIStructuredProvider
+from app.services.anthropic_adapter import AnthropicStructuredProvider
 from app.services.hint_alignment import aligned_word_hints
 
 
@@ -39,7 +39,7 @@ def main():
                      "canonical": p["intended_tr_variants_json"][0]}
                     for p in json.loads(args.manual.read_text(encoding="utf-8")))
     def prepare(job):
-        provider = OpenAIStructuredProvider(get_settings())
+        provider = AnthropicStructuredProvider(get_settings())
         result = provider.prepare_phrase(source_ru=job["source"], canonical_tr=job["canonical"])
         hints = aligned_word_hints(job["source"], job["canonical"], [h.model_dump() for h in result.word_hints])
         if not hints:

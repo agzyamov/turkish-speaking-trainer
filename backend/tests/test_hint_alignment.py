@@ -1,5 +1,3 @@
-from unittest.mock import Mock
-
 import pytest
 
 from app.services.hint_alignment import aligned_word_hints
@@ -9,9 +7,8 @@ def hint(source, target):
     return {"word_ru": source, "translation_tr": target}
 
 
-@pytest.mark.parametrize("canonical", ["Nemam s kim da pričam.", "Немам с ким да причам."])
-def test_short_nonliteral_fragment_replaces_literal_words(canonical):
-    assert aligned_word_hints("Мне не с кем поговорить.", canonical, [
+def test_short_nonliteral_fragment_replaces_literal_words():
+    assert aligned_word_hints("Мне не с кем поговорить.", "Nemam s kim da pričam.", [
         hint("мне", "mi"), hint("мне не с кем", "nemam s kim"),
         hint("не", "ne"), hint("с", "s"), hint("кем", "kim"), hint("поговорить", "da pričam"),
     ]) == [hint("мне не с кем", "nemam s kim"), hint("поговорить", "da pričam")]
@@ -85,19 +82,27 @@ def test_personal_canonical_never_borrows_preset_english_hints():
 
 
 def test_new_preparation_prompt_filters_noncanonical_model_hints_and_preserves_canonical():
-    from types import SimpleNamespace
-
-    from app.config import Settings
-    from app.schemas.exercises import PhrasePreparation
-    from app.services.ai_adapter import AIServiceError, OpenAIStructuredProvider
-    provider = OpenAIStructuredProvider(Settings(openai_api_key="mock", openai_text_model="from-env"))
-    parse = Mock(return_value=SimpleNamespace(output_parsed=PhrasePreparation(
+    from app.schemas.exercises import BilingualPhrasePreparation, PhrasePreparation
+    from app.services.ai_adapter import AIServiceError
+    from tests.providers import UTILITY_MODEL, claude_provider
+    provider, messages = claude_provider(PhrasePreparation(
         intended_tr_variants=["Nemam s kim da pričam."], source_versions={"ru": "Мне не с кем поговорить.", "en": "I have nobody to talk to."}, word_hints=[
-            hint("мне", "mi"), hint("мне не с кем", "nemam s kim"), hint("поговорить", "da pričam")])))
-    provider._client = SimpleNamespace(responses=SimpleNamespace(parse=parse))
+            hint("мне", "mi"), hint("мне не с кем", "nemam s kim"), hint("поговорить", "da pričam")]))
     result = provider.prepare_phrase(source_ru="Мне не с кем поговорить.", canonical_tr="Nemam s kim da pričam.")
     assert [h.word_ru for h in result.word_hints] == ["мне не с кем", "поговорить"]
-    assert "максимум 4" in parse.call_args.kwargs["instructions"]
-    assert parse.call_args.kwargs["model"] == "from-env"
-    with pytest.raises(AIServiceError):
+    assert "at most four" in messages.system_text()
+    assert messages.last["model"] == UTILITY_MODEL
+    assert messages.last["output_format"] is BilingualPhrasePreparation
+    with pytest.raises(AIServiceError) as changed:
         provider.prepare_phrase(source_ru="Мне не с кем поговорить.", canonical_tr="Nemam s kim da razgovaram.")
+    assert changed.value.failure.reason == "canonical_changed"
+
+
+def test_turkish_capital_i_keeps_its_hint():
+    """C-17: "Ilık" lowercases to "ılık", and "İstanbul'a" stays one word."""
+    hints = aligned_word_hints("Тёплую воду, пожалуйста", "Ilık su, lütfen.",
+                               [{"word_ru": "тёплую", "translation_tr": "ılık"}, {"word_ru": "воду", "translation_tr": "su"}])
+    assert [hint["translation_tr"] for hint in hints] == ["ılık", "su"]
+    hints = aligned_word_hints("Я еду в Стамбул завтра утром на поезде", "Yarın sabah trenle İstanbul'a gidiyorum.",
+                               [{"word_ru": "в Стамбул", "translation_tr": "İstanbul'a"}, {"word_ru": "завтра утром", "translation_tr": "yarın sabah"}])
+    assert [hint["translation_tr"] for hint in hints] == ["İstanbul'a", "yarın sabah"]

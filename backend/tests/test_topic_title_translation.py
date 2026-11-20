@@ -1,17 +1,16 @@
-from types import SimpleNamespace
 from unittest.mock import Mock
 
 import pytest
 from sqlalchemy import select
 
 from app.api.dependencies import get_current_user
-from app.config import Settings
 from app.main import app
 from app.models import ReviewPhrase, TopicPreset, User
 from app.schemas.topics import TopicTitleTranslation
-from app.services.ai_adapter import AIServiceError, OpenAIStructuredProvider, get_ai_provider
+from app.services.ai_adapter import AIServiceError, get_ai_provider
 from app.services.interface_language import interface_language
 from tests.fakes import FakeAIProvider
+from tests.providers import UTILITY_MODEL, claude_provider
 
 
 @pytest.mark.parametrize(("source", "language", "translation", "ru", "en"), [
@@ -66,15 +65,14 @@ def test_network_translation_failure_does_not_create_topic_and_retry_works(api_c
 
 
 def test_title_adapter_uses_validated_structured_output_and_env_model():
-    provider = OpenAIStructuredProvider(Settings(_env_file=None, openai_api_key="synthetic", openai_text_model="env-model", openai_timeout_seconds=2, openai_max_retries=0))
-    parse = Mock(return_value=SimpleNamespace(output_parsed={"source_language": "ru", "translated_title": "My work"}))
-    provider._client = SimpleNamespace(responses=SimpleNamespace(parse=parse))
+    provider, messages = claude_provider({"source_language": "ru", "translated_title": "My work"})
     token = interface_language.set("en")
     try:
         assert provider.translate_topic_title("Моя работа").translated_title == "My work"
     finally:
         interface_language.reset(token)
-    assert parse.call_args.kwargs["model"] == "env-model"
-    assert parse.call_args.kwargs["text_format"] is TopicTitleTranslation
-    assert parse.call_args.kwargs["store"] is False
-    assert '"interface_language": "en"' in parse.call_args.kwargs["input"]
+    [call] = messages.calls
+    assert call["model"] == UTILITY_MODEL
+    assert call["output_format"] is TopicTitleTranslation
+    assert '"interface_language": "en"' in messages.user_text()
+    assert '"title": "Моя работа"' in messages.user_text() and "Моя работа" not in messages.system_text()

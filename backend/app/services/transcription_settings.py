@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from app.config import Settings
 from app.repositories.model_debug import ModelDebugRepository
 from app.repositories.users import UserRepository
-from app.schemas.transcription_settings import TranscriptionModelOption, TranscriptionModelSettings
+from app.schemas.transcription_settings import TranscriptionModelSettings
 from app.services.model_debug import can_debug
 
 
@@ -13,13 +13,11 @@ class TranscriptionSettingsService:
         self.repository = ModelDebugRepository(db, user_id)
         self.users = UserRepository(db)
 
-    def options(self) -> dict[str, TranscriptionModelOption]:
-        options = {option.model: option for option in self.settings.openai_transcribe_models}
-        if self.settings.openai_transcribe_model:
-            options.setdefault(self.settings.openai_transcribe_model, TranscriptionModelOption(
-                model=self.settings.openai_transcribe_model,
-                language_parameter=self.settings.openai_transcribe_language_parameter))
-        return options
+    def options(self) -> list[str]:
+        models = list(self.settings.elevenlabs_stt_models)
+        if self.settings.elevenlabs_stt_model and self.settings.elevenlabs_stt_model not in models:
+            models.append(self.settings.elevenlabs_stt_model)
+        return models
 
     def selected(self) -> str | None:
         user = self.users.get(self.user_id)
@@ -32,8 +30,8 @@ class TranscriptionSettingsService:
     def read(self) -> TranscriptionModelSettings:
         selected = self.selected()
         return TranscriptionModelSettings(selected_model=selected,
-            effective_model=selected or self.settings.openai_transcribe_model,
-            default_model=self.settings.openai_transcribe_model, options=list(self.options()))
+            effective_model=selected or self.settings.elevenlabs_stt_model,
+            default_model=self.settings.elevenlabs_stt_model, options=self.options())
 
     def change(self, model: str | None) -> TranscriptionModelSettings:
         if model is not None and model not in self.options():
@@ -41,11 +39,3 @@ class TranscriptionSettingsService:
         self.repository.select_transcription_model(model)
         self.db.commit()
         return self.read()
-
-    def provider_settings(self) -> Settings:
-        selected = self.selected()
-        if selected is None:
-            return self.settings
-        option = self.options()[selected]
-        return self.settings.model_copy(update={"openai_transcribe_model": option.model,
-            "openai_transcribe_language_parameter": option.language_parameter})

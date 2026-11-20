@@ -1,5 +1,3 @@
-from typing import Literal
-
 from fastapi import UploadFile
 from pydantic import ValidationError
 from sqlalchemy.orm import Session
@@ -11,11 +9,11 @@ from app.schemas import TranscriptionResponse
 from app.schemas.transcriptions import TranscriptionAssistanceAnalysis
 from app.services.ai_adapter import AIServiceError
 from app.services.failure_diagnostics import DiagnosticFailure, classify_provider_error, record_failure
-from app.services.serbian_text import has_unexpected_letter_script, normalized_serbian_words, serbian_latin
-from app.services.transcription_adapter import OpenAITranscriptionProvider, TranscriptionProvider, TranscriptionServiceError
+from app.services.transcription_adapter import TranscriptionProvider, TranscriptionServiceError
 from app.services.transcription_assistance import POLICY_VERSION, validate_analysis
 from app.services.transcription_assistance_adapter import TranscriptionAssistanceProvider
 from app.services.transcription_settings import TranscriptionSettingsService
+from app.services.turkish_text import canonical_form, has_unexpected_letter_script, normalized_words
 
 ALLOWED_AUDIO_TYPES = {
     "audio/webm": ".webm",
@@ -53,17 +51,14 @@ class TranscriptionService:
         self.receipts = TranscriptionReceiptRepository(db, user_id)
         self.assistance_provider = assistance_provider
 
-    def transcribe(self, *, exercise_id: str, audio: UploadFile, assistance_enabled: bool = False,
-                   alphabet: Literal["latin", "cyrillic"] = "latin") -> TranscriptionResponse:
+    def transcribe(self, *, exercise_id: str, audio: UploadFile, assistance_enabled: bool = False) -> TranscriptionResponse:
         exercise = self.exercises.get_owned(exercise_id)
         if exercise is None:
             raise TranscriptionExerciseNotFoundError(exercise_id)
         provider = self.provider
-        if isinstance(provider, OpenAITranscriptionProvider):
-            configured = TranscriptionSettingsService(self.db, self.settings, self.exercises.user_id).provider_settings()
-            scoped = OpenAITranscriptionProvider(configured, alphabet)
-            scoped._client = provider.client if provider.is_available else None
-            provider = scoped
+        selected_model = TranscriptionSettingsService(self.db, self.settings, self.exercises.user_id).selected()
+        if selected_model:
+            provider = provider.for_model(selected_model)
         if not provider.is_available:
             raise TranscriptionServiceError("transcription_not_configured")
 
@@ -89,7 +84,7 @@ class TranscriptionService:
         if has_unexpected_letter_script(result.text) or result.review_required:
             # Preserve the original spelling for manual review; never run assistance or scoring.
             return TranscriptionResponse(text=result.text, review_required=True)
-        raw = serbian_latin(result.text)
+        raw = canonical_form(result.text)
         if not assistance_enabled:
             return TranscriptionResponse(text=raw)
         variants = list(exercise.target_hints_json.get("intended_tr_variants", []))
@@ -98,18 +93,18 @@ class TranscriptionService:
             variants.append(str(canonical))
         # validate_analysis already discards proposals for these exact references.
         # Return the original transcript without an AI call or assistance receipt.
-        normalized = normalized_serbian_words(raw)
-        if normalized and normalized in {normalized_serbian_words(v) for v in variants}:
+        normalized = normalized_words(raw)
+        if normalized and normalized in {normalized_words(v) for v in variants}:
             return TranscriptionResponse(text=raw)
         if not self.assistance_provider.is_available:
             return TranscriptionResponse(text=raw, raw_text=raw, assistance_status="unavailable")
         try:
             analysis = TranscriptionAssistanceAnalysis.model_validate(self.assistance_provider.analyze(
                 source_ru=exercise.source_ru, raw_text=raw,
-                canonical_tr=serbian_latin(str(canonical)) if canonical else None,
-                intended_tr_variants=[serbian_latin(v) for v in variants],
+                canonical_tr=canonical_form(str(canonical)) if canonical else None,
+                intended_tr_variants=[canonical_form(v) for v in variants],
             ))
-            changes = validate_analysis(raw, [serbian_latin(v) for v in variants], analysis)
+            changes = validate_analysis(raw, [canonical_form(v) for v in variants], analysis)
         except (AIServiceError, ValidationError, ValueError) as exc:
             record_failure(exc.failure if isinstance(exc, DiagnosticFailure) else classify_provider_error(exc))
             return TranscriptionResponse(text=raw, raw_text=raw, assistance_status="unavailable")
@@ -118,7 +113,3 @@ class TranscriptionService:
             policy_version=POLICY_VERSION, changes=changes, assistance_status="analyzed")
         self.db.commit()
         return response
-
-
-def serbian_cyrillic_to_latin(text: str) -> str:
-    return serbian_latin(text)

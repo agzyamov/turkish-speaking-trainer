@@ -6,6 +6,8 @@ goes through the budget guard (C-09); model ids come from settings (C-11).
 from __future__ import annotations
 
 import json
+import time
+from collections.abc import Callable
 from typing import Literal
 
 import anthropic
@@ -44,11 +46,21 @@ def measured_usage(response) -> Usage | None:
     )
 
 
+def is_retryable(exc: BaseException) -> bool:
+    """Transient failures worth another attempt: timeouts, lost connections, rate limits and server errors."""
+    if is_provider_timeout(exc) or isinstance(exc, anthropic.APIConnectionError):
+        return True
+    return isinstance(exc, anthropic.APIStatusError) and (exc.status_code == 429 or exc.status_code >= 500)
+
+
 class AnthropicStructuredProvider:
-    def __init__(self, settings: Settings, *, timeout_seconds: float | None = None, max_retries: int | None = None) -> None:
+    def __init__(self, settings: Settings, *, timeout_seconds: float | None = None, max_retries: int | None = None,
+                 deadline_seconds: float | None = None, sleep: Callable[[float], None] = time.sleep) -> None:
         self.settings = settings
         self._timeout_seconds = settings.anthropic_timeout_seconds if timeout_seconds is None else timeout_seconds
         self._max_retries = settings.anthropic_max_retries if max_retries is None else max_retries
+        self._deadline_seconds = settings.anthropic_call_deadline_seconds if deadline_seconds is None else deadline_seconds
+        self._sleep = sleep
         self._client: anthropic.Anthropic | None = None
 
     @property
@@ -60,11 +72,8 @@ class AnthropicStructuredProvider:
         if not self.is_available:
             raise AIServiceError("Claude is not configured", diagnostic("external_model", "configuration", "not_configured", retryable=False))
         if self._client is None:
-            self._client = anthropic.Anthropic(
-                api_key=self.settings.anthropic_api_key,
-                timeout=self._timeout_seconds,
-                max_retries=self._max_retries,
-            )
+            # Retries are made here, outside the SDK, so each attempt passes the budget guard and is recorded.
+            self._client = anthropic.Anthropic(api_key=self.settings.anthropic_api_key, timeout=self._timeout_seconds, max_retries=0)
         return self._client
 
     def _model(self, role: ModelRole) -> str:
@@ -79,7 +88,7 @@ class AnthropicStructuredProvider:
 
     def normalize_topic(self, text: str) -> TopicContext:
         return self._parse(
-            prompt_name="topic_normalizer.md", role="utility", schema=TopicContext,
+            prompt_name="topic_normalizer_v2.md", role="utility", schema=TopicContext,
             payload={"user_topic_ru": text, "target_level": "A2"},
         )
 
@@ -92,7 +101,7 @@ class AnthropicStructuredProvider:
         retry_reason: str | None = None,
     ) -> ExerciseGenerationResult:
         return self._parse(
-            prompt_name="exercise_generator_v2.md", role="utility", schema=ExerciseGenerationResult,
+            prompt_name="exercise_generator_v3.md", role="utility", schema=ExerciseGenerationResult,
             payload={
                 "topic": topic.model_dump(),
                 "target_skills": target_skills,
@@ -113,7 +122,7 @@ class AnthropicStructuredProvider:
         validation_feedback: str | None = None,
     ) -> AnswerAnalysis:
         return self._parse(
-            prompt_name="answer_analyzer_v5.md", role="grading", schema=ExplainedAnswerAnalysis,
+            prompt_name="answer_analyzer_v7.md", role="grading", schema=ExplainedAnswerAnalysis,
             payload={
                 "source_text": source_ru,
                 "feedback_language": interface_language.get(),
@@ -130,7 +139,7 @@ class AnthropicStructuredProvider:
     def prepare_phrase(self, *, source_ru: str, canonical_tr: str | None = None) -> PhrasePreparation:
         from app.schemas.exercises import BilingualPhrasePreparation
         return self._parse(
-            prompt_name="phrase_preparation_v4.md", role="utility", schema=BilingualPhrasePreparation,
+            prompt_name="phrase_preparation_v5.md", role="utility", schema=BilingualPhrasePreparation,
             payload={"source_ru": source_ru, "canonical_tr": canonical_tr, "target_level": "A2"},
         )
 
@@ -140,29 +149,27 @@ class AnthropicStructuredProvider:
             model = self._model(role)
             instructions = build_instructions(prompt_name)
             input_json = json.dumps(payload, ensure_ascii=False)
-            max_tokens = self.settings.ai_max_output_tokens
-            # A token is at least one character, so the character count bounds the input from above.
-            worst_case = Usage(provider=PROVIDER, model=model, output_tokens=max_tokens,
-                               input_tokens=len(instructions) + len(input_json) + REQUEST_OVERHEAD_TOKENS)
+            grading = role == "grading"
+            max_tokens = self.settings.anthropic_grading_max_tokens if grading else self.settings.anthropic_utility_max_tokens
+            effort = self.settings.anthropic_grading_effort if grading else self.settings.anthropic_utility_effort
+            # A token is at least one character, so character counts bound the input from above. The system
+            # prompt is priced as a cache write, the dearest way it can be billed.
+            worst_case = Usage(provider=PROVIDER, model=model, output_tokens=max_tokens, cache_write_tokens=len(instructions),
+                               input_tokens=len(input_json) + REQUEST_OVERHEAD_TOKENS)
             with capture_model_call(prompt_name, model, {
                 "model": model, "system": instructions, "input": input_json,
                 "output_format": schema.model_json_schema(), "max_tokens": max_tokens,
             }, self.settings.anthropic_api_key) as debug, measure_ai_call():
-                response = BudgetGuard(self.settings).run(
-                    purpose=prompt_name,
-                    worst_case=worst_case,
-                    call=lambda: client.messages.parse(
-                        model=model,
-                        max_tokens=max_tokens,
-                        # The prompt is identical across requests, so it is cached; the payload varies and follows it.
-                        system=[{"type": "text", "text": instructions, "cache_control": {"type": "ephemeral"}}],
-                        messages=[{"role": "user", "content": input_json}],
-                        output_format=schema,
-                        output_config={"effort": self.settings.anthropic_effort},
-                    ),
-                    measure=measured_usage,
-                    billed_on_error=is_provider_timeout,
+                request = dict(
+                    model=model,
+                    max_tokens=max_tokens,
+                    # The prompt is identical across requests, so it is cached; the payload varies and follows it.
+                    system=[{"type": "text", "text": instructions, "cache_control": {"type": "ephemeral"}}],
+                    messages=[{"role": "user", "content": input_json}],
+                    output_format=schema,
+                    output_config={"effort": effort},
                 )
+                response = self._guarded_with_retries(client, request, prompt_name, worst_case)
                 debug.received(response)
             stop_reason = getattr(response, "stop_reason", None)
             if stop_reason == "refusal":
@@ -186,17 +193,42 @@ class AnthropicStructuredProvider:
             raise AIServiceError("Claude request failed", classify_provider_error(exc)) from exc
 
 
+    def _guarded_with_retries(self, client: anthropic.Anthropic, request: dict, purpose: str, worst_case: Usage):
+        """One logical call: each attempt is budget-checked and recorded; all attempts fit within the deadline."""
+        guard = BudgetGuard(self.settings)
+        deadline = time.monotonic() + self._deadline_seconds
+        attempt = 0
+        while True:
+            timeout = min(self._timeout_seconds, deadline - time.monotonic())
+            try:
+                return guard.run(
+                    purpose=purpose,
+                    worst_case=worst_case,
+                    call=lambda timeout=timeout: client.messages.parse(**request, timeout=timeout),
+                    measure=measured_usage,
+                    billed_on_error=is_provider_timeout,
+                )
+            except Exception as exc:
+                attempt += 1
+                backoff = self.settings.anthropic_retry_backoff_seconds * 2 ** (attempt - 1)
+                # Give up when out of attempts, or when too little time is left for a useful attempt.
+                if not is_retryable(exc) or attempt > self._max_retries or deadline - time.monotonic() - backoff < 3:
+                    raise
+                self._sleep(backoff)
+
+
 class AnthropicTranscriptionAssistanceProvider(AnthropicStructuredProvider):
     """Soft hints on a transcript: same model access, a much shorter time budget."""
 
     def __init__(self, settings: Settings) -> None:
-        super().__init__(settings, timeout_seconds=settings.anthropic_assistance_timeout_seconds,
-                         max_retries=settings.anthropic_assistance_max_retries)
+        timeout = settings.anthropic_assistance_timeout_seconds
+        retries = settings.anthropic_assistance_max_retries
+        super().__init__(settings, timeout_seconds=timeout, max_retries=retries, deadline_seconds=timeout * (retries + 1) + 1)
 
     def analyze(self, *, source_ru: str, raw_text: str, canonical_tr: str | None,
                 intended_tr_variants: list[str]) -> TranscriptionAssistanceAnalysis:
         return self._parse(
-            prompt_name="transcription_assistance_v3.md", role="utility", schema=TranscriptionAssistanceAnalysis,
+            prompt_name="transcription_assistance_v4.md", role="utility", schema=TranscriptionAssistanceAnalysis,
             payload={"source_ru": source_ru, "raw_text": raw_text, "canonical_tr": canonical_tr,
-                     "intended_tr_variants": intended_tr_variants},
+                     "intended_tr_variants": intended_tr_variants, "feedback_language": interface_language.get()},
         )

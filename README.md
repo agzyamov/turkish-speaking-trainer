@@ -1,3 +1,5 @@
+> **This repository is being converted from SerboTalk (a Serbian trainer on OpenAI) to a Turkish trainer on Claude and ElevenLabs.** The Russian-language sections below describe the original Serbian product and are kept as history; their configuration notes (OpenAI keys, Ekavica, the alphabet toggle) no longer apply. Current architecture: [docs/architecture/](docs/architecture/README.md). Current configuration: [.env.example](.env.example). Rules for coding agents: [AGENTS.md](AGENTS.md).
+
 # Serbian Speaking Trainer
 
 ## 02.11.2026 — открытый тест Android доступен с лендинга

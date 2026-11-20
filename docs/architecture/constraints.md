@@ -13,7 +13,7 @@ The **Enforced by** column says how a violation is caught. "Check" means an auto
 | C-01 | Backend dependencies point one way: `api → services → repositories → models/db`. A lower layer never imports a higher one. | Check: import-linter (`just backend-arch`) |
 | C-02 | Routers in `app/api` only validate input, call services and map errors to HTTP. They contain no business rules and no database queries. | Review |
 | C-03 | Business rules in `app/services` do not import FastAPI. | Check: import-linter (`just backend-arch`) |
-| C-04 | Provider SDKs (`anthropic`, `elevenlabs`, any other AI SDK) are imported only inside adapter modules that implement a provider port. No other module refers to a concrete provider class. | Check: import-linter (`just backend-arch`). Two legacy OpenAI adapters are listed exceptions until Phase 3 |
+| C-04 | Provider SDKs (`anthropic`, `elevenlabs`, any other AI SDK) are imported only inside adapter modules that implement a provider port. No other module refers to a concrete provider class. | Check: import-linter (`just backend-arch`) |
 | C-05 | SQLAlchemy models and Alembic migrations change together. Every migration has a working downgrade. ORM models are never returned directly as API responses. | Review; migration tests |
 
 ### Data and privacy
@@ -29,11 +29,11 @@ The **Enforced by** column says how a violation is caught. "Check" means an auto
 | ID | Rule | Enforced by |
 |---|---|---|
 | C-09 | Every call to an AI provider goes through the budget guard, which refuses the call when the monthly budget would be exceeded and records the actual cost afterwards. There is no other path to a provider. | Check: `backend/tests/test_architecture_budget.py` |
-| C-10 | No single user can spend more than their daily share of the AI budget. The budget guard enforces a per-user daily spend limit on every AI call, in addition to the daily phrase quota on answer grading. | Check: `backend/tests/test_ai_spend_api.py` |
+| C-10 | No single user can spend more than their daily share of the AI budget. The budget guard enforces a per-user daily spend limit on every AI call, in addition to the daily phrase quota on answer grading. | Check: `backend/tests/test_ai_spend_api.py`; `test_architecture_usage_context.py` asserts every route that can reach a provider carries the spend context |
 | C-11 | Model ids, prices and the budget amount come from configuration. None is written into business logic. An account is an administrator only if configuration names it; there are no built-in administrators. | Review; adapter tests assert env-provided model ids |
 | C-12 | Every model response the program acts on is validated against a Pydantic schema. Free text from a model is never parsed with regular expressions. | Review |
 | C-13 | Every external AI call has a timeout, a bounded number of retries and a safe error. | Review |
-| C-14 | Automated tests never call a real AI provider. They use the fakes in `backend/tests/fakes.py`. | Review; CI has no provider keys |
+| C-14 | Automated tests never call a real AI provider. They use the fakes in `backend/tests/fakes.py` and the fake-client adapters in `backend/tests/providers.py`. | Review; CI has no provider keys |
 | C-15 | The model may not add skills to the skill catalogue. Unknown `skill_key` values in model output are discarded. | Existing tests |
 | C-16 | Prompts are separate versioned files in `backend/app/prompts`. A changed prompt gets a new version file. | Review |
 

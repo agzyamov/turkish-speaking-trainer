@@ -41,11 +41,11 @@ flowchart LR
 | Android app | The same build inside a Capacitor WebView; calls the backend by absolute URL | Existing |
 | Static frontend | Serves the build; rewrites `/api/*` to the backend | Existing |
 | Backend function | Stateless FastAPI app, one invocation per request, 60 s limit | Existing |
-| PostgreSQL | All persistent state, including the usage ledger | Existing; ledger Planned (Phase 2) |
+| PostgreSQL | All persistent state, including the usage ledger | Existing |
 | Supabase Auth | Issues user tokens (Google, email code, review password) | Existing |
-| Claude API | Grading, hints, phrase preparation, topic handling | Planned (Phase 2); OpenAI today |
-| ElevenLabs Scribe | Speech-to-text | Planned (Phase 2); OpenAI today |
-| Telegram | Admin notifications, including budget alerts | Existing; budget alerts Planned (Phase 2) |
+| Claude API | Grading, hints, phrase preparation, topic handling | Existing; not yet exercised against the live service |
+| ElevenLabs Scribe | Speech-to-text | Existing; not yet exercised against the live service |
+| Telegram | Admin notifications, including budget alerts | Existing |
 
 | Connector | Properties |
 |---|---|

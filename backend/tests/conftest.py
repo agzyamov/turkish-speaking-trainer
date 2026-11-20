@@ -27,6 +27,22 @@ def synthetic_administrator(monkeypatch):
 
 
 @pytest.fixture(autouse=True)
+def isolated_usage_ledger():
+    """Every test gets its own throwaway spend ledger, so a guarded adapter never touches a real database.
+
+    Tests that go through the API or set ``usage_context`` themselves replace it for their own scope.
+    """
+    from app.models import AIUsageEvent
+    from app.services.budget_guard import UsageContext, usage_context
+    engine = create_database_engine("sqlite+pysqlite:///:memory:")
+    AIUsageEvent.__table__.create(engine)
+    token = usage_context.set(UsageContext(user_id=None, engine=engine))
+    yield engine
+    usage_context.reset(token)
+    engine.dispose()
+
+
+@pytest.fixture(autouse=True)
 def no_live_telegram(monkeypatch):
     # Local credentials must never turn automated tests into real notifications.
     monkeypatch.setattr("app.services.notifications.send_notification", lambda *_args: True)

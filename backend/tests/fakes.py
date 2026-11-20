@@ -73,6 +73,15 @@ class FakeTranscriptionProvider:
         self.calls.append({"audio": audio, "filename": filename, "content_type": content_type})
         return TranscriptionResponse(text=self.text)
 
+    def transcribe_feedback(self, *, audio: bytes, filename: str, content_type: str):
+        from app.schemas.feedback import FeedbackTranscript
+        self.calls.append({"audio": audio, "filename": filename, "content_type": content_type, "feedback": True})
+        return FeedbackTranscript(text=self.text)
+
+    def for_model(self, model: str) -> "FakeTranscriptionProvider":
+        self.model = model
+        return self
+
 
 class FakeTranscriptionAssistanceProvider:
     def __init__(self, *, available: bool = True, result: TranscriptionAssistanceAnalysis | None = None,

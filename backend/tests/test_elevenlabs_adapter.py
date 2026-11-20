@@ -145,3 +145,24 @@ def test_audio_and_key_never_reach_the_logs(ledger, caplog):
 def test_default_factory_returns_the_elevenlabs_adapter():
     from app.services.transcription_adapter import get_transcription_provider
     assert isinstance(get_transcription_provider(), ElevenLabsTranscriptionProvider)
+
+
+def test_each_retry_attempt_is_recorded_separately(ledger):
+    calls = []
+
+    def flaky(request):
+        calls.append(request)
+        if len(calls) == 1:
+            raise httpx.ReadTimeout("slow", request=request)
+        return httpx.Response(200, json=OK)
+
+    provider(flaky, elevenlabs_max_retries=1).transcribe(audio=AUDIO, filename="a.webm", content_type="audio/webm")
+    assert len(calls) == 2
+    assert sorted(event.estimated for event in events(ledger)) == [False, True]
+
+
+def test_model_override_shares_one_http_client():
+    base = provider(lambda _r: httpx.Response(200, json=OK))
+    first, second = base.for_model("stt-alt"), base.for_model("stt-alt")
+    assert first.client is base.client and second.client is base.client
+    assert first.settings.elevenlabs_stt_model == "stt-alt"

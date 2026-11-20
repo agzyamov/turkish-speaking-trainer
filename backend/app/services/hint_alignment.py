@@ -2,7 +2,7 @@
 import re
 
 from app.schemas.exercises import WordHint
-from app.services.serbian_text import serbian_latin
+from app.services.turkish_text import turkish_lower
 
 WORD = re.compile(r"[^\W_]+(?:[-'’][^\W_]+)*", re.UNICODE)
 MAX_SOURCE_WORDS = 4
@@ -10,7 +10,13 @@ MAX_TARGET_WORDS = 5
 
 
 def words(text: str) -> list[str]:
+    """Source-side words (Russian or English): ordinary case folding is correct there."""
     return WORD.findall(text.casefold())
+
+
+def target_words(text: str) -> list[str]:
+    """Turkish words, lowercased by Turkish rules so I/ı and İ/i stay distinct and whole (C-17)."""
+    return WORD.findall(turkish_lower(text))
 
 
 def aligned_word_hints(source: str, canonical: str, hints: list[dict[str, str]]) -> list[dict[str, str]]:
@@ -20,7 +26,7 @@ def aligned_word_hints(source: str, canonical: str, hints: list[dict[str, str]])
     preparation prompt supply meaning. Identical repeated keys share one hint;
     conflicting translations of a repeated key are withheld rather than guessed.
     """
-    target = words(serbian_latin(canonical))
+    target = target_words(canonical)
     source_matches = list(WORD.finditer(source))
     source_words = [match.group().casefold() for match in source_matches]
     candidates: dict[str, tuple[dict[str, str], list[tuple[int, int]]]] = {}
@@ -29,7 +35,7 @@ def aligned_word_hints(source: str, canonical: str, hints: list[dict[str, str]])
         hint = WordHint.model_validate(raw).model_dump()
         key = hint["word_ru"].strip().casefold()
         fragment = words(key)
-        translation = words(serbian_latin(hint["translation_tr"]))
+        translation = target_words(hint["translation_tr"])
         if not 1 <= len(fragment) <= MAX_SOURCE_WORDS or not 1 <= len(translation) <= MAX_TARGET_WORDS:
             continue
         # Compare complete tokens, preserving diacritics; mi must not match nemam.
@@ -40,7 +46,7 @@ def aligned_word_hints(source: str, canonical: str, hints: list[dict[str, str]])
                  and source[source_matches[i].start():source_matches[i + len(fragment) - 1].end()].casefold() == key]
         if not spans:
             continue
-        if key in candidates and words(candidates[key][0]["translation_tr"]) != words(hint["translation_tr"]):
+        if key in candidates and target_words(candidates[key][0]["translation_tr"]) != target_words(hint["translation_tr"]):
             conflicts.add(key)
         candidates[key] = ({"word_ru": key, "translation_tr": hint["translation_tr"].strip()}, spans)
     occupied: set[int] = set()

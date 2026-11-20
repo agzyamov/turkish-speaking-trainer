@@ -68,7 +68,7 @@ class DebugCapture:
 
     def attach_audio(self, payload: bytes, content_type: str):
         # Only the initial STT call stores bytes; retries use the same SHA-256.
-        if self.enabled and self.operation == "audio.transcriptions" and 0 < len(payload) <= 1_000_000:
+        if self.enabled and self.operation in {"audio.transcriptions", "speech_to_text"} and 0 < len(payload) <= 1_000_000:
             if content_type in {"audio/webm", "audio/ogg", "audio/mp4", "audio/mpeg", "audio/wav", "audio/x-wav"}:
                 self.audio, self.audio_content_type = payload, content_type
 

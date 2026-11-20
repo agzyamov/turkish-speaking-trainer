@@ -66,6 +66,12 @@ class ElevenLabsTranscriptionProvider:
             )
         return self._client
 
+    def for_model(self, model: str) -> ElevenLabsTranscriptionProvider:
+        scoped = ElevenLabsTranscriptionProvider(self.settings.model_copy(update={"elevenlabs_stt_model": model}), transport=self._transport)
+        if self.is_available:
+            scoped._client = self.client  # one shared connection pool; only the model differs
+        return scoped
+
     def transcribe(self, *, audio: bytes, filename: str, content_type: str) -> TranscriptionResponse:
         return TranscriptionResponse(text=self._transcribe("speech_to_text", audio, filename, content_type, self.settings.target_language_code))
 
@@ -75,27 +81,17 @@ class ElevenLabsTranscriptionProvider:
         return FeedbackTranscript(text=self._transcribe("speech_to_text.feedback", audio, filename, content_type, None))
 
     def _post(self, client: httpx.Client, model: str, audio: bytes, filename: str, content_type: str, language: str | None) -> dict:
+        """One HTTP attempt. Retries happen in ``_transcribe`` so each attempt is budget-checked and recorded."""
         data = {"model_id": model, "tag_audio_events": "false"}
         if language:
             data["language_code"] = language
-        attempts = self.settings.elevenlabs_max_retries + 1
-        for attempt in range(attempts):
-            last = attempt == attempts - 1
-            try:
-                response = client.post("/v1/speech-to-text", data=data, files={"file": (filename, audio, content_type)})
-            except httpx.TransportError:
-                if last:
-                    raise
-                continue
-            if response.status_code >= 500 and not last:
-                continue
-            if response.status_code >= 400:
-                raise _RetryableStatus(response.status_code)
-            body = response.json()
-            if not isinstance(body, dict):
-                raise TranscriptionServiceError("transcription_invalid_response")
-            return body
-        raise AssertionError("unreachable")
+        response = client.post("/v1/speech-to-text", data=data, files={"file": (filename, audio, content_type)})
+        if response.status_code >= 400:
+            raise _RetryableStatus(response.status_code)
+        body = response.json()
+        if not isinstance(body, dict):
+            raise TranscriptionServiceError("transcription_invalid_response")
+        return body
 
     def _transcribe(self, operation: str, audio: bytes, filename: str, content_type: str, language: str | None) -> str:
         try:
@@ -106,13 +102,24 @@ class ElevenLabsTranscriptionProvider:
                 "model_id": model, "language_code": language, "content_type": content_type,
                 "audio_bytes": len(audio), "audio_sha256": sha256(audio).hexdigest(),
             }, self.settings.elevenlabs_api_key) as debug, measure_ai_call():
-                body = BudgetGuard(self.settings).run(
-                    purpose=operation,
-                    worst_case=worst_case,
-                    call=lambda: self._post(client, model, audio, filename, content_type, language),
-                    measure=measured_usage(model),
-                    billed_on_error=lambda exc: isinstance(exc, httpx.TimeoutException),
-                )
+                # Kept only for the debug admin with debugging on (the C-06 exception); a no-op otherwise.
+                debug.attach_audio(audio, content_type)
+                guard = BudgetGuard(self.settings)
+                attempts = self.settings.elevenlabs_max_retries + 1
+                for attempt in range(attempts):
+                    try:
+                        body = guard.run(
+                            purpose=operation,
+                            worst_case=worst_case,
+                            call=lambda: self._post(client, model, audio, filename, content_type, language),
+                            measure=measured_usage(model),
+                            billed_on_error=lambda exc: isinstance(exc, httpx.TimeoutException),
+                        )
+                        break
+                    except (httpx.TransportError, _RetryableStatus) as exc:
+                        transient = isinstance(exc, httpx.TransportError) or exc.status_code >= 500
+                        if not transient or attempt == attempts - 1:
+                            raise
                 debug.received({"text": body.get("text"), "language_code": body.get("language_code"),
                                 "language_probability": body.get("language_probability")})
             text = body.get("text")

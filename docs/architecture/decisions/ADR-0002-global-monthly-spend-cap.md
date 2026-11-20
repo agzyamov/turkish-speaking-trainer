@@ -19,7 +19,7 @@ The inherited backend recorded no usage and capped nothing. Only one of seven AI
 - The guard is invoked inside each adapter, not by the services that use them. A service in the inherited code builds its own adapter instance, which would have bypassed a guard placed in front of the port.
 - Per-user fairness is a daily spend limit enforced by the guard on every AI call (free and Premium amounts set by configuration, admins exempt). The plan had been to copy the daily phrase quota onto each AI endpoint, but that quota counts graded answers and would not have limited transcription or topic calls made without grading.
 - Exhaustion is reported through the existing failure channel as `failure.reason` instead of a new top-level error type, so existing recovery paths apply unchanged.
-- Server-side refusal fallback to a second model is not enabled: a fallback model is billed at a different rate and would complicate cost measurement. A refusal is treated as a failed call.
+- Server-side refusal fallback to a second model is not enabled. A refusal is treated as a failed call. The reasons are recorded in ADR-0007.
 
 ## Alternatives considered
 - Rely on the provider console's spend limit only: not available uniformly across both providers, gives users an opaque failure, and cannot cover two providers under one figure. Kept as a backstop.

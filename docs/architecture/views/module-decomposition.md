@@ -33,18 +33,18 @@ flowchart TB
 | Module | Responsibility | Status |
 |---|---|---|
 | `api/` | One router per resource. Validates requests, resolves dependencies, calls services, maps domain errors to HTTP | Existing |
-| `schemas/` | Pydantic models for requests, responses and validated model output | Existing; `_sr` fields become `_tr` (Phase 3) |
+| `schemas/` | Pydantic models for requests, responses and validated model output | Existing |
 | `services/` domain | `attempt_service`, `answer_analyzer`, `session_service`, `topic_service`, `review_service`, `exercise_generator`, `scheduler`, `learner_model`, `statistics_service`, `word_hints`, `hint_alignment`, `payments`, `auth_service`, `feedback`, `account_deletion` | Existing |
-| `services/` text policy | Turkish casing, alphabet check and normalisation for comparison | Changing: `serbian_text.py` and `serbian_standard.py` are replaced by `turkish_text.py` (Phase 3) |
-| `services/` provider ports | `StructuredAIProvider`, `TranscriptionProvider`, `TranscriptionAssistanceProvider` protocols | Existing; signatures renamed in Phase 3 |
-| `services/` adapters | One adapter per provider implementing a port | Existing: `anthropic_adapter.py` (Claude) and `elevenlabs_adapter.py` (Scribe) are wired in. Legacy OpenAI adapters are removed in Phase 3 |
+| `services/` text policy | `turkish_text.py`: Turkish casing, alphabet check and normalisation for comparison | Existing |
+| `services/` provider ports | `StructuredAIProvider`, `TranscriptionProvider`, `TranscriptionAssistanceProvider` protocols | Existing |
+| `services/` adapters | `anthropic_adapter.py` (Claude) and `elevenlabs_adapter.py` (Scribe), one per provider, each implementing a port | Existing |
 | `services/budget_guard.py`, `services/ai_usage.py` | Checks the monthly budget and the per-user daily limit before an AI call, records measured cost after it, alerts the admin at thresholds | Existing |
 | `services/notifications.py` | Telegram messages to the admin | Existing |
 | `services/failure_diagnostics.py`, `model_debug.py`, `debug_mode.py` | Safe error classification and the debug-admin diagnostics | Existing |
 | `repositories/` | All database queries and transaction handling, one module per aggregate | Existing, including `usage.py` for the ledger |
 | `models/` | SQLAlchemy entities | Existing, including `ai_usage_events` |
 | `db/` | Engine and session setup, seed CLI, seeded catalogue (topics, phrases, hints, skills) | Existing; content re-authored in Turkish (Phase 3) |
-| `prompts/` | Versioned prompt files | Existing; Turkish versions in Phase 3 |
+| `prompts/` | Versioned prompt files, Turkish versions written in English (ADR-0007) | Existing |
 | `config.py` | Settings read from the environment | Existing, including provider, price and budget settings |
 
 ### Frontend (`frontend/src`)
@@ -57,7 +57,7 @@ flowchart TB
 | `shared/i18n/` | Keyed translations in Russian and English | Changing: today `i18n.ts` uses the Russian string as the key (Phase 4) |
 | `api/` | Typed functions for every backend endpoint; the only place that calls `fetch` | Existing |
 | platform | `voiceRecorder.ts`, `auth.ts`, `emailAuth.ts`, reward audio, Capacitor plugins | Existing; kept as is |
-| `serbianScript.ts` | Latin/Cyrillic conversion | Changing: removed; Turkish needs no script toggle (Phase 3) |
+| `serbianScript.ts` | Latin/Cyrillic conversion | Changing: removed with the alphabet toggle (Phase 4); the backend no longer accepts the `alphabet` field |
 | `landing-entry.tsx`, `LandingPage.tsx` | Marketing page, separate HTML entry | Existing |
 | `android/` | Capacitor Android project | Existing; re-identified in Phase 5 |
 

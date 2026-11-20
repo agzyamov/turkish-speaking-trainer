@@ -333,9 +333,9 @@ class ExerciseGenerator:
                 )
                 retry_reason = None
                 if not self._is_russian_source(result.source_ru):
-                    retry_reason = "source_ru должен быть полностью на русском языке кириллицей, без сербских слов или латиницы."
+                    retry_reason = "source_ru must be entirely in Russian, written in Cyrillic, with no Turkish words or Latin letters."
                 elif self._too_similar(result.source_ru, recent_sources):
-                    retry_reason = "Фраза слишком похожа на недавнюю; выбери другую ситуацию и формулировку."
+                    retry_reason = "The sentence is too similar to a recent one; choose a different situation and wording."
                 if retry_reason:
                     result = ExerciseGenerationResult.model_validate(
                         self.ai.generate_exercise(

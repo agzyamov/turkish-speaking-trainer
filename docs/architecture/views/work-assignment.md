@@ -8,11 +8,11 @@ Shows who is responsible for which part and who decides what.
 |---|---|---|
 | Product scope, budget, providers, brand, releases | Owner | Owner |
 | Architecture documents and constraints | Agent drafts; owner approves any change to a constraint or decision | Owner |
-| `backend/` | Backend agent role | Owner on escalation cases |
-| `frontend/` | Frontend agent role | Owner on escalation cases |
-| Tests and verification | QA agent role | n/a |
-| Review | Reviewer agent role (read-only) | n/a |
-| `docs/` | Docs agent role | n/a |
+| `backend/` | `backend` subagent | Owner on escalation cases |
+| `frontend/` | `frontend` subagent | Owner on escalation cases |
+| Tests and verification | `qa` subagent | n/a |
+| Review against the architecture | `reviewer` subagent (read-only tools) | n/a |
+| `docs/` | `docs` subagent | n/a |
 | Turkish content correctness | Agent generates; a native speaker reviews before public launch | Owner |
 | Deployments, store submissions, provider consoles, secrets | Owner only | Owner |
 
@@ -24,7 +24,9 @@ Shows who is responsible for which part and who decides what.
 | Reviewer agent | Read and report | Edit |
 | Owner | Everything | n/a |
 
-Agent role definitions for Codex are in `.codex/agents/`. Claude Code uses `CLAUDE.md` and `.claude/settings.json`. Both read `AGENTS.md`.
+The roles are Claude Code subagents defined in `.claude/agents/*.md` (Markdown with YAML frontmatter: `name`, `description`, optional `tools` and `model`; the body is the subagent's instructions). Claude Code loads `CLAUDE.md` into every custom subagent, and `CLAUDE.md` imports `AGENTS.md`, so all roles share one rule set. Tool calls from subagents go through the same permission checks and sandbox as the main session (`.claude/settings.json`). The `reviewer` is limited to read-only tools plus `Bash` for `git` and test commands; its instructions forbid modifying files.
+
+Other coding agents that read `AGENTS.md` directly get the same rules without the Claude-specific role definitions. The previous Codex role files were removed on 2026-11-20 when the project moved to Claude.
 
 ## Context
 

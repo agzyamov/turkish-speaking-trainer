@@ -99,7 +99,7 @@ def test_submit_incorrect_attempt_creates_error_event(api_client: TestClient, db
         naturalness_score=0.2, fluency_score=1, corrected_tr="Ne znam.",
         short_feedback_ru="Попробуйте ещё раз.", detailed_feedback_ru="Нужно передать исходный смысл.",
         issues=[AnswerIssue(type="meaning", skill_key=skill_key, severity=0.8, confidence=0.9,
-                            evidence="Ne znam.", correction="Исправленный вариант",
+                            evidence="Ne znam.", correction="Hesap açmak istiyorum.",
                             explanation_ru="Ответ означает «не знаю» и не выражает просьбу из задания.")],
     ))
 
@@ -277,3 +277,14 @@ def test_same_client_request_id_is_scoped_to_user(api_client: TestClient, db_ses
     })
     assert response.status_code == 201
     assert db_session.scalar(select(func.count()).select_from(AttemptRequest)) == 2
+
+
+def test_lookalike_cyrillic_letters_in_a_typed_answer_are_graded_not_rejected(api_client):
+    """A Russian keyboard can put Cyrillic а/о/е inside a Latin word; that is repaired for grading (C-18 keeps the text)."""
+    session = api_client.post("/api/sessions/start", json={"topic_id": api_client.get("/api/topics").json()[0]["id"]}).json()
+    exercise = session.get("exercise") or session.get("first_exercise") or session
+    mixed = "Hesаp аçmаk istiyоrum."
+    response = api_client.post("/api/attempts", json={"exercise_id": exercise["id"], "transcript_tr": mixed})
+    assert response.status_code != 422 or response.json().get("detail", {}).get("code") != "transcript_unexpected_script"
+    foreign = api_client.post("/api/attempts", json={"exercise_id": exercise["id"], "transcript_tr": "Хочу открыть счёт"})
+    assert foreign.status_code == 422 and foreign.json()["detail"]["code"] == "transcript_unexpected_script"

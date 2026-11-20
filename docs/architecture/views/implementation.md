@@ -8,6 +8,7 @@ Shows where modules live in the repository and how they are built and checked.
 .
 ├── AGENTS.md, CLAUDE.md        rules for coding agents
 ├── .claude/settings.json       agent sandbox and permissions
+├── .claude/agents/             Claude Code subagents: backend, frontend, qa, reviewer, docs
 ├── .githooks/, .gitleaks.toml  secret scanning before every commit
 ├── justfile                    one entry point for every check
 ├── .github/workflows/ci.yml    continuous integration

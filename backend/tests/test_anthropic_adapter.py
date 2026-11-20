@@ -23,7 +23,8 @@ TITLE = TopicTitleTranslation(source_language="ru", translated_title="Bank")
 
 def make_settings(**overrides) -> Settings:
     values = dict(_env_file=None, anthropic_api_key="synthetic-key", anthropic_grading_model="grading-from-env",
-                  anthropic_utility_model="utility-from-env", ai_price_table=PRICES, ai_monthly_budget_usd=25)
+                  anthropic_utility_model="utility-from-env", ai_price_table=PRICES, ai_monthly_budget_usd=25,
+                  anthropic_retry_backoff_seconds=0)
     return Settings(**{**values, **overrides})
 
 
@@ -106,10 +107,10 @@ def test_unusable_responses_fail_safely_and_are_still_charged(ledger, stop_reaso
 
 def test_timeout_is_charged_at_worst_case_and_other_failures_are_free(ledger):
     with pytest.raises(AIServiceError) as raised:
-        provider_with(FakeMessages(error=TimeoutError())).translate_topic_title("Банк")
+        provider_with(FakeMessages(error=TimeoutError()), anthropic_max_retries=0).translate_topic_title("Банк")
     assert raised.value.failure.reason == "timeout"
     [event] = events(ledger)
-    assert event.estimated is True and event.output_tokens == 4000
+    assert event.estimated is True and event.output_tokens == 6000
     with pytest.raises(AIServiceError):
         provider_with(FakeMessages(error=ValueError("bad"))).translate_topic_title("Банк")
     assert len(events(ledger)) == 1
@@ -181,6 +182,68 @@ def test_real_sdk_serializes_every_schema_and_parses_a_response(ledger):
 
     for schema in (TopicContext, ExerciseGenerationResult, ExplainedAnswerAnalysis, BilingualPhrasePreparation, TranscriptionAssistanceAnalysis):
         with pytest.raises(AIServiceError) as raised:
-            provider._parse(prompt_name="topic_normalizer.md", role="utility", payload={"x": 1}, schema=schema)
+            provider._parse(prompt_name="topic_normalizer_v2.md", role="utility", payload={"x": 1}, schema=schema)
         assert raised.value.failure.reason == "provider_status", schema.__name__
     assert len(seen) == 6
+
+
+def test_each_retry_attempt_is_checked_and_recorded_separately(ledger):
+    """A timed-out attempt may have been billed, so it is recorded before the retry is made."""
+    calls = []
+
+    class FlakyMessages(FakeMessages):
+        def parse(self, **kwargs):
+            calls.append(kwargs)
+            if len(calls) == 1:
+                raise TimeoutError()
+            return super().parse(**kwargs)
+
+    provider = provider_with(FlakyMessages())
+    assert provider.translate_topic_title("Банк") == TITLE
+    first, second = sorted(events(ledger), key=lambda event: event.estimated, reverse=True)
+    assert (first.estimated, first.output_tokens) == (True, 6000) and (second.estimated, second.output_tokens) == (False, 120)
+    assert all("timeout" in call for call in calls)
+
+
+def test_retries_stop_at_the_configured_count_and_the_sdk_does_not_retry_on_its_own(ledger):
+    messages = FakeMessages(error=TimeoutError())
+    with pytest.raises(AIServiceError):
+        provider_with(messages, anthropic_max_retries=2).translate_topic_title("Банк")
+    assert len(messages.calls) == 3 and len(events(ledger)) == 3
+    assert AnthropicStructuredProvider(make_settings()).client.max_retries == 0
+
+
+def test_a_permanent_error_is_not_retried(ledger):
+    import anthropic
+    import httpx2
+    denied = anthropic.AuthenticationError("bad key", response=httpx2.Response(401, request=httpx2.Request("POST", "https://x")), body=None)
+    messages = FakeMessages(error=denied)
+    with pytest.raises(AIServiceError):
+        provider_with(messages).translate_topic_title("Банк")
+    assert len(messages.calls) == 1
+
+
+def test_no_retry_is_started_when_the_deadline_leaves_too_little_time(ledger):
+    messages = FakeMessages(error=TimeoutError())
+    provider = provider_with(messages)
+    provider._deadline_seconds = 2
+    with pytest.raises(AIServiceError):
+        provider.translate_topic_title("Банк")
+    assert len(messages.calls) == 1
+
+
+def test_grading_uses_its_own_ceiling_and_effort(ledger):
+    from app.schemas.attempts import ExplainedAnswerAnalysis
+    analysis = ExplainedAnswerAnalysis(verdict="correct", semantic_score=1, grammar_score=1, lexical_score=1, naturalness_score=1,
+                                       fluency_score=1, corrected_tr="Bir kahve lütfen.", short_feedback_ru="Верно.", detailed_feedback_ru="Верно.")
+    messages = FakeMessages(parsed=analysis)
+    provider_with(messages).analyze_answer(source_ru="Кофе, пожалуйста.", transcript_tr="Bir kahve lütfen.", canonical_tr="Bir kahve lütfen.",
+                                           intended_tr_variants=[], target_skills=[], timings={})
+    assert (messages.calls[0]["max_tokens"], messages.calls[0]["output_config"]) == (8000, {"effort": "medium"})
+    assert messages.calls[0]["model"] == "grading-from-env"
+
+
+def test_topic_title_prompt_does_not_carry_the_turkish_standard(ledger):
+    messages = FakeMessages()
+    provider_with(messages).translate_topic_title("Банк")
+    assert "Language standard" not in messages.calls[0]["system"][0]["text"]

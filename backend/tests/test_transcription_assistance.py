@@ -1,3 +1,4 @@
+import unicodedata
 from uuid import uuid4
 
 import pytest
@@ -48,14 +49,24 @@ def test_all_candidates_are_kept_with_repeated_words_and_unicode_offsets():
 
 
 @pytest.mark.parametrize("proposal", [
-    candidate("kafa", "kapa", plausible_stt_error=False),
-    candidate("kafa", "kapa", preserves_meaning=False),
-    candidate("kafa", "čaj"), candidate("kafa", "kafa 2"),
-    candidate("12", "13"), candidate("nije", "je"), candidate("u", "i"),
-    candidate("ne znam", "znam"), candidate("kafa", "καφα"),
+    candidate("masa", "kasa", plausible_stt_error=False),
+    candidate("masa", "kasa", preserves_meaning=False),
+    candidate("kahve", "çay"), candidate("kahve", "kahve 2"),
+    candidate("12", "13"), candidate("yok", "çok"), candidate("değil", "değin"), candidate("ve", "de"),
+    candidate("hiç bilmiyorum", "bilmiyorum"), candidate("kahve", "καφε"), candidate("kahve", "кahve"),
+    candidate("kahve", unicodedata.normalize("NFD", "kahvé")),
+    # Turkish negates with a verb suffix; deleting or inserting it flips the meaning (-mA-).
+    candidate("istemiyorum", "istiyorum"), candidate("istiyorum", "istemiyorum"),
+    candidate("gelmedim", "geldim"), candidate("geldim", "gelmedim"), candidate("anlamadım", "anladım"),
 ])
 def test_similarity_alone_cannot_hide_errors_or_change_numbers_negation(proposal):
     assert validate_analysis(proposal.original, [], analysis(proposal)) == []
+
+
+def test_the_rejected_proposals_are_close_enough_that_only_the_guards_stop_them():
+    # The same shapes without a number, negation word, short word or foreign script are suggested.
+    for original, replacement in [("masa", "kasa"), ("çok", "çök"), ("değin", "deyin"), ("hiç bilmiyorum", "hiç bilmiyordum")]:
+        assert len(validate_analysis(original, [], analysis(candidate(original, replacement)))) == 1, (original, replacement)
 
 
 def test_valid_alternate_or_exact_match_is_not_forced_to_canonical():
@@ -143,9 +154,9 @@ def test_assistance_failure_keeps_transcription_and_reports_unavailable(api_clie
 
 @pytest.mark.parametrize("language", ["ru", "en"])
 @pytest.mark.parametrize("text", [
-    "Želim da otvorim račun.", "Hoću da otvorim račun.",
-    "Желим да отворим рачун.", "  ŽELIM   da otvorim račun!  ",
-    "Z\u030celim da otvorim rac\u030cun.",
+    "Hesap açmak istiyorum.", "Bir hesap açmak istiyorum.",
+    "  HESAP   AÇMAK İSTİYORUM!  ", "hesap açmak istiyorum",
+    unicodedata.normalize("NFD", "Hesap açmak istiyorum."),
 ])
 def test_reference_transcript_skips_assistance_and_receipt(api_client, db_session, language, text):
     exercise_id = _create_exercise(api_client)
@@ -153,8 +164,9 @@ def test_reference_transcript_skips_assistance_and_receipt(api_client, db_sessio
     exercise.source_ru = "Я хочу открыть счёт."
     from app.schemas.exercises import SourceVersions
     from app.services.source_versions import version_payload
-    exercise.target_hints_json = {"canonical_tr": "Želim da otvorim račun.", "intended_tr_variants": ["Hoću da otvorim račun."]}
-    exercise.target_hints_json["source_versions"] = version_payload(exercise.source_ru, "Želim da otvorim račun.", SourceVersions(ru=exercise.source_ru, en="I want to open an account."))
+    exercise.target_hints_json = {"canonical_tr": "Hesap açmak istiyorum.", "intended_tr_variants": ["Bir hesap açmak istiyorum."]}
+    exercise.target_hints_json["source_versions"] = version_payload(
+        exercise.source_ru, "Hesap açmak istiyorum.", SourceVersions(ru=exercise.source_ru, en="I want to open an account."))
     db_session.commit()
     provider = FakeTranscriptionAssistanceProvider(error=AssertionError("Exact references must skip AI"))
     app.dependency_overrides[get_transcription_assistance_provider] = lambda: provider
@@ -163,8 +175,8 @@ def test_reference_transcript_skips_assistance_and_receipt(api_client, db_sessio
         data={"exercise_id": exercise_id, "assistance_enabled": "true"},
         files={"audio": ("speech.webm", b"synthetic", "audio/webm")})
     assert response.status_code == 200
-    from app.services.serbian_text import serbian_latin
-    assert response.json() == {"text": serbian_latin(text)}
+    # The learner's words come back verbatim, in one Unicode form.
+    assert response.json() == {"text": unicodedata.normalize("NFC", text)}
     assert provider.calls == []
     assert list(db_session.scalars(select(TranscriptionReceipt))) == []
     checked = api_client.post("/api/attempts", headers={"X-Interface-Language": language},
@@ -175,12 +187,13 @@ def test_reference_transcript_skips_assistance_and_receipt(api_client, db_sessio
 
 
 @pytest.mark.parametrize("raw, hints", [
-    ("Želim da otvorim racun.", {"canonical_tr": "Želim da otvorim račun."}),
-    ("Ne želim da otvorim račun.", {"canonical_tr": "Želim da otvorim račun."}),
-    ("Imam 12 računa.", {"canonical_tr": "Imam 2 računa."}),
-    ("Želim otvoriti račun.", {"canonical_tr": "Želim da otvorim račun."}),
+    ("Hesap acmak istiyorum.", {"canonical_tr": "Hesap açmak istiyorum."}),
+    ("HESAP AÇMAK ISTIYORUM.", {"canonical_tr": "Hesap açmak istiyorum."}),  # ASCII I is the dotless letter
+    ("Hesap açmak istemiyorum.", {"canonical_tr": "Hesap açmak istiyorum."}),
+    ("12 hesabım var.", {"canonical_tr": "2 hesabım var."}),
+    ("Hesap açmayı istiyorum.", {"canonical_tr": "Hesap açmak istiyorum."}),
     ("...", {"canonical_tr": "!", "intended_tr_variants": ["?"]}),
-    ("Moj odgovor.", {}),
+    ("Benim cevabım.", {}),
 ])
 def test_nonmatching_transcript_still_uses_assistance(api_client, db_session, raw, hints):
     exercise_id = _create_exercise(api_client)

@@ -67,8 +67,6 @@ These exist in the code now and are removed in the phase shown. Do not add more.
 
 | Deviation | Removed in |
 |---|---|
-| `transcription_service.py` and `ai_adapter.py` test for concrete OpenAI classes with `isinstance` | Phase 3 |
-| Legacy OpenAI adapters (`OpenAIStructuredProvider`, `OpenAITranscriptionProvider`) remain in the code, unguarded, but are no longer wired into the application; they exist only for tests not yet ported | Phase 3 |
-| `transcription_service.py` takes a FastAPI `UploadFile` (listed as an ignored import in the C-03 contract) | Phase 3 |
+| `transcription_service.py` takes a FastAPI `UploadFile` (listed as an ignored import in the C-03 contract) | Phase 4, with the router clean-up |
 | `db/seed.py` imports repositories and models. It is an offline tool, not part of the request path, and is a permanent, documented exception in the C-01 contract | n/a |
 | Frontend has no layers; `App.tsx` mixes all four | Phase 4 |

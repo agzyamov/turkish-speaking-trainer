@@ -1,7 +1,6 @@
 import json
 from io import BytesIO
 from pathlib import Path
-from types import SimpleNamespace
 from uuid import uuid4
 
 from alembic.config import Config
@@ -14,7 +13,8 @@ from app.main import app
 from app.models import Attempt, Exercise, ReviewPhrase, UserFeedback
 from app.services import notifications
 from app.services.auth_service import LEGACY_USER_ID, AuthenticatedIdentity, UserService
-from app.services.transcription_adapter import OpenAITranscriptionProvider, get_transcription_provider
+from app.services.transcription_adapter import get_transcription_provider
+from tests.providers import STT_MODEL, elevenlabs_provider
 
 real_send_notification = notifications.send_notification
 
@@ -102,20 +102,19 @@ def test_telegram_payload_timeout_and_safe_failure(monkeypatch, caplog):
     assert "synthetic-token" not in caplog.text and "private email" not in caplog.text
 
 
-def test_feedback_transcription_uses_no_serbian_language_or_debug_storage(api_client):
-    provider = OpenAITranscriptionProvider(Settings(_env_file=None, openai_api_key="synthetic", openai_transcribe_model="test-model"))
-    calls = []
-    def create(**kwargs):
-        calls.append(kwargs)
-        return SimpleNamespace(text="Мне нравится приложение.")
-    provider._client = SimpleNamespace(audio=SimpleNamespace(transcriptions=SimpleNamespace(create=create)))
+def test_feedback_transcription_sends_no_target_language(api_client):
+    # Feedback may be spoken in any language: the Turkish language hint must not be sent, and Cyrillic text is returned as is.
+    provider, requests = elevenlabs_provider(text="Мне нравится приложение.")
     app.dependency_overrides[get_transcription_provider] = lambda: provider
     response = api_client.post("/api/feedback/transcribe", files={"audio": ("x.webm", b"synthetic audio", "audio/webm")})
     assert response.status_code == 200
     assert response.json() == {"text": "Мне нравится приложение."}
-    assert "language" not in calls[0] and "languages" not in calls[0] and "prompt" not in calls[0]
+    [request] = requests
+    assert b"language_code" not in request.content
+    assert f'name="model_id"\r\n\r\n{STT_MODEL}'.encode() in request.content and b"synthetic audio" in request.content
     assert api_client.post("/api/feedback/transcribe", files={"audio": ("x", b"x", "text/plain")}).status_code == 415
     assert api_client.post("/api/feedback/transcribe", files={"audio": ("x.webm", b"x" * 1_100_000, "audio/webm")}).status_code == 413
+    assert len(requests) == 1
 
 
 def test_review_exercise_contains_original_topic(api_client, db_session):

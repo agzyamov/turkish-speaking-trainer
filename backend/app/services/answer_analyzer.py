@@ -8,8 +8,7 @@ from app.schemas import AnswerAnalysis, AnswerIssue, CreateAttemptRequest, Demon
 from app.services.ai_adapter import AIServiceError, StructuredAIProvider
 from app.services.failure_diagnostics import DiagnosticFailure, classify_provider_error, diagnostic, record_failure
 from app.services.interface_language import interface_language
-from app.services.serbian_standard import is_ekavian_candidate, validate_generated_serbian
-from app.services.serbian_text import normalized_serbian_words, serbian_latin_for_evaluation
+from app.services.turkish_text import latin_for_evaluation, normalized_words, validate_generated_target
 
 
 class AnalysisUnavailableError(DiagnosticFailure):
@@ -33,11 +32,6 @@ class AnswerAnalyzer:
         canonical_tr: str | None = None,
     ) -> AnswerAnalysis:
         target_keys = list(dict.fromkeys(skill["key"] for skill in target_skills))
-        # A stale dialect-contaminated snapshot must not become a perfect-answer
-        # shortcut or be reapplied after the model returns an Ekavian correction.
-        if canonical_tr and not is_ekavian_candidate(canonical_tr):
-            canonical_tr = None
-        intended_tr_variants = [variant for variant in intended_tr_variants if is_ekavian_candidate(variant)]
         acceptable_variants = list(dict.fromkeys([
             *([canonical_tr] if canonical_tr else []), *intended_tr_variants,
         ]))
@@ -50,12 +44,12 @@ class AnswerAnalyzer:
             ),
             None,
         )
-        if exact_variant is not None and is_ekavian_candidate(exact_variant):
+        if exact_variant is not None:
             return self._exact_match(exact_variant, acceptable_variants, target_keys, timing)
 
         if not self.ai.is_available:
             raise AnalysisUnavailableError(diagnostic("external_model", "configuration", "not_configured", retryable=False))
-        evaluation_transcript = serbian_latin_for_evaluation(transcript_tr)
+        evaluation_transcript = latin_for_evaluation(transcript_tr)
         # A structured response can still contradict the words that were actually transcribed.
         # Retry once before any score or learner-model update can be persisted.
         validation_feedback = None
@@ -73,12 +67,10 @@ class AnswerAnalyzer:
                         **({"validation_feedback": validation_feedback} if validation_feedback else {}),
                     )
                 )
-                validate_generated_serbian(analysis)
+                validate_generated_target(analysis)
             except (AIServiceError, ValueError) as exc:
                 raise AnalysisUnavailableError(exc.failure if isinstance(exc, DiagnosticFailure) else classify_provider_error(exc)) from exc
             validation_feedback = self._grounding_failure(analysis, evaluation_transcript, target_keys)
-            if validation_feedback is None and analysis.verdict == "correct" and not is_ekavian_candidate(evaluation_transcript):
-                validation_feedback = "dialect_verdict"
             if validation_feedback is None:
                 break
             failure = diagnostic("response_parse", "grounding", validation_feedback)
@@ -300,7 +292,7 @@ class AnswerAnalyzer:
                 pronunciation_score=None,
                 fluency_score=1.0,
                 corrected_tr=transcript,
-                short_feedback_ru="Для точной проверки этой добавленной фразы требуется подключение OpenAI.",
+                short_feedback_ru="Для точной проверки этой добавленной фразы требуется подключение к сервису проверки.",
                 detailed_feedback_ru="Фраза сохранена для повторения, но локальный режим не может надёжно построить эталонный перевод для произвольного текста.",
                 accepted_alternatives=[],
                 issues=[],
@@ -324,7 +316,7 @@ class AnswerAnalyzer:
             verdict, feedback, detail, result = (
                 "mostly_correct",
                 "Смысл понятен, но формулировку стоит сделать точнее.",
-                "Локальная проверка видит частичное совпадение. Для надёжной семантической оценки подключите OpenAI.",
+                "Локальная проверка видит частичное совпадение. Для надёжной семантической оценки нужен сервис проверки.",
                 "weak",
             )
         else:
@@ -377,4 +369,4 @@ class AnswerAnalyzer:
 
     @staticmethod
     def _normalize(value: str) -> str:
-        return normalized_serbian_words(value)
+        return normalized_words(value)

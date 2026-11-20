@@ -11,6 +11,7 @@ from app.main import app
 from app.models import Attempt, AttemptRequest, Exercise
 from app.services.transcription_adapter import get_transcription_provider
 from app.services.transcription_assistance_adapter import get_transcription_assistance_provider
+from app.services.turkish_text import has_unexpected_letter_script, latin_for_evaluation
 from tests.fakes import FakeTranscriptionProvider
 
 
@@ -21,15 +22,15 @@ def _create_exercise(api_client: TestClient) -> str:
     return exercise_response.json()["id"]
 
 
+def _settings(**overrides) -> Settings:
+    return Settings(_env_file=None, elevenlabs_api_key="server-secret", elevenlabs_stt_model="model-from-env", **overrides)
+
+
 def test_transcribes_supported_audio_without_persisting_it(api_client: TestClient) -> None:
     exercise_id = _create_exercise(api_client)
-    provider = FakeTranscriptionProvider(text="Желим да отворим рачун.")
+    provider = FakeTranscriptionProvider(text="Hesap açmak istiyorum.")
     app.dependency_overrides[get_transcription_provider] = lambda: provider
-    app.dependency_overrides[get_settings] = lambda: Settings(
-        openai_api_key="server-secret",
-        openai_transcribe_model="model-from-env",
-        max_audio_bytes=100_000,
-    )
+    app.dependency_overrides[get_settings] = lambda: _settings(max_audio_bytes=100_000)
 
     response = api_client.post(
         "/api/transcriptions",
@@ -38,7 +39,7 @@ def test_transcribes_supported_audio_without_persisting_it(api_client: TestClien
     )
 
     assert response.status_code == 200
-    assert response.json() == {"text": "Želim da otvorim račun."}
+    assert response.json() == {"text": "Hesap açmak istiyorum."}
     assert provider.calls == [{
         "audio": b"webm-audio-bytes",
         "filename": "speech.webm",
@@ -47,13 +48,12 @@ def test_transcribes_supported_audio_without_persisting_it(api_client: TestClien
     assert "server-secret" not in response.text
 
 
-def test_transcription_normalizes_mixed_script_and_combining_marks(api_client: TestClient) -> None:
+def test_transcription_normalizes_combining_marks_without_changing_letters(api_client: TestClient) -> None:
     exercise_id = _create_exercise(api_client)
-    provider = FakeTranscriptionProvider(text=unicodedata.normalize("NFD", "Платићу bankovnom karticom."))
+    spoken = "Çay içmek İSTİYORUM, ılık olsun."
+    provider = FakeTranscriptionProvider(text=unicodedata.normalize("NFD", spoken))
     app.dependency_overrides[get_transcription_provider] = lambda: provider
-    app.dependency_overrides[get_settings] = lambda: Settings(
-        openai_api_key="server-secret", openai_transcribe_model="model-from-env",
-    )
+    app.dependency_overrides[get_settings] = lambda: _settings()
 
     response = api_client.post(
         "/api/transcriptions", data={"exercise_id": exercise_id},
@@ -61,20 +61,25 @@ def test_transcription_normalizes_mixed_script_and_combining_marks(api_client: T
     )
 
     assert response.status_code == 200
-    assert response.json() == {"text": "Platiću bankovnom karticom."}
+    # One Unicode form; casing, dotted/dotless i and punctuation are the learner's own (C-18).
+    assert response.json() == {"text": spoken}
 
 
-@pytest.mark.parametrize("text", ["Platιћу bankovnom karticom.", "Платячу банковном картицом."])
+@pytest.mark.parametrize("text", [
+    "Hesap açmak истиyorum.",  # Cyrillic letters that do not look like Latin ones
+    "Hesаp açmak istiyorum.",  # one look-alike Cyrillic letter inside a Latin word
+    "Хесап ачмак истийорум.",  # the whole answer in Cyrillic
+    "Hesap açmαk istiyorum.",  # Greek
+    "Hesap açmak istiyorum مرحبا",  # Arabic
+])
 @pytest.mark.parametrize("assistance_enabled", [False, True])
-def test_transcription_returns_non_serbian_letters_for_review(api_client: TestClient, db_session: Session, text, assistance_enabled) -> None:
+def test_transcription_returns_non_latin_letters_for_review(api_client: TestClient, db_session: Session, text, assistance_enabled) -> None:
     exercise_id = _create_exercise(api_client)
     provider = FakeTranscriptionProvider(text=text)
     assistance = Mock(is_available=True)
     app.dependency_overrides[get_transcription_assistance_provider] = lambda: assistance
     app.dependency_overrides[get_transcription_provider] = lambda: provider
-    app.dependency_overrides[get_settings] = lambda: Settings(
-        openai_api_key="server-secret", openai_transcribe_model="model-from-env",
-    )
+    app.dependency_overrides[get_settings] = lambda: _settings()
 
     response = api_client.post(
         "/api/transcriptions", data={"exercise_id": exercise_id, "assistance_enabled": str(assistance_enabled).lower()},
@@ -84,6 +89,11 @@ def test_transcription_returns_non_serbian_letters_for_review(api_client: TestCl
     assert response.status_code == 200
     assert response.json() == {"text": text, "review_required": True}
     assistance.analyze.assert_not_called()
+    if not has_unexpected_letter_script(latin_for_evaluation(text)):
+        # Look-alike letters inside Latin words are repaired for grading, so this answer is not rejected for its script.
+        retried = api_client.post("/api/attempts", json={"exercise_id": exercise_id, "transcript_tr": text})
+        assert retried.json().get("detail", {}) != {"code": "transcript_unexpected_script"}
+        return
     rejected = api_client.post("/api/attempts", json={"exercise_id": exercise_id, "transcript_tr": text})
     assert rejected.status_code == 422
     assert rejected.json() == {"detail": {"code": "transcript_unexpected_script"}}
@@ -114,11 +124,7 @@ def test_rejects_audio_over_configured_limit(api_client: TestClient) -> None:
     exercise_id = _create_exercise(api_client)
     provider = FakeTranscriptionProvider()
     app.dependency_overrides[get_transcription_provider] = lambda: provider
-    app.dependency_overrides[get_settings] = lambda: Settings(
-        openai_api_key="server-secret",
-        openai_transcribe_model="model-from-env",
-        max_audio_bytes=10_000,
-    )
+    app.dependency_overrides[get_settings] = lambda: _settings(max_audio_bytes=10_000)
 
     response = api_client.post(
         "/api/transcriptions",

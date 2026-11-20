@@ -1,20 +1,20 @@
 import json
 from pathlib import Path
-from types import SimpleNamespace
 from unittest.mock import Mock
 
 import pytest
 
-from app.config import Settings
 from app.db.topic_phrase_hints_en import ENGLISH_WORD_HINTS
 from app.db.topic_phrases import TOPIC_PHRASES
 from app.db.topic_phrases_en import TOPIC_PHRASES_EN
 from app.main import app
 from app.schemas import AnswerAnalysis, CreateAttemptRequest, PhrasePreparation
-from app.services.ai_adapter import OpenAIStructuredProvider, get_ai_provider
+from app.schemas.attempts import ExplainedAnswerAnalysis
+from app.services.ai_adapter import get_ai_provider
 from app.services.answer_analyzer import AnswerAnalyzer
 from app.services.interface_language import interface_language, parse_interface_language
 from tests.fakes import FakeAIProvider
+from tests.providers import GRADING_MODEL, claude_provider
 
 
 @pytest.mark.parametrize("header,expected", [
@@ -53,22 +53,20 @@ def test_english_analysis_uses_versioned_instructions_and_the_same_validated_sch
         naturalness_score=1, fluency_score=1, corrected_tr="Želim kartu.",
         short_feedback_ru="Correct.", detailed_feedback_ru="Your answer is correct.",
     )
-    provider = OpenAIStructuredProvider(Settings(openai_api_key="synthetic", openai_text_model="from-env"))
-    parse = Mock(return_value=SimpleNamespace(output_parsed=result.model_dump()))
-    provider._client = SimpleNamespace(responses=SimpleNamespace(parse=parse))
+    provider, messages = claude_provider(result.model_dump())
     token = interface_language.set("en")
     try:
         response = provider.analyze_answer(source_ru="Я хочу билет.", transcript_tr="Želim kartu.",
             canonical_tr="Želim kartu.", intended_tr_variants=["Želim kartu."], target_skills=[], timings={})
-        payload = json.loads(parse.call_args.kwargs["input"])
+        payload = json.loads(messages.user_text())
         assert payload["source_text"] == "Я хочу билет."  # Custom text stays verbatim.
         assert payload["feedback_language"] == "en"
         assert "source_ru" not in payload
-        assert "quote words and constructions only from" in parse.call_args.kwargs["instructions"]
+        assert "quote words only from `source_text`" in messages.system_text()
         assert response.corrected_tr == "Želim kartu."
-        assert "Write all user-facing explanations in English" in parse.call_args.kwargs["instructions"]
-        assert parse.call_args.kwargs["model"] == "from-env"
-        assert parse.call_args.kwargs["store"] is False
+        assert "every learner-facing explanation" in messages.system_text()
+        assert messages.last["model"] == GRADING_MODEL
+        assert messages.last["output_format"] is ExplainedAnswerAnalysis
     finally:
         interface_language.reset(token)
 

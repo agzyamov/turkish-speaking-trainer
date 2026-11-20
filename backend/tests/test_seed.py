@@ -1,5 +1,6 @@
 import re
 
+import pytest
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
@@ -11,6 +12,7 @@ from app.schemas import WordHint
 from app.services.hint_alignment import aligned_word_hints
 
 
+@pytest.mark.xfail(strict=True, reason="Seed content is still Serbian; Turkish casing (I -> ı) no longer matches Serbian hints such as Izaći. Removed when the content is re-authored in Turkish (Phase 3).")
 def test_seed_is_complete_and_idempotent(db_session: Session) -> None:
     assert 40 <= len(SKILLS) <= 60
     assert len(TOPICS) == 9

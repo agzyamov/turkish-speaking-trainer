@@ -6,7 +6,7 @@ from app.config import Settings
 from app.schemas import AnswerAnalysis, AnswerIssue, CreateAttemptRequest, DemonstratedSkill
 from app.services.ai_adapter import AIServiceError
 from app.services.answer_analyzer import AnalysisUnavailableError, AnswerAnalyzer
-from app.services.serbian_text import serbian_latin, serbian_latin_for_evaluation
+from app.services.turkish_text import latin_for_evaluation
 from tests.fakes import FakeAIProvider
 
 
@@ -106,7 +106,6 @@ def test_analyzer_applies_local_fluency_to_grounded_analysis() -> None:
 @pytest.mark.parametrize("transcript", [
     "Platiću bankovnom karticom.",
     unicodedata.normalize("NFD", "Platiću bankovnom karticom."),
-    "Платићу bankovnom karticom.",
 ])
 def test_bank_card_exact_answer_has_no_false_spelling_grade(transcript: str) -> None:
     ai = FakeAIProvider(available=True)
@@ -149,7 +148,7 @@ def test_canonical_exact_answer_is_accepted_when_variants_are_missing() -> None:
     ("Platiću bankovnom kartiсom.", "Platiću bankovnom karticom."),
     ("Poрijem vodu.", "Popijem vodu."),
     ("Рopijem vodu.", "Popijem vodu."),
-    ("Попијем воду.", "Popijem vodu."),
+    ("Hesаp аçmak istiyоrum.", "Hesap açmak istiyorum."),
 ])
 def test_keyboard_homoglyphs_in_latin_words_match_canonical(
     transcript: str, canonical: str,
@@ -167,23 +166,25 @@ def test_keyboard_homoglyphs_in_latin_words_match_canonical(
     assert ai.analysis_calls == 0
 
 
-def test_keyboard_normalizer_preserves_cyrillic_phonetics_and_real_typos() -> None:
-    assert serbian_latin_for_evaluation("Попијем воду.") == "Popijem vodu."
-    assert serbian_latin_for_evaluation("Сr") == "Sr"
-    assert serbian_latin_for_evaluation("Poвijem") == "Povijem"
-    assert serbian_latin("Poрijem") == "Porijem"  # STT conversion stays phonetic.
-    assert AnswerAnalyzer._normalize("Platicu") != AnswerAnalyzer._normalize("Platiću")
+def test_keyboard_normalizer_keeps_non_lookalike_letters_and_real_typos() -> None:
+    # Only letters that look identical are repaired; a letter that merely sounds similar stays visible.
+    assert latin_for_evaluation("Poвijem") == "Poвijem"
     assert AnswerAnalyzer._normalize("Poяijem") != AnswerAnalyzer._normalize("Popijem")
+    assert AnswerAnalyzer._normalize("Platicu") != AnswerAnalyzer._normalize("Platiću")
+    # Turkish letters typed without their marks, or with the wrong i, are real mistakes.
+    assert AnswerAnalyzer._normalize("Hesap acmak istiyorum.") != AnswerAnalyzer._normalize("Hesap açmak istiyorum.")
+    assert AnswerAnalyzer._normalize("Yarin doktora gidiyorum.") != AnswerAnalyzer._normalize("Yarın doktora gidiyorum.")
+    assert AnswerAnalyzer._normalize("YARIN DOKTORA GİDİYORUM") == AnswerAnalyzer._normalize("Yarın doktora gidiyorum.")
 
 
 @pytest.mark.parametrize("source,expected", [
-    ("ab1с", "ab1s"),
-    ("ab_с", "ab_s"),
+    ("ab1с", "ab1с"),  # a lone Cyrillic letter after a digit is its own run and stays visible
+    ("ab_с", "ab_с"),
     ("ááс", "áác"),
-    ("ab҃с", "ab҃c"),
+    ("ab҃с", "ab҃c"),  # a combining mark stays inside the letter run
 ])
 def test_keyboard_context_uses_letter_runs_only(source: str, expected: str) -> None:
-    assert serbian_latin_for_evaluation(source) == expected
+    assert latin_for_evaluation(source) == expected
 
 
 def test_nonexact_manual_answer_is_cleaned_before_ai_analysis() -> None:

@@ -3,12 +3,12 @@ import unicodedata
 from collections import Counter
 
 from app.schemas.transcriptions import TranscriptionAssistanceAnalysis, TranscriptionChange
-from app.services.serbian_text import has_unexpected_letter_script, normalized_serbian_words, serbian_latin
+from app.services.turkish_text import canonical_form, has_unexpected_letter_script, normalized_words, turkish_lower
 
 POLICY_VERSION = "analysis-v3"
 # Grammar guard only, never a source of suggested replacements.
-NEGATION_MARKERS = frozenset({"ne", "nisam", "nisi", "nije", "nismo", "niste", "nisu",
-                            "nemam", "nema", "nemamo", "nemate", "nemaju", "nikad", "nikada"})
+# Turkish also negates with verb suffixes (-me/-ma); those are judged by the model, not here.
+NEGATION_MARKERS = frozenset({"değil", "yok", "hayır", "hiç", "asla"})
 
 
 def apply_changes(raw: str, changes: list[TranscriptionChange], selected: set[int]) -> str:
@@ -20,9 +20,26 @@ def apply_changes(raw: str, changes: list[TranscriptionChange], selected: set[in
     return result
 
 
+# Turkish negates verbs with -mA- (gel-me-di "did not come", iste-m-iyor "does not want").
+# Deleting or inserting such a piece is a change of meaning, never a recognition fix.
+_NEGATION_PIECES = frozenset({"ma", "me", "mı", "mi", "mu", "mü", "am", "em", "ım", "im", "um", "üm"})
+
+
+def _flips_suffix_negation(original: str, replacement: str) -> bool:
+    for left, right in zip(normalized_words(original).split(), normalized_words(replacement).split(), strict=False):
+        longer, shorter = (left, right) if len(left) > len(right) else (right, left)
+        if len(longer) - len(shorter) != 2:
+            continue
+        for index in range(len(longer) - 1):
+            piece = longer[index:index + 2]
+            if piece in _NEGATION_PIECES and longer[:index] + longer[index + 2:] == shorter:
+                return True
+    return False
+
+
 def _fold(text: str) -> str:
     # Alphabet folding and spacing are general comparison rules, not replacements.
-    text = serbian_latin(text).casefold().replace("đ", "dj")
+    text = turkish_lower(text).replace("ı", "i")
     return "".join(c for c in unicodedata.normalize("NFD", text) if c.isalpha())
 
 
@@ -61,7 +78,7 @@ def _occurrences(raw: str, original: str) -> list[int]:
 
 def validate_analysis(raw: str, variants: list[str], analysis: TranscriptionAssistanceAnalysis) -> list[TranscriptionChange]:
     """Similarity is a conservative gate, never proof that pronunciation was correct."""
-    if analysis.acceptable_variant or normalized_serbian_words(raw) in {normalized_serbian_words(v) for v in variants}:
+    if analysis.acceptable_variant or normalized_words(raw) in {normalized_words(v) for v in variants}:
         return []
     changes = []
     for candidate in analysis.candidates:
@@ -74,10 +91,10 @@ def validate_analysis(raw: str, variants: list[str], analysis: TranscriptionAssi
         start = positions[candidate.occurrence_index]
         if not candidate.plausible_stt_error or not candidate.preserves_meaning:
             continue
-        if has_unexpected_letter_script(replacement) or replacement != serbian_latin(replacement):
+        if has_unexpected_letter_script(replacement) or replacement != canonical_form(replacement):
             continue
-        original_words = normalized_serbian_words(original).split()
-        replacement_words = normalized_serbian_words(replacement).split()
+        original_words = normalized_words(original).split()
+        replacement_words = normalized_words(replacement).split()
         # Local hypotheses only: no insertion of missing content or whole-answer rewrite.
         if not (1 <= len(original_words) <= 3 and 1 <= len(replacement_words) <= 3):
             continue
@@ -87,6 +104,8 @@ def validate_analysis(raw: str, variants: list[str], analysis: TranscriptionAssi
         if not left or not right or original == replacement:
             continue
         if left != right and Counter(w for w in original_words if w in NEGATION_MARKERS) != Counter(w for w in replacement_words if w in NEGATION_MARKERS):
+            continue
+        if _flips_suffix_negation(original, replacement):
             continue
         size = max(len(left), len(right))
         distance = _distance(left, right)

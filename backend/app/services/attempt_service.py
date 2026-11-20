@@ -26,8 +26,8 @@ from app.services.auth_service import UserService
 from app.services.custom_content_policy import CustomContentError
 from app.services.learner_model import LearnerModelService
 from app.services.review_service import ReviewService
-from app.services.serbian_text import has_unexpected_letter_script
 from app.services.session_service import SessionCompletedError, SessionUnavailableError
+from app.services.turkish_text import has_unexpected_letter_script, latin_for_evaluation
 from app.services.word_hints import all_word_hints, resolve_hint
 
 
@@ -89,7 +89,9 @@ class AttemptService:
         self.review = ReviewService(db, ai, user.id)
 
     def create(self, request: CreateAttemptRequest) -> AttemptResponse:
-        if has_unexpected_letter_script(request.transcript_tr):
+        # Look-alike Cyrillic letters typed on a Russian keyboard inside Latin words are repaired for
+        # grading (the stored transcript stays verbatim); any other non-Latin letter is rejected.
+        if has_unexpected_letter_script(latin_for_evaluation(request.transcript_tr)):
             raise UnexpectedTranscriptScriptError()
         assistance = self._transcription_evidence(request)
         reserved = self._reserve(request)
@@ -171,7 +173,7 @@ class AttemptService:
         intended_variants = list(exercise.target_hints_json.get("intended_tr_variants", []))
         canonical_tr = exercise.target_hints_json.get("canonical_tr")
         settings = get_settings()
-        lease_seconds = max(60.0, 2 * settings.openai_timeout_seconds * (settings.openai_max_retries + 1) + 30.0)
+        lease_seconds = max(60.0, 2 * settings.anthropic_timeout_seconds * (settings.anthropic_max_retries + 1) + 30.0)
         token = (existing.fencing_token or 0) + 1 if existing is not None else 1
         if existing is None:
             self.requests.add(AttemptRequest(

@@ -1,12 +1,4 @@
-from typing import Literal
-
 from pydantic import BaseModel, ConfigDict, Field
-
-
-class TranscriptionModelOption(BaseModel):
-    model_config = ConfigDict(extra="forbid")
-    model: str = Field(min_length=1, max_length=200)
-    language_parameter: Literal["language", "languages"] = "language"
 
 
 class TranscriptionModelSelection(BaseModel):
