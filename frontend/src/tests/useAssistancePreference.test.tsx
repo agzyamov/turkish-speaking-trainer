@@ -22,16 +22,16 @@ describe("shared assistance preference", () => {
     vi.mocked(updatePreferences).mockImplementation(async value => { server = value; return { assistance_enabled: server }; });
     const firstClient = render(<Client />);
     await waitFor(() => expect(fetchPreferences).toHaveBeenCalledTimes(1));
-    await waitFor(() => expect(screen.getByRole("switch", { name: "Мягкие подсказки при распознавании" })).toHaveProperty("checked", !enabled));
+    await waitFor(() => expect(screen.getByRole("switch", { name: "Мягкие подсказки при распознавании" })).toHaveAttribute("aria-checked", String(!enabled)));
     fireEvent.click(screen.getByRole("switch", { name: "Мягкие подсказки при распознавании" }));
-    await waitFor(() => expect(screen.getByRole("switch", { name: "Мягкие подсказки при распознавании" })).toHaveProperty("checked", enabled));
+    await waitFor(() => expect(screen.getByRole("switch", { name: "Мягкие подсказки при распознавании" })).toHaveAttribute("aria-checked", String(enabled)));
     firstClient.unmount();
     vi.mocked(updatePreferences).mockClear();
     // Old device storage (or a client's default) cannot reset the confirmed DB value.
     localStorage.setItem("serbotalk.soft-assistance.persisted-user", String(!enabled));
     render(<Client />);
     await waitFor(() => expect(fetchPreferences).toHaveBeenCalledTimes(2));
-    await waitFor(() => expect(screen.getByRole("switch", { name: "Мягкие подсказки при распознавании" })).toHaveProperty("checked", enabled));
+    await waitFor(() => expect(screen.getByRole("switch", { name: "Мягкие подсказки при распознавании" })).toHaveAttribute("aria-checked", String(enabled)));
     expect(updatePreferences).not.toHaveBeenCalled();
     localStorage.removeItem("serbotalk.soft-assistance.persisted-user");
   });

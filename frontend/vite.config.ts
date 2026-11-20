@@ -1,4 +1,5 @@
 import react from "@vitejs/plugin-react";
+import tailwindcss from "@tailwindcss/vite";
 import { defineConfig } from "vitest/config";
 import { loadEnv } from "vite";
 import { resolve } from "node:path";
@@ -10,7 +11,7 @@ export default defineConfig(({ mode }) => {
   if (mode === "testlab") input.testlab = resolve("testlab.html");
   else if (mode !== "android") input.landing = resolve("landing.html");
   return ({
-  plugins: [react()],
+  plugins: [react(), tailwindcss()],
   build: {
     copyPublicDir: mode !== "android",
     rollupOptions: {

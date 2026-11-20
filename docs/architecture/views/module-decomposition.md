@@ -53,7 +53,7 @@ flowchart TB
 |---|---|---|
 | `App.tsx` | Currently holds navigation, state and most screens in one component | Changing: split into the modules below (Phase 4) |
 | `features/<name>/` | One folder per screen area: practice, statistics, premium, settings, admin, auth. Owns its components, hooks and queries | Planned (Phase 4) |
-| `shared/ui/` | Reusable components built on design tokens | Planned (Phase 4); today components are flat files in `src/` |
+| `shared/ui/`, `shared/lib/`, `shared/styles/` | Reusable components (shadcn/ui pattern on Radix: Button, Card, Switch, RadioGroup), the `cn` class helper, and the design tokens (`shared/styles/tokens.css`, Tailwind v4 `@theme`) | In progress (Phase 4): Settings uses them; other screens are still flat files in `src/` styled by the legacy stylesheet |
 | `shared/i18n/` | Keyed translations in Russian and English | Changing: today `i18n.ts` uses the Russian string as the key (Phase 4) |
 | `api/` | Typed functions for every backend endpoint; the only place that calls `fetch` | Existing |
 | platform | `voiceRecorder.ts`, `auth.ts`, `emailAuth.ts`, reward audio, Capacitor plugins | Existing; kept as is |

@@ -35,7 +35,7 @@ import { useRewards } from "./useRewards";
 import { finishUiTimingWhenVisible, startUiTiming } from "./performance";
 import appLogo from "./assets/app-logo.png?inline";
 import messages from "./locales/en.json";
-import "./styles.css";
+import "./index.css";
 
 type BackendState = "checking" | "online" | "offline";
 type VoiceState = "idle" | "connecting" | "recording" | "transcribing" | "error";

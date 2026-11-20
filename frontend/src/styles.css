@@ -23,7 +23,6 @@
 }
 
 * { box-sizing: border-box; }
-.reward-settings input { accent-color: var(--gold); background: var(--panel); color: var(--text); color-scheme: dark; }
 .reward-overlay { position: fixed; inset: 0; z-index: 1000; display: grid; place-items: center; pointer-events: none; overflow: hidden; container-type: size; }
 .reward-panel { --reward-size: 366.85px; position: relative; z-index: 1; display: grid; justify-items: center; align-content: center; gap: .75rem; width: min(var(--reward-size), calc(100cqw - 24px), calc(100cqh - 24px)); aspect-ratio: 1; padding: clamp(8px, 4cqw, 20px); border: 1px solid var(--gold); border-radius: 24px; background: var(--reward-background); color: var(--text); text-align: center; box-shadow: 0 12px 60px #0009, 0 0 45px #f2bd5a33; container-type: inline-size; animation: reward-pop 2s ease both; }
 .reward-panel > span { font-size: clamp(.65rem, 12cqw, 1.265rem); line-height: 1.2; }
@@ -53,7 +52,6 @@ button { cursor: pointer; background: var(--panel); }
 .review-login button { padding: .65rem; background: var(--panel); color: var(--text); border: 1px solid var(--blue); border-radius: 8px; }
 .review-login input:disabled, .review-login button:disabled { background: var(--panel); color: var(--muted); cursor: wait; opacity: .7; }
 .review-login [role="alert"] { color: #ff9eaa; }
-.account-deletion-link { display: block; margin-top: 1rem; color: var(--blue-bright); font-size: .8rem; }
 .icon { display: block; flex: 0 0 auto; }
 .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
 
@@ -222,18 +220,6 @@ button { cursor: pointer; background: var(--panel); }
 .answer-input textarea:focus { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(64,164,255,.08); }
 .answer-input textarea::placeholder { color: #647fa8; }
 .voice-prompt { display: grid; place-items: center; min-height: 106px; margin: 0; padding: 1rem; border: 1px dashed rgba(91, 157, 224, .4); border-radius: 11px; color: #9bb9df; text-align: center; line-height: 1.5; }
-.settings-page { width: min(760px, 100%); margin: 0 auto; padding: 2rem 1rem; }
-.settings-heading { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 1.3rem; }
-.settings-heading h1 { margin: 0; }
-.settings-version { color: var(--muted); font-size: .8rem; white-space: nowrap; }
-.settings-group { display: grid; gap: .8rem; padding: 1.3rem; border: 1px solid rgba(76, 158, 232, .28); border-radius: 16px; }
-.settings-group legend { padding: 0 .4rem; color: #dceaff; font-weight: 700; }
-.settings-group > p { margin: 0 0 .3rem; color: #9bb9df; font-size: .8rem; }
-.settings-group label { display: flex; flex-wrap: wrap; gap: .65rem; align-items: center; padding: .85rem; border: 1px solid rgba(76, 158, 232, .25); border-radius: 10px; cursor: pointer; }
-.settings-group label:has(input:checked) { border-color: #63b9ff; background: rgba(28, 93, 156, .2); }
-.settings-group label span { margin-left: auto; color: #acccec; }
-.language-settings { color: var(--text); background: var(--panel); }
-.language-settings input { accent-color: var(--blue); color-scheme: dark; }
 .mic-button { display: grid; place-items: center; width: 78px; height: 78px; align-self: center; border: 2px solid #3c94f7; border-radius: 50%; background: radial-gradient(circle, #175ca7, #0b2d5d); box-shadow: 0 0 0 7px rgba(41, 123, 222, .11), 0 0 28px rgba(46, 148, 255, .38); color: #9ad7ff; }
 .mic-button:hover:not(:disabled) { transform: scale(1.03); }
 .mic-button:disabled { cursor: not-allowed; opacity: .38; }
@@ -466,8 +452,7 @@ button { cursor: pointer; background: var(--panel); }
 .auth-card h1 { margin: 0 0 12px; }
 .auth-card p { color: var(--muted, #65736b); line-height: 1.55; }
 
-.google-sign-in,
-.sign-out-button {
+.google-sign-in {
   border: 1px solid #d5ddd8;
   border-radius: 10px;
   background: #fff;
@@ -484,7 +469,6 @@ button { cursor: pointer; background: var(--panel); }
   box-shadow: 0 6px 18px rgb(31 72 49 / 9%);
 }
 
-.sign-out-button { padding: 7px 10px; font-size: 12px; }
 .admin-page { padding: 32px clamp(18px, 4vw, 64px) 64px; }
 .admin-users { margin-top: 24px; padding: 24px; }
 .admin-users td strong { color: #21352a; }
@@ -492,7 +476,6 @@ button { cursor: pointer; background: var(--panel); }
 
 @media (max-width: 760px) {
   .auth-card { padding: 30px 22px; }
-  .sign-out-button { display: none; }
 }
 .auth-legal {
   display: flex;
@@ -708,10 +691,6 @@ button { cursor: pointer; background: var(--panel); }
 .android-service-bar strong { font-size: .73rem; }
 .android-service-bar small { color: #7897c5; font-size: .64rem; }
 .android-admin-settings { margin-bottom: .5rem; }
-.android-settings-page .settings-page { padding: .2rem 0; }
-.android-settings-page .settings-heading h1 { font-size: 1.55rem; }
-.android-settings-page .settings-group { padding: 1rem; }
-.android-settings-page .settings-group label span { flex-basis: 100%; margin-left: 1.5rem; }
 
 @media (min-width: 600px) {
   .android-page { padding-inline: max(1rem, calc((100% - 560px) / 2)); }
@@ -728,20 +707,7 @@ button { cursor: pointer; background: var(--panel); }
 .mic-button--retry > .icon { width: 25px; height: 25px; }
 
 .statistics-summary > div { min-width: 0; padding-inline: .65rem; }
-.settings-profile, .settings-deletion { display: grid; gap: 1rem; padding: 1.25rem; background: var(--panel); color: var(--text); }
-.settings-profile h2, .settings-deletion h2 { margin: 0; font-size: 1rem; }
-.settings-profile__details { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 1rem; }
-.settings-profile .profile { justify-content: flex-start; justify-self: auto; min-width: 0; gap: .7rem; margin-bottom: 0; }
-.settings-profile .profile__copy { display: grid; min-width: 0; gap: .3rem; overflow-wrap: anywhere; }
-.settings-profile .profile__copy strong { font-size: 1rem; }
-.settings-profile .profile__copy small, .settings-profile__email { color: var(--muted); font-size: .8rem; line-height: 1.5; }
-.settings-profile .sign-out-button { display: inline-flex; flex-shrink: 0; align-items: center; justify-content: center; min-height: 44px; padding: .7rem 1rem; border: 1px solid var(--line); border-radius: 10px; background: var(--panel); color: var(--text); font-size: .85rem; }
-.settings-profile .sign-out-button:focus-visible, .settings-deletion a:focus-visible { outline: 2px solid var(--cyan); outline-offset: 3px; }
-.settings-deletion .account-deletion-link { margin: 0; line-height: 1.5; overflow-wrap: anywhere; }
-.settings-profile .avatar { flex-shrink: 0; }
 @media (max-width: 480px) {
-  .settings-profile__details { grid-template-columns: minmax(0, 1fr); }
-  .settings-profile .sign-out-button { width: 100%; }
 }
 .android-answer > button[type="button"], .practice-card form > button[type="button"] { padding: .75rem 1rem; border: 1px solid var(--line); border-radius: 12px; background: #07162a; color: #dceaff; font: inherit; }
 /* Reference artwork: matching blue discs, cyan rims and static retry arrows. */
@@ -1041,11 +1007,9 @@ button { cursor: pointer; background: var(--panel); }
 .topics-divider { grid-column: 1 / -1; width: 100%; height: 1px; margin: .35rem 0; border: 0; background: var(--line); color: var(--line); }
 
 /* Shared settings cards: desktop, mobile web and the Android layout. */
-.settings-page { width: min(980px, 100%); }
 .settings-page .settings-section { min-width: 0; margin: 0 0 1.5rem; padding: 0; border: 0; background: transparent; color: var(--text); }
 .settings-page .settings-section > h2, .settings-page .settings-section legend { margin: 0 0 .75rem; padding: 0; color: var(--text); font-size: 1rem; font-weight: 700; }
 .settings-page .settings-section > p { margin: 0 0 .85rem; color: var(--muted); font-size: .8rem; line-height: 1.5; }
-.settings-page .settings-group { display: block; }
 .settings-card-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .85rem; min-width: 0; }
 .settings-page .settings-card { position: relative; display: flex; align-items: flex-start; gap: .85rem; min-width: 0; margin: 0; padding: 1.15rem; border: 1px solid var(--line); border-radius: 15px; background: var(--panel); color: var(--text); text-align: left; font: inherit; }
 .settings-page .settings-card strong { font-size: .9rem; font-weight: 650; line-height: 1.4; }
@@ -1060,21 +1024,14 @@ button { cursor: pointer; background: var(--panel); }
 .settings-page .settings-icon--celebrate, .settings-page .settings-icon--debug { color: var(--settings-success); background: color-mix(in srgb, var(--settings-success) 9%, transparent); }
 .settings-page .settings-icon--openai { background: transparent; }
 .settings-page .settings-icon--feedback, .settings-page .settings-icon--share { color: var(--settings-secondary); background: color-mix(in srgb, var(--settings-secondary) 9%, transparent); }
-.settings-page label.settings-choice { flex-wrap: nowrap; align-items: center; padding-right: 2.8rem; cursor: pointer; }
-.settings-page .settings-choice input[type=radio] { position: absolute; width: 1px; height: 1px; opacity: 0; margin: 0; }
-.settings-page .settings-choice .settings-choice__check { position: absolute; right: .85rem; top: .85rem; margin: 0; color: var(--cyan); font-size: 1rem; font-weight: 700; visibility: hidden; }
-.settings-page .settings-choice:has(input:checked) { background: color-mix(in srgb, var(--blue) 10%, var(--panel)); border-color: var(--cyan); box-shadow: inset 0 0 24px color-mix(in srgb, var(--blue) 7%, transparent); }
-.settings-page .settings-choice:has(input:checked) .settings-choice__check { visibility: visible; }
-.settings-page .settings-choice:has(input:focus-visible) { outline: 2px solid var(--cyan); outline-offset: 3px; }
 .settings-page .settings-toggle { display: flex; align-items: center; justify-content: space-between; flex-wrap: nowrap; gap: .7rem; padding: 0; border: 0; border-radius: 0; background: transparent; cursor: pointer; }
 .settings-page .settings-toggle strong { flex: 1; min-width: 0; }
 .settings-page .settings-toggle input[role=switch] { appearance: none; flex: 0 0 40px; width: 40px; height: 24px; margin: 0; border: 1px solid var(--muted); border-radius: 20px; background: var(--panel); color: var(--text); background-image: radial-gradient(circle at 11px 50%, var(--text) 8px, transparent 9px); cursor: pointer; }
 .settings-page .settings-toggle input[role=switch]:checked { background-color: var(--blue); border-color: var(--blue-bright); background-image: radial-gradient(circle at 27px 50%, var(--text) 8px, transparent 9px); }
 .settings-page .settings-toggle input[role=switch]:disabled { opacity: .55; cursor: wait; }
 .settings-page .settings-toggle input:focus-visible, .settings-page .settings-action:focus-visible { outline: 2px solid var(--cyan); outline-offset: 3px; }
-.settings-page label.settings-reward { padding: 1.15rem; border: 1px solid var(--line); border-radius: 15px; background: var(--panel); }
 .settings-page .settings-action { align-items: center; width: 100%; min-height: 88px; cursor: pointer; }
-.settings-page .settings-action:hover:not(:disabled), .settings-page .settings-choice:hover { border-color: var(--blue-bright); }
+.settings-page .settings-action:hover:not(:disabled) { border-color: var(--blue-bright); }
 .settings-page .settings-action:disabled { background: var(--panel); color: var(--muted); cursor: wait; opacity: .65; }
 .settings-page .share-app-settings__actions { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 .settings-page .settings-url label { margin: 0; font-size: .8rem; }
@@ -1083,8 +1040,6 @@ button { cursor: pointer; background: var(--panel); }
 .settings-page .settings-url .settings-icon svg { width: 22px; height: 22px; }
 .settings-page .settings-admin-grid { margin-bottom: 1.5rem; align-items: stretch; }
 .settings-page .settings-admin-grid > .settings-card { margin: 0; }
-.settings-page > .assistance-settings.settings-card { margin-bottom: 1.5rem; }
-.settings-page .settings-profile { margin-bottom: 1rem; }
 .settings-page .settings-admin-grid h2 { margin: 0 0 .75rem; font-size: .9rem; }
 .settings-page .settings-card [role=alert], .settings-page .settings-section > [role=alert] { color: var(--settings-error); }
 .settings-page .settings-card [role=status], .settings-page .settings-section > [role=status] { color: var(--text); }
@@ -1092,19 +1047,10 @@ button { cursor: pointer; background: var(--panel); }
 @media (max-width: 640px) {
   .settings-card-grid { gap: .65rem; }
   .settings-page .settings-card { gap: .65rem; padding: .9rem; }
-  .settings-page label.settings-choice { flex-direction: column; align-items: flex-start; justify-content: flex-start; padding: .9rem; padding-right: 1.7rem; min-height: 112px; }
-  .settings-page .settings-choice .settings-card__copy { flex: none; }
-  .settings-page .settings-choice .settings-card__copy small { margin: .35rem 0 0; font-size: .75rem; }
-  .settings-page label.settings-reward { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-content: start; gap: .75rem .35rem; padding: .9rem; }
-  .settings-page .settings-reward > strong { grid-column: 1 / -1; grid-row: 2; }
-  .settings-page .settings-reward > input { grid-column: 2; grid-row: 1; }
-  .settings-page .settings-reward .settings-icon { width: 38px; height: 38px; }
   .settings-page .share-app-settings__actions { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .settings-page .share-app-settings .settings-action { flex-direction: column; align-items: flex-start; }
   .settings-page .settings-url { grid-column: 1 / -1; align-items: center; }
   .settings-page .settings-admin-grid { grid-template-columns: minmax(0, 1fr); }
-  .android-settings-page .settings-page .settings-group { padding: 0; }
-  .android-settings-page .settings-page .settings-group label span { flex-basis: auto; margin-left: 0; }
 }
 .payment-form { width: 100%; min-width: 0; margin-block: 1rem; padding: 1rem; text-align: left; color: var(--text); background: var(--panel); border: 1px solid var(--line); border-radius: 16px; }
 .payment-form header { display: flex; gap: 1rem; align-items: flex-start; justify-content: space-between; }

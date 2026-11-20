@@ -1,0 +1,44 @@
+/*
+ * Design tokens (C-21). Components use these through Tailwind utilities
+ * (bg-surface, text-ink-muted, rounded-card, ...) and never hardcode values.
+ * Values keep the current dark-blue identity; Phase 6 (Impeccable) may tune them.
+ */
+@theme {
+  --font-sans: system-ui, "Segoe UI", Roboto, Arial, sans-serif;
+
+  --color-canvas: #020914;
+  --color-surface: rgb(5 18 37 / 0.84);
+  --color-surface-raised: #071a34;
+  --color-selected: rgb(28 93 156 / 0.22);
+
+  --color-ink: #eaf2ff;
+  --color-ink-soft: #c9dcf4;
+  --color-ink-muted: #8fabd4;
+
+  --color-line: rgb(76 158 232 / 0.28);
+  --color-line-strong: #63b9ff;
+
+  --color-accent: #40a4ff;
+  --color-accent-bright: #68bcff;
+  --color-accent-ink: #021428;
+  --color-focus: #45d6ff;
+
+  --color-success: #64dfb8;
+  --color-reward: #f2bd5a;
+  --color-danger: #ff9eaa;
+
+  --container-settings: 980px;
+
+  --radius-control: 10px;
+  --radius-card: 16px;
+
+  --text-title: 2rem;
+  --text-title--line-height: 1.2;
+  --text-title-compact: 1.55rem;
+  --text-title-compact--line-height: 1.2;
+  --text-caption: 0.8rem;
+  --text-caption--line-height: 1.5;
+
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --duration-quick: 150ms;
+}

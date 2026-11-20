@@ -2,8 +2,7 @@ import { useEffect } from "react";
 import { getLanguage, setLanguage, t, useLanguage } from "./i18n";
 import logo from "./assets/app-logo.png";
 import { LandingLogin } from "./LandingLogin";
-import "./styles.css";
-import "./landing.css";
+import "./landing-styles.css";
 
 const screenshots = [
   { id: "topics", number: "01", title: "Выберите свою ситуацию", text: "Кафе, банк, врач или работа. Тренируйте фразы, которые пригодятся в обычной жизни.", alt: "SerboTalk: выбор темы" },

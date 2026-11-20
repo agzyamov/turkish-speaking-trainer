@@ -363,3 +363,30 @@ for (const native of [false, true]) {
     });
   }
 }
+
+for (const width of [1280, 393]) {
+  test(`settings screen on the design tokens at ${width}px`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 1100 });
+    await mockApp(page, []);
+    await page.goto("/");
+    await page.getByRole("button", { name: "Настройки", exact: true }).first().click();
+    const settings = page.locator(".settings-page:visible");
+    await expect(settings.getByRole("radio", { name: "Русский" })).toHaveAttribute("aria-checked", "true");
+    // Touch targets: each switch row (its label) and the sign-out button are at least 44px tall.
+    const rows = await settings.locator("[data-slot=switch-row]").all();
+    expect(rows.length).toBe(3);
+    for (const row of rows) expect((await row.boundingBox()).height).toBeGreaterThanOrEqual(44);
+    expect((await settings.getByRole("button", { name: "Выйти" }).boundingBox()).height).toBeGreaterThanOrEqual(44);
+    // In the phone layout the page adds no padding of its own inside the already padded panel.
+    if (width < 600) {
+      const fit = await settings.evaluate(element => {
+        const panel = element.closest(".android-page") ?? element.parentElement;
+        const style = getComputedStyle(panel);
+        return { page: element.getBoundingClientRect().width, inner: panel.clientWidth - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight) };
+      });
+      expect(fit.page).toBeGreaterThanOrEqual(fit.inner - 1);
+    }
+    // Written for manual review only; Phase 6 adds compared screenshot baselines.
+    await page.screenshot({ path: `../artifacts/settings-${width}.png`, fullPage: true });
+  });
+}

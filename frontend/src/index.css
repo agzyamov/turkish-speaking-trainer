@@ -1,0 +1,12 @@
+/*
+ * Stylesheet entry. Layer order: Tailwind theme, the inherited global stylesheet
+ * ("legacy", removed screen by screen in Phase 4), then Tailwind utilities, so
+ * migrated components win over old global rules while untouched screens look the same.
+ * Tailwind's preflight reset is not loaded yet; it would restyle unmigrated screens.
+ */
+@layer theme, legacy, components, utilities;
+@import "tailwindcss/theme.css" layer(theme);
+@import "./styles.css" layer(legacy);
+@import "./emailLogin.css" layer(legacy);
+@import "tailwindcss/utilities.css" layer(utilities);
+@import "./shared/styles/tokens.css";

@@ -12,6 +12,7 @@ for (const [native, width] of [[false, 320], [false, 390], [true, 393]]) {
       const path = new URL(route.request().url()).pathname;
       let body;
       if (path === '/api/auth/me') body = { id: 'cards-user', email: 'learner@example.invalid', display_name: 'Ученик', role: 'user', access_tier: 'free', registered_at: '2026-10-01T00:00:00Z', last_active_at: '2026-10-07T00:00:00Z', daily_usage: { used: 0, limit: 10, remaining: 10, resets_at: '2026-10-08T00:00:00Z' } };
+      else if (path === '/api/auth/me/android-premium') body = { id: 'cards-user', email: 'learner@example.invalid', display_name: 'Ученик', role: 'user', access_tier: 'premium', registered_at: '2026-10-01T00:00:00Z', last_active_at: '2026-10-07T00:00:00Z', daily_usage: { used: 0, limit: null, remaining: null, resets_at: '2026-10-08T00:00:00Z' } };
       else if (path === '/api/auth/me/preferences') body = { assistance_enabled: false };
       else if (path === '/api/topics') body = [{ id: 'bank', title_ru: 'В банке', description_ru: 'Счёт и платежи', phrase_count: 20, is_custom: false, likely_intents: [], suggested_vocabulary: [] }];
       else if (path === '/api/review-phrases/summary') body = { phrase_count: 0 };
@@ -51,8 +52,8 @@ for (const [native, width] of [[false, 320], [false, 390], [true, 393]]) {
     await page.getByRole('button', { name: 'Настройки', exact: true }).click();
     const version = page.getByLabel('Версия приложения');
     await expect(version).toHaveText(`v.${releaseVersion}`);
-    const alignment = await page.locator('.settings-heading').evaluate(element => {
-      const row = element.getBoundingClientRect(), title = element.querySelector('h1').getBoundingClientRect(), version = element.querySelector('.settings-version').getBoundingClientRect();
+    const alignment = await page.locator('[data-slot=settings-heading]:visible').evaluate(element => {
+      const row = element.getBoundingClientRect(), title = element.querySelector('h1').getBoundingClientRect(), version = element.querySelector('[data-slot=settings-version]').getBoundingClientRect();
       return { right: Math.abs(row.right - version.right), middle: Math.abs((title.top + title.bottom) / 2 - (version.top + version.bottom) / 2) };
     });
     expect(alignment.right).toBeLessThan(1);

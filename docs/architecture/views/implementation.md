@@ -43,7 +43,7 @@ Shows where modules live in the repository and how they are built and checked.
 | Frontend lint and format | ESLint today; Biome | Changing (Phase 1) |
 | Frontend tests | Vitest + Testing Library; Playwright with mocked API | Existing |
 | Frontend boundary enforcement | dependency-cruiser | Planned (Phase 1) |
-| Styling | Global CSS today; Tailwind v4 tokens and shadcn/ui | Changing (Phase 4) |
+| Styling | Tailwind v4 tokens (`src/shared/styles/tokens.css`) and shadcn/ui components (`src/shared/ui`); the inherited global CSS sits in a lower cascade layer until each screen is migrated | In progress (Phase 4) |
 | Secret scanning | gitleaks through `scripts/guard/check-secrets.sh` | Existing (local hook and CI) |
 | One command for all checks | `just check` (`justfile`) | Existing; the frontend recipes need dependencies installed |
 | Continuous integration | GitHub Actions, `.github/workflows/ci.yml`, path-filtered | Existing; not yet run on GitHub |

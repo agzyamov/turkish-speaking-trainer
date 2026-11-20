@@ -16,6 +16,7 @@ for (const language of ['ru', 'en']) for (const layout of ['desktop', 'mobile', 
       const path = new URL(route.request().url()).pathname;
       let body, status = 200;
       if (path === '/api/auth/me') body = { id: 'settings-user', email: 'maxim.sumin.long.address@example.invalid', display_name: 'Maksim Sumin', role: 'admin', can_debug_models: true, access_tier: 'free', daily_usage: { used: 4, limit: null, remaining: null, resets_at: '2026-10-16T00:00:00Z' } };
+      else if (path === '/api/auth/me/android-premium') body = { id: 'settings-user', email: 'maxim.sumin.long.address@example.invalid', display_name: 'Maksim Sumin', role: 'admin', can_debug_models: true, access_tier: 'premium', daily_usage: { used: 4, limit: null, remaining: null, resets_at: '2026-10-16T00:00:00Z' } };
       else if (path === '/api/auth/me/preferences') body = { assistance_enabled: false };
       else if (path === '/api/topics') body = [];
       else if (path === '/api/custom-phrases') body = [];
@@ -38,16 +39,21 @@ for (const language of ['ru', 'en']) for (const layout of ['desktop', 'mobile', 
     const languages = settings.locator('.language-settings');
     await expect(languages.locator('.settings-icon--ru svg')).toBeVisible();
     await expect(languages.locator('.settings-icon--en svg')).toBeVisible();
-    const choices = languages.locator('.settings-choice');
+    const choices = languages.locator('[data-slot=language-option]');
     const firstChoice = await choices.nth(0).boundingBox();
     const secondChoice = await choices.nth(1).boundingBox();
     expect(Math.abs(firstChoice.y - secondChoice.y)).toBeLessThan(2);
     expect(secondChoice.x).toBeGreaterThan(firstChoice.x);
-    // Hidden native radios retain keyboard selection and the selected card ring.
+    // Keyboard: arrows move focus within the radio group, Space selects (Radix radio group).
+    // (Radix also selects on arrow while the key is held; Playwright releases keys instantly.)
     await languages.getByRole('radio', { name: en ? 'English' : 'Русский', exact: true }).focus();
     await page.keyboard.press(en ? 'ArrowLeft' : 'ArrowRight');
+    await expect(languages.getByRole('radio', { name: en ? 'Русский' : 'English', exact: true })).toBeFocused();
+    await page.keyboard.press('Space');
     await expect(settings.getByRole('heading', { name: en ? 'Настройки' : 'Settings', exact: true })).toBeVisible();
     await page.keyboard.press(en ? 'ArrowRight' : 'ArrowLeft');
+    await expect(languages.getByRole('radio', { name: en ? 'English' : 'Русский', exact: true })).toBeFocused();
+    await page.keyboard.press('Space');
     await expect(settings.getByRole('heading', { name: en ? 'Settings' : 'Настройки', exact: true })).toBeVisible();
     await expect(settings.getByRole('radio', { name: en ? /Cyrillic/ : /Кириллица/ })).toHaveCount(0);
     await expect(settings.locator('.settings-icon--bell svg')).toBeVisible();
@@ -96,7 +102,7 @@ for (const language of ['ru', 'en']) for (const layout of ['desktop', 'mobile', 
     const signOut = account.getByRole('button', { name: en ? 'Sign out' : 'Выйти' });
     await expect(signOut).toHaveCSS('color', 'rgb(234, 242, 255)');
     if (layout !== 'desktop') {
-      const profileBox = await account.locator('.profile').boundingBox();
+      const profileBox = await account.locator('[data-slot=account-profile]').boundingBox();
       expect((await signOut.boundingBox()).y).toBeGreaterThanOrEqual(profileBox.y + profileBox.height);
     }
     await expect(page.getByText(/По умолчанию выключено|Off by default|Через 7 дней|After 7 days|Ключи доступа не сохраняются|Access keys are not stored/)).toHaveCount(0);

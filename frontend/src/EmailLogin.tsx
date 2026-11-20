@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { isEmailOtpEnabled, requestEmailCode, verifyEmailCode } from "./emailAuth";
 import { t, useLanguage } from "./i18n";
-import "./emailLogin.css";
 
 export function EmailLogin({ onSignedIn }: { onSignedIn?: () => void } = {}) {
   useLanguage();
