@@ -51,9 +51,9 @@ flowchart TB
 
 | Module | Responsibility | Status |
 |---|---|---|
-| `App.tsx` | Currently holds navigation, state and most screens in one component | Changing: split into the modules below (Phase 4) |
-| `features/<name>/` | One folder per screen area: practice, statistics, premium, settings, admin, auth. Owns its components, hooks and queries | Planned (Phase 4) |
-| `shared/ui/`, `shared/lib/`, `shared/styles/` | Reusable components (shadcn/ui pattern on Radix: Button, Card, Switch, RadioGroup), the `cn` class helper, and the design tokens (`shared/styles/tokens.css`, Tailwind v4 `@theme`) | In progress (Phase 4): Settings uses them; other screens are still flat files in `src/` styled by the legacy stylesheet |
+| `App.tsx` | Navigation, session state and the screens not yet extracted | Changing: split into the modules below (Phase 4); practice rendering moved out, its state not yet |
+| `features/<name>/` | One folder per screen area: practice, statistics, premium, settings, admin, auth. Owns its components, hooks and queries | In progress (Phase 4): `features/practice/` holds the practice components (phrase with hints, answer and voice controls, result); its state and requests still live in `App.tsx`. Other areas not started |
+| `shared/ui/`, `shared/lib/`, `shared/styles/` | Reusable components (shadcn/ui pattern on Radix: Button, Card, Switch, RadioGroup; the app's line icons), the `cn` class helper, and the design tokens (`shared/styles/tokens.css`, Tailwind v4 `@theme`) | In progress (Phase 4): Settings uses them; other screens are still flat files in `src/` styled by the legacy stylesheet |
 | `shared/i18n/` | Keyed translations in Russian and English | Changing: today `i18n.ts` uses the Russian string as the key (Phase 4) |
 | `api/` | Typed functions for every backend endpoint; the only place that calls `fetch` | Existing |
 | platform | `voiceRecorder.ts`, `auth.ts`, `emailAuth.ts`, reward audio, Capacitor plugins | Existing; kept as is |

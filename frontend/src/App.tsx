@@ -1,6 +1,6 @@
 import { failureOf } from "./api/failureDiagnostics";
 import { budgetPauseMessage } from "./budgetPause";
-import { t, useLanguage, setLanguage, getLanguage, getLocale, topicText } from "./i18n";
+import { t, useLanguage, setLanguage, getLocale, topicText } from "./i18n";
 import { exerciseSource } from "./exerciseSource";
 import { Fragment, useCallback, useEffect, useRef, useState } from "react";
 import { App as CapacitorApp } from "@capacitor/app";
@@ -19,33 +19,30 @@ import { EmailLogin } from "./EmailLogin";
 import { ReviewLogin } from "./ReviewLogin";
 import { assistedText } from "./transcriptionAssistance";
 import { transcriptionErrorMessage } from "./transcriptionError";
-import { TranscriptionAssistanceView, type AssistanceDraft } from "./TranscriptionAssistanceView";
+import type { AssistanceDraft } from "./TranscriptionAssistanceView";
 import { useAssistancePreference } from "./useAssistancePreference";
 import { useMobileLayout } from "./useMobileLayout";
 import { SettingsView } from "./SettingsView";
 import { PremiumView } from "./PremiumView";
 import { PremiumBadge } from "./PremiumBadge";
 import { sortedPersonalTopics } from "./personalTopics";
-import { WordHintToken } from "./WordHintToken";
-import { splitHintFragments } from "./sourceWords";
 import { hasUnexpectedLetterScript, latinForEvaluation } from "./turkishText";
-import { AnswerResult } from "./AnswerResult";
 import { RewardOverlay } from "./RewardOverlay";
 import { useRewards } from "./useRewards";
 import { finishUiTimingWhenVisible, startUiTiming } from "./performance";
 import appLogo from "./assets/app-logo.png?inline";
 import messages from "./locales/en.json";
 import "./index.css";
+import { Icon } from "./shared/ui/icon";
+import type { VoiceState } from "./features/practice/AnswerActions";
+import { PhraseLoading } from "./features/practice/PhraseLoading";
+import { InteractivePhrase } from "./features/practice/InteractivePhrase";
+import { PracticeCard } from "./features/practice/PracticeCard";
 
 type BackendState = "checking" | "online" | "offline";
-type VoiceState = "idle" | "connecting" | "recording" | "transcribing" | "error";
 type AppView = "practice" | "statistics" | "premium" | "settings" | "admin";
 type StartupState = "loading" | "ready" | "fallback";
-const transcriptionBreakMessage = "Проблемы с работой внешней моделью. Сделайте перерыв и вернитесь к обучению позже";
 
-function displayFeedback(text: string): string {
-  return getLanguage() === "en" || !/[А-Яа-яЁё]/.test(text) ? t(text) : text.normalize("NFC");
-}
 
 const loadStatistics = (retryUrl?: string) => (retryUrl
   ? import(/* @vite-ignore */ retryUrl) as Promise<typeof import("./StatisticsView")>
@@ -54,29 +51,7 @@ const loadAdminUsers = (retryUrl?: string) => (retryUrl
   ? import(/* @vite-ignore */ retryUrl) as Promise<typeof import("./AdminUsersView")>
   : import("./AdminUsersView")).then(({ AdminUsersView }) => ({ default: AdminUsersView }));
 
-function AnswerActions({ answer, loading, native, voiceState, voiceSupported, startVoice, finishVoice, stopVoice }: {
-  answer: string; loading: boolean; native: boolean; voiceState: VoiceState; voiceSupported: boolean;
-  startVoice: () => void; finishVoice: () => void; stopVoice: () => void;
-}) {
-  const busy = voiceState === "connecting" || voiceState === "recording" || voiceState === "transcribing";
-  return <div className="answer-actions">
-    {answer.trim() && <button className="answer-check-button" type="submit" form="practice-answer-form" aria-label={t(loading ? "Проверяем…" : native ? "Проверить" : "Проверить ответ")} disabled={loading || busy || hasUnexpectedLetterScript(answer)}><Icon name="tick" size={40} /></button>}
-    <button className={`mic-button${busy ? " is-active" : ""}${answer.trim() && !busy ? " mic-button--retry" : ""}`} type="button"
-      aria-label={t(busy ? voiceState === "recording" ? "Завершить запись" : "Остановить запись" : answer.trim() ? "Записать заново" : "Ответить голосом")}
-      disabled={loading || !voiceSupported || voiceState === "transcribing"}
-      onClick={busy ? voiceState === "recording" ? finishVoice : stopVoice : startVoice}>
-      {answer.trim() && !busy && <span className="mic-retry-ring"><Icon name="retry" size={52} /></span>}
-      <Icon name="mic" size={30} />
-    </button>
-  </div>;
-}
 
-function PhraseLoading() {
-  return <div className="phrase-loading auth-loading" role="status" aria-label={t("Подготовка фразы")}>
-    <span className="auth-loading__ring"><img src={appLogo} alt="SerboTalk" /></span>
-    <p>{t("Подготовка фразы")}</p>
-  </div>;
-}
 
 function requestId(): string {
   if (typeof crypto.randomUUID === "function") return crypto.randomUUID();
@@ -97,33 +72,6 @@ const topicIcons: Record<string, string> = {
   work: "laptop", doctor: "heart", rent: "home", transport: "bus",
 };
 
-function Icon({ name, size = 20 }: { name: string; size?: number }) {
-  const paths: Record<string, React.ReactNode> = {
-    message: <><path d="M21 15a4 4 0 0 1-4 4H8l-5 3 1.5-4.5A7 7 0 0 1 3 13V8a5 5 0 0 1 5-5h9a4 4 0 0 1 4 4Z"/><path d="M8 10h.01M12 10h.01M16 10h.01"/></>,
-    home: <><path d="m3 11 9-8 9 8"/><path d="M5 10v10h14V10M9 20v-6h6v6"/></>,
-    chart: <><path d="M4 19V9M10 19V5M16 19v-7M22 19V2"/></>,
-    progress: <><path d="M4 18h16M6 15l4-4 3 2 5-7"/><path d="M16 6h2v2"/></>,
-    repeat: <><path d="M20.49 9.5a8.85 8.85 0 0 0-17.1-.1M3.51 14.5a8.85 8.85 0 0 0 17.1.1" strokeWidth="2.4"/><path d="m16 7 4.5 2.5 1-5M8 17l-4.5-2.5-1 5" strokeWidth="2.4"/></>,
-    retry: <><path d="M3 10a9 9 0 0 1 16-4l2 2M21 14a9 9 0 0 1-16 4l-2-2" strokeWidth="2.8"/><path fill="currentColor" stroke="none" d="M21.4 3.7 22 9.5 16.3 8.2ZM2.6 20.3 2 14.5l5.7 1.3Z"/></>,
-    briefcase: <><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V4h8v3M3 12h18M10 12v2h4v-2"/></>,
-    bank: <><path d="m3 9 9-5 9 5M5 10h14M6 10v8M10 10v8M14 10v8M18 10v8M3 20h18"/></>,
-    sun: <><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></>,
-    cup: <><path d="M5 8h12v6a6 6 0 0 1-12 0Z"/><path d="M17 10h2a3 3 0 0 1 0 6h-3M7 3v2M11 3v2M15 3v2"/></>,
-    laptop: <><rect x="4" y="4" width="16" height="12" rx="1"/><path d="M2 19h20M9 19h6"/></>,
-    heart: <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8l1.1 1.1L12 21l7.8-7.5 1.1-1.1a5.5 5.5 0 0 0-.1-7.8Z"/>,
-    bus: <><rect x="5" y="3" width="14" height="16" rx="3"/><path d="M5 11h14M8 19v2M16 19v2M8 15h.01M16 15h.01M8 7h8"/></>,
-    plus: <path d="M12 5v14M5 12h14"/>,
-    mic: <><rect x="9" y="3" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3M9 21h6"/></>,
-    pencil: <><path d="m4 16-1 5 5-1L19 9l-4-4Z"/><path d="m13 7 4 4"/></>,
-    bulb: <><path d="M9 18h6M10 22h4"/><path d="M8.5 15.5A7 7 0 1 1 15.5 15.5c-.9.7-1.3 1.3-1.5 2.5h-4c-.2-1.2-.6-1.8-1.5-2.5Z"/></>,
-    tick: <path d="m5 12 4 4L19 6" />,
-    check: <><circle cx="12" cy="12" r="9"/><path d="m8 12 2.5 2.5L16 9"/></>,
-    arrow: <><path d="M5 12h14M14 7l5 5-5 5"/></>,
-    clock: <><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></>,
-    settings: <><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1-2.8 2.8-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.6v.2h-4V21a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1L4.2 17l.1-.1a1.7 1.7 0 0 0 .3-1.9A1.7 1.7 0 0 0 3 14H2.8v-4H3a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9L4.2 7 7 4.2l.1.1a1.7 1.7 0 0 0 1.9.3A1.7 1.7 0 0 0 10 3v-.2h4V3a1.7 1.7 0 0 0 1 1.6 1.7 1.7 0 0 0 1.9-.3l.1-.1L19.8 7l-.1.1a1.7 1.7 0 0 0-.3 1.9 1.7 1.7 0 0 0 1.6 1h.2v4H21a1.7 1.7 0 0 0-1.6 1Z"/></>,
-  };
-  return <svg aria-hidden="true" className="icon" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">{t(paths[name] ?? paths.message)}</svg>;
-}
 
 export default function App() {
   const language = useLanguage();
@@ -285,7 +233,7 @@ function TrainerApp({ account, onAccountChange, onSignOut }: { account: CurrentU
     }
   }, [exercise, attempt, mobileLayout, visiblePanel, view]);
   useEffect(() => {
-    if (hasTranscript) finishUiTimingWhenVisible("transcription", mobileLayout ? "#android-serbian-answer" : "#serbian-answer");
+    if (hasTranscript) finishUiTimingWhenVisible("transcription", mobileLayout ? "#android-answer" : "#practice-answer");
   }, [hasTranscript, mobileLayout]);
   useEffect(() => {
     if (attempt) finishUiTimingWhenVisible("check", ".feedback");
@@ -864,61 +812,21 @@ function TrainerApp({ account, onAccountChange, onSignOut }: { account: CurrentU
         refreshCustomContent();
       }} />;
 
-  function renderPhrase() {
-    const localized = exercise ? exerciseSource(exercise) : undefined;
-    const hints: Record<string, { translation_tr: string; note?: string } | undefined> = localized?.hints ?? {};
-    if (exercise && !localized) return null;
-    return <h2 id="exercise-title" className="interactive-phrase" aria-label={localized ? localized.source : t("Готовим фразу…")}>
-      {exercise && localized ? splitHintFragments(localized.source, Object.keys(hints)).map((part, index) => {
-        const localHint = Object.hasOwn(hints, part.toLocaleLowerCase("ru-RU")) ? hints[part.toLocaleLowerCase("ru-RU")] : undefined;
-        const word = part;
-        const normalized = word.toLocaleLowerCase("ru-RU");
-        if (!localHint) return <span key={index}>{part}</span>;
-        return <WordHintToken key={`${part}-${index}`} word={part} used={Boolean(wordHints[normalized])} disabled={checking || Boolean(attempt)} onDismiss={() => setActiveHint(undefined)} active={activeHint === normalized && (mobileLayout ? visiblePanel === 1 : view === "practice")} translation={wordHints[normalized] ? [wordHints[normalized].translation_tr, localHint.note ? t(localHint.note) : ""].filter(Boolean).join(" · ") : t("Загружаем…")} onClick={() => void showWordHint(word, { word_ru: word, translation_tr: localHint.translation_tr })} />;
-      }) : t("Готовим фразу…")}
-    </h2>;
-  }
-
-  function renderFeedback(native: boolean) {
-    if (!attempt) return null;
-    const scorePercent = Math.round(attempt.overall_score * 100);
-    return <div className={`feedback ${native ? "android-feedback" : ""} feedback--${attempt.analysis.verdict}`}>
-      <AnswerResult answer={attempt.transcript_tr} attempt={attempt} />
-      {attempt.overall_score !== 1 && <div className="feedback__score"><span>{scorePercent}%</span><strong>{t(attempt.analysis.verdict === "correct" ? "Верно" : attempt.analysis.verdict === "mostly_correct" ? "Почти верно" : "Нужно доработать")}</strong></div>}
-      {attempt.hint_penalty > 0 && <div className="hint-penalty"><Icon name="bulb" /><span>{t("Подсказки: −")}{Math.round(attempt.hint_penalty * 100)}%</span></div>}
-      {scorePercent < 100 && <details><summary>{t("Разбор")}</summary><p>{displayFeedback(attempt.analysis.detailed_feedback_ru)}</p>{attempt.analysis.issues.map((issue, index) => <p className="issue" key={`${issue.skill_key}-${issue.type}-${index}`}>{issue.evidence}{t(issue.correction ? ` → ${issue.correction}` : "")}{issue.explanation_ru && <span className="issue-explanation">{displayFeedback(issue.explanation_ru)}</span>}</p>)}</details>}
-    </div>;
-  }
-
   function renderPractice(compact: boolean) {
     if (exercise && !exerciseSource(exercise)) return <div className="practice-card panel">
       <p className="error" role="alert">{t("Фраза на выбранном языке недоступна. Повторите загрузку или выберите другую тему.")}</p>
       <button type="button" onClick={() => window.location.reload()}>{t("Повторить загрузку")}</button>
     </div>;
-    const answerId = compact ? "android-serbian-answer" : "serbian-answer";
-    const done = !isReviewMode && completedCount >= (session?.requested_length ?? 10);
-    return <div className={`practice-card exercise-layout${compact ? " android-training-content" : " panel"}`}>
-      <RewardOverlay reward={reward?.kind !== "twenty" ? reward : undefined} />
-      <div className="exercise-scroll">
-        <div className="exercise-topic">{phraseTopicTitle}</div>
-        {!attempt && <div className="exercise-source">{renderPhrase()}</div>}
-        {!attempt ? <form id="practice-answer-form" className="exercise-answer" onSubmit={checkAnswer}>
-          {hasTranscript && <div className="exercise-answer-frame result-phrase"><label htmlFor={answerId}>{t("Ваш ответ")}</label>
-            <textarea id={answerId} value={answer} readOnly={checking} onChange={(event) => { answerEditEpochRef.current += 1; voiceTimingRef.current = undefined; setAssistanceDraft(current => current ? { ...current, edited: true } : undefined); setAnswer(event.target.value); }} placeholder={t("Введите ответ на турецком языке")} rows={3} /></div>}
-          {hasUnexpectedLetterScript(answer) && <p className="transcription-script-warning" role="alert">{t("В расшифровке есть буквы не из турецкого алфавита. Исправьте текст перед проверкой или запишите ответ заново.")}</p>}
-          {transcriptionBreakRecommended && <p className="transcription-script-warning" role="alert">{t(transcriptionBreakMessage)}</p>}
-          <TranscriptionAssistanceView draft={assistanceDraft} disabled={checking || voiceBusy} onToggle={toggleTranscriptionChange} />
-          {!hasTranscript && (voiceState === "error" || !voiceSupported) && <button type="button" onClick={enterAnswerManually}>{t("Ввести ответ вручную")}</button>}
-        </form> : renderFeedback(compact)}
-        {error && <p className="error" role="alert">{t(error)}{errorDiagnosticId && <> <span>{t("Код диагностики")}: {errorDiagnosticId}</span></>}</p>}
-      </div>
-      <div className="exercise-controls">
-        {!attempt ? <>
-          <AnswerActions answer={answer} loading={checking} native={isNative} voiceState={voiceState} voiceSupported={voiceSupported} startVoice={() => void startVoice()} finishVoice={() => void finishVoice()} stopVoice={stopVoice} />
-          <div className="exercise-voice-status" role="status">{t(!voiceSupported ? "Микрофон недоступен. Разрешите доступ к нему в браузере или устройстве." : voiceState === "connecting" ? "Подключаем микрофон…" : voiceState === "recording" ? "Идёт запись. Аудио не сохраняется" : voiceState === "transcribing" ? "Расшифровываем фразу…" : voiceState === "error" ? "Не удалось распознать ответ. Повторите запись." : hasTranscript ? "Введите ответ или исправьте распознанный текст." : "Нажмите на микрофон, чтобы ответить.")}</div>
-        </> : <button className={compact ? "android-primary" : "answer-submit"} type="button" disabled={advancing} onClick={() => void nextExercise()}>{t(advancing ? "Готовим…" : done ? "Завершить тренировку" : compact ? "Следующая" : "Следующая фраза")}{!compact && <Icon name="arrow" />}</button>}
-      </div>
-    </div>;
+    const phrase = <InteractivePhrase exercise={exercise} wordHints={wordHints} activeHint={activeHint}
+      hintsVisible={mobileLayout ? visiblePanel === 1 : view === "practice"} disabled={checking || Boolean(attempt)}
+      onDismissHint={() => setActiveHint(undefined)} onRevealHint={(word, localHint) => void showWordHint(word, localHint)} />;
+    return <PracticeCard compact={compact} native={isNative} phrase={phrase} topicTitle={phraseTopicTitle} attempt={attempt}
+      answer={answer} onAnswerEdit={text => { answerEditEpochRef.current += 1; voiceTimingRef.current = undefined; setAssistanceDraft(current => current ? { ...current, edited: true } : undefined); setAnswer(text); }}
+      onSubmit={checkAnswer} checking={checking} hasTranscript={hasTranscript} voiceState={voiceState} voiceSupported={voiceSupported} voiceBusy={voiceBusy}
+      assistanceDraft={assistanceDraft} onToggleAssistance={toggleTranscriptionChange} transcriptionBreakRecommended={transcriptionBreakRecommended}
+      onEnterManually={enterAnswerManually} onStartVoice={() => void startVoice()} onFinishVoice={() => void finishVoice()} onStopVoice={stopVoice}
+      error={error} errorDiagnosticId={errorDiagnosticId} reward={reward} advancing={advancing}
+      done={!isReviewMode && completedCount >= (session?.requested_length ?? 10)} onNext={() => void nextExercise()} />;
   }
 
   if (startupState === "loading") return <main className="auth-page auth-page--loading"><PhraseLoading /></main>;

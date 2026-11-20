@@ -69,7 +69,7 @@ try {
     });
   } catch (error) {
     const form = await page.evaluate(() => {
-      const answer = document.querySelector("#android-serbian-answer");
+      const answer = document.querySelector("#android-answer");
       const submit = document.querySelector('.android-answer button[type="submit"]');
       const rect = submit?.getBoundingClientRect();
       const hit = rect ? document.elementFromPoint(rect.x + rect.width / 2, rect.y + rect.height / 2) : null;
