@@ -1,5 +1,5 @@
 import os
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from uuid import uuid4
 
 import pytest
@@ -41,7 +41,7 @@ def test_review_summary_matches_full_list_after_due_activation_and_is_tenant_sco
     db_session.add_all([own_topic, foreign_topic])
     db_session.flush()
 
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     phrases = [
         ReviewPhrase(
             source_ru=f"Фраза {number}", source_normalized=f"фраза {number}",
@@ -165,7 +165,7 @@ def test_review_summary_and_visible_titles_on_isolated_postgres() -> None:
                 ),
             ])
             db.flush()
-            now = datetime.now(timezone.utc)
+            now = datetime.now(UTC)
             due = ReviewPhrase(
                 user_id=first_id, source_ru="Срок повторения", source_normalized="срок повторения",
                 intended_sr_variants_json=["Ponavljanje"], topic_id="shared",

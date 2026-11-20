@@ -1,59 +1,75 @@
-# Правила проекта Serbian Speaking Trainer
+# Rules for coding agents
 
-## Область действия
+These rules apply to the whole repository and to every coding agent working in it.
 
-Правила действуют для всего репозитория. Реализуй проект небольшими вертикальными срезами и оставляй приложение запускаемым после каждого этапа.
+The project is a Turkish speaking trainer being converted from a Serbian one. The state of that conversion is in [docs/architecture/roadmap.md](docs/architecture/roadmap.md).
 
-## Неизменяемые ограничения
+## 1. The architecture documents are binding
 
-- Во всём проекте учебный стандарт сербского — только **Ekavica (экавица)** для генерации, канонических переводов, вариантов, подсказок и проверки ответов, в latinica и ćirilica, RU/EN, общих и пользовательских темах. Не смешивать с Ijekavica. Явную иекавскую форму объяснять как отклонение от выбранного стандарта, не как ошибку сербского вообще. Исходную речь/transcript/evidence сохранять дословно; не маскировать нормализацию под STT.
+Before changing code, read:
 
-- По умолчанию не сохраняй пользовательское аудио в БД, файлах, логах или тестовых fixtures. Временное исключение, явно разрешённое владельцем 12.10.2026: только разрешённый debug-admin при включённой отладке может хранить последние 20 входных записей в отдельных бинарных полях диагностики. Доступ через авторизованный owner-scoped API; срок доступности 7 дней, физическая очистка при следующем обращении к отладке, полное удаление при выключении. Не помещай аудио в JSON/консоль/Git/fixtures; тесты используют синтетические байты. Обычный временный буфер освобождается после распознавания.
-- `OPENAI_API_KEY` существует только в backend-окружении. Не передавай постоянный ключ в browser, frontend bundle или API response.
-- Все OpenAI model IDs задаются только через env. Не зашивай модели, aliases, цены и даты в бизнес-логику.
-- Любой программно используемый LLM output валидируется Pydantic-схемой. Не разбирай свободный текст регулярными выражениями.
-- OpenAI adapter, Scheduler, Learner Model и scoring живут в сервисах; API routers только валидируют/оркестрируют вызовы.
-- Для внешних AI-вызовов обязательны timeout, ограниченный retry, безопасная ошибка и mock в автоматических тестах.
-- До полного текстового вертикального цикла (этапы 0–5) не добавляй WebRTC/voice.
-- Перед Realtime/WebRTC сверяй контракт с актуальной официальной документацией OpenAI. Постоянный ключ остаётся на backend; browser получает только короткоживущие параметры/сессию.
-- Не добавляй Docker, Redis, PostgreSQL, очереди или микросервисы без уже существующей необходимости. MVP использует SQLite.
-- Не позволяй модели автоматически расширять каталог навыков неизвестными `skill_key`.
+1. [docs/architecture/constraints.md](docs/architecture/constraints.md): the numbered rules and the escalation procedure.
+2. The views for the area you are changing, found through [docs/architecture/README.md](docs/architecture/README.md).
 
-## Архитектура и данные
+Then:
 
-- Зависимости направлены `api -> services -> repositories -> db`; бизнес-правила не зависят от FastAPI.
-- SQLAlchemy-модели и Alembic-миграции меняются вместе. Миграции должны быть повторяемыми и иметь понятный downgrade.
-- В БД разрешены текстовый transcript, числовые timing metrics и валидированный structured analysis JSON; бинарное аудио разрешено только временным исключением отладки от 12.10.2026, описанным выше.
-- Prompts хранятся отдельными версионируемыми файлами.
+- Make the change fit the documented architecture.
+- **If it does not fit, or the documents do not cover it, stop and ask the human owner.** Say what you were asked to do, which rule or gap is in the way, the options with their consequences, and which you recommend. Do not implement any option while waiting, and do not work around the rule.
+- After the owner decides, record the decision as an ADR in `docs/architecture/decisions/` and update the affected views in the same change.
 
-## Проверки и документация
+Cases that always need the owner: breaking a constraint; a new dependency between layers; a new runtime dependency, service, AI provider or model role; a change a released client would notice; a schema change not in the roadmap; anything that could let AI spend exceed the cap or store learner audio.
 
-- Все новые и изменяемые тексты интерфейса добавляй и обновляй одновременно в русской и английской версиях в рамках одного изменения. Это относится к заголовкам, кнопкам, настройкам, подписям, подсказкам, сообщениям об ошибках, состояниям loading/disabled и текстам доступности. Обновляй общий каталог локализации и все места использования изменённых строк. Проверяй отображение и соответствующие состояния в обеих локалях web и общего Android-интерфейса. Доработка не считается завершённой, если текст обновлён только на одном языке.
+## 2. Stay inside the repository; never touch secrets
 
-- Все новые и изменяемые элементы интерфейса соблюдают общий стиль приложения: палитру фона и текста, семейство и размеры шрифта. Используй общие CSS-переменные и компоненты; задавай фон и цвет явно для кнопок, полей, селекторов и их disabled/error/loading-состояний. Проверяй читаемость на тёмном фоне web и Android, не допускай белых browser-default элементов с унаследованным светлым текстом.
+This repository is public.
 
-- Основной актуальный план аудита — `docs/audit-roadmap.md`. После каждой завершённой задачи отмечай выполненное через `[x]`, оставшееся через `[ ]` и записывай дату, результаты проверок и ссылку на PR/коммит или документ с доказательствами. Частично выполненный пункт разделяй на завершённую и оставшуюся части. Реализацию, публикацию, Android-сборку и ручную приёмку отмечай отдельно; не закрывай весь P0/P1/P2 до выполнения всех его обязательных пунктов. `docs/audit-improvement-plan.md` сохраняет исходную постановку и состав команды, а не параллельные статусы.
-- Для бизнес-логики добавляй unit tests, для API/БД — integration tests, для UI — component test, typecheck и production build.
-- Тесты не должны вызывать OpenAI и расходовать API budget.
-- После значимого этапа обновляй `README.md` и `docs/decisions.md`; не описывай будущие возможности как готовые.
-- Сохраняй несвязанные пользовательские изменения. Не коммить `.env`, SQLite-файлы, секреты, build artifacts и зависимости.
+- Read and write only inside this repository.
+- Do not read `.env` files, keystores or credential folders. Do not ask the owner to paste a secret into the conversation. Configuration is described by variable name only; `.env.example` holds placeholders.
+- Never commit, print, log or send a secret anywhere. The pre-commit hook runs gitleaks; do not bypass it with `--no-verify`.
+- Do not edit `.claude/settings.json`, `.githooks/`, `.gitleaks.toml` or `scripts/guard/` unless the owner explicitly asks.
+- Do not use personal connectors or browser control.
+- If you find something that looks like a real secret in the repository, stop and tell the owner; do not quote it.
 
-## Git и согласованность рабочих копий
+## 3. Actions that need the owner's instruction each time
 
-- Основная папка после завершения публикации должна находиться на актуальном `main`, совпадать с `origin/main` и иметь пустой `git status --porcelain`. Успешный APK/deploy из отдельного worktree не завершает задачу при устаревшей основной папке.
-- Перед работой выполнять `git fetch origin`, проверять ветку/upstream, `git worktree list --porcelain` и состояние каждой копии. Начинать новый срез от актуального `origin/main`; не переносить поверх него целиком устаревшие локальные файлы.
-- До обновления грязной копии разбирать изменения. Уже опубликованное сверять с Git; уникальную незавершённую работу сохранять в отдельной recovery/WIP-ветке с понятным назначением. Проверенные исходники и документы сохранять commit/push; секреты, зависимости, аудио и build artifacts исключать. Незавершённую работу не включать в production автоматически; stash не считать завершением задачи.
-- После разрешённого merge обновлять основную папку через `main` и `git merge --ff-only origin/main`. Завершённые неактивные worktree переводить на тот же опубликованный SHA, сохраняя прежние ветки. Активную чужую работу не переключать: согласовать момент обновления и явно записать исключение; полная синхронизация при этом ещё не завершена.
-- Код, тесты, правила и доказательства выпуска должны быть закоммичены и отправлены на GitHub. После добавления доказательств повторять финальную проверку всех копий. В отчёте указывать main SHA, чистоту основной папки и остальных worktree, recovery-ветки и незавершённые пункты.
-- Различать SHA исходников deploy/APK и последующие commits только с документацией. Не пересобирать APK и не развёртывать приложение ради такого commit. Обновление отслеживаемых исходников `frontend/android` из Git не является Capacitor sync/сборкой и не повышает версию.
+- Pushing, tagging, opening or merging pull requests.
+- Deploying anything, running migrations against a hosted database, changing hosted configuration.
+- Android sync, build, version change or store submission.
+- Any call to a real AI provider that spends money.
 
-## Web-first и Android-релизы
+## 4. How to work
 
-- Текущая собранная Android-версия — `1.45` (`versionCode 55`), отдельно согласована владельцем 01.11.2026: восстановлен прежний парольный Review access для Google Play, автоматический Android Premium сохранён. Результаты: `docs/android-1.45-release.md`. Предыдущая сборка — `1.44`/code54; активная Google Play Alpha — `1.43`/code53. Production access одобрен;1.45/code55 опубликована в Open Testing release2 (Console проверена02.11.2026), Play-install приёмка и production отдельно. Обычные доработки web не меняют Android versionCode/versionName/package.json.
-- Не синхронизируй Android-проект, не собирай APK и не повышай Android-версию без отдельной явной команды пользователя.
-- Дорабатывай и проверяй функции сначала в web-приложении. Изменения, которые должны войти в будущий Android-релиз, накапливай в `docs/android-release-backlog.md`.
-- По команде на Android-релиз перенеси и проверь весь накопленный набор, после чего согласуй следующий номер версии отдельно, учитывая запрет на `2.x`.
-- Не переходи на версию `2.0` или любую версию `2.x` без отдельного явного указания пользователя.
-- Имя каждого собранного APK формируй строго по шаблону `SerboTalk-andorid16-<версия>.apk`. Написание `andorid16` является частью шаблона и не исправляется.
+- Work in small vertical slices and leave the app runnable after each one.
+- Start each slice from current `origin/main` on its own branch. Follow [docs/release-process.md](docs/release-process.md).
+- Models and Alembic migrations change together; every migration has a downgrade.
+- Every interface string is added or changed in Russian and English in the same change.
+- New and changed UI uses the shared design tokens and components.
+- Tests: unit tests for business logic, integration tests for API and database, component tests for UI. Tests never call a real AI provider; use `backend/tests/fakes.py`.
+- Do not describe planned features as done. When a Planned element lands, update its status in the views and the phase status in the roadmap.
+- Preserve unrelated changes you did not make.
 
-- Для production APK используй только `pnpm android:cloud-apk` (или `build:android` → cap sync → Gradle). Обычный web build нельзя переносить в APK: относительный API работает через web rewrite, но недоступен в WebView. Перед публикацией проверь production API URL внутри packaged bundle, metadata и подпись.
+## 5. Working efficiently
+
+- Read the architecture documents instead of re-exploring the codebase; they say where things live.
+- Run the narrowest check that covers your change while iterating (one test file, one package), and the full check once before handing over.
+- Do not rebuild, redeploy or re-run end-to-end suites for a change that only touches documentation.
+- Keep changes small enough to review in one sitting; split larger work.
+- Report plainly: what changed, which checks ran with their results, what was not done.
+
+## 6. Verification before you say it is done
+
+Run the full check and report the actual result. If a check fails or was not run, say so. Do not claim a check passed that you did not run.
+
+From the repository root:
+
+```bash
+just check            # everything: secrets, backend, frontend
+just backend          # lint, layer rules, tests
+just backend-test -k name   # one narrow test run while iterating
+just frontend         # lint, tests, build
+just secrets          # secret scan
+```
+
+## 7. Older documents
+
+`README.md`, `docs/decisions.md`, `docs/audit-roadmap.md`, the release notes under `docs/` and the spec docx describe the Serbian product and its history, mostly in Russian. They are kept as a record. Where they disagree with `docs/architecture/` or this file, this file and `docs/architecture/` win.

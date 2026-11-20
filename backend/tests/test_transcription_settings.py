@@ -18,7 +18,7 @@ PATH = "/api/admin/model-debug/transcription"
 def configure(db_session, *, owner=True):
     user = db_session.scalar(select(User))
     user.role = "admin"
-    user.email = "suezergut@gmail.com" if owner else "other@example.com"
+    user.email = "owner@example.com" if owner else "other@example.com"
     db_session.commit()
     settings = Settings(_env_file=None, openai_api_key="server-secret", openai_transcribe_model="env-default",
         openai_transcribe_models=[{"model": "env-alternative", "language_parameter": "language"}])
@@ -45,7 +45,7 @@ def test_selection_persists_independently_of_debug_and_rejects_unknown(api_clien
     assert api_client.patch(PATH, json={"model": None}).json()["selected_model"] is None
 
 
-@pytest.mark.parametrize("role,email", [("user", "suezergut@gmail.com"), ("admin", "other@example.com")])
+@pytest.mark.parametrize("role,email", [("user", "owner@example.com"), ("admin", "other@example.com")])
 def test_other_users_cannot_read_or_change_experiment(api_client, db_session, role, email):
     user, settings = configure(db_session)
     TranscriptionSettingsService(db_session, settings, user.id).change("env-alternative")

@@ -1,13 +1,13 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
+from app.api.dependencies import get_current_user
 from app.db import get_db
+from app.models import User
 from app.repositories import TopicPresetRepository
 from app.schemas import CreateTopicRequest, NormalizeTopicRequest, TopicContext, TopicListItem
 from app.services.ai_adapter import StructuredAIProvider, get_ai_provider
-from app.services.topic_service import TopicService, TopicNotFoundError
-from app.api.dependencies import get_current_user
-from app.models import User
+from app.services.topic_service import TopicNotFoundError, TopicService
 
 router = APIRouter(prefix="/topics", tags=["topics"])
 

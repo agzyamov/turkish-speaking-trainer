@@ -7,17 +7,16 @@ from pathlib import Path
 import jwt
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine, inspect, text
-
 from testlab import (
     EMAIL,
     ISSUER,
     USER_ID,
     Credentials,
+    _alembic,
+    bootstrap_testlab_database,
     create_auth_app,
     create_deterministic_analysis_provider,
     ensure_local_configuration,
-    bootstrap_testlab_database,
-    _alembic,
 )
 
 
@@ -101,6 +100,7 @@ def alembic_revision(engine) -> str:
 
 def current_revision() -> str:
     from alembic.script import ScriptDirectory
+
     from app.db.cli import alembic_config
     return ScriptDirectory.from_config(alembic_config()).get_current_head()
 
@@ -240,8 +240,6 @@ def test_fresh_testlab_database_is_initialized_by_alembic(tmp_path) -> None:
             assert {column["name"] for column in inspector.get_columns(table.name)} == {
                 column.name for column in table.columns
             }
-        from alembic.script import ScriptDirectory
-        from app.db.cli import alembic_config
         assert alembic_revision(engine) == current_revision()
     finally:
         engine.dispose()

@@ -3,7 +3,6 @@ import pytest
 
 from scripts.delete_account import provider_remover
 
-
 USER_ID = '11111111-1111-1111-1111-111111111111'
 EMAIL = 'disposable@example.invalid'
 

@@ -1,6 +1,8 @@
-from datetime import datetime, timezone
+from datetime import UTC, datetime
+
 from sqlalchemy import case, delete, select, update
 from sqlalchemy.orm import Session
+
 from app.models import ModelDebugLog, ModelDebugSetting
 
 
@@ -12,8 +14,8 @@ class ModelDebugRepository:
         return self.db.get(ModelDebugSetting, self.user_id)
 
     def select_transcription_model(self, model: str | None):
-        from sqlalchemy.dialects.sqlite import insert as sqlite_insert
         from sqlalchemy.dialects.postgresql import insert as pg_insert
+        from sqlalchemy.dialects.sqlite import insert as sqlite_insert
         insert = pg_insert if self.db.get_bind().dialect.name == "postgresql" else sqlite_insert
         self.db.execute(insert(ModelDebugSetting).values(
             user_id=self.user_id, enabled=False, generation=0, transcription_model=model,
@@ -21,8 +23,8 @@ class ModelDebugRepository:
 
     def change(self, enabled: bool):
         # Create disabled state once; conflict-safe on both supported databases.
-        from sqlalchemy.dialects.sqlite import insert as sqlite_insert
         from sqlalchemy.dialects.postgresql import insert as pg_insert
+        from sqlalchemy.dialects.sqlite import insert as sqlite_insert
         insert = pg_insert if self.db.get_bind().dialect.name == "postgresql" else sqlite_insert
         self.db.execute(insert(ModelDebugSetting).values(user_id=self.user_id, enabled=False, generation=0)
                         .on_conflict_do_nothing(index_elements=["user_id"]))
@@ -52,10 +54,10 @@ class ModelDebugRepository:
 
     def clear_expired_audio(self):
         self.db.execute(update(ModelDebugLog).where(ModelDebugLog.user_id == self.user_id,
-            ModelDebugLog.audio_expires_at <= datetime.now(timezone.utc)).values(
+            ModelDebugLog.audio_expires_at <= datetime.now(UTC)).values(
                 audio_payload=None, audio_content_type=None, audio_expires_at=None).execution_options(synchronize_session="fetch"))
 
     def audio(self, log_id: str):
         self.clear_expired_audio()
         return self.db.scalar(select(ModelDebugLog).where(ModelDebugLog.id == log_id,
-            ModelDebugLog.user_id == self.user_id, ModelDebugLog.audio_expires_at > datetime.now(timezone.utc)))
+            ModelDebugLog.user_id == self.user_id, ModelDebugLog.audio_expires_at > datetime.now(UTC)))

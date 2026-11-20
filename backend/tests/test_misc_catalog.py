@@ -1,12 +1,12 @@
-from pathlib import Path
 import re
+from pathlib import Path
 
 import pytest
-from alembic import command
 from alembic.config import Config
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from alembic import command
 from app.db.misc_phrases import MISC_PHRASES
 from app.db.seed import seed_catalog
 from app.db.session import create_database_engine

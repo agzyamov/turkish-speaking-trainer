@@ -33,5 +33,6 @@ class OpenAITranscriptionAssistanceProvider(OpenAIStructuredProvider):
 
 
 @lru_cache
-def get_transcription_assistance_provider() -> OpenAITranscriptionAssistanceProvider:
-    return OpenAITranscriptionAssistanceProvider(get_settings())
+def get_transcription_assistance_provider() -> TranscriptionAssistanceProvider:
+    from app.services.anthropic_adapter import AnthropicTranscriptionAssistanceProvider
+    return AnthropicTranscriptionAssistanceProvider(get_settings())

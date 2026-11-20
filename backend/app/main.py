@@ -1,36 +1,33 @@
 import logging
-from uuid import UUID, uuid4
-from fastapi.exceptions import ResponseValidationError
-from starlette.exceptions import HTTPException as StarletteHTTPException
-from fastapi.exception_handlers import http_exception_handler
-from app.services.failure_diagnostics import DiagnosticFailure
-from sqlalchemy.exc import SQLAlchemyError
-from app.services.failure_diagnostics import diagnostic_context, diagnostic, record_failure
-from app.api.payments import router as payments_router
 from time import perf_counter
+from uuid import UUID, uuid4
 
 from fastapi import Depends, FastAPI, Request
-from fastapi.exceptions import RequestValidationError
-from fastapi.exception_handlers import request_validation_exception_handler
-from fastapi.responses import JSONResponse
-from app.api.dependencies import model_debug_context
-from app.api.model_debug import router as model_debug_router
+from fastapi.exception_handlers import http_exception_handler, request_validation_exception_handler
+from fastapi.exceptions import RequestValidationError, ResponseValidationError
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+from sqlalchemy.exc import SQLAlchemyError
+from starlette.exceptions import HTTPException as StarletteHTTPException
 
-from app.audio_upload_middleware import AudioUploadBodyLimitMiddleware
 from app.api.attempts import router as attempts_router
 from app.api.auth import router as auth_router
+from app.api.dependencies import ai_usage_context, model_debug_context
 from app.api.feedback import router as feedback_router
 from app.api.health import router as health_router
+from app.api.model_debug import router as model_debug_router
+from app.api.payments import router as payments_router
+from app.api.review import router as review_router
 from app.api.sessions import router as sessions_router
 from app.api.statistics import router as statistics_router
 from app.api.topics import router as topics_router
 from app.api.transcriptions import router as transcriptions_router
-from app.api.review import router as review_router
+from app.audio_upload_middleware import AudioUploadBodyLimitMiddleware
 from app.config import get_settings
 from app.request_metrics import start_request_metrics, stop_request_metrics
-from app.services.interface_language import interface_language, parse_interface_language
 from app.services.custom_content_policy import CustomContentError
+from app.services.failure_diagnostics import DiagnosticFailure, diagnostic, diagnostic_context, record_failure
+from app.services.interface_language import interface_language, parse_interface_language
 from app.services.source_versions import SourceLanguageUnavailableError
 
 settings = get_settings()
@@ -97,7 +94,8 @@ async def persistence_failed(request: Request, _exc: SQLAlchemyError):
 async def service_failed(request: Request, exc: DiagnosticFailure):
     failure = exc.failure.model_copy(update={"diagnostic_id": getattr(request.state, "diagnostic_id", exc.failure.diagnostic_id)})
     record_failure(failure)
-    return JSONResponse({"detail": {"code": "operation_unavailable", "message": "The operation could not be completed.",
+    code = failure.reason if failure.reason in {"budget_exhausted", "user_daily_budget_exhausted"} else "operation_unavailable"
+    return JSONResponse({"detail": {"code": code, "message": "The operation could not be completed.",
                                     "retryable": failure.retryable, "failure": failure.model_dump(mode="json")}}, status_code=503, headers={"Cache-Control": "no-store"})
 
 
@@ -156,14 +154,14 @@ async def record_request_timing(request: Request, call_next):
         )
     return response
 
-app.include_router(feedback_router, prefix="/api")
+app.include_router(feedback_router, prefix="/api", dependencies=[Depends(ai_usage_context)])
 app.include_router(payments_router, prefix="/api")
 app.include_router(health_router, prefix="/api")
 app.include_router(auth_router, prefix="/api")
 app.include_router(model_debug_router, prefix="/api")
-app.include_router(transcriptions_router, prefix="/api", dependencies=[Depends(model_debug_context)])
-app.include_router(attempts_router, prefix="/api", dependencies=[Depends(model_debug_context)])
-app.include_router(topics_router, prefix="/api", dependencies=[Depends(model_debug_context)])
-app.include_router(sessions_router, prefix="/api", dependencies=[Depends(model_debug_context)])
-app.include_router(review_router, prefix="/api", dependencies=[Depends(model_debug_context)])
+app.include_router(transcriptions_router, prefix="/api", dependencies=[Depends(model_debug_context), Depends(ai_usage_context)])
+app.include_router(attempts_router, prefix="/api", dependencies=[Depends(model_debug_context), Depends(ai_usage_context)])
+app.include_router(topics_router, prefix="/api", dependencies=[Depends(model_debug_context), Depends(ai_usage_context)])
+app.include_router(sessions_router, prefix="/api", dependencies=[Depends(model_debug_context), Depends(ai_usage_context)])
+app.include_router(review_router, prefix="/api", dependencies=[Depends(model_debug_context), Depends(ai_usage_context)])
 app.include_router(statistics_router, prefix="/api")

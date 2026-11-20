@@ -47,6 +47,23 @@ def require_debug_admin(user: User = Depends(get_current_user), settings: Settin
     return user
 
 
+async def ai_usage_context(user: User = Depends(get_current_user), db: Session = Depends(get_db),
+                           settings: Settings = Depends(get_settings)):
+    """Tells the budget guard who is spending and where the ledger lives for this request."""
+    from app.services.ai_usage import MICRO
+    from app.services.budget_guard import UsageContext, usage_context
+    if user.role == "admin":
+        daily_limit = None
+    else:
+        usd = settings.ai_premium_user_daily_budget_usd if user.access_tier == "premium" else settings.ai_free_user_daily_budget_usd
+        daily_limit = int(usd * MICRO)
+    token = usage_context.set(UsageContext(user.id, db.get_bind(), daily_limit))
+    try:
+        yield
+    finally:
+        usage_context.reset(token)
+
+
 async def model_debug_context(user: User = Depends(get_current_user), db: Session = Depends(get_db),
                               settings: Settings = Depends(get_settings)):
     from app.services.model_debug import DebugContext, can_debug, debug_context

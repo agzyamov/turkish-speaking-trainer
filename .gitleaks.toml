@@ -1,0 +1,46 @@
+# Secret scanning rules for this public repository.
+# Starts from gitleaks' built-in rules and adds the providers this project uses.
+title = "turkish-speaking-trainer"
+
+[extend]
+useDefault = true
+
+[[rules]]
+id = "anthropic-api-key-any"
+description = "Anthropic API key (any format)"
+regex = '''\bsk-ant-[A-Za-z0-9_-]{20,}'''
+
+[[rules]]
+id = "elevenlabs-api-key"
+description = "ElevenLabs API key"
+regex = '''\bsk_[a-f0-9]{40,}\b'''
+
+[[rules]]
+id = "supabase-secret-key"
+description = "Supabase secret (service role) key"
+regex = '''\bsb_secret_[A-Za-z0-9_-]{20,}'''
+
+[[rules]]
+id = "database-url-with-password"
+description = "PostgreSQL connection string with an inline password"
+regex = '''postgres(?:ql)?(?:\+[a-z0-9]+)?://[^:/\s"']+:[^@\s"'{}$<*]{8,}@'''
+
+# Known non-secrets. Keep this list short and specific.
+[[allowlists]]
+description = "Placeholder passwords in tests, public-by-design publishable keys, git commit ids in release notes"
+regexTarget = "line"
+regexes = [
+  '''://[^:/\s"']+:password@''',
+  '''sb_publishable_''',
+  '''gitCommitSha''',
+]
+
+[[allowlists]]
+description = "Generated and third-party directories that are never committed"
+paths = [
+  '''(^|/)__pycache__/''',
+  '''(^|/)node_modules/''',
+  '''(^|/)\.venv/''',
+  '''(^|/)dist[^/]*/''',
+  '''(^|/)\.git/''',
+]

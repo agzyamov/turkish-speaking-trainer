@@ -1,20 +1,21 @@
-from app.services.failure_diagnostics import DiagnosticFailure, classify_provider_error, record_failure
-from fastapi import UploadFile
 from typing import Literal
+
+from fastapi import UploadFile
+from pydantic import ValidationError
 from sqlalchemy.orm import Session
 
 from app.config import Settings
 from app.repositories import ExerciseRepository
+from app.repositories.transcriptions import TranscriptionReceiptRepository
 from app.schemas import TranscriptionResponse
 from app.schemas.transcriptions import TranscriptionAssistanceAnalysis
 from app.services.ai_adapter import AIServiceError
-from app.services.transcription_assistance_adapter import TranscriptionAssistanceProvider
-from pydantic import ValidationError
-from app.services.transcription_adapter import OpenAITranscriptionProvider, TranscriptionProvider, TranscriptionServiceError
-from app.services.transcription_settings import TranscriptionSettingsService
+from app.services.failure_diagnostics import DiagnosticFailure, classify_provider_error, record_failure
 from app.services.serbian_text import has_unexpected_letter_script, normalized_serbian_words, serbian_latin
+from app.services.transcription_adapter import OpenAITranscriptionProvider, TranscriptionProvider, TranscriptionServiceError
 from app.services.transcription_assistance import POLICY_VERSION, validate_analysis
-from app.repositories.transcriptions import TranscriptionReceiptRepository
+from app.services.transcription_assistance_adapter import TranscriptionAssistanceProvider
+from app.services.transcription_settings import TranscriptionSettingsService
 
 ALLOWED_AUDIO_TYPES = {
     "audio/webm": ".webm",

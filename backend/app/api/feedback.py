@@ -7,7 +7,7 @@ from app.db import get_db
 from app.models import User
 from app.schemas.feedback import FeedbackRequest, FeedbackResponse, FeedbackTranscript
 from app.services.feedback import FeedbackService, transcribe_feedback
-from app.services.transcription_adapter import OpenAITranscriptionProvider, TranscriptionServiceError, get_transcription_provider
+from app.services.transcription_adapter import TranscriptionProvider, TranscriptionServiceError, get_transcription_provider
 
 router = APIRouter(prefix="/feedback", tags=["feedback"])
 
@@ -21,7 +21,7 @@ def create_feedback(payload: FeedbackRequest, user: User = Depends(get_current_u
 @router.post("/transcribe", response_model=FeedbackTranscript)
 def transcribe(audio: UploadFile = File(), _user: User = Depends(get_current_user),
                settings: Settings = Depends(get_settings),
-               provider: OpenAITranscriptionProvider = Depends(get_transcription_provider)) -> FeedbackTranscript:
+               provider: TranscriptionProvider = Depends(get_transcription_provider)) -> FeedbackTranscript:
     try:
         payload = audio.file.read(settings.max_audio_bytes + 1)
         if len(payload) > settings.max_audio_bytes:

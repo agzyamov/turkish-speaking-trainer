@@ -1,12 +1,13 @@
+from datetime import UTC, datetime, timedelta
+
 import pytest
 from fastapi.testclient import TestClient
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from app.api.dependencies import get_current_user
 from app.main import app
-from app.models import ReviewPhrase, User, PhrasePreparationReceipt, TopicPreset, Attempt
-from datetime import datetime, timedelta, timezone
-from sqlalchemy import select, func
+from app.models import Attempt, PhrasePreparationReceipt, ReviewPhrase, TopicPreset, User
 from app.services.ai_adapter import get_ai_provider
 from tests.fakes import FakeAIProvider, create_custom_phrase
 
@@ -105,7 +106,7 @@ def test_server_receipt_blocks_tampering_foreign_expired_and_replay_after_delete
     assert api_client.post("/api/review-phrases", json={**payload, "topic_id": "misc"}).json()["detail"]["code"] == "custom_topic_required"
     assert api_client.delete(f"/api/custom-phrases/{phrase['id']}").status_code == 204
     assert api_client.post("/api/review-phrases", json=payload).json()["detail"]["code"] == "phrase_preparation_used"
-    receipt.expires_at = datetime.now(timezone.utc) - timedelta(seconds=1)
+    receipt.expires_at = datetime.now(UTC) - timedelta(seconds=1)
     db_session.flush()
     assert api_client.post("/api/review-phrases", json=payload).json()["detail"]["code"] == "phrase_preparation_expired"
 

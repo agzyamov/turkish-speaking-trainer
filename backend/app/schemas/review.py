@@ -3,7 +3,7 @@ from datetime import datetime
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 from pydantic_core import PydanticCustomError
 
-from app.schemas.exercises import WordHint, SourceVersions
+from app.schemas.exercises import SourceVersions, WordHint
 
 
 class CreateReviewPhraseRequest(BaseModel):

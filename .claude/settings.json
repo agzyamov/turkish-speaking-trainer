@@ -1,0 +1,156 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "permissions": {
+    "blockReadsOutsideWorkingDirectories": true,
+    "blockWritesOutsideWorkingDirectories": true,
+    "disableBypassPermissionsMode": "disable",
+    "deny": [
+      "Read(**/.env)",
+      "Read(**/.env.local)",
+      "Read(**/.env.testlab)",
+      "Read(**/.env.production)",
+      "Read(**/.env.development)",
+      "Read(**/*.jks)",
+      "Read(**/*.keystore)",
+      "Read(**/*.p12)",
+      "Read(**/.vercel/**)",
+      "Bash(git push --force*)",
+      "Bash(git push -f*)",
+      "Bash(git config --global*)",
+      "Bash(git remote add*)",
+      "Bash(git remote set-url*)",
+      "Bash(sudo *)",
+      "Artifact",
+      "RemoteTrigger",
+      "SendToProject",
+      "SendToProjectContext",
+      "mcp__claude_ai_Gmail",
+      "mcp__claude_ai_Google_Calendar",
+      "mcp__claude_ai_Google_Drive",
+      "mcp__claude_ai_Claude_Docs",
+      "mcp__claude_ai_higgsfield",
+      "mcp__claude-in-chrome",
+      "mcp__chrome-devtools",
+      "mcp__plugin_design_slack",
+      "mcp__plugin_design_notion",
+      "mcp__plugin_design_linear",
+      "mcp__plugin_design_figma",
+      "mcp__plugin_design_atlassian",
+      "mcp__plugin_design_intercom",
+      "mcp__plugin_fabric-skills_FabricIQ",
+      "mcp__plugin_fabric-skills_fabric-sqlendpoint",
+      "mcp__plugin_fabric-skills_powerbi-modeling-mcp"
+    ],
+    "ask": [
+      "Bash(git push*)",
+      "Bash(vercel *)",
+      "Bash(supabase *)",
+      "Bash(pnpm android*)",
+      "Bash(pnpm build:android*)",
+      "Bash(./gradlew *)"
+    ],
+    "defaultMode": "auto"
+  },
+  "disableClaudeAiConnectors": true,
+  "autoMemoryEnabled": false,
+  "sandbox": {
+    "enabled": true,
+    "failIfUnavailable": true,
+    "allowUnsandboxedCommands": false,
+    "network": {
+      "allowedDomains": [
+        "registry.npmjs.org",
+        "pypi.org",
+        "files.pythonhosted.org",
+        "github.com",
+        "api.github.com",
+        "objects.githubusercontent.com",
+        "cdn.playwright.dev"
+      ],
+      "allowLocalBinding": true
+    },
+    "credentials": {
+      "files": [
+        {
+          "path": "~/.ssh",
+          "mode": "deny"
+        },
+        {
+          "path": "~/.aws",
+          "mode": "deny"
+        },
+        {
+          "path": "~/.config/gh",
+          "mode": "deny"
+        },
+        {
+          "path": "~/.config/gcloud",
+          "mode": "deny"
+        },
+        {
+          "path": "~/.netrc",
+          "mode": "deny"
+        },
+        {
+          "path": "~/.npmrc",
+          "mode": "deny"
+        },
+        {
+          "path": "~/.gnupg",
+          "mode": "deny"
+        },
+        {
+          "path": "~/.kube",
+          "mode": "deny"
+        },
+        {
+          "path": "~/.docker",
+          "mode": "deny"
+        }
+      ],
+      "envVars": [
+        {
+          "name": "ANTHROPIC_API_KEY",
+          "mode": "deny"
+        },
+        {
+          "name": "OPENAI_API_KEY",
+          "mode": "deny"
+        },
+        {
+          "name": "ELEVENLABS_API_KEY",
+          "mode": "deny"
+        },
+        {
+          "name": "GH_TOKEN",
+          "mode": "deny"
+        },
+        {
+          "name": "GITHUB_TOKEN",
+          "mode": "deny"
+        },
+        {
+          "name": "VERCEL_TOKEN",
+          "mode": "deny"
+        },
+        {
+          "name": "SUPABASE_ACCESS_TOKEN",
+          "mode": "deny"
+        },
+        {
+          "name": "AWS_ACCESS_KEY_ID",
+          "mode": "deny"
+        },
+        {
+          "name": "AWS_SECRET_ACCESS_KEY",
+          "mode": "deny"
+        },
+        {
+          "name": "AWS_SESSION_TOKEN",
+          "mode": "deny"
+        }
+      ]
+    },
+    "autoAllowBashIfSandboxed": true
+  }
+}

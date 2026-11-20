@@ -3,14 +3,17 @@ from typing import Annotated, Literal
 from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile
 from sqlalchemy.orm import Session
 
+from app.api.dependencies import get_current_user
 from app.config import Settings, get_settings
 from app.db import get_db
+from app.models import User
 from app.schemas import TranscriptionResponse
 from app.services.transcription_adapter import (
     TranscriptionProvider,
     TranscriptionServiceError,
     get_transcription_provider,
 )
+from app.services.transcription_assistance_adapter import TranscriptionAssistanceProvider, get_transcription_assistance_provider
 from app.services.transcription_service import (
     AudioTooLargeError,
     EmptyAudioError,
@@ -18,9 +21,6 @@ from app.services.transcription_service import (
     TranscriptionService,
     UnsupportedAudioTypeError,
 )
-from app.api.dependencies import get_current_user
-from app.services.transcription_assistance_adapter import TranscriptionAssistanceProvider, get_transcription_assistance_provider
-from app.models import User
 
 router = APIRouter(prefix="/transcriptions", tags=["transcriptions"])
 

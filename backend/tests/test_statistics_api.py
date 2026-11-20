@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from fastapi.testclient import TestClient
 from sqlalchemy import event
@@ -30,12 +30,12 @@ def test_monthly_statistics_groups_completed_phrases_by_local_day(
 ) -> None:
     _add_attempt(
         db_session,
-        created_at=datetime(2026, 8, 31, 22, 30, tzinfo=timezone.utc),
+        created_at=datetime(2026, 8, 31, 22, 30, tzinfo=UTC),
         suffix="one",
     )
     _add_attempt(
         db_session,
-        created_at=datetime(2026, 9, 1, 10, 0, tzinfo=timezone.utc),
+        created_at=datetime(2026, 9, 1, 10, 0, tzinfo=UTC),
         suffix="two",
         score=0.95,
     )
@@ -45,12 +45,12 @@ def test_monthly_statistics_groups_completed_phrases_by_local_day(
             source_normalized="освоенная фраза",
             status="mastered",
             perfect_streak=3,
-            mastered_at=datetime(2026, 9, 1, 11, 0, tzinfo=timezone.utc),
+            mastered_at=datetime(2026, 9, 1, 11, 0, tzinfo=UTC),
         )
     )
     _add_attempt(
         db_session,
-        created_at=datetime(2026, 9, 2, 21, 30, tzinfo=timezone.utc),
+        created_at=datetime(2026, 9, 2, 21, 30, tzinfo=UTC),
         suffix="three",
     )
     db_session.commit()
@@ -97,10 +97,10 @@ def test_monthly_statistics_reads_only_timestamps_and_scores(
     api_client: TestClient,
     db_session: Session,
 ) -> None:
-    _add_attempt(db_session, created_at=datetime(2026, 9, 1, 2, 30, tzinfo=timezone.utc), suffix="projection", score=0.95)
+    _add_attempt(db_session, created_at=datetime(2026, 9, 1, 2, 30, tzinfo=UTC), suffix="projection", score=0.95)
     db_session.add(ReviewPhrase(
         source_ru="Освоенная", source_normalized="освоенная", status="mastered",
-        mastered_at=datetime(2026, 9, 1, 2, 30, tzinfo=timezone.utc),
+        mastered_at=datetime(2026, 9, 1, 2, 30, tzinfo=UTC),
     ))
     db_session.commit()
     sql: list[str] = []
@@ -148,7 +148,7 @@ def test_phrase_statistics_are_grouped_by_database_topics_and_paginated(
             status="mastered",
             difficulty="easy",
             interval_days=14,
-            next_review_at=datetime(2026, 10, 4, tzinfo=timezone.utc),
+            next_review_at=datetime(2026, 10, 4, tzinfo=UTC),
         )
     )
     db_session.add(

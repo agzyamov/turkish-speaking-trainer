@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 
-from app.models import TrainingSession
 from app.db.seed import seed_catalog
+from app.models import TrainingSession
 from app.repositories import TopicPresetRepository
 from app.repositories.catalog import TopicPhraseRepository
 from app.schemas import ExerciseGenerationResult, TopicContext

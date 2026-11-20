@@ -1,5 +1,5 @@
-from datetime import datetime, timezone
 from concurrent.futures import ThreadPoolExecutor
+from datetime import UTC, datetime
 from threading import Barrier
 
 import pytest
@@ -32,7 +32,7 @@ def payment_api(api_client):
 
 
 def report_data():
-    return {"paid_at": datetime.now(timezone.utc).isoformat(), "amount": "500.00", "transaction_id": "synthetic-id"}
+    return {"paid_at": datetime.now(UTC).isoformat(), "amount": "500.00", "transaction_id": "synthetic-id"}
 
 
 def payment_notification_settings():
@@ -266,9 +266,9 @@ def test_immediate_provisional_access_then_admin_decision(db_session, decision):
     assert user.premium_payment_id == payment.id
     assert payment.status == "awaiting_review"
     assert payment.provisional_granted_at is not None
-    original_grant = payment.provisional_granted_at.replace(tzinfo=timezone.utc)
+    original_grant = payment.provisional_granted_at.replace(tzinfo=UTC)
     svc.report(user, payment.id, PaymentReport.model_validate(report_data()))
-    assert payment.provisional_granted_at.replace(tzinfo=timezone.utc) == original_grant
+    assert payment.provisional_granted_at.replace(tzinfo=UTC) == original_grant
     admin = User(id="admin-test", email="admin-test@example.invalid", role="admin", access_tier="free")
     db_session.add(admin)
     db_session.flush()
@@ -332,7 +332,7 @@ def test_concurrent_create_report_and_confirm(tmp_path, monkeypatch):
                         payment = svc.report(user, payment_id, PaymentReport.model_validate(report_data()))
                     else:
                         payment = svc.decide(user, payment_id, PaymentDecision(status="confirmed"))
-                    result = payment.id, payment.reviewed_at.replace(tzinfo=timezone.utc) if payment.reviewed_at else None
+                    result = payment.id, payment.reviewed_at.replace(tzinfo=UTC) if payment.reviewed_at else None
                     db.commit()
                     return result
             with ThreadPoolExecutor(max_workers=2) as pool:
@@ -415,6 +415,7 @@ def test_payment_code_exhaustion_is_bounded_and_rollback_preserves_active_reques
 
 def test_payment_code_retry_does_not_hide_other_integrity_errors(db_session, monkeypatch):
     from sqlalchemy.exc import IntegrityError
+
     from app.repositories import payments
     generated = []
     def candidate():

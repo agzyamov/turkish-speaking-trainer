@@ -3,13 +3,13 @@ from copy import deepcopy
 import pytest
 from pydantic import ValidationError
 
-from app.models import Exercise, ReviewPhrase, TopicPreset, User
-from app.schemas.exercises import PhrasePreparation, SourceVersions
-from app.services.source_versions import SourceLanguageService, SourceLanguageUnavailableError, exercise_source, preparation_versions, version_payload
-from app.repositories.source_versions import SourceVersionRepository
-from app.services.auth_service import LEGACY_USER_ID
-from app.services.ai_adapter import get_ai_provider
 from app.main import app
+from app.models import Exercise, ReviewPhrase, TopicPreset, User
+from app.repositories.source_versions import SourceVersionRepository
+from app.schemas.exercises import PhrasePreparation, SourceVersions
+from app.services.ai_adapter import get_ai_provider
+from app.services.auth_service import LEGACY_USER_ID
+from app.services.source_versions import SourceLanguageUnavailableError, exercise_source, preparation_versions, version_payload
 from tests.fakes import FakeAIProvider
 
 RU = 'Я живу рядом с парком.'

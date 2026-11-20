@@ -1,10 +1,9 @@
 """Choose independent hint dictionaries without changing canonical exercise data."""
 from app.db.topic_phrase_hints_en import ENGLISH_WORD_HINTS
-from app.db.topic_phrases_en import TOPIC_PHRASES_EN
 from app.db.topic_phrases import TOPIC_PHRASES
-from app.services.interface_language import interface_language
+from app.db.topic_phrases_en import TOPIC_PHRASES_EN
 from app.services.hint_alignment import aligned_word_hints, words
-
+from app.services.interface_language import interface_language
 
 _CANONICAL_BY_SOURCE = {p.source_ru: p.canonical_sr for p in TOPIC_PHRASES}
 

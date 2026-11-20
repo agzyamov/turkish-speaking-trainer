@@ -4,16 +4,16 @@ from functools import lru_cache
 from hashlib import sha256
 from typing import Literal, Protocol
 
-from openai import OpenAI, APIConnectionError, APITimeoutError, APIStatusError
+from openai import APIConnectionError, APIStatusError, APITimeoutError, OpenAI
 from pydantic import ValidationError
 
 from app.config import Settings, get_settings
-from app.schemas import TranscriptionResponse
 from app.request_metrics import measure_ai_call
+from app.schemas import TranscriptionResponse
 from app.services.ai_adapter import load_prompt
-from app.services.serbian_text import has_unexpected_letter_script
+from app.services.failure_diagnostics import DiagnosticFailure, classify_provider_error, diagnostic
 from app.services.model_debug import capture_model_call
-from app.services.failure_diagnostics import DiagnosticFailure, diagnostic, classify_provider_error
+from app.services.serbian_text import has_unexpected_letter_script
 
 
 class TranscriptionServiceError(DiagnosticFailure):
@@ -25,12 +25,16 @@ class TranscriptionServiceError(DiagnosticFailure):
             "transcription_connection", "transcription_empty", "transcription_invalid_response",
             "transcription_unexpected_script", "transcription_audio_rejected",
             "transcription_provider_auth", "transcription_rate_limit", "transcription_provider_error",
+            "transcription_budget_exhausted", "transcription_daily_budget_exhausted",
         } else "transcription_unavailable"
         if failure is None:
             reasons = {"transcription_timeout": "timeout", "transcription_connection": "connection",
                        "transcription_rate_limit": "rate_limit", "transcription_provider_auth": "authentication",
                        "transcription_not_configured": "not_configured"}
-            if self.code in {"transcription_empty", "transcription_invalid_response", "transcription_unexpected_script"}:
+            if self.code in {"transcription_budget_exhausted", "transcription_daily_budget_exhausted"}:
+                failure = diagnostic("external_model", "budget", "budget_exhausted" if self.code == "transcription_budget_exhausted"
+                                     else "user_daily_budget_exhausted", retryable=False)
+            elif self.code in {"transcription_empty", "transcription_invalid_response", "transcription_unexpected_script"}:
                 failure = diagnostic("response_parse", "structured_output", "missing_output" if self.code == "transcription_empty" else "invalid_schema")
             else:
                 failure = diagnostic("external_model", "configuration" if self.code == "transcription_not_configured" else "provider_request",
@@ -43,6 +47,8 @@ class TranscriptionProvider(Protocol):
     def is_available(self) -> bool: ...
 
     def transcribe(self, *, audio: bytes, filename: str, content_type: str) -> TranscriptionResponse: ...
+
+    def transcribe_feedback(self, *, audio: bytes, filename: str, content_type: str): ...
 
 
 class OpenAITranscriptionProvider:
@@ -136,5 +142,6 @@ class OpenAITranscriptionProvider:
 
 
 @lru_cache
-def get_transcription_provider() -> OpenAITranscriptionProvider:
-    return OpenAITranscriptionProvider(get_settings())
+def get_transcription_provider() -> TranscriptionProvider:
+    from app.services.elevenlabs_adapter import ElevenLabsTranscriptionProvider
+    return ElevenLabsTranscriptionProvider(get_settings())

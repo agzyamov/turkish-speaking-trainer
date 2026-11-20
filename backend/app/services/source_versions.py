@@ -8,7 +8,7 @@ from app.schemas.exercises import BilingualPhrasePreparation, SourceVersions, Wo
 from app.services.ai_adapter import AIServiceError, StructuredAIProvider
 from app.services.hint_alignment import aligned_word_hints
 from app.services.interface_language import interface_language
-from app.services.word_hints import preset_english_source, english_word_hints
+from app.services.word_hints import english_word_hints, preset_english_source
 
 
 class SourceLanguageUnavailableError(RuntimeError):

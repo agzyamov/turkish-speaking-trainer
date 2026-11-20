@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from hashlib import sha256
 
 from sqlalchemy import delete
@@ -20,7 +20,7 @@ class AccountDeletionRepository:
         marker = self.db.get(DeletedAccountMarker, identity_hash(user_id))
         if marker is None:
             return False
-        expiry = marker.expires_at.replace(tzinfo=timezone.utc) if marker.expires_at.tzinfo is None else marker.expires_at
+        expiry = marker.expires_at.replace(tzinfo=UTC) if marker.expires_at.tzinfo is None else marker.expires_at
         if expiry > now:
             return True
         self.db.delete(marker)

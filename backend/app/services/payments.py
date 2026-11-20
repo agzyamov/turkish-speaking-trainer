@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from sqlalchemy.orm import Session
 
@@ -81,7 +81,7 @@ class PaymentService:
         payment.transaction_id = report.transaction_id
         if user.access_tier == "free":
             user.access_tier, user.premium_payment_id = "premium", payment.id
-            payment.provisional_granted_at = datetime.now(timezone.utc)
+            payment.provisional_granted_at = datetime.now(UTC)
         self.db.flush()
         country = {"russia": "Россия", "serbia": "Сербия", "other": "Другая страна"}[payment.country]
         method = {"sbp": "СБП", "alta": "ALTA Banka", "paypal": "PayPal"}[payment.method]
@@ -118,7 +118,7 @@ class PaymentService:
         if payment.status != "awaiting_review" and not (payment.status == "awaiting_payment" and decision.status == "cancelled"):
             raise PaymentError("invalid_payment_state")
         payment.status, payment.active_user_id = decision.status, None
-        payment.reviewed_by, payment.reviewed_at = admin.id, datetime.now(timezone.utc)
+        payment.reviewed_by, payment.reviewed_at = admin.id, datetime.now(UTC)
         if decision.status == "confirmed":
             if owner.access_tier == "free" or owner.premium_payment_id == payment.id:
                 owner.access_tier, owner.premium_payment_id = "premium", payment.id

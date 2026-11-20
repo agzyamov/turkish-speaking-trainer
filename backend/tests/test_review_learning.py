@@ -1,12 +1,12 @@
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from app.models import ReviewPhrase, TopicPhrase, WordLearningItem
 from app.main import app
+from app.models import ReviewPhrase, TopicPhrase, WordLearningItem
 from app.schemas import PhrasePreparation, PrepareReviewPhraseRequest, WordHint
 from app.services.ai_adapter import get_ai_provider
 from app.services.review_service import PhrasePreparationUnavailableError, ReviewService
@@ -294,7 +294,7 @@ def test_catalog_phrase_moves_to_review_then_returns_to_both_topics_when_due(
     assert api_client.get("/api/review-phrases").json() == []
     assert topic_count() == 19
 
-    phrase.next_review_at = datetime.now(timezone.utc) - timedelta(seconds=1)
+    phrase.next_review_at = datetime.now(UTC) - timedelta(seconds=1)
     db_session.flush()
     assert topic_count() == 20
     assert api_client.get("/api/review-phrases").json()[0]["id"] == phrase.id
@@ -314,7 +314,7 @@ def test_first_try_success_is_easy_and_due_phrase_returns_with_longer_interval(
     db_session.add(phrase)
     db_session.commit()
     service = ReviewService(db_session, FakeAIProvider())
-    started_at = datetime(2026, 9, 20, 10, tzinfo=timezone.utc)
+    started_at = datetime(2026, 9, 20, 10, tzinfo=UTC)
 
     for minute in (0, 1, 2):
         service.record_attempt(

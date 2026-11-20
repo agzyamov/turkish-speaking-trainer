@@ -1,21 +1,24 @@
+import json
+from datetime import UTC
+from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import Mock
-import json
+
 import pytest
+from alembic.config import Config
 from sqlalchemy import select
 from sqlalchemy.orm import Session
+
 from alembic import command
-from alembic.config import Config
-from pathlib import Path
 from app.config import Settings
-from app.models import ModelDebugLog, User
 from app.db.base import Base
 from app.db.session import create_database_engine
-from app.services.model_debug import DebugContext, debug_context, capture_model_call
-from app.services.debug_mode import DebugModeService
-from app.services.transcription_adapter import OpenAITranscriptionProvider, TranscriptionServiceError
-from app.services.ai_adapter import OpenAIStructuredProvider
+from app.models import ModelDebugLog, User
 from app.schemas import TopicContext
+from app.services.ai_adapter import OpenAIStructuredProvider
+from app.services.debug_mode import DebugModeService
+from app.services.model_debug import DebugContext, capture_model_call, debug_context
+from app.services.transcription_adapter import OpenAITranscriptionProvider, TranscriptionServiceError
 
 
 @pytest.fixture
@@ -23,7 +26,7 @@ def debug_engine(tmp_path):
     engine = create_database_engine(f"sqlite:///{(tmp_path / 'debug.db').as_posix()}")
     Base.metadata.create_all(engine)
     with Session(engine) as db:
-        db.add(User(id="maxim", email="suezergut@gmail.com", role="admin"))
+        db.add(User(id="maxim", email="owner@example.com", role="admin"))
         db.commit()
     yield engine
     engine.dispose()
@@ -128,7 +131,7 @@ def test_text_adapter_logs_prompt_input_and_structured_response(debug_engine):
         debug_context.reset(token)
 
 
-@pytest.mark.parametrize("email,role,expected", [("learner@example.com", "user", 403), ("other@example.com", "admin", 403), ("suezergut@gmail.com", "user", 403), ("suezergut@gmail.com", "admin", 200)])
+@pytest.mark.parametrize("email,role,expected", [("learner@example.com", "user", 403), ("other@example.com", "admin", 403), ("owner@example.com", "user", 403), ("owner@example.com", "admin", 200)])
 def test_mode_api_authorization_and_disable_deletes(api_client, db_session, email, role, expected):
     user = db_session.scalar(select(User))
     user.email, user.role = email, role
@@ -156,7 +159,7 @@ def test_migration_upgrade_repeat_and_downgrade(tmp_path):
             command.upgrade(config, "head")
             command.upgrade(config, "head")
         with Session(engine) as db:
-            db.add(User(id="maxim", email="suezergut@gmail.com", role="admin"))
+            db.add(User(id="maxim", email="owner@example.com", role="admin"))
             db.commit()
             DebugModeService(db, "maxim").change(True)
         with engine.begin() as connection:
@@ -174,13 +177,13 @@ def test_migration_upgrade_repeat_and_downgrade(tmp_path):
 
 
 def test_api_context_captures_only_debug_administrator_and_disable_clears(api_client, db_session):
+    from app.api.dependencies import get_current_user
     from app.config import get_settings
     from app.main import app
-    from app.api.dependencies import get_current_user
     from app.services.transcription_adapter import get_transcription_provider
     from tests.test_transcriptions_api import _create_exercise
     user = db_session.scalar(select(User))
-    user.email, user.role = "suezergut@gmail.com", "admin"
+    user.email, user.role = "owner@example.com", "admin"
     db_session.commit()
     api_client.patch("/api/admin/model-debug", json={"enabled": True})
     exercise = _create_exercise(api_client)
@@ -212,8 +215,8 @@ def test_api_context_captures_only_debug_administrator_and_disable_clears(api_cl
 
 
 def test_no_auth_cannot_read_or_change_mode(api_client):
-    from app.main import app
     from app.api.dependencies import get_current_user
+    from app.main import app
     app.dependency_overrides.pop(get_current_user)
     assert api_client.get("/api/admin/model-debug").status_code == 401
     assert api_client.patch("/api/admin/model-debug", json={"enabled": True}).status_code == 401
@@ -233,7 +236,8 @@ def test_repeated_enable_is_idempotent_for_inflight_call(debug_engine):
 
 
 def test_audio_retention_expiry_and_owner_scope(debug_engine):
-    from datetime import datetime, timedelta, timezone
+    from datetime import datetime, timedelta
+
     from sqlalchemy import update
     mode(debug_engine, True)
     token = debug_context.set(DebugContext("maxim", debug_engine))
@@ -249,7 +253,7 @@ def test_audio_retention_expiry_and_owner_scope(debug_engine):
             assert DebugModeService(db, "another-owner").audio(latest_id) is None
             assert DebugModeService(db, "maxim").audio(latest_id) == (bytes([21]), "audio/webm")
             db.execute(update(ModelDebugLog).where(ModelDebugLog.id == latest_id).values(
-                audio_expires_at=datetime.now(timezone.utc) - timedelta(seconds=1)))
+                audio_expires_at=datetime.now(UTC) - timedelta(seconds=1)))
             db.commit()
             assert DebugModeService(db, "maxim").audio(latest_id) is None
             db.expire_all()
@@ -299,6 +303,7 @@ def test_error_body_redacted_and_training_rollback_does_not_erase_log(debug_engi
 def test_real_sdk_mock_http_captures_raw_body_before_validation(debug_engine, invalid):
     import httpx
     from openai import OpenAI
+
     from app.services.ai_adapter import AIServiceError
     mode(debug_engine, True)
     topic = TopicContext(id="cafe", source="custom", title_ru="Кафе", description_ru="Заказ кофе", normalized_prompt_context="Order coffee")
@@ -327,8 +332,9 @@ def test_real_sdk_mock_http_captures_raw_body_before_validation(debug_engine, in
 
 
 def test_post_model_failure_has_owner_scoped_correlation_and_respects_disable(debug_engine):
-    from app.services.failure_diagnostics import diagnostic_context, diagnostic, record_failure
     from uuid import uuid4
+
+    from app.services.failure_diagnostics import diagnostic, diagnostic_context, record_failure
     request_id = str(uuid4())
     owner = debug_context.set(DebugContext("maxim", debug_engine))
     token = diagnostic_context.set(request_id)

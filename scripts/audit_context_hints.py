@@ -6,10 +6,10 @@ only preset hints may be exported into tracked source files.
 from __future__ import annotations
 
 import argparse
-from concurrent.futures import ThreadPoolExecutor, as_completed
 import json
-from pathlib import Path
 import sys
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from pathlib import Path
 from pprint import pformat
 
 ROOT = Path(__file__).resolve().parents[1]

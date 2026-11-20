@@ -35,8 +35,9 @@ def test_conflicting_repeated_keys_are_not_guessed_and_long_hints_are_withheld()
 
 
 def test_custom_fragment_api_and_one_penalty_without_ai(api_client, db_session):
-    from app.models import Exercise, WordLearningItem
     from sqlalchemy import select
+
+    from app.models import Exercise, WordLearningItem
     started = api_client.post("/api/sessions/start", json={"topic_id": "bank", "length": 10}).json()
     exercise = db_session.get(Exercise, started["exercise"]["id"])
     exercise.source_ru = "Мне не с кем поговорить."
@@ -72,7 +73,7 @@ def test_legacy_word_requests_never_guess_between_two_fragments():
 def test_personal_canonical_never_borrows_preset_english_hints():
     from app.db.topic_phrases import TOPIC_PHRASES
     from app.services.interface_language import interface_language
-    from app.services.word_hints import word_hints_for_language, preset_english_source
+    from app.services.word_hints import preset_english_source, word_hints_for_language
     phrase = TOPIC_PHRASES[0]
     token = interface_language.set("en")
     try:
@@ -85,9 +86,10 @@ def test_personal_canonical_never_borrows_preset_english_hints():
 
 def test_new_preparation_prompt_filters_noncanonical_model_hints_and_preserves_canonical():
     from types import SimpleNamespace
+
     from app.config import Settings
     from app.schemas.exercises import PhrasePreparation
-    from app.services.ai_adapter import OpenAIStructuredProvider, AIServiceError
+    from app.services.ai_adapter import AIServiceError, OpenAIStructuredProvider
     provider = OpenAIStructuredProvider(Settings(openai_api_key="mock", openai_text_model="from-env"))
     parse = Mock(return_value=SimpleNamespace(output_parsed=PhrasePreparation(
         intended_sr_variants=["Nemam s kim da pričam."], source_versions={"ru": "Мне не с кем поговорить.", "en": "I have nobody to talk to."}, word_hints=[

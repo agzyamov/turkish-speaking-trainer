@@ -7,7 +7,6 @@ from pydantic import BaseModel
 
 from app.services.serbian_text import normalized_serbian_words
 
-
 _IJEKAVIAN_WORDS = frozenset("""
 dvije dijete djeca djece djeci djecom dječji dječja dječje
 mlijeko mlijeka mlijeku mlijekom mliječni mliječna mliječno mliječne

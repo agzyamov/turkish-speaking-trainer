@@ -1,15 +1,15 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
+from app.api.dependencies import get_current_user
 from app.db import get_db
+from app.models import User
 from app.schemas import CreateSessionRequest, ExerciseResponse, NextExerciseRequest, SessionResponse, StartSessionResponse
 from app.services.ai_adapter import StructuredAIProvider, get_ai_provider
 from app.services.exercise_generator import ExerciseGenerator, TopicEmptyError
 from app.services.review_service import ReviewQueueEmptyError
 from app.services.session_service import SessionCompletedError, SessionNotFoundError, SessionPendingError, SessionService, SessionUnavailableError
 from app.services.topic_service import TopicNotFoundError
-from app.api.dependencies import get_current_user
-from app.models import User
 
 router = APIRouter(prefix="/sessions", tags=["sessions"])
 

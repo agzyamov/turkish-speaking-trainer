@@ -18,6 +18,7 @@ dependencies = [
   "python-multipart>=0.0.20,<1",
   "sqlalchemy>=2.0,<3",
   "uvicorn[standard]>=0.34,<1",
+  "anthropic>=1,<2",
 ]
 
 [project.scripts]
@@ -27,6 +28,9 @@ app = "app.main:app"
 dev = [
   "pytest>=8.3,<9",
   "pytest-cov>=6,<7",
+  "ruff>=0.14,<1",
+  "pyright>=1.1.400,<2",
+  "import-linter>=2.3,<3",
 ]
 
 [tool.setuptools.packages.find]
@@ -36,3 +40,65 @@ include = ["app*"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-q"
+
+[tool.ruff]
+target-version = "py312"
+line-length = 160
+
+[tool.ruff.lint]
+# F: real errors, I: import order, UP: outdated syntax, B: likely bugs.
+select = ["E9", "F", "I", "UP", "B"]
+# B008: FastAPI declares dependencies as Depends(...) in argument defaults.
+ignore = ["B008"]
+
+[tool.ruff.lint.per-file-ignores]
+# Inherited test and benchmark code: loop closures and broad exception asserts are deliberate there.
+"tests/**" = ["B023", "B017"]
+"../scripts/testing/**" = ["B023"]
+"app/repositories/base.py" = ["UP046"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["app"]
+
+[tool.pyright]
+include = ["app"]
+venvPath = ".."
+venv = ".venv"
+pythonVersion = "3.12"
+typeCheckingMode = "basic"
+
+# Architecture rules from docs/architecture/constraints.md.
+[tool.importlinter]
+root_package = "app"
+include_external_packages = true
+
+[[tool.importlinter.contracts]]
+name = "C-01 layers: api -> services -> repositories -> models/db"
+type = "layers"
+layers = ["app.api", "app.services", "app.repositories", "app.models", "app.db"]
+exhaustive = false
+# The seed is an offline tool that fills the catalogue; it is not part of the request path.
+ignore_imports = [
+  "app.db.seed -> app.repositories",
+  "app.db.seed -> app.models",
+]
+
+[[tool.importlinter.contracts]]
+name = "C-03 services do not import FastAPI"
+type = "forbidden"
+source_modules = ["app.services", "app.repositories", "app.models"]
+forbidden_modules = ["fastapi", "starlette"]
+# Known deviation, removed in Phase 2 (see docs/architecture/views/module-layered.md). Do not add more.
+ignore_imports = ["app.services.transcription_service -> fastapi"]
+
+[[tool.importlinter.contracts]]
+name = "C-04 provider SDKs are imported only by their adapter"
+type = "forbidden"
+source_modules = ["app"]
+forbidden_modules = ["anthropic", "openai"]
+ignore_imports = [
+  "app.services.anthropic_adapter -> anthropic",
+  # Legacy OpenAI adapters, kept until their tests are ported. Removed in Phase 3. Do not add more.
+  "app.services.ai_adapter -> openai",
+  "app.services.transcription_adapter -> openai",
+]

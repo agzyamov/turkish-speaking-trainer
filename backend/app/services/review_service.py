@@ -1,13 +1,14 @@
 from __future__ import annotations
 
 import re
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
-from sqlalchemy.orm import Session
 from pydantic import ValidationError
+from sqlalchemy.orm import Session
 
-from app.models import Exercise, ReviewPhrase, WordLearningItem, PhrasePreparationReceipt
+from app.models import Exercise, PhrasePreparationReceipt, ReviewPhrase, WordLearningItem
 from app.repositories import ExerciseRepository, ReviewPhraseRepository, TopicPresetRepository, UserRepository, WordLearningRepository
+from app.repositories.custom_content import CustomContentRepository
 from app.schemas import (
     CreateReviewPhraseRequest,
     LearningWordResponse,
@@ -19,12 +20,11 @@ from app.schemas import (
     WordHint,
     WordHintResponse,
 )
-from app.repositories.custom_content import CustomContentRepository
-from app.services.custom_content_policy import CustomContentError, MAX_TOPIC_PHRASES, MAX_CUSTOM_PHRASES
 from app.services.ai_adapter import AIServiceError, StructuredAIProvider
-from app.services.word_hints import all_word_hints, resolve_hint
+from app.services.custom_content_policy import MAX_CUSTOM_PHRASES, MAX_TOPIC_PHRASES, CustomContentError
 from app.services.hint_alignment import aligned_word_hints
-from app.services.source_versions import preparation_versions, version_payload, SourceLanguageUnavailableError
+from app.services.source_versions import SourceLanguageUnavailableError, preparation_versions, version_payload
+from app.services.word_hints import all_word_hints, resolve_hint
 
 CORRECT_SCORE_THRESHOLD = 0.95
 CORRECT_STREAK_TO_MASTER = 3
@@ -78,7 +78,7 @@ class ReviewService:
             raise PhrasePreparationUnavailableError
         preparation.word_hints = [WordHint.model_validate(item) for item in aligned_word_hints(
             source, variants[0], [hint.model_dump() for hint in preparation.word_hints])]
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         receipt = PhrasePreparationReceipt(user_id=self.user_id, source_ru=source,
             preparation_json=PhrasePreparation(intended_sr_variants=variants, word_hints=preparation.word_hints, source_versions=preparation.source_versions).model_dump(),
             expires_at=now + timedelta(minutes=30))
@@ -93,18 +93,18 @@ class ReviewService:
         )
 
     def list_phrases(self) -> list[ReviewPhraseResponse]:
-        self.phrases.activate_due(datetime.now(timezone.utc))
+        self.phrases.activate_due(datetime.now(UTC))
         return [
             self._phrase_response(item, topic_title=topic_title)
             for item, topic_title in self.phrases.list_active_with_topic_titles()
         ]
 
     def summary(self) -> ReviewPhraseSummaryResponse:
-        self.phrases.activate_due(datetime.now(timezone.utc))
+        self.phrases.activate_due(datetime.now(UTC))
         return ReviewPhraseSummaryResponse(phrase_count=self.phrases.count_active())
 
     def get_phrase(self, phrase_id: str) -> ReviewPhrase:
-        self.phrases.activate_due(datetime.now(timezone.utc))
+        self.phrases.activate_due(datetime.now(UTC))
         phrase = self.phrases.get_owned(phrase_id)
         if phrase is None or phrase.status != "active":
             raise ReviewPhraseNotFoundError(phrase_id)
@@ -124,8 +124,8 @@ class ReviewService:
         if not topic.is_custom or topic.owner_user_id != self.user_id:
             raise CustomContentError("custom_topic_required", 422)
         receipt = content.receipt(request.preparation_id)
-        now = datetime.now(timezone.utc)
-        if receipt is None or receipt.expires_at.replace(tzinfo=timezone.utc) <= now:
+        now = datetime.now(UTC)
+        if receipt is None or receipt.expires_at.replace(tzinfo=UTC) <= now:
             raise CustomContentError("phrase_preparation_expired")
         if receipt.saved_phrase_id:
             saved = self.phrases.get_owned(receipt.saved_phrase_id)
@@ -214,7 +214,7 @@ class ReviewService:
         elif phrase.learning_errors > 1:
             phrase.difficulty = "hard"
 
-        now = now or datetime.now(timezone.utc)
+        now = now or datetime.now(UTC)
         was_mastered = phrase.status == "mastered"
         phrase.status = "mastered" if phrase.perfect_streak >= CORRECT_STREAK_TO_MASTER else "active"
         if phrase.status == "mastered" and not was_mastered:
@@ -281,7 +281,7 @@ class ReviewService:
             learning.hint_count += 1
             learning.translation_sr = hint.translation_sr
             learning.status = "learning"
-            learning.last_seen_at = datetime.now(timezone.utc)
+            learning.last_seen_at = datetime.now(UTC)
             self.db.flush()
         exercise.generation_meta_json = {
             **exercise.generation_meta_json,

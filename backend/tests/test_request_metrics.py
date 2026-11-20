@@ -7,9 +7,9 @@ from sqlalchemy import text
 from app.config import Settings
 from app.db.session import create_database_engine
 from app.main import app
+from app.request_metrics import start_request_metrics, stop_request_metrics
 from app.schemas import TopicContext
 from app.services.ai_adapter import AIServiceError, OpenAIStructuredProvider, get_ai_provider
-from app.request_metrics import start_request_metrics, stop_request_metrics
 from app.services.transcription_adapter import OpenAITranscriptionProvider, TranscriptionServiceError
 
 

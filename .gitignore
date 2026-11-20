@@ -33,3 +33,14 @@ inst_user_settings.tmp
 .idea/
 .vscode/
 .vercel
+
+# Secrets: never commit real environment files or key material
+.env.*
+!.env.example
+!frontend/.env.example
+!frontend/.env.android
+*.pem
+*.p12
+*.pfx
+# Personal Claude Code overrides
+.claude/settings.local.json

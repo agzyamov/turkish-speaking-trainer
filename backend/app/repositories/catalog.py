@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from sqlalchemy import and_, exists, func, or_, select
 from sqlalchemy.orm import Session, joinedload
@@ -56,7 +56,7 @@ class TopicPresetRepository(Repository[TopicPreset]):
     def phrase_counts(self) -> dict[str, int]:
         from app.models import ReviewPhrase
 
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         mastered = exists().where(
             ReviewPhrase.user_id == self.user_id,
             ReviewPhrase.topic_phrase_id == TopicPhrase.id,
@@ -102,7 +102,7 @@ class TopicPhraseRepository(Repository[TopicPhrase]):
                 ReviewPhrase.status == "mastered",
                 or_(
                     ReviewPhrase.next_review_at.is_(None),
-                    ReviewPhrase.next_review_at > datetime.now(timezone.utc),
+                    ReviewPhrase.next_review_at > datetime.now(UTC),
                 ),
             )
             statement = statement.where(~mastered)

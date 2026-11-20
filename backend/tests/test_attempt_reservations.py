@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-import threading
 import os
-from datetime import datetime, timedelta, timezone
+import threading
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from uuid import uuid4
 
@@ -228,7 +228,7 @@ def test_expired_lease_retry_fences_old_worker(database_engine) -> None:
             with Session(engine) as db:
                 entry = db.get(AttemptRequest, (user_id, request_id))
                 assert entry is not None
-                entry.lease_expires_at = datetime.now(timezone.utc) - timedelta(seconds=1)
+                entry.lease_expires_at = datetime.now(UTC) - timedelta(seconds=1)
                 db.commit()
             with Session(engine) as second_db:
                 second_user = second_db.get(User, user_id)
@@ -320,8 +320,8 @@ def test_reservation_uses_time_after_session_lock_across_utc_midnight(database_e
     class Clock(datetime):
         @classmethod
         def now(cls, tz=None):
-            value = datetime(2026, 10, 1, 0, 0, 1, tzinfo=timezone.utc) if crossed_midnight else datetime(
-                2026, 9, 30, 23, 59, 59, tzinfo=timezone.utc,
+            value = datetime(2026, 10, 1, 0, 0, 1, tzinfo=UTC) if crossed_midnight else datetime(
+                2026, 9, 30, 23, 59, 59, tzinfo=UTC,
             )
             return value.astimezone(tz) if tz else value.replace(tzinfo=None)
 

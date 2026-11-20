@@ -1,20 +1,20 @@
 from types import SimpleNamespace
-from uuid import UUID, uuid4
 from unittest.mock import Mock
+from uuid import UUID, uuid4
 
 import httpx
 import pytest
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI
 from fastapi.exceptions import ResponseValidationError
 from fastapi.testclient import TestClient
 from openai import APIStatusError, APITimeoutError
 from sqlalchemy.exc import OperationalError
 
-from app.services.failure_diagnostics import classify_provider_error, diagnostic, diagnostic_context
+from app.config import Settings
+from app.schemas import AnswerAnalysis, AnswerIssue, CreateAttemptRequest
 from app.services.ai_adapter import AIServiceError, OpenAIStructuredProvider
 from app.services.answer_analyzer import AnalysisUnavailableError, AnswerAnalyzer
-from app.schemas import AnswerAnalysis, AnswerIssue, CreateAttemptRequest
-from app.config import Settings
+from app.services.failure_diagnostics import classify_provider_error, diagnostic, diagnostic_context
 from tests.fakes import FakeAIProvider
 
 
@@ -112,7 +112,7 @@ def test_adapter_classifies_schema_failure_and_sends_retry_feedback():
     (RuntimeError("PRIVATE transcript"), "server_return", "server_return_failed"),
 ])
 def test_return_failures_never_leak_and_keep_request_id(exception, stage, reason):
-    from app.main import response_validation_failed, persistence_failed, unhandled_return_failed, record_request_timing
+    from app.main import persistence_failed, record_request_timing, response_validation_failed, unhandled_return_failed
     local = FastAPI()
     local.middleware("http")(record_request_timing)
     local.add_exception_handler(ResponseValidationError, response_validation_failed)
@@ -133,10 +133,11 @@ def test_return_failures_never_leak_and_keep_request_id(exception, stage, reason
 
 
 def test_failed_attempt_exposes_correlated_metadata_without_charging_attempt(api_client, db_session):
+    from sqlalchemy import func, select
+
     from app.main import app
-    from app.services.ai_adapter import get_ai_provider
     from app.models import Attempt
-    from sqlalchemy import select, func
+    from app.services.ai_adapter import get_ai_provider
     from tests.test_attempts_api import _exercise
     exercise = _exercise(api_client)
     class AI(FakeAIProvider):

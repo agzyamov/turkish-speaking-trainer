@@ -1,18 +1,17 @@
 from fastapi import APIRouter, Depends, HTTPException, Response
 from sqlalchemy.orm import Session
 
+from app.api.dependencies import get_current_user, require_admin
+from app.config import Settings, get_settings
 from app.db import get_db
 from app.models import User
 from app.schemas import AdminUserResponse, CurrentUserResponse
-from app.api.dependencies import get_current_user, require_admin
-from app.services.auth_service import UserService
-
-from app.schemas.auth import AndroidPremiumClaim, UserPreferences
-
-from app.schemas.auth import ReviewLoginRequest, ReviewLoginResponse
-from app.config import Settings, get_settings
-from app.services.auth_service import AuthenticationUnavailableError
-from app.services.review_login import ReviewLoginService, ReviewLoginRateLimitError
+from app.schemas.ai_usage import AdminUsageResponse
+from app.schemas.auth import AndroidPremiumClaim, ReviewLoginRequest, ReviewLoginResponse, UserPreferences
+from app.services.ai_usage import MICRO
+from app.services.auth_service import AuthenticationUnavailableError, UserService
+from app.services.budget_guard import BudgetGuard
+from app.services.review_login import ReviewLoginRateLimitError, ReviewLoginService
 
 router = APIRouter(tags=["users"])
 
@@ -44,6 +43,21 @@ def list_users(
     db: Session = Depends(get_db),
 ) -> list[AdminUserResponse]:
     return UserService(db).list_users()
+
+
+@router.get("/admin/usage", response_model=AdminUsageResponse)
+def ai_usage(
+    _admin: User = Depends(require_admin),
+    db: Session = Depends(get_db),
+    settings: Settings = Depends(get_settings),
+) -> AdminUsageResponse:
+    status = BudgetGuard(settings, engine=db.get_bind()).status()
+    return AdminUsageResponse(
+        month_start=status.month_start,
+        budget_usd=status.budget_micro_usd / MICRO,
+        spent_usd=status.spent_micro_usd / MICRO,
+        remaining_usd=status.remaining_micro_usd / MICRO,
+    )
 
 
 @router.post("/auth/me/android-premium", response_model=CurrentUserResponse)

@@ -1,14 +1,16 @@
 from uuid import uuid4
+
 import pytest
 from sqlalchemy import select
+
 from app.main import app
 from app.models import Exercise, LearnerSkill, ReviewPhrase, TranscriptionReceipt, User
+from app.schemas.transcriptions import TranscriptionAssistanceAnalysis, TranscriptionCandidate
+from app.services.ai_adapter import AIServiceError
 from app.services.transcription_adapter import get_transcription_provider
 from app.services.transcription_assistance import apply_changes, validate_analysis
 from app.services.transcription_assistance_adapter import get_transcription_assistance_provider
-from app.schemas.transcriptions import TranscriptionAssistanceAnalysis, TranscriptionCandidate
-from app.services.ai_adapter import AIServiceError
-from tests.fakes import FakeTranscriptionProvider, FakeTranscriptionAssistanceProvider
+from tests.fakes import FakeTranscriptionAssistanceProvider, FakeTranscriptionProvider
 from tests.test_transcriptions_api import _create_exercise
 
 

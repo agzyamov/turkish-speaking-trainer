@@ -4,8 +4,8 @@ from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from app.db.seed import SKILLS, TOPICS, seed_catalog
-from app.db.topic_phrases import TOPIC_PHRASES
 from app.db.topic_phrase_hints import TOPIC_PHRASE_HINTS
+from app.db.topic_phrases import TOPIC_PHRASES
 from app.models import Exercise, Skill, TopicPhrase, TopicPreset, TrainingSession
 from app.schemas import WordHint
 from app.services.hint_alignment import aligned_word_hints

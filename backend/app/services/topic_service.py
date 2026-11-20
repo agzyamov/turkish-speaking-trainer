@@ -7,10 +7,10 @@ from pydantic import ValidationError
 from app.models import TopicPreset
 from app.repositories import TopicPresetRepository, UserRepository
 from app.repositories.custom_content import CustomContentRepository
-from app.services.custom_content_policy import CustomContentError, MAX_CUSTOM_TOPICS
 from app.schemas import CreateTopicRequest, TopicContext, TopicListItem
 from app.schemas.topics import TopicTitleTranslation
 from app.services.ai_adapter import AIServiceError, StructuredAIProvider
+from app.services.custom_content_policy import MAX_CUSTOM_TOPICS, CustomContentError
 
 
 class TopicNotFoundError(LookupError):
@@ -158,5 +158,5 @@ class TopicService:
 
     @staticmethod
     def _custom_id(text: str, user_id: str) -> str:
-        digest = sha256(f"{user_id}:{text.casefold()}".encode("utf-8")).hexdigest()[:12]
+        digest = sha256(f"{user_id}:{text.casefold()}".encode()).hexdigest()[:12]
         return f"custom-{digest}"

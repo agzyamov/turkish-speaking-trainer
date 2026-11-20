@@ -4,8 +4,10 @@ from typing import Literal
 
 from pydantic import Field, SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
-from app.schemas.transcription_settings import TranscriptionModelOption
+
+from app.schemas.ai_usage import ModelPrice
 from app.schemas.payments import PaymentConfig
+from app.schemas.transcription_settings import TranscriptionModelOption
 
 BACKEND_ROOT = Path(__file__).resolve().parents[1]
 PROJECT_ROOT = BACKEND_ROOT.parent
@@ -32,8 +34,9 @@ class Settings(BaseSettings):
     supabase_publishable_key: str | None = None
     review_login_username: str = "serbotalkreview"
     review_login_email: str | None = None
-    admin_emails: str = "suezergut@gmail.com"
-    debug_admin_email: str = "suezergut@gmail.com"
+    # No built-in administrators: an account becomes admin only when the deployment names it.
+    admin_emails: str = ""
+    debug_admin_email: str = ""
     free_daily_phrase_limit: int = Field(default=20, ge=1, le=1000)
     premium_daily_phrase_limit: int = Field(default=100, ge=1, le=1000)
     auth_timeout_seconds: float = Field(default=5, gt=0, le=30)
@@ -42,6 +45,23 @@ class Settings(BaseSettings):
     telegram_bot_token: SecretStr | None = Field(default=None, repr=False)
     telegram_chat_id: str | None = None
     telegram_timeout_seconds: float = Field(default=3, gt=0, le=10)
+
+    anthropic_api_key: str | None = None
+    anthropic_grading_model: str | None = None
+    anthropic_utility_model: str | None = None
+    anthropic_effort: Literal["low", "medium", "high", "xhigh", "max"] = "low"
+    anthropic_timeout_seconds: float = Field(default=20, gt=0, le=120)
+    anthropic_max_retries: int = Field(default=2, ge=0, le=5)
+    anthropic_assistance_timeout_seconds: float = Field(default=6, gt=0, le=12)
+    anthropic_assistance_max_retries: int = Field(default=0, ge=0, le=1)
+
+    elevenlabs_api_key: str | None = None
+    elevenlabs_stt_model: str | None = None
+    elevenlabs_base_url: str = "https://api.elevenlabs.io"
+    elevenlabs_timeout_seconds: float = Field(default=20, gt=0, le=120)
+    elevenlabs_max_retries: int = Field(default=1, ge=0, le=3)
+    # Language learners answer in (ISO 639-1). See ADR-0004.
+    target_language_code: str = "tr"
 
     openai_api_key: str | None = None
     openai_realtime_model: str | None = None
@@ -54,6 +74,16 @@ class Settings(BaseSettings):
     openai_assistance_timeout_seconds: float = Field(default=6, gt=0, le=12)
     openai_assistance_max_retries: int = Field(default=0, ge=0, le=1)
     max_audio_bytes: int = Field(default=1_000_000, ge=10_000, le=1_000_000)
+
+    # Spend cap. See docs/architecture/interfaces/budget-guard.md.
+    ai_monthly_budget_usd: float = Field(default=25, ge=0)
+    ai_price_table: dict[str, ModelPrice] = Field(default_factory=dict)
+    # Per-user share of the budget per UTC day, so one account cannot drain it (quality Q-2).
+    ai_free_user_daily_budget_usd: float = Field(default=0.5, ge=0)
+    ai_premium_user_daily_budget_usd: float = Field(default=2.0, ge=0)
+    ai_budget_alert_fraction: float = Field(default=0.8, gt=0, le=1)
+    ai_max_output_tokens: int = Field(default=4000, ge=1)
+    ai_max_audio_seconds: float = Field(default=130, gt=0)
 
     mastery_consolidating_threshold: float = Field(default=0.65, ge=0, le=1)
     mastery_mastered_threshold: float = Field(default=0.85, ge=0, le=1)

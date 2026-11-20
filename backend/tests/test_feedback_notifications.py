@@ -1,23 +1,20 @@
 import json
-from datetime import datetime, timezone
 from io import BytesIO
+from pathlib import Path
 from types import SimpleNamespace
 from uuid import uuid4
 
-import pytest
-from sqlalchemy import select, inspect
-from alembic import command
 from alembic.config import Config
-from pathlib import Path
+from sqlalchemy import inspect, select
 
+from alembic import command
 from app.api.dependencies import get_current_user
 from app.config import Settings, get_settings
 from app.main import app
-from app.models import Attempt, Exercise, ReviewPhrase, TrainingSession, User, UserFeedback
+from app.models import Attempt, Exercise, ReviewPhrase, UserFeedback
 from app.services import notifications
-from app.services.auth_service import AuthenticatedIdentity, UserService, LEGACY_USER_ID
+from app.services.auth_service import LEGACY_USER_ID, AuthenticatedIdentity, UserService
 from app.services.transcription_adapter import OpenAITranscriptionProvider, get_transcription_provider
-
 
 real_send_notification = notifications.send_notification
 

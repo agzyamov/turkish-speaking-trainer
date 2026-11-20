@@ -1,15 +1,15 @@
 from __future__ import annotations
 
 from difflib import SequenceMatcher
-from app.services.failure_diagnostics import DiagnosticFailure, diagnostic, classify_provider_error, record_failure
 
 from app.config import Settings, get_settings
 from app.db.topic_phrases_en import TOPIC_PHRASES_EN
 from app.schemas import AnswerAnalysis, AnswerIssue, CreateAttemptRequest, DemonstratedSkill
 from app.services.ai_adapter import AIServiceError, StructuredAIProvider
-from app.services.serbian_text import normalized_serbian_words, serbian_latin_for_evaluation
+from app.services.failure_diagnostics import DiagnosticFailure, classify_provider_error, diagnostic, record_failure
 from app.services.interface_language import interface_language
 from app.services.serbian_standard import is_ekavian_candidate, validate_generated_serbian
+from app.services.serbian_text import normalized_serbian_words, serbian_latin_for_evaluation
 
 
 class AnalysisUnavailableError(DiagnosticFailure):

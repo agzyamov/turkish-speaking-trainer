@@ -1,6 +1,6 @@
 """Validate per-transcription AI hypotheses; no word/phrase correction dictionary."""
-from collections import Counter
 import unicodedata
+from collections import Counter
 
 from app.schemas.transcriptions import TranscriptionAssistanceAnalysis, TranscriptionChange
 from app.services.serbian_text import has_unexpected_letter_script, normalized_serbian_words, serbian_latin
@@ -99,7 +99,7 @@ def validate_analysis(raw: str, variants: list[str], analysis: TranscriptionAssi
             explanation_ru=candidate.explanation_ru, similarity=round(1 - distance / size, 3),
         ))
     changes.sort(key=lambda c: c.start)
-    if any(a.end > b.start for a, b in zip(changes, changes[1:])):
+    if any(a.end > b.start for a, b in zip(changes, changes[1:], strict=False)):
         raise ValueError("Overlapping candidates")
     if len(apply_changes(raw, changes, set(range(len(changes))))) > 1200:
         raise ValueError("Assisted transcript is too long")

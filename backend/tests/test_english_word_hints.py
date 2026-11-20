@@ -5,11 +5,11 @@ from sqlalchemy import select
 from app.db.topic_phrase_hints import TOPIC_PHRASE_HINTS
 from app.db.topic_phrase_hints_en import ENGLISH_WORD_HINTS
 from app.db.topic_phrases import TOPIC_PHRASES
+from app.db.topic_phrases_en import TOPIC_PHRASES_EN
 from app.models import Exercise, WordLearningItem
+from app.services.hint_alignment import aligned_word_hints
 from app.services.interface_language import interface_language
 from app.services.word_hints import word_hints_for_language
-from app.services.hint_alignment import aligned_word_hints
-from app.db.topic_phrases_en import TOPIC_PHRASES_EN
 
 
 def _exercise(api_client, db_session, phrase_id, *, missing_stored_hints=False):

@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 import pytest
 from fastapi.testclient import TestClient
@@ -6,7 +6,7 @@ from fastapi.testclient import TestClient
 from app.main import app
 from app.models import User
 from app.schemas.payments import PaymentChoice, PaymentDecision, PaymentReport
-from app.services.auth_service import AuthenticatedIdentity, LEGACY_USER_ID, UserService
+from app.services.auth_service import LEGACY_USER_ID, AuthenticatedIdentity, UserService
 from app.services.payments import PaymentService
 from tests.test_payments import configured, report_data
 
@@ -26,7 +26,7 @@ def test_web_stays_free_until_android_claim_and_web_then_sees_premium(api_client
     assert first is not None
     db_session.commit()
     assert api_client.post('/api/auth/me/android-premium', json={'platform': 'android'}).status_code == 200
-    assert db_session.get(User, LEGACY_USER_ID).android_premium_granted_at.replace(tzinfo=timezone.utc) == first.replace(tzinfo=timezone.utc)
+    assert db_session.get(User, LEGACY_USER_ID).android_premium_granted_at.replace(tzinfo=UTC) == first.replace(tzinfo=UTC)
     # Normal web read and a later identity sync cannot remove the persisted benefit.
     assert api_client.get('/api/auth/me').json()['access_tier'] == 'premium'
     user = UserService(db_session).sync(AuthenticatedIdentity(LEGACY_USER_ID, 'learner@example.com', None, None))
@@ -65,7 +65,7 @@ def test_web_payment_decision_preserves_android_grant(db_session, status):
     assert payment.provisional_granted_at is not None
     UserService(db_session).grant_android_premium(user)
     db_session.commit()
-    admin = User(id='admin-test', email='admin@example.invalid', role='admin', access_tier='free', registered_at=datetime.now(timezone.utc))
+    admin = User(id='admin-test', email='admin@example.invalid', role='admin', access_tier='free', registered_at=datetime.now(UTC))
     db_session.add(admin)
     db_session.commit()
     payments.decide(admin, payment.id, PaymentDecision(status=status))

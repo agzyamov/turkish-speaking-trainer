@@ -1,12 +1,12 @@
 """Measure a local writer while synthetic analysis waits; never use an external DB/AI."""
 import argparse
-from concurrent.futures import ThreadPoolExecutor
-from datetime import datetime, timezone
 import hashlib
 import json
 import os
-from pathlib import Path
 import sys
+from concurrent.futures import ThreadPoolExecutor
+from datetime import UTC, datetime
+from pathlib import Path
 from threading import Event
 from time import perf_counter
 
@@ -45,7 +45,7 @@ def main() -> None:
                 "before", fixture_hash, args.runs, args.warmups, args.mock_wait_ms):
             raise ValueError("Before/after parameters and fixtures must match")
     backend = local_backend(args.backend)
-    stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S%fZ")
+    stamp = datetime.now(UTC).strftime("%Y%m%dT%H%M%S%fZ")
     directory = ARTIFACTS / "attempt-lock" / f"{args.label}-{stamp}"
     directory.mkdir(parents=True, exist_ok=False)
     os.environ.update(APP_ENV="testlab", DATABASE_URL=f"sqlite:///{(directory / 'unused.sqlite').as_posix()}",
@@ -54,6 +54,7 @@ def main() -> None:
     sys.path.insert(0, str(backend))
     from sqlalchemy import func, select
     from sqlalchemy.orm import Session
+
     from app.db.base import Base
     from app.db.session import create_database_engine
     from app.models import Attempt, Exercise, TrainingSession, User

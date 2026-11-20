@@ -3,6 +3,7 @@ from types import SimpleNamespace
 from unittest.mock import Mock
 
 import pytest
+
 from app.config import Settings
 from app.schemas.transcriptions import TranscriptionAssistanceAnalysis
 from app.services.ai_adapter import AIServiceError

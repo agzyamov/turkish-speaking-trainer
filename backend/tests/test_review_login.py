@@ -2,10 +2,10 @@ import httpx
 import pytest
 from fastapi.testclient import TestClient
 
-from app.config import Settings, get_settings
+from app.config import Settings
 from app.main import app
 from app.services.auth_service import AuthenticationUnavailableError
-from app.services.review_login import ReviewLoginService, ReviewLoginRateLimitError
+from app.services.review_login import ReviewLoginRateLimitError, ReviewLoginService
 
 
 def settings():

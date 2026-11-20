@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import random
 import re
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from difflib import SequenceMatcher
 from uuid import UUID
 
@@ -21,12 +21,12 @@ from app.repositories import (
     TrainingSessionRepository,
 )
 from app.schemas import ExerciseGenerationResult, ExerciseResponse
-from app.services.word_hints import word_hints_for_language, preset_english_source
-from app.services.hint_alignment import aligned_word_hints
 from app.services.ai_adapter import AIServiceError, StructuredAIProvider
+from app.services.hint_alignment import aligned_word_hints
 from app.services.review_service import ReviewQueueEmptyError
 from app.services.scheduler import Scheduler
 from app.services.session_service import SessionCompletedError, SessionNotFoundError, SessionPendingError, SessionService, SessionUnavailableError
+from app.services.word_hints import word_hints_for_language
 
 
 class TopicEmptyError(RuntimeError):
@@ -140,7 +140,7 @@ class ExerciseGenerator:
             raise SessionUnavailableError(session_id)
         if not training_session.normalized_topic_json.get("review_carousel"):
             requested_length = int(training_session.normalized_topic_json.get("session_length", 20))
-            if self.attempt_requests.count_checked_or_reserved_exercises(session_id, datetime.now(timezone.utc)) >= requested_length:
+            if self.attempt_requests.count_checked_or_reserved_exercises(session_id, datetime.now(UTC)) >= requested_length:
                 if self.attempts.count_checked_exercises(session_id) >= requested_length:
                     raise SessionCompletedError(session_id)
                 raise SessionPendingError(session_id)
@@ -150,7 +150,7 @@ class ExerciseGenerator:
             return self._review_exercise(training_session.id, review_payload, request_id)
         if training_session.normalized_topic_json.get("review_carousel"):
             return self._next_review_exercise(training_session.id, request_id)
-        self.review_phrases.activate_due(datetime.now(timezone.utc))
+        self.review_phrases.activate_due(datetime.now(UTC))
         recent = self.exercises.list_recent(session_id, limit=20)
         skills = self.skills.list_for_training(self.user_id)
         skill_catalog = {skill.key: skill for skill in skills}
@@ -222,7 +222,7 @@ class ExerciseGenerator:
         return random.choice(candidates)
 
     def _next_review_exercise(self, session_id: str, request_id: str | None = None) -> ExerciseResponse:
-        self.review_phrases.activate_due(datetime.now(timezone.utc))
+        self.review_phrases.activate_due(datetime.now(UTC))
         phrases = self.review_phrases.list_active()
         if not phrases:
             raise ReviewQueueEmptyError
@@ -292,8 +292,8 @@ class ExerciseGenerator:
             raise
 
     def _response(self, entity: Exercise) -> ExerciseResponse:
-        from app.services.source_versions import SourceLanguageService, exercise_source
         from app.services.interface_language import interface_language
+        from app.services.source_versions import SourceLanguageService, exercise_source
         versions = SourceLanguageService(self.db, self.ai, self.user_id).ensure(entity)
         language = interface_language.get()
         topic_id = entity.generation_meta_json.get("topic_id")

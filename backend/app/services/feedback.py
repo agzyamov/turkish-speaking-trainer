@@ -5,7 +5,7 @@ from app.models import User, UserFeedback
 from app.repositories.feedback import FeedbackRepository
 from app.schemas.feedback import FeedbackRequest, FeedbackResponse, FeedbackTranscript
 from app.services.notifications import notify_after_commit
-from app.services.transcription_adapter import OpenAITranscriptionProvider, TranscriptionServiceError
+from app.services.transcription_adapter import TranscriptionProvider, TranscriptionServiceError
 from app.services.transcription_service import ALLOWED_AUDIO_TYPES
 
 
@@ -23,7 +23,7 @@ class FeedbackService:
         return result
 
 
-def transcribe_feedback(provider: OpenAITranscriptionProvider, audio: bytes, content_type: str) -> FeedbackTranscript:
+def transcribe_feedback(provider: TranscriptionProvider, audio: bytes, content_type: str) -> FeedbackTranscript:
     extension = ALLOWED_AUDIO_TYPES.get(content_type)
     if extension is None or not audio:
         raise ValueError("Unsupported or empty audio")

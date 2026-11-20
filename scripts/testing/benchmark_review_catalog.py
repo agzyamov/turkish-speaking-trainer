@@ -6,11 +6,11 @@ import hashlib
 import json
 import math
 import os
-from pathlib import Path
 import statistics
 import sys
+from datetime import UTC, datetime, timedelta
+from pathlib import Path
 from time import perf_counter
-from datetime import datetime, timedelta, timezone
 
 ROOT = Path(__file__).resolve().parents[2]
 ARTIFACTS = ROOT / "artifacts" / "testlab"
@@ -46,7 +46,7 @@ def main() -> None:
             "before", digest, args.runs, args.warmups,
         ):
             raise ValueError("Before/after fixtures and sample parameters must match")
-    directory = ARTIFACTS / "review-catalog" / f"{args.label}-{datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%S%fZ')}"
+    directory = ARTIFACTS / "review-catalog" / f"{args.label}-{datetime.now(UTC).strftime('%Y%m%dT%H%M%S%fZ')}"
     directory.mkdir(parents=True, exist_ok=False)
     os.environ.update(APP_ENV="testlab", OPENAI_API_KEY="", SUPABASE_URL="", SUPABASE_PUBLISHABLE_KEY="",
                       ADMIN_EMAILS="", DATABASE_URL=f"sqlite:///{(directory / 'unused.sqlite').as_posix()}")
@@ -55,13 +55,14 @@ def main() -> None:
     from fastapi.testclient import TestClient
     from sqlalchemy import event
     from sqlalchemy.orm import Session
+
     from app.api.dependencies import get_current_user
     from app.db.base import Base
     from app.db.session import create_database_engine, get_db
     from app.main import app
     from app.models import ReviewPhrase, TopicPreset, User
-    from app.services.ai_adapter import get_ai_provider
     from app.services import review_service
+    from app.services.ai_adapter import get_ai_provider
 
     fixed_now = datetime.fromisoformat(FIXTURE["clock"])
     created = datetime.fromisoformat(FIXTURE["created"])

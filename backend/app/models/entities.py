@@ -1,10 +1,25 @@
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 from uuid import uuid4
 
-from sqlalchemy import Boolean, CheckConstraint, DateTime, Float, ForeignKey, Index, Integer, JSON, LargeBinary, String, Text, UniqueConstraint, false
+from sqlalchemy import (
+    JSON,
+    BigInteger,
+    Boolean,
+    CheckConstraint,
+    DateTime,
+    Float,
+    ForeignKey,
+    Index,
+    Integer,
+    LargeBinary,
+    String,
+    Text,
+    UniqueConstraint,
+    false,
+)
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base
@@ -13,11 +28,32 @@ LEGACY_USER_ID = "00000000-0000-0000-0000-000000000001"
 
 
 def utc_now() -> datetime:
-    return datetime.now(timezone.utc)
+    return datetime.now(UTC)
 
 
 def new_id() -> str:
     return str(uuid4())
+
+
+class AIUsageEvent(Base):
+    """One row per provider call: the usage ledger behind the monthly spend cap."""
+    __tablename__ = "ai_usage_events"
+    __table_args__ = (Index("ix_ai_usage_events_created_at", "created_at"),)
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=new_id)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now)
+    # Kept without a foreign key so the spend record survives account deletion.
+    user_id: Mapped[str | None] = mapped_column(String(36))
+    purpose: Mapped[str] = mapped_column(String(100))
+    provider: Mapped[str] = mapped_column(String(50))
+    model: Mapped[str] = mapped_column(String(200))
+    input_tokens: Mapped[int] = mapped_column(Integer, default=0, server_default="0")
+    output_tokens: Mapped[int] = mapped_column(Integer, default=0, server_default="0")
+    cache_write_tokens: Mapped[int] = mapped_column(Integer, default=0, server_default="0")
+    cache_read_tokens: Mapped[int] = mapped_column(Integer, default=0, server_default="0")
+    stt_ms: Mapped[int] = mapped_column(Integer, default=0, server_default="0")
+    cost_micro_usd: Mapped[int] = mapped_column(BigInteger)
+    # True when the provider reported no usage and the worst case was charged instead.
+    estimated: Mapped[bool] = mapped_column(Boolean, default=False, server_default=false())
 
 
 class ModelDebugSetting(Base):

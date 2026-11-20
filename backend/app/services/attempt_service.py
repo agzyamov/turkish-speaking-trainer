@@ -1,31 +1,34 @@
 import hashlib
 import json
 from dataclasses import dataclass
-from datetime import datetime, time, timedelta, timezone
+from datetime import UTC, datetime, time, timedelta
 from uuid import uuid4
 
 from sqlalchemy import delete, update
 from sqlalchemy.orm import Session
 
 from app.config import get_settings
-from app.models import Attempt, AttemptRequest, ErrorEvent, Exercise
+from app.models import Attempt, AttemptRequest, ErrorEvent, Exercise, User
 from app.repositories import (
-    AttemptRepository, AttemptRequestRepository, ErrorEventRepository, ExerciseRepository,
-    SkillRepository, TrainingSessionRepository,
+    AttemptRepository,
+    AttemptRequestRepository,
+    ErrorEventRepository,
+    ExerciseRepository,
+    SkillRepository,
+    TrainingSessionRepository,
 )
+from app.repositories.transcriptions import TranscriptionReceiptRepository
 from app.schemas import AttemptResponse, CreateAttemptRequest
+from app.schemas.transcriptions import TranscriptionChange
 from app.services.ai_adapter import StructuredAIProvider
 from app.services.answer_analyzer import AnswerAnalyzer
-from app.services.serbian_text import has_unexpected_letter_script
-from app.services.session_service import SessionCompletedError, SessionUnavailableError
+from app.services.auth_service import UserService
+from app.services.custom_content_policy import CustomContentError
 from app.services.learner_model import LearnerModelService
 from app.services.review_service import ReviewService
+from app.services.serbian_text import has_unexpected_letter_script
+from app.services.session_service import SessionCompletedError, SessionUnavailableError
 from app.services.word_hints import all_word_hints, resolve_hint
-from app.services.auth_service import UserService
-from app.models import User
-from app.repositories.transcriptions import TranscriptionReceiptRepository
-from app.services.custom_content_policy import CustomContentError
-from app.schemas.transcriptions import TranscriptionChange
 
 
 class UnexpectedTranscriptScriptError(ValueError):
@@ -68,8 +71,8 @@ class _Reservation:
 class AttemptService:
     @staticmethod
     def _analysis_source(exercise: Exercise) -> str:
-        from app.services.source_versions import exercise_source
         from app.services.interface_language import interface_language
+        from app.services.source_versions import exercise_source
         return exercise_source(exercise, interface_language.get())
 
     def __init__(self, db: Session, ai: StructuredAIProvider, user: User) -> None:
@@ -125,7 +128,7 @@ class AttemptService:
             raise ExerciseNotFoundError(request.exercise_id)
         if exercise.generation_meta_json.get("custom_content_deleted"):
             raise CustomContentError("custom_content_deleted")
-        lease_now = datetime.now(timezone.utc)
+        lease_now = datetime.now(UTC)
         existing = self.requests.get_by_client_id(request_id) if request.client_request_id else None
         if existing is not None:
             if existing.payload_hash != payload_hash:
@@ -138,7 +141,7 @@ class AttemptService:
         training_session = self.sessions.get_owned_for_update(exercise.session_id)
         if training_session is None:
             raise ExerciseNotFoundError(request.exercise_id)
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         if training_session.status == "completed":
             raise SessionCompletedError(training_session.id)
         if training_session.status != "active":
@@ -154,7 +157,7 @@ class AttemptService:
         if usage.remaining == 0:
             raise DailyLimitExceededError
         if usage.limit is not None:
-            day_start = datetime.combine(now.date(), time.min, tzinfo=timezone.utc)
+            day_start = datetime.combine(now.date(), time.min, tzinfo=UTC)
             if usage.used + self.requests.count_active_between(day_start, day_start + timedelta(days=1), now) >= usage.limit:
                 raise AttemptInProgressError
 
@@ -219,7 +222,7 @@ class AttemptService:
         assistance = assistance or {}
         locked_user = UserService(self.db).users.lock(self.user.id)
         entry = self.requests.get_by_client_id(reserved.request_id)
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         if (
             locked_user is None or entry is None or entry.fencing_token != reserved.fencing_token
             or entry.response_json is not None or entry.lease_expires_at is None
@@ -251,7 +254,7 @@ class AttemptService:
         self.review.record_revealed_words(exercise, hinted_words)
         hint_penalty = self.review.hint_penalty(hinted_words)
         overall_score = round(max(0.0, base_score - hint_penalty), 3)
-        day_start = datetime.combine(now.date(), time.min, tzinfo=timezone.utc)
+        day_start = datetime.combine(now.date(), time.min, tzinfo=UTC)
         day_end = day_start + timedelta(days=1)
         created_at = entry.reserved_at or now
         # The existing user lock serializes this check with other accepted answers.
@@ -304,7 +307,7 @@ class AttemptService:
         )
         if not is_carousel and self.attempts.count_checked_exercises(training_session.id) >= requested_length:
             training_session.status = "completed"
-            training_session.ended_at = datetime.now(timezone.utc)
+            training_session.ended_at = datetime.now(UTC)
             self.db.flush()
         response = AttemptResponse(
             id=attempt.id,
@@ -340,7 +343,7 @@ class AttemptService:
             )
             if reserved.client_supplied:
                 self.db.execute(update(AttemptRequest).where(*owned_lease).values(
-                    lease_expires_at=datetime.now(timezone.utc) - timedelta(seconds=1),
+                    lease_expires_at=datetime.now(UTC) - timedelta(seconds=1),
                 ))
             else:
                 self.db.execute(delete(AttemptRequest).where(*owned_lease))
@@ -351,7 +354,7 @@ class AttemptService:
 
     @staticmethod
     def _utc(value: datetime) -> datetime:
-        return value if value.tzinfo is not None else value.replace(tzinfo=timezone.utc)
+        return value if value.tzinfo is not None else value.replace(tzinfo=UTC)
 
     @staticmethod
     def _payload_hash(request: CreateAttemptRequest) -> str:

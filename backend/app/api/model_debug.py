@@ -1,12 +1,13 @@
 from fastapi import APIRouter, Depends, HTTPException, Response
 from sqlalchemy.orm import Session
+
 from app.api.dependencies import require_debug_admin
+from app.config import Settings, get_settings
 from app.db import get_db
 from app.models import User
 from app.schemas.model_debug import DebugMode
-from app.services.debug_mode import DebugModeService
-from app.config import Settings, get_settings
 from app.schemas.transcription_settings import TranscriptionModelSelection, TranscriptionModelSettings
+from app.services.debug_mode import DebugModeService
 from app.services.transcription_settings import TranscriptionSettingsService
 
 router = APIRouter(prefix="/admin/model-debug", tags=["model debug"])

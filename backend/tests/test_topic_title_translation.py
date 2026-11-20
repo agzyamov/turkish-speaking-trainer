@@ -4,13 +4,13 @@ from unittest.mock import Mock
 import pytest
 from sqlalchemy import select
 
-from app.main import app
-from app.models import TopicPreset, User, ReviewPhrase
 from app.api.dependencies import get_current_user
+from app.config import Settings
+from app.main import app
+from app.models import ReviewPhrase, TopicPreset, User
+from app.schemas.topics import TopicTitleTranslation
 from app.services.ai_adapter import AIServiceError, OpenAIStructuredProvider, get_ai_provider
 from app.services.interface_language import interface_language
-from app.config import Settings
-from app.schemas.topics import TopicTitleTranslation
 from tests.fakes import FakeAIProvider
 
 

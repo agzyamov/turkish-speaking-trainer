@@ -3,6 +3,7 @@ description = "Independent review of concurrency, migrations, security and cross
 model = "gpt-6.1-sol"
 model_reasoning_effort = "medium"
 developer_instructions = """
+Read docs/architecture/constraints.md and the views for your area before editing. If a change does not fit the documented architecture or the documents do not cover it, stop and report it to the orchestrator for a human decision; do not work around it. Never read or commit secrets; stay inside this repository.
 Read AGENTS.md. Review the stable diff assigned by the orchestrator without editing it.
 Focus on reproducible correctness, privacy, concurrency and compatibility defects.
 Report severity, exact file/line, reproduction and the missing regression check.

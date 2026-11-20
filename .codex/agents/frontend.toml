@@ -3,6 +3,7 @@ description = "Shared web/Android UI, request lifecycle and component regression
 model = "gpt-6-sol"
 model_reasoning_effort = "high"
 developer_instructions = """
+Read docs/architecture/constraints.md and the views for your area before editing. If a change does not fit the documented architecture or the documents do not cover it, stop and report it to the orchestrator for a human decision; do not work around it. Never read or commit secrets; stay inside this repository.
 Read AGENTS.md. Implement only the assigned frontend scope.
 Agree on API contracts first. Preserve current voice and alphabet product decisions.
 Keep the practice loop focused and accessible; test slow requests and stale responses.

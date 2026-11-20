@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-import importlib.util
 import contextlib
+import importlib.util
 import io
 import subprocess
 import sys
@@ -12,7 +12,6 @@ import unittest
 import zipfile
 from pathlib import Path
 from unittest.mock import patch
-
 
 MODULE_PATH = Path(__file__).with_name("postgres_testlab.py")
 SPEC = importlib.util.spec_from_file_location("postgres_testlab", MODULE_PATH)
@@ -80,6 +79,7 @@ class PostgresTestlabSafetyTests(unittest.TestCase):
         self.assertEqual(mocked.call_args.kwargs["stdout"], subprocess.DEVNULL)
         self.assertEqual(mocked.call_args.kwargs["stderr"], subprocess.DEVNULL)
 
+    @unittest.skipUnless(__import__("sys").platform == "win32", "postgres_testlab drives Windows PostgreSQL binaries and expects python.exe")
     def test_pytest_targets_are_confined_to_backend_tests(self) -> None:
         python = Path(__import__("sys").executable)
         selected = lab.REPOSITORY / "backend" / "tests" / "test_database_configuration.py"

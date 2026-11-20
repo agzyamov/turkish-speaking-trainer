@@ -2,9 +2,9 @@ from copy import deepcopy
 
 from sqlalchemy import inspect
 
+from app.db.seed import seed_catalog
 from app.models import Exercise, ReviewPhrase, TrainingSession
 from app.services.hint_repair import HintRepair, repair_hint_snapshots
-from app.db.seed import seed_catalog
 
 
 def snapshot(row):

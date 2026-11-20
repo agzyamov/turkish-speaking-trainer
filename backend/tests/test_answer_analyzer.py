@@ -1,5 +1,6 @@
-import pytest
 import unicodedata
+
+import pytest
 
 from app.config import Settings
 from app.schemas import AnswerAnalysis, AnswerIssue, CreateAttemptRequest, DemonstratedSkill

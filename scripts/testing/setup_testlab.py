@@ -1,6 +1,6 @@
 """Generate local fixture credentials without printing them."""
-from pathlib import Path
 import secrets
+from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 target = ROOT / ".env.testlab"

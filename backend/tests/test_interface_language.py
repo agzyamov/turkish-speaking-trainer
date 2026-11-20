@@ -6,15 +6,15 @@ from unittest.mock import Mock
 import pytest
 
 from app.config import Settings
-from app.schemas import AnswerAnalysis, CreateAttemptRequest, PhrasePreparation
+from app.db.topic_phrase_hints_en import ENGLISH_WORD_HINTS
 from app.db.topic_phrases import TOPIC_PHRASES
 from app.db.topic_phrases_en import TOPIC_PHRASES_EN
-from app.db.topic_phrase_hints_en import ENGLISH_WORD_HINTS
-from app.services.ai_adapter import OpenAIStructuredProvider, get_ai_provider
-from app.services.interface_language import interface_language, parse_interface_language
 from app.main import app
-from tests.fakes import FakeAIProvider
+from app.schemas import AnswerAnalysis, CreateAttemptRequest, PhrasePreparation
+from app.services.ai_adapter import OpenAIStructuredProvider, get_ai_provider
 from app.services.answer_analyzer import AnswerAnalyzer
+from app.services.interface_language import interface_language, parse_interface_language
+from tests.fakes import FakeAIProvider
 
 
 @pytest.mark.parametrize("header,expected", [

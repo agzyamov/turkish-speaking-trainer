@@ -8,16 +8,16 @@ from typing import Protocol
 from openai import OpenAI
 
 from app.config import Settings, get_settings
+from app.request_metrics import measure_ai_call
 from app.schemas import AnswerAnalysis, ExerciseGenerationResult, PhrasePreparation, TopicContext, WordHint
+from app.schemas.attempts import ExplainedAnswerAnalysis
 from app.schemas.topics import TopicTitleTranslation
 from app.schemas.transcriptions import TranscriptionAssistanceAnalysis
-from app.schemas.attempts import ExplainedAnswerAnalysis
-from app.request_metrics import measure_ai_call
-from app.services.model_debug import capture_model_call
-from app.services.interface_language import interface_language
-from app.services.serbian_standard import validate_generated_serbian
+from app.services.failure_diagnostics import DiagnosticFailure, classify_provider_error, diagnostic
 from app.services.hint_alignment import aligned_word_hints
-from app.services.failure_diagnostics import DiagnosticFailure, diagnostic, classify_provider_error
+from app.services.interface_language import interface_language
+from app.services.model_debug import capture_model_call
+from app.services.serbian_standard import validate_generated_serbian
 
 PROMPTS_DIR = Path(__file__).resolve().parents[1] / "prompts"
 
@@ -63,6 +63,36 @@ class StructuredAIProvider(Protocol):
 @lru_cache
 def load_prompt(name: str) -> str:
     return (PROMPTS_DIR / name).read_text(encoding="utf-8").strip()
+
+
+StructuredSchema = (
+    type[TopicTitleTranslation] | type[TopicContext] | type[ExerciseGenerationResult] | type[AnswerAnalysis]
+    | type[ExplainedAnswerAnalysis] | type[PhrasePreparation] | type[TranscriptionAssistanceAnalysis]
+)
+
+
+def build_instructions(prompt_name: str) -> str:
+    """The system prompt for one operation: the versioned prompt plus the shared language policy."""
+    instructions = load_prompt(prompt_name)
+    if prompt_name in {"answer_analyzer_v4.md", "answer_analyzer_v5.md"} and interface_language.get() == "en":
+        instructions += "\n\n" + load_prompt("feedback_language_en_v1.md")
+    return instructions + "\n\n" + load_prompt("serbian_ekavica_v1.md")
+
+
+def finalize_structured(result, payload: dict[str, object]):
+    """Checks every adapter applies to validated model output before it reaches a service."""
+    try:
+        validate_generated_serbian(result)
+    except ValueError as exc:
+        raise AIServiceError("Generated Serbian violates policy", diagnostic("response_parse", "serbian_policy", "ekavica_violation")) from exc
+    if isinstance(result, (PhrasePreparation, ExerciseGenerationResult)):
+        canonical = next(iter(result.intended_sr_variants), "")
+        if payload.get("canonical_sr") and canonical != payload["canonical_sr"]:
+            raise AIServiceError("Canonical answer changed during hint preparation", diagnostic("response_parse", "grounding", "canonical_changed"))
+        source = str(payload.get("source_ru", getattr(result, "source_ru", "")))
+        result.word_hints = [WordHint.model_validate(item) for item in aligned_word_hints(
+            source, canonical, [hint.model_dump() for hint in result.word_hints])]
+    return result
 
 
 class OpenAIStructuredProvider:
@@ -165,10 +195,7 @@ class OpenAIStructuredProvider:
         schema: type[TopicTitleTranslation] | type[TopicContext] | type[ExerciseGenerationResult] | type[AnswerAnalysis] | type[ExplainedAnswerAnalysis] | type[PhrasePreparation] | type[TranscriptionAssistanceAnalysis],
     ):
         try:
-            instructions = load_prompt(prompt_name)
-            if prompt_name in {"answer_analyzer_v4.md", "answer_analyzer_v5.md"} and interface_language.get() == "en":
-                instructions += "\n\n" + load_prompt("feedback_language_en_v1.md")
-            instructions += "\n\n" + load_prompt("serbian_ekavica_v1.md")
+            instructions = build_instructions(prompt_name)
             input_json = json.dumps(payload, ensure_ascii=False)
             with capture_model_call(prompt_name, self.settings.openai_text_model or "", {
                 "model": self.settings.openai_text_model, "instructions": instructions,
@@ -196,18 +223,7 @@ class OpenAIStructuredProvider:
             if parsed is None:
                 raise AIServiceError("OpenAI returned no structured output", diagnostic("response_parse", "structured_output", "missing_output"))
             result = schema.model_validate(parsed.model_dump() if hasattr(parsed, "model_dump") else parsed)
-            try:
-                validate_generated_serbian(result)
-            except ValueError as exc:
-                raise AIServiceError("Generated Serbian violates policy", diagnostic("response_parse", "serbian_policy", "ekavica_violation")) from exc
-            if isinstance(result, (PhrasePreparation, ExerciseGenerationResult)):
-                canonical = next(iter(result.intended_sr_variants), "")
-                if payload.get("canonical_sr") and canonical != payload["canonical_sr"]:
-                    raise AIServiceError("Canonical answer changed during hint preparation", diagnostic("response_parse", "grounding", "canonical_changed"))
-                source = str(payload.get("source_ru", getattr(result, "source_ru", "")))
-                result.word_hints = [WordHint.model_validate(item) for item in aligned_word_hints(
-                    source, canonical, [hint.model_dump() for hint in result.word_hints])]
-            return result
+            return finalize_structured(result, payload)
         except AIServiceError:
             raise
         except Exception as exc:
@@ -215,5 +231,6 @@ class OpenAIStructuredProvider:
 
 
 @lru_cache
-def get_ai_provider() -> OpenAIStructuredProvider:
-    return OpenAIStructuredProvider(get_settings())
+def get_ai_provider() -> StructuredAIProvider:
+    from app.services.anthropic_adapter import AnthropicStructuredProvider
+    return AnthropicStructuredProvider(get_settings())

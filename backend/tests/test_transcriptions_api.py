@@ -1,16 +1,17 @@
-from fastapi.testclient import TestClient
 import unicodedata
 from unittest.mock import Mock
+
 import pytest
-from app.services.transcription_assistance_adapter import get_transcription_assistance_provider
+from fastapi.testclient import TestClient
+from sqlalchemy import func, select
+from sqlalchemy.orm import Session
 
 from app.config import Settings, get_settings
 from app.main import app
+from app.models import Attempt, AttemptRequest, Exercise
 from app.services.transcription_adapter import get_transcription_provider
+from app.services.transcription_assistance_adapter import get_transcription_assistance_provider
 from tests.fakes import FakeTranscriptionProvider
-from sqlalchemy import select, func
-from sqlalchemy.orm import Session
-from app.models import Exercise, Attempt, AttemptRequest
 
 
 def _create_exercise(api_client: TestClient) -> str:

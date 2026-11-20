@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from types import SimpleNamespace
 
 import httpx
@@ -9,17 +9,17 @@ from fastapi.testclient import TestClient
 from sqlalchemy import event
 from sqlalchemy.orm import Session
 
-from app.config import Settings
 from app.api.dependencies import get_current_user
-from app.models import Attempt, Exercise, TrainingSession, User
+from app.config import Settings
 from app.main import app
+from app.models import Attempt, Exercise, TrainingSession, User
+from app.services import auth_service
 from app.services.auth_service import (
     LEGACY_USER_ID,
     AuthenticatedIdentity,
     SupabaseAuthService,
     UserService,
 )
-from app.services import auth_service
 
 
 def test_supabase_auth_validates_confirmed_user_payload() -> None:
@@ -47,7 +47,7 @@ def test_supabase_auth_validates_confirmed_user_payload() -> None:
 
 def test_supabase_auth_verifies_es256_token_without_remote_request() -> None:
     key = ec.generate_private_key(ec.SECP256R1())
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     claims = {
         "iss": "https://project.supabase.co/auth/v1",
         "sub": "11111111-1111-1111-1111-111111111111",
@@ -123,7 +123,7 @@ def test_admin_user_counts_keep_utc_boundaries_owners_and_zeroes(
     db_session: Session,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    fixed_now = datetime(2026, 10, 1, 12, tzinfo=timezone.utc)
+    fixed_now = datetime(2026, 10, 1, 12, tzinfo=UTC)
 
     class FrozenDateTime(datetime):
         @classmethod
@@ -154,7 +154,7 @@ def test_admin_user_counts_keep_utc_boundaries_owners_and_zeroes(
         db_session.add(Attempt(exercise_id=exercise.id, transcript_sr=f"Odgovor {suffix}", created_at=created_at))
         return owned_session
 
-    day_start = datetime(2026, 10, 1, tzinfo=timezone.utc)
+    day_start = datetime(2026, 10, 1, tzinfo=UTC)
     first_session = add_attempt(users[0].id, day_start, "a-start")
     add_attempt(users[0].id, fixed_now, "a-same-session", first_session)
     add_attempt(users[0].id, fixed_now, "a-other-session")
@@ -221,7 +221,7 @@ def test_admin_user_select_count_is_constant_as_users_grow(db_session: Session) 
 def test_admin_email_is_promoted_by_backend_configuration(db_session: Session) -> None:
     user = UserService(db_session).sync(AuthenticatedIdentity(
         id="33333333-3333-3333-3333-333333333333",
-        email="suezergut@gmail.com",
+        email="owner@example.com",
         display_name="Admin",
         avatar_url=None,
     ))
@@ -248,7 +248,7 @@ def test_user_sync_skips_unchanged_write_until_activity_is_stale(db_session: Ses
     try:
         service.sync(identity)
         assert not any(statement.startswith("UPDATE users") for statement in statements)
-        user.last_active_at = datetime.now(timezone.utc) - timedelta(minutes=6)
+        user.last_active_at = datetime.now(UTC) - timedelta(minutes=6)
         db_session.flush()
         statements.clear()
         service.sync(identity)
@@ -281,7 +281,7 @@ def test_user_daily_attempt_limit_per_utc_day(
     stored_exercise = db_session.get(Exercise, exercise["id"])
     assert stored_exercise is not None
     canonical = stored_exercise.target_hints_json["canonical_sr"]
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     db_session.add_all([
         Attempt(exercise_id=exercise["id"], transcript_sr=f"attempt {index}", created_at=now)
         for index in range(used)

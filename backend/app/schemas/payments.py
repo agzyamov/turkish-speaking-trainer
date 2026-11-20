@@ -1,9 +1,9 @@
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from decimal import Decimal
 from typing import Literal
 from urllib.parse import urlparse
 
-from pydantic import BaseModel, ConfigDict, Field, AwareDatetime, field_validator
+from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, field_validator
 
 Country = Literal["russia", "serbia", "other"]
 Method = Literal["sbp", "alta", "paypal"]
@@ -57,9 +57,9 @@ class PaymentReport(BaseModel):
     @field_validator("paid_at")
     @classmethod
     def not_future(cls, value: datetime) -> datetime:
-        if value > datetime.now(timezone.utc) + timedelta(minutes=10):
+        if value > datetime.now(UTC) + timedelta(minutes=10):
             raise ValueError("Payment time cannot be in the future")
-        return value.astimezone(timezone.utc)
+        return value.astimezone(UTC)
 
 
 class PaymentDecision(BaseModel):
@@ -87,7 +87,7 @@ class PaymentResponse(BaseModel):
     @classmethod
     def utc_for_sqlite(cls, value: datetime | None) -> datetime | None:
         # SQLite drops timezone metadata; all stored payment timestamps use UTC.
-        return value.replace(tzinfo=timezone.utc) if value and value.tzinfo is None else value
+        return value.replace(tzinfo=UTC) if value and value.tzinfo is None else value
 
 
 class AdminPaymentResponse(PaymentResponse):

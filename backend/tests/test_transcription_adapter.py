@@ -3,7 +3,7 @@ from unittest.mock import Mock
 
 import httpx
 import pytest
-from openai import APIConnectionError, APITimeoutError, APIStatusError
+from openai import APIConnectionError, APIStatusError, APITimeoutError
 
 from app.config import Settings
 from app.services.transcription_adapter import OpenAITranscriptionProvider, TranscriptionServiceError

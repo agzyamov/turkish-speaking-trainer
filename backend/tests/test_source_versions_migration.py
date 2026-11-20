@@ -1,8 +1,9 @@
 from pathlib import Path
 
-from alembic import command
 from alembic.config import Config
 from sqlalchemy import inspect
+
+from alembic import command
 from app.db.session import create_database_engine
 
 

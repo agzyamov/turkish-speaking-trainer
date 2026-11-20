@@ -6,8 +6,8 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 from sqlalchemy.orm.attributes import flag_modified
 
-from app.db.topic_phrases import TOPIC_PHRASES
 from app.db.topic_phrase_hints import TOPIC_PHRASE_HINTS
+from app.db.topic_phrases import TOPIC_PHRASES
 from app.models import Exercise, ReviewPhrase, TopicPhrase, TrainingSession
 from app.schemas.exercises import WordHint
 from app.services.hint_alignment import aligned_word_hints

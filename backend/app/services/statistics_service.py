@@ -1,9 +1,7 @@
 from calendar import monthrange
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta, timezone
 
 from sqlalchemy.orm import Session
-
-from app.schemas.statistics import PhraseStatisticsTopic
 
 from app.repositories import AttemptRepository, ReviewPhraseRepository
 from app.schemas import (
@@ -13,6 +11,7 @@ from app.schemas import (
     PhraseStatisticsItem,
     PhraseStatisticsResponse,
 )
+from app.schemas.statistics import PhraseStatisticsTopic
 
 
 class StatisticsService:
@@ -34,23 +33,23 @@ class StatisticsService:
         correct_counts = [0] * day_count
         mastered_counts = [0] * day_count
         for attempt in self.attempts.list_created_between(
-            local_start.astimezone(timezone.utc),
-            local_end.astimezone(timezone.utc),
+            local_start.astimezone(UTC),
+            local_end.astimezone(UTC),
         ):
             created_at = attempt.created_at
             if created_at.tzinfo is None:
-                created_at = created_at.replace(tzinfo=timezone.utc)
+                created_at = created_at.replace(tzinfo=UTC)
             local_day = created_at.astimezone(local_timezone).day
             counts[local_day - 1] += 1
             if attempt.overall_score is not None and attempt.overall_score >= 0.95:
                 correct_counts[local_day - 1] += 1
 
         for mastered_at in self.review_phrases.list_mastered_between(
-            local_start.astimezone(timezone.utc),
-            local_end.astimezone(timezone.utc),
+            local_start.astimezone(UTC),
+            local_end.astimezone(UTC),
         ):
             if mastered_at.tzinfo is None:
-                mastered_at = mastered_at.replace(tzinfo=timezone.utc)
+                mastered_at = mastered_at.replace(tzinfo=UTC)
             local_day = mastered_at.astimezone(local_timezone).day
             mastered_counts[local_day - 1] += 1
 

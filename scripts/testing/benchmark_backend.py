@@ -13,14 +13,12 @@ import json
 import math
 import sqlite3
 import statistics
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from time import perf_counter
 
 import httpx
-
-from testlab import ARTIFACTS, AUTH_PORT, API_PORT, BACKEND, load_credentials, ensure_local_configuration
-
+from testlab import API_PORT, ARTIFACTS, AUTH_PORT, BACKEND, ensure_local_configuration, load_credentials
 
 AUTH_URL = f"http://127.0.0.1:{AUTH_PORT}"
 API_URL = f"http://127.0.0.1:{API_PORT}"
@@ -80,7 +78,7 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--label", choices=("before", "after"), required=True)
     parser.add_argument("--compare-to", type=Path, help="Before JSON under artifacts/testlab; required for after")
-    parser.add_argument("--month", default=datetime.now(timezone.utc).strftime("%Y-%m"))
+    parser.add_argument("--month", default=datetime.now(UTC).strftime("%Y-%m"))
     parser.add_argument("--warmups", type=int, default=3)
     parser.add_argument("--runs", type=int, default=20)
     args = parser.parse_args()
@@ -151,7 +149,7 @@ def main() -> None:
 
     report = {
         "label": args.label,
-        "captured_at_utc": datetime.now(timezone.utc).isoformat(),
+        "captured_at_utc": datetime.now(UTC).isoformat(),
         "environment": "Windows localhost, isolated SQLite testlab, local auth fixture, fake AI provider, serial requests",
         "month": args.month,
         "warmups": args.warmups,
@@ -162,7 +160,7 @@ def main() -> None:
         "scenarios": results,
     }
     ARTIFACTS.mkdir(parents=True, exist_ok=True)
-    output = ARTIFACTS / f"backend-{args.label}-{datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ')}.json"
+    output = ARTIFACTS / f"backend-{args.label}-{datetime.now(UTC).strftime('%Y%m%dT%H%M%SZ')}.json"
     output.write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
     print(json.dumps({"artifact": str(output), "summaries": {name: data["summary"] for name, data in results.items()}}, ensure_ascii=False))
 

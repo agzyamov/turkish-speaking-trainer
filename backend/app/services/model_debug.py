@@ -2,10 +2,12 @@
 from contextlib import contextmanager
 from contextvars import ContextVar
 from dataclasses import dataclass
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from time import perf_counter
+
 from sqlalchemy import Engine
 from sqlalchemy.orm import Session
+
 from app.config import Settings
 from app.models import User
 from app.repositories.model_debug import ModelDebugRepository
@@ -57,7 +59,7 @@ class DebugCapture:
                     self.request = DebugPayload(data={**_clean(request, secret), "_diagnostic_id": diagnostic_context.get()}).data
             except Exception:
                 self.generation = None  # Diagnostics must not break learning.
-        self.started_at = datetime.now(timezone.utc)
+        self.started_at = datetime.now(UTC)
         self.started = perf_counter()
 
     @property
@@ -109,7 +111,7 @@ class DebugCapture:
         self.response = DebugPayload(data=_clean(data, self.secret)).data
 
     def finish(self, error: Exception | None):
-        completed_at = datetime.now(timezone.utc)
+        completed_at = datetime.now(UTC)
         duration_ms = (perf_counter() - self.started) * 1000
         if self.generation is None or self.context is None:
             return
