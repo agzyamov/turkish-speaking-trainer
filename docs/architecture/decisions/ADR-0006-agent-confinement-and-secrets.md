@@ -16,6 +16,17 @@ The repository is public and most changes are made by coding agents. The owner r
 
 The first version also denied reading every `*.pem` file. That blocked the system and Python certificate bundles, which share the extension, so no HTTPS connection could be made and dependencies could not be installed. The owner approved removing that one rule. Private keys remain blocked from commits by file name and by gitleaks, and the credential folders where keys normally live remain unreadable.
 
+## Amendment, 2026-11-20: operating-system sandbox switched off
+
+The owner switched the Claude Code command sandbox off (`sandbox.enabled: false`) after it repeatedly blocked ordinary work: package installs (writes into `.vscode` folders inside `node_modules`), browser tests (Chromium must register a Mach service the sandbox does not allow) and tool downloads into the home directory.
+
+What still holds:
+- The permission rules in `.claude/settings.json`: no reading of `.env` files, keystores, credential folders or provider key variables; no force push, remote changes or global git configuration; push, deploy and Android builds need the owner each time; personal connectors stay disabled.
+- gitleaks on every commit and in CI.
+- The agent rules in `AGENTS.md` section 2: read and write only inside this repository.
+
+What no longer holds: an operating-system guarantee that shell commands cannot reach files or hosts outside the repository. Confinement of shell commands now rests on the permission rules and on agent conduct, and a mistake is no longer stopped mechanically. Re-enabling the sandbox restores the guarantee without other changes.
+
 ## Alternatives considered
 - Rules in prose only: an instruction can be ignored or misread; a sandbox cannot.
 - A container or separate machine: stronger isolation, more setup; can be added later without changing this decision.

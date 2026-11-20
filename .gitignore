@@ -47,3 +47,7 @@ inst_user_settings.tmp
 
 # local pnpm store
 .pnpm-store/
+
+# Impeccable design skill: installed per machine with `npx impeccable install --providers=claude --scope=project`
+.claude/skills/impeccable/
+.claude/agents/impeccable-*.md

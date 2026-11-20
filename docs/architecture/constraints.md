@@ -66,7 +66,7 @@ The **Enforced by** column says how a violation is caught. "Check" means an auto
 | ID | Rule | Enforced by |
 |---|---|---|
 | C-26 | This repository is public. No credential, token, private key, connection string with a password or real `.env` file is ever committed. | Check: gitleaks pre-commit hook (`.githooks/pre-commit`) and CI job |
-| C-27 | A coding agent reads and writes only inside this repository. It does not read `.env` files, keystores or credential folders, and does not use personal connectors (mail, drive, calendar, browser control). | Check: `.claude/settings.json` sandbox and deny rules |
+| C-27 | A coding agent reads and writes only inside this repository. It does not read `.env` files, keystores or credential folders, and does not use personal connectors (mail, drive, calendar, browser control). | Check: `.claude/settings.json` deny rules; review for shell commands (the OS sandbox is off by the owner's decision, ADR-0006 amendment) |
 | C-28 | A coding agent does not weaken its own confinement: no edits to `.claude/settings.json`, `.githooks/`, `.gitleaks.toml` or `scripts/guard/` except on the owner's explicit request, and no `--no-verify` commits. | Sandbox write protection on settings; review |
 | C-29 | Secrets are never printed, logged, pasted into a document or sent to an external service. | Review |
 
