@@ -30,7 +30,7 @@ Audit date: 2026-11-20. Every test file was read and judged against the views, c
 1. **Most end-to-end specs never run.** CI runs only the unit tests. `just e2e` runs one spec (`mocked.spec.mjs`), and that spec fails today: line 160 clicks a control whose text no longer exists in the source. About 30 specs have no runner at all. ADR-0003 relies on the existing tests as a safety net for the restructure; today only the unit tests provide it. Before Phase 4: repair `mocked.spec.mjs`, wire the specs that do not need a device into `just e2e` and CI.
 2. **`play-store-assets.spec.mjs` fails today** (expects version 1.43; the project is at 1.45) and is a screenshot generator, not a test. Remove it from the test tree.
 3. **Release facts pinned in unit tests.** `androidManifest.test.ts` asserts the version, version code and APK file name; `SettingsView.test.tsx` reads `build.gradle`. Every Android release breaks them. Keep only the permission checks.
-4. **Tests that reach across the application boundary.** `i18n.test.tsx` and backend `test_interface_language.py` read files from the other application, against "the two applications share no code".
+4. **Tests that reach across the application boundary.** Resolved 2026-11-20 for `i18n.test.tsx`, which no longer reads backend files. Backend `test_interface_language.py` still reads `frontend/src/locales/phrases.en.json` on purpose: that file is generated from the backend catalogue (`scripts/export_phrases_en.py`) and the test is the check that it is up to date.
 5. **Tests that depend on private methods or exact SQL** (`test_attempt_reservations.py`, `test_answer_analyzer.py`, `test_topics_and_sessions_api.py`) will break on internal refactoring without any behaviour change.
 6. **Device and Windows-only suites** (`android-*.mjs`, `local*.spec.mjs`, `test_postgres_testlab.py`) need an Android build or a Windows machine. They stay out of CI and are run only on an Android release.
 7. **A wording gap in C-15.** An unknown skill key among *demonstrated skills* is discarded, as the constraint says. An unknown skill key on a reported *issue* makes the whole grading fail after one retry (`test_answer_analyzer.py:481-497`). Both are safe; the constraint describes only the first.
@@ -51,7 +51,7 @@ Audit date: 2026-11-20. Every test file was read and judged against the views, c
 | C-14 no real provider in tests | Partly structural: an autouse fixture gives every test a throwaway spend ledger, and adapter tests use fake clients; nothing blocks the network itself. CI holds no provider keys, which is the actual safeguard |
 | C-15 skill catalogue | Yes |
 | C-16 versioned prompts | No |
-| C-17 Turkish text rules | Yes: `test_turkish_text.py`, plus Turkish casing in hint alignment and suffix-negation guards |
+| C-17 Turkish text rules | Yes: `test_turkish_text.py`, plus Turkish casing in hint alignment and suffix-negation guards; `test_turkish_catalog.py` checks every catalogue phrase (script, hints that survive alignment, skill keys) |
 | C-19 both locales | One direction only (every English entry is used). Parity test planned for Phase 4 |
 | C-20, C-22 frontend boundaries | No (dependency-cruiser, Phases 1 and 4) |
 | C-21, Q-10 tokens, accessibility, visual | No (Phase 6) |

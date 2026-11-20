@@ -62,6 +62,10 @@ e2e:
 
 # --- run locally -------------------------------------------------------------
 
+# Regenerate frontend/src/locales/phrases.en.json from the Turkish catalogue
+content-export:
+    cd backend && {{py}} python ../scripts/export_phrases_en.py
+
 # Apply migrations and seed the local SQLite database
 db-seed:
     cd backend && {{py}} python -m app.db.cli seed

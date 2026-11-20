@@ -43,7 +43,7 @@ flowchart TB
 | `services/failure_diagnostics.py`, `model_debug.py`, `debug_mode.py` | Safe error classification and the debug-admin diagnostics | Existing |
 | `repositories/` | All database queries and transaction handling, one module per aggregate | Existing, including `usage.py` for the ledger |
 | `models/` | SQLAlchemy entities | Existing, including `ai_usage_events` |
-| `db/` | Engine and session setup, seed CLI, seeded catalogue (topics, phrases, hints, skills) | Existing; content re-authored in Turkish (Phase 3) |
+| `db/` | Engine and session setup, seed CLI, seeded catalogue (topics, phrases, hints, skills). The phrase catalogue is authored once in `db/catalog_tr/` (one module per topic: Russian and English source, canonical Turkish, hints for both languages, skills); `topic_phrases`, `topic_phrase_hints`, `topic_phrases_en`, `topic_phrase_hints_en` and `misc_phrases` are derived from it | Existing; Turkish content authored (Phase 3), pending native-speaker review |
 | `prompts/` | Versioned prompt files, Turkish versions written in English (ADR-0007) | Existing |
 | `config.py` | Settings read from the environment | Existing, including provider, price and budget settings |
 
@@ -77,7 +77,7 @@ The two applications share no code. They are coupled only through the REST contr
 ## Variability guide
 
 - Which adapter implements each port is chosen by configuration, not by callers.
-- Preset content is data in `db/`; adding a topic or phrase is a content change, not a structural one.
+- Preset content is data in `db/catalog_tr/`; adding a topic or phrase is a content change, not a structural one. After a change run `just content-export` to regenerate `frontend/src/locales/phrases.en.json`; a backend test fails while that file is out of date.
 - A new screen is a new folder under `features/`.
 
 ## Rationale

@@ -192,7 +192,7 @@ def test_preset_word_hint_comes_from_persistent_topic_catalog(api_client: TestCl
     assert response.status_code == 200
     assert response.json() == {
         "word_ru": "светлую",
-        "translation_tr": "svetao",
+        "translation_tr": "aydınlık",
         "is_learning": True,
     }
 

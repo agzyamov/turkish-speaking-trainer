@@ -1,6 +1,5 @@
 from copy import deepcopy
 
-import pytest
 from sqlalchemy import inspect
 
 from app.db.seed import seed_catalog
@@ -12,16 +11,15 @@ def snapshot(row):
     return {col.key: deepcopy(getattr(row, col.key)) for col in inspect(row).mapper.column_attrs}
 
 
-@pytest.mark.xfail(strict=True, reason="Seed content is still Serbian; Turkish casing (I -> ı) no longer matches Serbian hints such as Izaći. Removed when the content is re-authored in Turkish (Phase 3).")
 def test_repair_is_scoped_dry_by_default_and_idempotent_preserving_history(db_session):
     seed_catalog(db_session)
     before = [{"word_ru": "мне", "translation_tr": "mi"}]
-    canonical = "Nemam s kim da pričam."
+    canonical = "Konuşacak kimsem yok."
     phrase = ReviewPhrase(source_ru="Мне не с кем поговорить.", source_normalized="test-fragment",
         intended_tr_variants_json=[canonical], word_hints_json=before,
         attempts=7, best_score=.91, perfect_streak=2, learning_errors=3, interval_days=5)
     other = ReviewPhrase(source_ru="Мне не с кем поговорить.", source_normalized="test-other",
-        intended_tr_variants_json=["Nemam s kim da razgovaram."], word_hints_json=before)
+        intended_tr_variants_json=["Konuşacak kimse yok."], word_hints_json=before)
     db_session.add_all([phrase, other]); db_session.flush()
     payload = {"id": phrase.id, "source_ru": phrase.source_ru, "intended_tr_variants": [canonical], "word_hints": before}
     session = TrainingSession(normalized_topic_json={"review_phrase": payload, "other": "preserved"})
@@ -32,8 +30,8 @@ def test_repair_is_scoped_dry_by_default_and_idempotent_preserving_history(db_se
     db_session.add(exercise); db_session.commit()
     original = snapshot(phrase)
     repair = HintRepair(source=phrase.source_ru, canonical=canonical, hints=[
-        {"word_ru":"мне не с кем", "translation_tr":"nemam s kim"},
-        {"word_ru":"поговорить", "translation_tr":"da pričam"}])
+        {"word_ru":"не с кем", "translation_tr":"kimsem yok"},
+        {"word_ru":"поговорить", "translation_tr":"Konuşacak"}])
     expected = [h.model_dump() for h in repair.hints]
     dry = repair_hint_snapshots(db_session, {phrase.id: repair})
     assert len(dry) == 3
@@ -52,7 +50,7 @@ def test_repair_is_scoped_dry_by_default_and_idempotent_preserving_history(db_se
 
 def test_repair_refuses_unaligned_manifest(db_session):
     import pytest
-    repair = HintRepair(source="Мне не с кем поговорить.", canonical="Nemam s kim da pričam.",
+    repair = HintRepair(source="Мне не с кем поговорить.", canonical="Konuşacak kimsem yok.",
                         hints=[{"word_ru":"мне", "translation_tr":"mi"}])
     with pytest.raises(ValueError, match="unaligned"):
         repair_hint_snapshots(db_session, {"reviewed-id":repair}, apply=True)

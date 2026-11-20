@@ -40,11 +40,11 @@ def test_english_hints_are_not_derived_from_stored_russian_hints():
     try:
         hints = word_hints_for_language("Когда лучше покупать дешёвые авиабилеты?", [])
         by_word = {hint["word_ru"]: hint["translation_tr"] for hint in hints}
-        assert by_word["best"] == "najbolje"
-        assert by_word["to buy"] == "kupiti"
+        assert by_word["best"] == "en iyi"
+        assert by_word["to buy"] == "almak"
         assert "time" not in by_word
         assert "the" not in by_word
-        assert word_hints_for_language("My own English text.", [{"word_ru": "own", "translation_tr": "sopstveni"}]) == [{"word_ru": "own", "translation_tr": "sopstveni"}]
+        assert word_hints_for_language("My own English text.", [{"word_ru": "own", "translation_tr": "kendi"}]) == [{"word_ru": "own", "translation_tr": "kendi"}]
     finally:
         interface_language.reset(token)
     assert word_hints_for_language("Когда лучше покупать дешёвые авиабилеты?", []) == []
@@ -97,7 +97,7 @@ def test_possessive_word_is_saved_as_one_english_hint(api_client, db_session):
     response = api_client.post(f"/api/exercises/{exercise.id}/word-hints", json={"word": "bank's"}, headers=headers)
     assert response.status_code == 200
     assert response.json()["word_ru"] == "bank's"
-    assert response.json()["translation_tr"] == "banke"
+    assert response.json()["translation_tr"] == "Bankanızın"
     result = api_client.post("/api/attempts", json={"exercise_id": exercise.id,
         "transcript_tr": phrase.canonical_tr, "hinted_words": ["bank's", "bank's"]}, headers=headers)
     assert result.status_code == 201

@@ -500,7 +500,7 @@ def create_api_app() -> FastAPI:
         def transcribe(self, *, audio: bytes, filename: str, content_type: str) -> TranscriptionResponse:
             # Accept multipart browser payloads but keep no copy/reference once returned.
             del audio, filename, content_type
-            return TranscriptionResponse(text="Radim kao računovođa u maloj firmi.")
+            return TranscriptionResponse(text="Küçük bir şirkette muhasebeci olarak çalışıyorum.")
 
     transcription = LocalFakeTranscriptionProvider()
 

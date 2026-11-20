@@ -69,13 +69,13 @@ def test_word_hint_is_saved_and_reduces_score(api_client: TestClient, db_session
         json={"word": "меню"},
     )
     assert hint.status_code == 200
-    assert hint.json()["translation_tr"] == "jelovnik"
+    assert hint.json()["translation_tr"] == "Menüyü"
 
     attempt = api_client.post(
         "/api/attempts",
         json={
             "exercise_id": exercise["id"],
-            "transcript_tr": "Mogu li da dobijem jelovnik, molim vas?",
+            "transcript_tr": "Menüyü alabilir miyim, lütfen?",
             "hinted_words": ["меню"],
         },
     )
@@ -95,7 +95,7 @@ def test_attempt_recovers_lost_hint_save_and_late_post_is_idempotent(
     # The UI has opened the word, but its background save never reached the API.
     attempt = api_client.post("/api/attempts", json={
         "exercise_id": exercise["id"],
-        "transcript_tr": "Mogu li da dobijem jelovnik, molim vas?",
+        "transcript_tr": "Menüyü alabilir miyim, lütfen?",
         "hinted_words": ["меню"],
     })
     assert attempt.status_code == 201
@@ -232,7 +232,7 @@ def test_review_phrase_leaves_active_list_after_three_perfect_attempts(
     phrase = ReviewPhrase(
         source_ru=exercise["source_ru"],
         source_normalized="можно мне пожалуйста меню",
-        intended_tr_variants_json=["Mogu li da dobijem jelovnik, molim vas?"],
+        intended_tr_variants_json=["Menüyü alabilir miyim, lütfen?"],
     )
     db_session.add(phrase)
     db_session.commit()
@@ -244,7 +244,7 @@ def test_review_phrase_leaves_active_list_after_three_perfect_attempts(
             "/api/attempts",
             json={
                 "exercise_id": review_exercise["id"],
-                "transcript_tr": "Mogu li da dobijem jelovnik, molim vas?",
+                "transcript_tr": "Menüyü alabilir miyim, lütfen?",
             },
         )
         assert response.json()["overall_score"] == 1.0

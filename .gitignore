@@ -44,3 +44,6 @@ inst_user_settings.tmp
 *.pfx
 # Personal Claude Code overrides
 .claude/settings.local.json
+
+# local pnpm store
+.pnpm-store/

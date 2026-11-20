@@ -345,14 +345,14 @@ def test_deterministic_analysis_uses_schema_and_catalog_skills_through_real_anal
     assert provider.is_available
     result = provider.analyze_answer(
         source_ru="Тестовый ответ",
-        transcript_tr="Izvinite, možete li da mi pomognete?",
-        canonical_tr="Radim kao računovođa u maloj firmi.",
-        intended_tr_variants=["Radim kao računovođa u maloj firmi."],
-        target_skills=[{"key": "grammar.present"}, {"key": "unknown.generated.skill"}],
+        transcript_tr="Affedersiniz, bana yardım edebilir misiniz?",
+        canonical_tr="Küçük bir şirkette muhasebeci olarak çalışıyorum.",
+        intended_tr_variants=["Küçük bir şirkette muhasebeci olarak çalışıyorum."],
+        target_skills=[{"key": "grammar.present_continuous"}, {"key": "unknown.generated.skill"}],
         timings={},
     )
     assert result.verdict == "correct"
-    assert [item.skill_key for item in result.demonstrated_skills] == ["grammar.present"]
+    assert [item.skill_key for item in result.demonstrated_skills] == ["grammar.present_continuous"]
     assert result.issues == []
     assert "синтетические" in result.detailed_feedback_ru
 
@@ -360,21 +360,21 @@ def test_deterministic_analysis_uses_schema_and_catalog_skills_through_real_anal
     from app.schemas import CreateAttemptRequest
     from app.services.answer_analyzer import AnswerAnalyzer
 
-    transcript = "Izvinite, možete li da mi pomognete?"
+    transcript = "Affedersiniz, bana yardım edebilir misiniz?"
     checked = AnswerAnalyzer(provider, Settings(
         app_env="testlab", database_url="sqlite:///:memory:", supabase_url="http://127.0.0.1:8766",
         supabase_publishable_key="sb_publishable_testlab_local_only", admin_emails="",
     )).analyze(
         source_ru="Тестовый ответ",
         transcript_tr=transcript,
-        intended_tr_variants=["Radim kao računovođa u maloj firmi."],
-        target_skills=[{"key": "grammar.present"}],
+        intended_tr_variants=["Küçük bir şirkette muhasebeci olarak çalışıyorum."],
+        target_skills=[{"key": "grammar.present_continuous"}],
         timing=CreateAttemptRequest(exercise_id="test", transcript_tr=transcript),
-        canonical_tr="Radim kao računovođa u maloj firmi.",
+        canonical_tr="Küçük bir şirkette muhasebeci olarak çalışıyorum.",
     )
     assert checked.verdict == "correct"
-    assert checked.corrected_tr == "Radim kao računovođa u maloj firmi."
-    assert [item.skill_key for item in checked.demonstrated_skills] == ["grammar.present"]
+    assert checked.corrected_tr == "Küçük bir şirkette muhasebeci olarak çalışıyorum."
+    assert [item.skill_key for item in checked.demonstrated_skills] == ["grammar.present_continuous"]
 
 
 def test_pre_preference_schema_upgrades_preserving_users(tmp_path) -> None:
