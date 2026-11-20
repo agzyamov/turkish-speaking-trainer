@@ -16,6 +16,7 @@ FastAPI generates the exact request and response schemas from `backend/app/schem
 | 503 | `failure.reason = budget_exhausted` | The monthly AI budget is spent |
 | 503 | `failure.reason = user_daily_budget_exhausted` | This user has used their daily share of the AI budget |
 | 503 | `code = transcription_budget_exhausted`, `transcription_daily_budget_exhausted` | The same two cases on speech-to-text |
+| 503 | `code = topic_translation_unavailable` with `failure.reason` | Custom topic creation failed because of an AI failure; a spent budget shows as the reasons above (ADR-0008) |
 | 502/503 | provider failure codes | The provider failed or is not configured |
 
 ## Routes
@@ -58,5 +59,6 @@ FastAPI generates the exact request and response schemas from `backend/app/schem
 | The `alphabet` form field on `/transcriptions` is removed | 3 |
 | Payment country value `serbia` becomes `turkey` | 3 |
 | `budget_exhausted` failure reasons and `/admin/usage` were added | 2 (done) |
+| `failure` and `retryable` added to custom content errors caused by an AI failure; `code` unchanged (ADR-0008) | 4 (done) |
 
 No client of this product has been released, so these renames need no compatibility period. After the first public release, any change a released client would notice is an escalation case.

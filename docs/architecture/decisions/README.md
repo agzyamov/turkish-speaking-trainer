@@ -11,6 +11,7 @@ One file per decision. Decisions are never edited to say something different; a 
 | [0005](ADR-0005-working-brand.md) | Working brand name held in one place | Accepted |
 | [0006](ADR-0006-agent-confinement-and-secrets.md) | Coding agents are confined to the repository; secrets are blocked by tooling | Accepted |
 | [0007](ADR-0007-claude-api-conventions.md) | Conventions for calling the Claude API (structured outputs, caching, effort, refusals) | Accepted |
+| [0008](ADR-0008-budget-reason-on-custom-content-errors.md) | Budget reason added to custom content errors (topic creation), code unchanged | Accepted |
 
 ## Template
 

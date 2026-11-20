@@ -57,7 +57,7 @@ Audit date: 2026-11-20. Every test file was read and judged against the views, c
 | C-21, Q-10 tokens, accessibility, visual | No (Phase 6) |
 | C-26 secrets | Yes: gitleaks hook and CI job |
 | C-31 migration compatible with previous backend | No |
-| Q-7 clear state when AI is unavailable | Backend yes, including the new budget reasons. Frontend: "AI outage" test and, new, budget-paused messages for the response shapes the backend sends (`App.test.tsx`, `budgetPause.test.ts`); custom topic creation not covered |
+| Q-7 clear state when AI is unavailable | Backend yes, including the new budget reasons. Frontend: "AI outage" test and, new, budget-paused messages for the response shapes the backend sends (`App.test.tsx`, `budgetPause.test.ts`), including custom topic creation (ADR-0008, `test_ai_spend_api.py`) |
 
 ## Identity and infrastructure left in tests
 

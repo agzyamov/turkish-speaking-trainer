@@ -75,7 +75,12 @@ def test_spent_monthly_budget_stops_ai_calls_but_not_the_app(api_client, db_sess
     messages = use_claude(configure(budget=0))
     response = api_client.post("/api/topics", json={"title_ru": "Банк"})
     assert messages.calls == 0 and ledger(db_session) == []
-    assert response.status_code >= 400
+    assert response.status_code == 503
+    detail = response.json()["detail"]
+    # ADR-0008: the code is unchanged for released clients; the budget reason is added.
+    assert detail["code"] == "topic_translation_unavailable"
+    assert detail["failure"]["reason"] == "budget_exhausted"
+    assert detail["retryable"] is False
     assert api_client.get("/api/topics").status_code == 200
     assert api_client.get("/api/auth/me").status_code == 200
 

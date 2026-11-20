@@ -60,7 +60,12 @@ def test_network_translation_failure_does_not_create_topic_and_retry_works(api_c
     ai.translate_topic_title = Mock(side_effect=[AIServiceError("private upstream details"), TopicTitleTranslation(source_language="ru", translated_title="New topic")])
     app.dependency_overrides[get_ai_provider] = lambda: ai
     body = {"title_ru": "Новая тема"}
-    assert api_client.post("/api/topics", json=body).json() == {"detail": {"code": "topic_translation_unavailable"}}
+    failed = api_client.post("/api/topics", json=body)
+    detail = failed.json()["detail"]
+    # ADR-0008: unchanged code, plus the safe diagnostic of the AI failure; provider text never leaks.
+    assert detail["code"] == "topic_translation_unavailable"
+    assert detail["failure"]["reason"] == "provider_failure"
+    assert "private upstream details" not in failed.text
     assert api_client.post("/api/topics", json=body).json()["title_en"] == "New topic"
 
 

@@ -43,6 +43,14 @@ async def source_language_unavailable(_request: Request, _exc: SourceLanguageUna
 
 @app.exception_handler(CustomContentError)
 async def custom_content_error(_request: Request, exc: CustomContentError):
+    # ADR-0008: when an AI failure caused the error (for example a spent budget), its safe
+    # diagnostic travels with the unchanged code so the client can say why.
+    cause = exc.__cause__
+    if isinstance(cause, DiagnosticFailure):
+        record_failure(cause.failure)
+        return JSONResponse({"detail": {"code": exc.code, "retryable": cause.failure.retryable,
+                                        "failure": cause.failure.model_dump(mode="json")}},
+                            status_code=exc.status, headers={"Cache-Control": "no-store"})
     return JSONResponse({"detail": {"code": exc.code}}, status_code=exc.status)
 
 
