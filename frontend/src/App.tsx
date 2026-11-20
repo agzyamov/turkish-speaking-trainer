@@ -813,14 +813,18 @@ function TrainerApp({ account, onAccountChange, onSignOut }: { account: CurrentU
       }} />;
 
   function renderPractice(compact: boolean) {
-    if (exercise && !exerciseSource(exercise)) return <div className="practice-card panel">
-      <p className="error" role="alert">{t("Фраза на выбранном языке недоступна. Повторите загрузку или выберите другую тему.")}</p>
-      <button type="button" onClick={() => window.location.reload()}>{t("Повторить загрузку")}</button>
+    if (exercise && !exerciseSource(exercise)) return <div className="practice-card grid content-start gap-4 rounded-card border border-line bg-surface p-6 text-ink">
+      <p className="error m-0 text-sm text-danger" role="alert">{t("Фраза на выбранном языке недоступна. Повторите загрузку или выберите другую тему.")}</p>
+      <button type="button" className="justify-self-start min-h-11 cursor-pointer rounded-control border border-line bg-surface-raised px-4 text-sm font-semibold text-ink hover:border-line-strong" onClick={() => window.location.reload()}>{t("Повторить загрузку")}</button>
     </div>;
     const phrase = <InteractivePhrase exercise={exercise} wordHints={wordHints} activeHint={activeHint}
       hintsVisible={mobileLayout ? visiblePanel === 1 : view === "practice"} disabled={checking || Boolean(attempt)}
       onDismissHint={() => setActiveHint(undefined)} onRevealHint={(word, localHint) => void showWordHint(word, localHint)} />;
+    const localized = exercise ? exerciseSource(exercise) : undefined;
     return <PracticeCard compact={compact} native={isNative} phrase={phrase} topicTitle={phraseTopicTitle} attempt={attempt}
+      hasHints={Object.keys(localized?.hints ?? {}).length > 0} source={localized?.source}
+      progress={!isReviewMode && session ? { completed: completedCount, total: session.requested_length } : undefined}
+      pauseResumeLabel={resetTimeLabel(account.daily_usage.resets_at)}
       answer={answer} onAnswerEdit={text => { answerEditEpochRef.current += 1; voiceTimingRef.current = undefined; setAssistanceDraft(current => current ? { ...current, edited: true } : undefined); setAnswer(text); }}
       onSubmit={checkAnswer} checking={checking} hasTranscript={hasTranscript} voiceState={voiceState} voiceSupported={voiceSupported} voiceBusy={voiceBusy}
       assistanceDraft={assistanceDraft} onToggleAssistance={toggleTranscriptionChange} transcriptionBreakRecommended={transcriptionBreakRecommended}
@@ -981,7 +985,7 @@ function TrainerApp({ account, onAccountChange, onSignOut }: { account: CurrentU
                 <div className="welcome-card__glow"/><span className="welcome-card__icon"><Icon name={topicIcons[currentTopic?.id ?? ""] ?? "message"} size={32} /></span>
                 <p className="kicker">{t("Выбранная ситуация")}</p><h2>{customTopic.trim() || (currentTopic ? topicText(currentTopic.id, currentTopic.title_ru, currentTopic.title_en) : t("Выберите тему"))}</h2>
                 <p>{t(selectedTopicData?.phrase_count === 0 ? "Тема пока пустая. Добавьте в неё фразы — автоматической генерации не будет." : currentTopic?.description_ru || "Темы загрузятся после подключения к backend.")}</p>
-                {(startupState === "fallback" || backendState === "offline") && <button className="answer-submit" type="button" onClick={retryCatalog}>{t("Повторить загрузку")}</button>}
+                {(startupState === "fallback" || backendState === "offline") && <button className="answer-submit mx-auto mt-3 min-h-11 min-w-[16rem] cursor-pointer rounded-control border-0 bg-accent bg-none px-5 font-semibold text-accent-ink" type="button" onClick={retryCatalog}>{t("Повторить загрузку")}</button>}
                 <div className="welcome-card__steps"><span><b>1</b>{t(" Получите фразу")}</span><span><b>2</b>{t(" Ответьте голосом")}</span><span><b>3</b>{t(" Разберите результат")}</span></div>
                 {error && <p className="error" role="alert">{t(error)}</p>}
               </div>

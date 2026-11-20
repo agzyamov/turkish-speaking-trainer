@@ -100,16 +100,19 @@ function HighlightedAnswer({ answer, attempt }: { answer: string; attempt: Attem
   let cursor = 0;
   for (const [index, range] of ranges.entries()) {
     if (cursor < range.start) content.push(<span key={`text-${index}`}>{latinAnswer.slice(cursor, range.start)}</span>);
-    content.push(<mark className="answer-mark answer-mark--issue" title={range.explanation} key={`issue-${index}`}>{latinAnswer.slice(range.start, range.end)}</mark>);
+    content.push(<mark className="answer-mark answer-mark--issue rounded-sm bg-danger/20 px-0.5 text-ink underline decoration-danger decoration-2 underline-offset-4" title={range.explanation} key={`issue-${index}`}>{latinAnswer.slice(range.start, range.end)}</mark>);
     cursor = range.end;
   }
   content.push(<span key="tail">{latinAnswer.slice(cursor)}</span>);
-  return <span className="result-phrase__text" lang="tr">{content}</span>;
+  return <span className="result-phrase__text text-answer text-ink" lang="tr">{content}</span>;
 }
 
+const resultBox = "result-phrase grid gap-1.5 rounded-control border p-4";
+const resultLabel = "text-caption font-semibold";
+
 export function AnswerResult({ answer, attempt }: { answer: string; attempt: Attempt }) {
-  return <div className="result-phrases">
-    <div className="result-phrase"><small>{t("Ваш вариант")}</small><HighlightedAnswer answer={answer} attempt={attempt} /></div>
-    <div className="result-phrase correction"><small>{t(attempt.analysis.verdict === "correct" ? "Вариант перевода" : "Правильный вариант")}</small><span className="result-phrase__text" lang="tr">{latinForEvaluation(attempt.analysis.corrected_tr)}</span></div>
+  return <div className="result-phrases grid gap-3">
+    <div className={`${resultBox} border-line bg-surface-raised`}><small className={`${resultLabel} text-ink-muted`}>{t("Ваш вариант")}</small><HighlightedAnswer answer={answer} attempt={attempt} /></div>
+    <div className={`${resultBox} correction border-success/35 bg-success/8`}><small className={`${resultLabel} text-success`}>{t(attempt.analysis.verdict === "correct" ? "Вариант перевода" : "Правильный вариант")}</small><span className="result-phrase__text text-answer text-ink" lang="tr">{latinForEvaluation(attempt.analysis.corrected_tr)}</span></div>
   </div>;
 }

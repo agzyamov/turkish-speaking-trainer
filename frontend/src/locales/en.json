@@ -272,7 +272,6 @@
   "Мягкие подсказки временно недоступны. Показана исходная расшифровка; можно проверить ответ или повторить запись.": "Gentle hints are temporarily unavailable. The original transcript is shown; check your answer or record again.",
   "Возможное искажение распознавания.": "Possible transcription error.",
   "Отменить": "Undo",
-  "Принять подсказку": "Accept hint",
   "Распознавание не настроено на сервере.": "Transcription is not configured on the server.",
   "Сервис распознавания не ответил вовремя.": "The transcription service did not respond in time.",
   "Сервер потерял связь с сервисом распознавания.": "The server lost connection to the transcription service.",
@@ -626,5 +625,18 @@
   "Присоединитесь к открытому тестированию, затем установите приложение из Google Play.": "Join the open test, then install the app from Google Play.",
   "Проверка с помощью ИИ приостановлена до начала следующего месяца: исчерпан общий бюджет. Ответ, который точно совпадает с эталоном, можно ввести вручную — он проверяется без ИИ.": "AI checking is paused until the start of next month because the shared budget is used up. You can still type an answer that exactly matches the reference; it is checked without AI.",
   "Ваш дневной лимит проверки с помощью ИИ исчерпан. Практика продолжится завтра. Ответ, который точно совпадает с эталоном, можно ввести вручную — он проверяется без ИИ.": "You have used today's AI checking allowance. Practice continues tomorrow. You can still type an answer that exactly matches the reference; it is checked without AI.",
-  "Введите ответ на турецком языке": "Enter your answer in Turkish"
+  "Введите ответ на турецком языке": "Enter your answer in Turkish",
+  "Нажмите на подчёркнутое слово, чтобы увидеть перевод. Подсказка снижает оценку.": "Tap an underlined word to see its translation. A hint lowers your score.",
+  "Заново": "Again",
+  "Готово": "Done",
+  "Стоп": "Stop",
+  "Проверка ИИ на сегодня закончилась": "AI checking is done for today",
+  "Проверка ИИ приостановлена до следующего месяца": "AI checking is paused until next month",
+  "Снова доступна {0}.": "Available again {0}.",
+  "Снова доступна завтра.": "Available again tomorrow.",
+  "Общий бюджет на этот месяц исчерпан.": "This month's shared budget is used up.",
+  "Ответ, который точно совпадает с эталоном, можно ввести вручную — он проверяется без ИИ.": "You can still type an answer that exactly matches the reference; it is checked without AI.",
+  "Подробнее": "Details",
+  "{0} из {1} фраз": "{0} of {1} phrases",
+  "Исправить": "Correct it"
 }

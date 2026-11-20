@@ -605,7 +605,7 @@ describe("App", () => {
     expect(answer).toHaveValue("Cemu?");
     const voiceRequest = fetchMock.mock.calls.find(([url]) => url.toString() === "/api/transcriptions")!;
     expect((voiceRequest[1]?.body as FormData).get("assistance_enabled")).toBe("true");
-    fireEvent.click(screen.getByRole("button", { name: "Принять подсказку" }));
+    fireEvent.click(screen.getByRole("button", { name: "Исправить" }));
     expect(answer).toHaveValue("Čemu?");
     fireEvent.change(answer, { target: { value: "Čemu sada?" } });
     expect(screen.queryByRole("button", { name: "Отменить" })).not.toBeInTheDocument();
@@ -1207,7 +1207,7 @@ describe("App", () => {
     expect(answer).toHaveValue("Allergičen sam na neke antibiotike.");
     const call = fetchMock.mock.calls.find(([url]) => url.toString() === "/api/transcriptions");
     expect((call?.[1]?.body as FormData).get("assistance_enabled")).toBe("true");
-    fireEvent.click(screen.getByRole("button", { name: "Принять подсказку" }));
+    fireEvent.click(screen.getByRole("button", { name: "Исправить" }));
     expect(answer).toHaveValue("Alergičan sam na neke antibiotike.");
     fireEvent.click(screen.getByRole("button", { name: "Отменить" }));
     expect(answer).toHaveValue("Allergičen sam na neke antibiotike.");
@@ -1587,8 +1587,8 @@ describe("App", () => {
     await screen.findByRole("heading", { name: "Я хочу открыть счёт." });
     await recordAnswer();
     fireEvent.click(screen.getByRole("button", { name: native ? "Проверить" : "Проверить ответ" }));
-    fireEvent.click(await screen.findByText("Разбор"));
-    const analysis = screen.getByText("Разбор").closest("details")!;
+    // The review is expanded by default (what to fix is never hidden behind a click).
+    const analysis = (await screen.findByText("Разбор")).closest("section")!;
     expect(analysis).toHaveTextContent("Для этого обращения нужна форма popravi. Произнесите окончание -i.");
     expect(analysis).toHaveTextContent("poprave → popravi");
     expect(analysis).toHaveTextContent("При обращении к одному человеку нужна форма повелительного наклонения.");
@@ -1613,19 +1613,20 @@ describe("App", () => {
     await screen.findByRole("heading", { name: "Я хочу открыть счёт." });
     await recordAnswer();
     fireEvent.click(screen.getByRole("button", { name: native ? "Проверить" : "Проверить ответ" }));
-    expect(await screen.findByText(`${Math.round(score * 100)}%`)).toBeInTheDocument();
+    // The verdict row always shows the score; at 100% the reward overlay may show it too.
+    expect((await screen.findAllByText(`${Math.round(score * 100)}%`))[0]).toBeInTheDocument();
     if (score >= .995) {
       expect(screen.queryByText("Разбор")).not.toBeInTheDocument();
       expect(screen.queryByText("Смысл и конструкция переданы правильно.")).not.toBeInTheDocument();
     } else {
       expect(screen.getByText("Разбор")).toBeInTheDocument();
     }
-    expect(screen.getByText("Верно")).toBeInTheDocument();
-    expect(document.querySelector(".feedback__score") === null).toBe(score === 1);
+    expect(screen.getAllByText("Верно")[0]).toBeInTheDocument();
+    expect(document.querySelector(".feedback__score")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: native ? "Следующая" : /Следующая фраза/ })).toBeEnabled();
   });
 
-  it.each([false, true])("hides the separate perfect score with animations disabled (native=%s)", async native => {
+  it.each([false, true])("keeps the perfect score visible with animations disabled (native=%s)", async native => {
     vi.spyOn(Capacitor, "isNativePlatform").mockReturnValue(native);
     localStorage.setItem("serbotalk.rewards.animations", "false");
     voiceMock.available = true;
@@ -1640,7 +1641,8 @@ describe("App", () => {
     await recordAnswer();
     fireEvent.click(screen.getByRole("button", { name: native ? "Проверить" : "Проверить ответ" }));
     await waitFor(() => expect(document.querySelector(".feedback")).toBeInTheDocument());
-    expect(document.querySelector(".feedback__score")).toBeNull();
+    expect(document.querySelector(".feedback__score")).toHaveTextContent("100%");
+    expect(document.querySelector(".feedback__score")).toHaveTextContent("Верно");
     expect(document.querySelector(".reward-overlay")).toBeNull();
   });
 
@@ -1987,10 +1989,10 @@ describe("App", () => {
   });
 
   it.each([
-    ["budget_exhausted", "/api/attempts", "до начала следующего месяца"],
-    ["user_daily_budget_exhausted", "/api/attempts", "Практика продолжится завтра"],
-    ["transcription_budget_exhausted", "/api/transcriptions", "до начала следующего месяца"],
-    ["transcription_daily_budget_exhausted", "/api/transcriptions", "Практика продолжится завтра"],
+    ["budget_exhausted", "/api/attempts", "приостановлена до следующего месяца"],
+    ["user_daily_budget_exhausted", "/api/attempts", "на сегодня закончилась"],
+    ["transcription_budget_exhausted", "/api/transcriptions", "приостановлена до следующего месяца"],
+    ["transcription_daily_budget_exhausted", "/api/transcriptions", "на сегодня закончилась"],
   ])("explains a paused practice when the AI budget is spent (%s)", async (code, route, message) => {
     voiceMock.available = true;
     const baseFetch = mockApi();

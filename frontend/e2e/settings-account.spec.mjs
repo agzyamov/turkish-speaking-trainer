@@ -1,5 +1,6 @@
 import { expect, test } from '@playwright/test';
 import { mkdir } from 'node:fs/promises';
+import { tokenColor } from './tokens.mjs';
 
 for (const language of ['ru', 'en']) for (const layout of ['desktop', 'mobile', 'narrow', 'android']) {
   test(`account settings ${language} ${layout}`, async ({ page }) => {
@@ -100,7 +101,7 @@ for (const language of ['ru', 'en']) for (const layout of ['desktop', 'mobile', 
     const name = account.getByText('Maksim Sumin');
     expect(await name.evaluate(el => el.getBoundingClientRect().height)).toBeLessThan(44);
     const signOut = account.getByRole('button', { name: en ? 'Sign out' : 'Выйти' });
-    await expect(signOut).toHaveCSS('color', 'rgb(234, 242, 255)');
+    await expect(signOut).toHaveCSS('color', await tokenColor(page, '--color-ink'));
     if (layout !== 'desktop') {
       const profileBox = await account.locator('[data-slot=account-profile]').boundingBox();
       expect((await signOut.boundingBox()).y).toBeGreaterThanOrEqual(profileBox.y + profileBox.height);

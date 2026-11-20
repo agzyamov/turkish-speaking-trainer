@@ -19,7 +19,7 @@ export function InteractivePhrase({ exercise, wordHints, activeHint, hintsVisibl
   const localized = exercise ? exerciseSource(exercise) : undefined;
   const hints: Record<string, LocalHint | undefined> = localized?.hints ?? {};
   if (exercise && !localized) return null;
-  return <h2 id="exercise-title" className="interactive-phrase" aria-label={localized ? localized.source : t("Готовим фразу…")}>
+  return <h2 id="exercise-title" className="interactive-phrase m-0 font-display text-phrase font-medium text-ink [text-wrap:balance] sm:text-phrase-lg" aria-label={localized ? localized.source : t("Готовим фразу…")}>
     {exercise && localized ? splitHintFragments(localized.source, Object.keys(hints)).map((part, index) => {
       const normalized = part.toLocaleLowerCase("ru-RU");
       const localHint = Object.hasOwn(hints, normalized) ? hints[normalized] : undefined;

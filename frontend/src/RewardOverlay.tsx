@@ -16,7 +16,7 @@ export function RewardOverlay({ reward }: { reward?: Reward }) {
     </div>
     {twenty && <div className="reward-confetti" aria-hidden="true">{Array.from({ length: 32 }, (_, index) => {
       const angle = index * Math.PI * 2 / 32;
-      return <i key={index} style={{ "--x": `${Math.cos(angle) * (170 + index % 4 * 20)}px`, "--y": `${Math.sin(angle) * (155 + index % 5 * 18)}px`, "--spin": `${index % 2 ? 540 : -540}deg`, "--confetti-color": `var(--${["gold", "cyan", "blue-bright", "text"][index % 4]})` } as CSSProperties} />;
+      return <i key={index} style={{ "--x": `${Math.cos(angle) * (170 + index % 4 * 20)}px`, "--y": `${Math.sin(angle) * (155 + index % 5 * 18)}px`, "--spin": `${index % 2 ? 540 : -540}deg`, "--confetti-color": `var(--color-${["reward", "accent", "success", "ink"][index % 4]})` } as CSSProperties} />;
     })}</div>}
   </div>;
   return twenty ? createPortal(overlay, document.body) : overlay;

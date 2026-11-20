@@ -42,8 +42,13 @@ export function WordHintToken({ word, used, disabled, active, translation, onCli
       const size = popup.getBoundingClientRect();
       const center = box.left + box.width / 2;
       const left = Math.max(viewportLeft + margin, Math.min(center - size.width / 2, viewportLeft + width - margin - size.width));
-      const above = box.top - size.height - 10;
-      const top = Math.max(viewportTop + margin, Math.min(above >= viewportTop + margin ? above : box.bottom + 10, viewportTop + height - margin - size.height));
+      // Below the whole phrase (not just the word), so the popover covers neither the phrase the
+      // learner is reading nor the topic row above it; above the phrase only when there is no room below.
+      const phrase = anchor.current.closest(".interactive-phrase")?.getBoundingClientRect() ?? box;
+      const below = phrase.bottom + 10;
+      const above = phrase.top - size.height - 10;
+      const fitsBelow = below + size.height <= viewportTop + height - margin;
+      const top = Math.max(viewportTop + margin, Math.min(fitsBelow ? below : above, viewportTop + height - margin - size.height));
       popup.style.left = `${left}px`;
       popup.style.top = `${top}px`;
     };
@@ -64,8 +69,11 @@ export function WordHintToken({ word, used, disabled, active, translation, onCli
     };
   }, [active, translation]);
 
+  // A dotted tea-amber underline marks a tappable word; a used hint turns solid amber. The ::before
+  // extends the tap area to about 44px without changing the line height.
+  const token = "word-token relative [overflow-wrap:anywhere] cursor-pointer rounded-sm border-0 bg-transparent p-0 font-[inherit] text-[length:inherit] leading-[inherit] text-inherit underline decoration-2 underline-offset-[0.22em] transition-colors duration-(--duration-quick) before:absolute before:-inset-y-2 before:inset-x-0 before:content-[''] hover:text-accent-bright focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:cursor-default";
   return <span className="word-wrap" ref={anchor}>
-    <button className={used ? "word-token is-used" : "word-token"} type="button" disabled={disabled} onClick={onClick}>{word}</button>
-    {active && createPortal(<span ref={tooltip} className="word-tooltip" role="status">{translation}</span>, document.body)}
+    <button className={used ? `${token} is-used text-accent decoration-accent` : `${token} decoration-accent/60 decoration-dotted`} type="button" disabled={disabled} onClick={onClick}>{word}</button>
+    {active && createPortal(<span ref={tooltip} lang="tr" className="word-tooltip pointer-events-none fixed z-50 w-max rounded-control border border-line-strong bg-surface-raised px-3 py-2 text-base font-medium text-ink shadow-lift [overflow-wrap:anywhere]" role="status">{translation}</span>, document.body)}
   </span>;
 }

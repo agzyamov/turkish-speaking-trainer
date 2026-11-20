@@ -29,7 +29,7 @@ it("shows only a compact suggestion, supports undo and hides edited drafts", () 
   expect(screen.getByText("Cemu → Čemu")).toBeInTheDocument();
   expect(screen.queryByText("🙂 Cemu?")).not.toBeInTheDocument();
   expect(screen.queryByText("Исходная расшифровка")).not.toBeInTheDocument();
-  fireEvent.click(screen.getByRole("button", { name: "Принять подсказку" }));
+  fireEvent.click(screen.getByRole("button", { name: "Исправить" }));
   expect(toggle).toHaveBeenCalledWith(0);
   rerender(<TranscriptionAssistanceView draft={{ response, selected: [0], edited: false }} disabled={true} onToggle={toggle} />);
   expect(screen.getByRole("button", { name: "Отменить" })).toBeDisabled();
@@ -60,7 +60,7 @@ it("renders every dynamic suggestion as written, without explanations", () => {
   render(<TranscriptionAssistanceView draft={{ response: dynamic, selected: [], edited: false }} disabled={false} onToggle={toggle} />);
   expect(screen.getAllByText("racun → račun")).toHaveLength(5);
   expect(screen.queryByText(/Возможна потеря диакритики/)).not.toBeInTheDocument();
-  fireEvent.click(screen.getAllByRole("button", { name: "Принять подсказку" })[4]);
+  fireEvent.click(screen.getAllByRole("button", { name: "Исправить" })[4]);
   expect(toggle).toHaveBeenCalledWith(4);
 });
 

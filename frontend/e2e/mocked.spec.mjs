@@ -2,6 +2,7 @@ import { expect, test } from "@playwright/test";
 import { readFileSync } from "node:fs";
 import { captureMetrics } from "./metrics.mjs";
 import { installSyntheticMicrophone, runPracticeFlow } from "./flow.mjs";
+import { tokenColor } from "./tokens.mjs";
 const releaseVersion = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8')).version.split('.').slice(0, 2).join('.');
 
 const topic = {
@@ -119,14 +120,14 @@ for (const native of [false, true]) {
     await page.getByRole("heading", { name: "Я хочу открыть счёт." }).waitFor();
     await page.getByRole("button", { name: "Ответить голосом" }).click();
     await page.getByRole("button", { name: "Завершить запись" }).click();
-    await expect(page.getByRole("button", { name: "Принять подсказку" })).toHaveCount(4);
+    await expect(page.getByRole("button", { name: "Исправить" })).toHaveCount(4);
     const section = page.getByRole("region", { name: "Мягкие подсказки", exact: true });
     const style = await section.evaluate(el => ({ background: getComputedStyle(el).backgroundColor, color: getComputedStyle(el).color }));
-    expect(style.background).toBe("rgb(7, 22, 42)");
-    expect(style.color).toBe("rgb(184, 213, 244)");
+    expect(style.background).not.toBe("rgba(0, 0, 0, 0)");
+    expect(style.color).toBe(await tokenColor(page, "--color-ink-soft"));
     const box = await section.boundingBox();
     expect(box.x + box.width).toBeLessThanOrEqual(394);
-    await page.getByRole("button", { name: "Принять подсказку" }).last().click();
+    await page.getByRole("button", { name: "Исправить" }).last().click();
     await expect(page.getByLabel("Ваш ответ")).toHaveValue("🙂 Zelim platitti racun i šećer.");
     await page.getByRole("button", { name: "Отменить" }).click();
     await expect(page.getByLabel("Ваш ответ")).toHaveValue("🙂 Zelim platitti racun i secer.");
@@ -158,13 +159,14 @@ for (const native of [false, true]) {
     await page.getByRole("button", {name:"Завершить запись"}).click();
     const answer = page.getByLabel("Ваш ответ");
     await expect(answer).toHaveValue("Cemu?");
-    await page.getByRole("button", {name:"Принять подсказку"}).click();
+    await page.getByRole("button", {name:"Исправить"}).click();
     await expect(answer).toHaveValue("Čemu?");
     const check = page.getByRole("button", {name:native ? "Проверить" : "Проверить ответ",exact:true});
     const retry = page.getByRole("button", {name:"Записать заново"});
-    await expect(check).toHaveCSS("border-color", "rgb(87, 201, 255)");
-    await expect(retry).toHaveCSS("border-color", "rgb(87, 201, 255)");
-    await expect(check).toHaveCSS("color", "rgb(83, 255, 208)");
+    // Labelled primary check (accent) and a quieter secondary retry (line border).
+    await expect(check).toHaveCSS("background-color", await tokenColor(page, "--color-accent"));
+    await expect(check).toHaveCSS("color", await tokenColor(page, "--color-accent-ink"));
+    await expect(retry).toHaveCSS("border-color", await tokenColor(page, "--color-line"));
     await expect(retry).toHaveCSS("animation-name", "none");
     await page.screenshot({path:`../artifacts/soft-assistance-${native ? "android" : "web"}.png`});
     await check.click();
@@ -217,8 +219,8 @@ test(`${native ? "Android layout" : "web"} dark error recovery and transcript ac
     const style = getComputedStyle(element);
     return {background: style.backgroundColor, color: style.color, font: style.fontFamily, bodyFont: getComputedStyle(document.body).fontFamily};
   });
-  expect(styles.background).toBe("rgb(7, 22, 42)");
-  expect(styles.color).toBe("rgb(220, 234, 255)");
+  expect(styles.background).toBe(await tokenColor(page, "--color-surface-raised"));
+  expect(styles.color).toBe(await tokenColor(page, "--color-ink-soft"));
   expect(styles.font).toBe(styles.bodyFont);
   await page.getByRole("button", {name: "Ответить голосом"}).click();
   await page.getByRole("button", {name: "Завершить запись"}).click();
@@ -232,7 +234,9 @@ test(`${native ? "Android layout" : "web"} dark error recovery and transcript ac
   const textBox = await page.getByLabel("Ваш ответ").boundingBox();
   expect(checkBox.x).toBeLessThan(retryBox.x);
   expect(checkBox.y).toBeGreaterThanOrEqual(textBox.y + textBox.height);
-  expect(checkBox.width).toBe(checkBox.height);
+  // A wide, labelled primary button with a touch-sized height (no longer a square icon).
+  expect(checkBox.width).toBeGreaterThan(checkBox.height);
+  expect(checkBox.height).toBeGreaterThanOrEqual(44);
   await expect(retry.locator(".mic-retry-ring")).toBeVisible();
   expect(await retry.evaluate(element => getComputedStyle(element).animationName)).toBe("none");
   expect(submitted).toHaveLength(0);
