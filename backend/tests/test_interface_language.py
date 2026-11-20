@@ -28,8 +28,8 @@ def test_language_header_is_bounded_and_defaults_to_russian(header, expected):
 def test_request_language_does_not_leak_to_old_clients(api_client):
     languages = []
     provider = FakeAIProvider(available=True, phrase_result=PhrasePreparation(
-        intended_sr_variants=["Treba mi karta."],
-        word_hints=[{"word_ru": "ticket", "translation_sr": "karta"}],
+        intended_tr_variants=["Treba mi karta."],
+        word_hints=[{"word_ru": "ticket", "translation_tr": "karta"}],
     ))
     original = provider.prepare_phrase
 
@@ -50,7 +50,7 @@ def test_request_language_does_not_leak_to_old_clients(api_client):
 def test_english_analysis_uses_versioned_instructions_and_the_same_validated_schema():
     result = AnswerAnalysis(
         verdict="correct", semantic_score=1, grammar_score=1, lexical_score=1,
-        naturalness_score=1, fluency_score=1, corrected_sr="Želim kartu.",
+        naturalness_score=1, fluency_score=1, corrected_tr="Želim kartu.",
         short_feedback_ru="Correct.", detailed_feedback_ru="Your answer is correct.",
     )
     provider = OpenAIStructuredProvider(Settings(openai_api_key="synthetic", openai_text_model="from-env"))
@@ -58,14 +58,14 @@ def test_english_analysis_uses_versioned_instructions_and_the_same_validated_sch
     provider._client = SimpleNamespace(responses=SimpleNamespace(parse=parse))
     token = interface_language.set("en")
     try:
-        response = provider.analyze_answer(source_ru="Я хочу билет.", transcript_sr="Želim kartu.",
-            canonical_sr="Želim kartu.", intended_sr_variants=["Želim kartu."], target_skills=[], timings={})
+        response = provider.analyze_answer(source_ru="Я хочу билет.", transcript_tr="Želim kartu.",
+            canonical_tr="Želim kartu.", intended_tr_variants=["Želim kartu."], target_skills=[], timings={})
         payload = json.loads(parse.call_args.kwargs["input"])
         assert payload["source_text"] == "Я хочу билет."  # Custom text stays verbatim.
         assert payload["feedback_language"] == "en"
         assert "source_ru" not in payload
         assert "quote words and constructions only from" in parse.call_args.kwargs["instructions"]
-        assert response.corrected_sr == "Želim kartu."
+        assert response.corrected_tr == "Želim kartu."
         assert "Write all user-facing explanations in English" in parse.call_args.kwargs["instructions"]
         assert parse.call_args.kwargs["model"] == "from-env"
         assert parse.call_args.kwargs["store"] is False
@@ -81,10 +81,10 @@ def test_catalog_has_the_same_canonical_phrases_and_independent_english_hints():
     for seed in TOPIC_PHRASES:
         item = catalog[seed.id]
         assert item["source_ru"] == seed.source_ru
-        assert item["canonical_sr"] == seed.canonical_sr
+        assert item["canonical_tr"] == seed.canonical_tr
         assert item["source_en"]
         assert ENGLISH_WORD_HINTS[item["source_en"]] == {
-            word: hint["translation_sr"] for word, hint in item["word_hints"].items()
+            word: hint["translation_tr"] for word, hint in item["word_hints"].items()
         }
         assert all("word_ru" not in hint for hint in item["word_hints"].values())
 
@@ -93,10 +93,10 @@ def test_english_exact_match_keeps_the_canonical_score_without_ai():
     token = interface_language.set("en")
     try:
         result = AnswerAnalyzer(FakeAIProvider()).analyze(source_ru="Я хочу билет.",
-            transcript_sr="Želim kartu.", canonical_sr="Želim kartu.", intended_sr_variants=["Želim kartu."],
-            target_skills=[], timing=CreateAttemptRequest(exercise_id="00000000-0000-0000-0000-000000000001", transcript_sr="Želim kartu."))
+            transcript_tr="Želim kartu.", canonical_tr="Želim kartu.", intended_tr_variants=["Želim kartu."],
+            target_skills=[], timing=CreateAttemptRequest(exercise_id="00000000-0000-0000-0000-000000000001", transcript_tr="Želim kartu."))
         assert result.semantic_score == 1
-        assert result.corrected_sr == "Želim kartu."
+        assert result.corrected_tr == "Želim kartu."
         assert result.short_feedback_ru.startswith("Your answer")
     finally:
         interface_language.reset(token)
@@ -106,7 +106,7 @@ def test_attempt_api_analyzes_the_source_displayed_in_the_selected_language(api_
     exercise = api_client.post("/api/sessions/start", json={"topic_id": "bank", "length": 10}).json()["exercise"]
     result = AnswerAnalysis(
         verdict="correct", semantic_score=1, grammar_score=1, lexical_score=1,
-        naturalness_score=1, fluency_score=1, corrected_sr="Druga rečenica.",
+        naturalness_score=1, fluency_score=1, corrected_tr="Druga rečenica.",
         short_feedback_ru="Correct.", detailed_feedback_ru="Correct meaning.",
     )
     provider = FakeAIProvider(available=True, analysis_result=result)
@@ -114,27 +114,27 @@ def test_attempt_api_analyzes_the_source_displayed_in_the_selected_language(api_
     provider.analyze_answer = analyze
     app.dependency_overrides[get_ai_provider] = lambda: provider
     response = api_client.post("/api/attempts", json={
-        "exercise_id": exercise["id"], "transcript_sr": "Druga rečenica.",
+        "exercise_id": exercise["id"], "transcript_tr": "Druga rečenica.",
     }, headers={"X-Interface-Language": language})
     assert response.status_code == 201, response.text
     expected = TOPIC_PHRASES_EN[exercise["source_ru"]] if language == "en" else exercise["source_ru"]
     assert analyze.call_args.kwargs["source_ru"] == expected
-    assert analyze.call_args.kwargs["canonical_sr"] == next(seed.canonical_sr for seed in TOPIC_PHRASES if seed.source_ru == exercise["source_ru"])
+    assert analyze.call_args.kwargs["canonical_tr"] == next(seed.canonical_tr for seed in TOPIC_PHRASES if seed.source_ru == exercise["source_ru"])
 
 
 @pytest.mark.parametrize("source", ["My custom English sentence.", "Моя собственная фраза."])
 def test_custom_source_is_not_replaced_by_the_catalog(source):
     provider = FakeAIProvider(available=True, analysis_result=AnswerAnalysis(
         verdict="correct", semantic_score=1, grammar_score=1, lexical_score=1,
-        naturalness_score=1, fluency_score=1, corrected_sr="Odgovor.",
+        naturalness_score=1, fluency_score=1, corrected_tr="Odgovor.",
         short_feedback_ru="Correct.", detailed_feedback_ru="Correct.",
     ))
     provider.analyze_answer = Mock(wraps=provider.analyze_answer)
     token = interface_language.set("en")
     try:
-        AnswerAnalyzer(provider).analyze(source_ru=source, transcript_sr="Odgovor.",
-            intended_sr_variants=["Drugi odgovor."], target_skills=[],
-            timing=CreateAttemptRequest(exercise_id="00000000-0000-0000-0000-000000000001", transcript_sr="Odgovor."))
+        AnswerAnalyzer(provider).analyze(source_ru=source, transcript_tr="Odgovor.",
+            intended_tr_variants=["Drugi odgovor."], target_skills=[],
+            timing=CreateAttemptRequest(exercise_id="00000000-0000-0000-0000-000000000001", transcript_tr="Odgovor."))
         assert provider.analyze_answer.call_args.kwargs["source_ru"] == source
     finally:
         interface_language.reset(token)

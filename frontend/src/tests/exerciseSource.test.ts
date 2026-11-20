@@ -6,12 +6,12 @@ import type { Exercise } from "../types/training";
 const exercise: Exercise = { id: "p", session_id: "s", source_ru: "Я живу рядом с парком.", source_en: null,
   expected_level: "A2", targeted_skills: [], difficulty: .5,
   source_versions: { ru: "Я живу рядом с парком.", en: "I live near the park.",
-    hints_ru: [{ word_ru: "парком", translation_sr: "parka" }], hints_en: [{ word_ru: "park", translation_sr: "parka" }] } };
+    hints_ru: [{ word_ru: "парком", translation_tr: "parka" }], hints_en: [{ word_ru: "park", translation_tr: "parka" }] } };
 afterEach(() => setLanguage("ru"));
 
 it("uses independent personal sources and hints while switching RU/EN on the same prefetched exercise", () => {
   setLanguage("en");
-  expect(exerciseSource(exercise)).toEqual({ source: "I live near the park.", hints: { park: { word_ru: "park", translation_sr: "parka" } } });
+  expect(exerciseSource(exercise)).toEqual({ source: "I live near the park.", hints: { park: { word_ru: "park", translation_tr: "parka" } } });
   setLanguage("ru");
   expect(exerciseSource(exercise)?.source).toBe(exercise.source_ru);
   expect(Object.keys(exerciseSource(exercise)!.hints)).toEqual(["парком"]);

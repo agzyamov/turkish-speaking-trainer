@@ -85,7 +85,7 @@ def main() -> None:
             self.wait()
             return AnswerAnalysis(verdict="correct", semantic_score=1, grammar_score=1,
                 lexical_score=1, naturalness_score=1, fluency_score=1,
-                corrected_sr=kwargs["canonical_sr"], short_feedback_ru="Synthetic feedback.",
+                corrected_tr=kwargs["canonical_tr"], short_feedback_ru="Synthetic feedback.",
                 detailed_feedback_ru="Synthetic feedback.")
 
         def __getattr__(self, name):
@@ -154,13 +154,13 @@ def main() -> None:
                         measured, json={"topic_id": "cafe", "length": 10})
                     exercise_id = started["exercise"]["id"]
                     with Session(engine) as db:
-                        canonical = db.get(Exercise, exercise_id).target_hints_json["canonical_sr"]
+                        canonical = db.get(Exercise, exercise_id).target_hints_json["canonical_tr"]
                     provider.text = canonical if exact else canonical.rstrip(".!?") + " molim."
                     _, transcription_ms = request(client, label + "/transcription", "POST", "/api/transcriptions", 200,
                         measured, data={"exercise_id": exercise_id, "assistance_enabled": str(assistance).lower()},
                         files={"audio": ("synthetic.webm", b"synthetic-not-real-audio", "audio/webm")})
                     _, check_ms = request(client, label + "/check", "POST", "/api/attempts", 201, measured,
-                        json={"exercise_id": exercise_id, "transcript_sr": provider.text, "client_request_id": str(uuid4())})
+                        json={"exercise_id": exercise_id, "transcript_tr": provider.text, "client_request_id": str(uuid4())})
                     request(client, "next_catalog", "POST", f"/api/sessions/{started['session']['id']}/next-exercise", 201,
                         measured, json={"client_request_id": str(uuid4())})
                     if measured:

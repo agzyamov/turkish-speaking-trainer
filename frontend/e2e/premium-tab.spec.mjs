@@ -12,7 +12,7 @@ for (const language of ['ru', 'en']) for (const layout of ['desktop', 'mobile', 
       localStorage.setItem(storageKey, JSON.stringify({ access_token: 'synthetic-only', refresh_token: 'synthetic-only', expires_at: 4102444800, token_type: 'bearer', user: { id: 'premium-user', email: 'premium@example.invalid', aud: 'authenticated', role: 'authenticated', app_metadata: {}, user_metadata: {} } }));
     }, { language, layout, storageKey: process.env.LAYOUT_AUTH_STORAGE_KEY ?? 'sb-e2e-auth-auth-token' });
     const topics = [{ id: 'bank', title_ru: 'В банке', description_ru: '', phrase_count: 20, is_custom: false, likely_intents: [], suggested_vocabulary: [] }];
-    const prepared = { preparation_id: '12345678-1234-1234-1234-123456789012', source_ru: 'Моя личная фраза.', canonical_sr: 'Moja lična fraza.', intended_sr_variants: [], word_hints: [] };
+    const prepared = { preparation_id: '12345678-1234-1234-1234-123456789012', source_ru: 'Моя личная фраза.', canonical_tr: 'Moja lična fraza.', intended_tr_variants: [], word_hints: [] };
     let saved = false, privateLoads = 0;
     await page.route('**/api/**', async route => {
       const request = route.request(), path = new URL(request.url()).pathname;
@@ -99,7 +99,7 @@ for (const language of ['ru', 'en']) for (const layout of ['desktop', 'mobile', 
       await expect(topic).toContainText(ru ? 'Фраз: 1' : 'Phrases: 1');
       await topic.click();
       await expect(content.getByText(prepared.source_ru, { exact: true })).toBeVisible();
-      await expect(content.getByText(prepared.canonical_sr, { exact: true })).toHaveCount(0);
+      await expect(content.getByText(prepared.canonical_tr, { exact: true })).toHaveCount(0);
       await content.getByRole('button', { name: ru ? 'Удалить фразу' : 'Delete phrase', exact: true }).click();
       await content.getByRole('button', { name: ru ? 'Подтвердить удаление' : 'Confirm deletion', exact: true }).click();
       await expect(topic).toContainText(ru ? 'Фраз: 0' : 'Phrases: 0');

@@ -22,7 +22,7 @@ def test_bilingual_migration_preserves_original_canonical_and_progress(tmp_path)
         command.upgrade(config, 'head')
         command.upgrade(config, 'head')
         assert connection.exec_driver_sql("SELECT source_versions_json FROM review_phrases WHERE id='p'").scalar() == '{}'
-        assert connection.exec_driver_sql("SELECT source_ru,intended_sr_variants_json,attempts,best_score,status FROM review_phrases WHERE id='p'").one() == before
+        assert connection.exec_driver_sql("SELECT source_ru,intended_tr_variants_json,attempts,best_score,status FROM review_phrases WHERE id='p'").one() == before
         command.downgrade(config, '8fd7172bc955')
         assert 'source_versions_json' not in {column['name'] for column in inspect(connection).get_columns('review_phrases')}
         assert connection.exec_driver_sql("SELECT source_ru,intended_sr_variants_json,attempts,best_score,status FROM review_phrases WHERE id='p'").one() == before

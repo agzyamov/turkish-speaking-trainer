@@ -121,7 +121,7 @@ export function transcribeFeedback(audio: Blob, signal?: AbortSignal): Promise<{
 
 export function submitAttempt(
   exerciseId: string,
-  transcriptSr: string,
+  transcriptTr: string,
   timing?: AttemptTimings,
   hintedWords: string[] = [],
   clientRequestId?: string,
@@ -133,7 +133,7 @@ export function submitAttempt(
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       exercise_id: exerciseId,
-      transcript_sr: transcriptSr,
+      transcript_tr: transcriptTr,
       reaction_ms: timing?.reaction_ms ?? null,
       speech_duration_ms: timing?.speech_duration_ms ?? null,
       longest_pause_ms: timing?.longest_pause_ms ?? null,

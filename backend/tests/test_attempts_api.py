@@ -22,7 +22,7 @@ def _exercise(api_client: TestClient) -> dict:
 def test_personal_topic_error_without_skills_is_saved_and_replayed(api_client: TestClient, db_session: Session, language: str) -> None:
     topic = api_client.post("/api/topics", json={"title_ru": "Личные планы"}).json()
     phrase = create_custom_phrase(api_client, {
-        "source_ru": "Я приду завтра.", "canonical_sr": "Dolazim sutra.", "topic_id": topic["id"],
+        "source_ru": "Я приду завтра.", "canonical_tr": "Dolazim sutra.", "topic_id": topic["id"],
     })
     assert phrase.status_code == 201
     exercise = api_client.post("/api/sessions/start", json={"topic_id": topic["id"]}).json()["exercise"]
@@ -33,12 +33,12 @@ def test_personal_topic_error_without_skills_is_saved_and_replayed(api_client: T
                         evidence="danas", correction="sutra", explanation_ru=reason)
     model = AnswerAnalysis(
         verdict="mostly_correct", semantic_score=0.7, grammar_score=1, lexical_score=0.7,
-        naturalness_score=1, fluency_score=1, corrected_sr="Dolazim sutra.",
+        naturalness_score=1, fluency_score=1, corrected_tr="Dolazim sutra.",
         short_feedback_ru=reason, detailed_feedback_ru=reason, issues=[issue],
     )
     ai = FakeAIProvider(available=True, analysis_result=model)
     app.dependency_overrides[get_ai_provider] = lambda: ai
-    request = {"exercise_id": exercise["id"], "transcript_sr": "Dolazim danas.", "client_request_id": str(uuid4())}
+    request = {"exercise_id": exercise["id"], "transcript_tr": "Dolazim danas.", "client_request_id": str(uuid4())}
     response = api_client.post("/api/attempts", json=request, headers={"X-Interface-Language": language})
     assert response.status_code == 201, response.json()
     result = response.json()
@@ -62,13 +62,13 @@ def test_submit_correct_text_attempt(api_client: TestClient, db_session: Session
     exercise = _exercise(api_client)
     stored_exercise = db_session.get(Exercise, exercise["id"])
     assert stored_exercise is not None
-    canonical = stored_exercise.target_hints_json["canonical_sr"]
+    canonical = stored_exercise.target_hints_json["canonical_tr"]
 
     response = api_client.post(
         "/api/attempts",
         json={
             "exercise_id": exercise["id"],
-            "transcript_sr": canonical,
+            "transcript_tr": canonical,
             "reaction_ms": None,
             "timings": {},
         },
@@ -77,7 +77,7 @@ def test_submit_correct_text_attempt(api_client: TestClient, db_session: Session
     assert response.status_code == 201
     payload = response.json()
     assert payload["analysis"]["verdict"] == "correct"
-    assert payload["analysis"]["corrected_sr"] == canonical
+    assert payload["analysis"]["corrected_tr"] == canonical
     assert payload["analysis"]["pronunciation_score"] is None
     assert payload["overall_score"] == 1
     assert payload["analysis"]["issues"] == []
@@ -85,7 +85,7 @@ def test_submit_correct_text_attempt(api_client: TestClient, db_session: Session
     assert all(update["mastery"] > 0 for update in payload["learner_updates"])
     stored = db_session.get(Attempt, payload["id"])
     assert stored is not None
-    assert stored.transcript_sr == canonical
+    assert stored.transcript_tr == canonical
     assert stored.analysis_json["verdict"] == "correct"
 
 
@@ -96,7 +96,7 @@ def test_submit_incorrect_attempt_creates_error_event(api_client: TestClient, db
     skill_key = stored_exercise.generation_meta_json["targeted_skill_keys"][0]
     app.dependency_overrides[get_ai_provider] = lambda: FakeAIProvider(available=True, analysis_result=AnswerAnalysis(
         verdict="needs_work", semantic_score=0.2, grammar_score=0.2, lexical_score=0.2,
-        naturalness_score=0.2, fluency_score=1, corrected_sr="Ne znam.",
+        naturalness_score=0.2, fluency_score=1, corrected_tr="Ne znam.",
         short_feedback_ru="Попробуйте ещё раз.", detailed_feedback_ru="Нужно передать исходный смысл.",
         issues=[AnswerIssue(type="meaning", skill_key=skill_key, severity=0.8, confidence=0.9,
                             evidence="Ne znam.", correction="Исправленный вариант",
@@ -105,7 +105,7 @@ def test_submit_incorrect_attempt_creates_error_event(api_client: TestClient, db
 
     response = api_client.post(
         "/api/attempts",
-        json={"exercise_id": exercise["id"], "transcript_sr": "Ne znam."},
+        json={"exercise_id": exercise["id"], "transcript_tr": "Ne znam."},
     )
 
     assert response.status_code == 201
@@ -129,15 +129,15 @@ def test_submit_incorrect_attempt_creates_error_event(api_client: TestClient, db
 def test_attempt_validation_and_missing_exercise(api_client: TestClient) -> None:
     assert api_client.post(
         "/api/attempts",
-        json={"exercise_id": "missing", "transcript_sr": "Dobar dan"},
+        json={"exercise_id": "missing", "transcript_tr": "Dobar dan"},
     ).status_code == 404
     assert api_client.post(
         "/api/attempts",
-        json={"exercise_id": "missing", "transcript_sr": ""},
+        json={"exercise_id": "missing", "transcript_tr": ""},
     ).status_code == 422
     assert api_client.post(
         "/api/attempts",
-        json={"exercise_id": "missing", "transcript_sr": "Dobar dan", "audio_blob": "forbidden"},
+        json={"exercise_id": "missing", "transcript_tr": "Dobar dan", "audio_blob": "forbidden"},
     ).status_code == 422
 
 
@@ -148,7 +148,7 @@ def test_attempt_request_replay_does_not_count_or_score_twice(api_client: TestCl
     payload = {
         "client_request_id": str(uuid4()),
         "exercise_id": exercise["id"],
-        "transcript_sr": stored.target_hints_json["canonical_sr"],
+        "transcript_tr": stored.target_hints_json["canonical_tr"],
     }
 
     first = api_client.post("/api/attempts", json=payload)
@@ -163,7 +163,7 @@ def test_attempt_request_replay_does_not_count_or_score_twice(api_client: TestCl
     assert phrase is not None and phrase.attempts == 1
     assert all(state.attempts == 1 for state in db_session.scalars(select(LearnerSkill)))
 
-    conflict = api_client.post("/api/attempts", json={**payload, "transcript_sr": "Drugi odgovor"})
+    conflict = api_client.post("/api/attempts", json={**payload, "transcript_tr": "Drugi odgovor"})
     assert conflict.status_code == 409
     assert conflict.json()["detail"]["code"] == "attempt_request_conflict"
     assert db_session.scalar(select(func.count()).select_from(Attempt)) == 1
@@ -184,7 +184,7 @@ def test_analysis_unavailable_preserves_progress_and_allows_same_request_retry(
     payload = {
         "client_request_id": str(uuid4()),
         "exercise_id": exercise["id"],
-        "transcript_sr": "Ne znam.",
+        "transcript_tr": "Ne znam.",
     }
 
     unavailable = api_client.post("/api/attempts", json=payload)
@@ -204,7 +204,7 @@ def test_analysis_unavailable_preserves_progress_and_allows_same_request_retry(
         analysis_result=AnswerAnalysis(
             verdict="mostly_correct", semantic_score=0.8, grammar_score=0.8,
             lexical_score=0.8, naturalness_score=0.8, fluency_score=1,
-            corrected_sr="Mogu li da dobijem jelovnik?",
+            corrected_tr="Mogu li da dobijem jelovnik?",
             short_feedback_ru="Почти верно.", detailed_feedback_ru="Уточните перевод.",
             issues=[AnswerIssue(
                 type="meaning", skill_key=stored.generation_meta_json["targeted_skill_keys"][0],
@@ -230,7 +230,7 @@ def test_invalid_structured_issue_does_not_persist_false_grade(
     ai = FakeAIProvider(available=True, analysis_result=AnswerAnalysis(
         verdict="mostly_correct", semantic_score=0.88, grammar_score=0.88,
         lexical_score=0.88, naturalness_score=0.88, fluency_score=1,
-        corrected_sr="Ne znam.",
+        corrected_tr="Ne znam.",
         short_feedback_ru="Нужно заменить букву.",
         detailed_feedback_ru="Ложное замечание.",
         issues=[AnswerIssue(type="grammar", skill_key=skill_key, severity=0.2,
@@ -241,7 +241,7 @@ def test_invalid_structured_issue_does_not_persist_false_grade(
     response = api_client.post("/api/attempts", json={
         "client_request_id": str(uuid4()),
         "exercise_id": exercise["id"],
-        "transcript_sr": "Ne znam.",
+        "transcript_tr": "Ne znam.",
     })
 
     assert response.status_code == 503
@@ -260,7 +260,7 @@ def test_same_client_request_id_is_scoped_to_user(api_client: TestClient, db_ses
     assert api_client.post("/api/attempts", json={
         "client_request_id": request_id,
         "exercise_id": first_exercise["id"],
-        "transcript_sr": first_stored.target_hints_json["canonical_sr"],
+        "transcript_tr": first_stored.target_hints_json["canonical_tr"],
     }).status_code == 201
 
     second_user = User(id=str(uuid4()), email="second@example.com", role="user", access_tier="free")
@@ -273,7 +273,7 @@ def test_same_client_request_id_is_scoped_to_user(api_client: TestClient, db_ses
     response = api_client.post("/api/attempts", json={
         "client_request_id": request_id,
         "exercise_id": second_exercise["id"],
-        "transcript_sr": second_stored.target_hints_json["canonical_sr"],
+        "transcript_tr": second_stored.target_hints_json["canonical_tr"],
     })
     assert response.status_code == 201
     assert db_session.scalar(select(func.count()).select_from(AttemptRequest)) == 2

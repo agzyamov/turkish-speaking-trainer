@@ -15,7 +15,7 @@ const session = {
 };
 const exercise = (id, source) => ({
   id, session_id: session.id, source_ru: source, targeted_skills: ["modal_verbs"],
-  expected_level: "A2", difficulty: 1, word_hints: [{ word_ru: "хочу", translation_sr: "želim" }],
+  expected_level: "A2", difficulty: 1, word_hints: [{ word_ru: "хочу", translation_tr: "želim" }],
 });
 const account = {
   id: "user-1", email: "learner@example.invalid", display_name: "Ученик", avatar_url: null,
@@ -43,13 +43,13 @@ async function mockApp(page, submitted) {
     else if (path === "/api/sessions/start" && method === "POST") body = { session, exercise: exercise("exercise-1", "Я хочу открыть счёт.") };
     else if (path === "/api/transcriptions" && method === "POST") body = { text: "Želim da otvorim račun." };
     else if (path === "/api/attempts" && method === "POST") {
-      submitted.push(request.postDataJSON().transcript_sr);
+      submitted.push(request.postDataJSON().transcript_tr);
       body = {
-        id: "attempt-1", exercise_id: "exercise-1", transcript_sr: submitted.at(-1), overall_score: 0.96,
+        id: "attempt-1", exercise_id: "exercise-1", transcript_tr: submitted.at(-1), overall_score: 0.96,
         base_score: 0.96, hint_penalty: 0, daily_usage: account.daily_usage,
         analysis: { verdict: "correct", semantic_score: 0.96, grammar_score: 0.96,
           lexical_score: 0.96, naturalness_score: 0.96, pronunciation_score: null,
-          fluency_score: 1, corrected_sr: "Želim da otvorim račun.",
+          fluency_score: 1, corrected_tr: "Želim da otvorim račun.",
           short_feedback_ru: "Верный перевод.", detailed_feedback_ru: "Верный перевод.",
           accepted_alternatives: [], issues: [], demonstrated_skills: [] },
       };
@@ -168,7 +168,7 @@ for (const native of [false, true]) {
     await page.screenshot({path:`../artifacts/soft-assistance-${native ? "android" : "web"}.png`});
     await check.click();
     await expect(page.getByText("Верный перевод.", {exact:true}).first()).toBeVisible();
-    expect(payloads[0]).toMatchObject({transcription_id:"receipt-1",accepted_transcription_changes:[0],transcript_sr:"Čemu?"});
+    expect(payloads[0]).toMatchObject({transcription_id:"receipt-1",accepted_transcription_changes:[0],transcript_tr:"Čemu?"});
   });
 }
 const warmups = Number(process.env.E2E_WARMUP_PER_SCRIPT ?? 0);
@@ -268,7 +268,7 @@ for (const { native, width } of [{ native: false, width: 1280 }, { native: false
         const id = url.searchParams.get("topic_id");
         expect(["bank", "cafe"]).toContain(id);
         body = { total: 1, page: 1, page_size: "10", total_pages: 1, groups: [{ topic_id: id, topic_title: id === "bank" ? "В банке" : "Кафе", phrases: [{
-          id: `phrase-${id}`, source_ru: id === "bank" ? "Фраза банка" : "Фраза кафе", target_sr: "Čaj i kafa.", attempts: 4, status: "mastered", difficulty: "easy", next_review_at: "2026-10-20T00:00:00Z",
+          id: `phrase-${id}`, source_ru: id === "bank" ? "Фраза банка" : "Фраза кафе", target_tr: "Čaj i kafa.", attempts: 4, status: "mastered", difficulty: "easy", next_review_at: "2026-10-20T00:00:00Z",
         }] }] };
       } else throw new Error(`Unexpected statistics endpoint ${url.pathname}`);
       await route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(body) });
@@ -332,11 +332,11 @@ for (const native of [false, true]) {
       const words = ["Уберите", "пожалуйста", "грязную", "чашку", "стола"];
       await page.route("**/api/sessions/start", route => route.fulfill({ json: { session, exercise: {
         ...exercise("edge-1", "Уберите, пожалуйста, грязную чашку со стола."),
-        word_hints: words.map(word_ru => ({ word_ru, translation_sr: word_ru === "грязную" ? "prljavu" : "Veoma dug prevod sa nekoliko reči koji mora da se prenese u više redova" })),
+        word_hints: words.map(word_ru => ({ word_ru, translation_tr: word_ru === "грязную" ? "prljavu" : "Veoma dug prevod sa nekoliko reči koji mora da se prenese u više redova" })),
       } } }));
       await page.route("**/word-hints", route => route.fulfill({ json: {
         word_ru: route.request().postDataJSON().word,
-        translation_sr: route.request().postDataJSON().word === "грязную" ? "prljavu" : "Veoma dug prevod sa nekoliko reči koji mora da se prenese u više redova", is_learning: true,
+        translation_tr: route.request().postDataJSON().word === "грязную" ? "prljavu" : "Veoma dug prevod sa nekoliko reči koji mora da se prenese u više redova", is_learning: true,
       } }));
       await page.goto("/");
       if (native) await page.getByRole("button", { name: /В банке/ }).click();

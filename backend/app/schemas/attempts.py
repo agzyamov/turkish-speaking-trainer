@@ -39,7 +39,7 @@ class AnswerAnalysis(BaseModel):
     naturalness_score: float = Field(ge=0, le=1)
     pronunciation_score: float | None = Field(default=None, ge=0, le=1)
     fluency_score: float = Field(ge=0, le=1)
-    corrected_sr: str = Field(min_length=1, max_length=600)
+    corrected_tr: str = Field(min_length=1, max_length=600)
     short_feedback_ru: str = Field(min_length=1, max_length=300)
     detailed_feedback_ru: str = Field(min_length=1, max_length=2000)
     accepted_alternatives: list[str] = Field(default_factory=list, max_length=8)
@@ -61,7 +61,7 @@ class CreateAttemptRequest(BaseModel):
 
     exercise_id: str = Field(min_length=1, max_length=36)
     client_request_id: UUID | None = None
-    transcript_sr: str = Field(min_length=1, max_length=1200)
+    transcript_tr: str = Field(min_length=1, max_length=1200)
     reaction_ms: int | None = Field(default=None, ge=0, le=600_000)
     speech_duration_ms: int | None = Field(default=None, ge=0, le=600_000)
     longest_pause_ms: int | None = Field(default=None, ge=0, le=600_000)
@@ -75,7 +75,7 @@ class CreateAttemptRequest(BaseModel):
 class AttemptResponse(BaseModel):
     id: str
     exercise_id: str
-    transcript_sr: str
+    transcript_tr: str
     overall_score: float = Field(ge=0, le=1)
     analysis: AnswerAnalysis
     learner_updates: list["LearnerSkillUpdate"] = Field(default_factory=list)

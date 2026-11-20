@@ -66,7 +66,7 @@ def main() -> None:
             for index in range(count):
                 db.add(Attempt(
                     exercise_id=exercises[user_index].id,
-                    transcript_sr="Synthetic transcript, no recorded audio",
+                    transcript_tr="Synthetic transcript, no recorded audio",
                     analysis_json={"synthetic": "x" * 300}, timings_json={"duration_ms": 2500},
                     overall_score=0.95 if index % 3 == 0 else 0.7,
                     created_at=datetime(2026, 9, index % 28 + 1, 12, tzinfo=UTC),
@@ -76,7 +76,7 @@ def main() -> None:
                 db.add(ReviewPhrase(
                     user_id=users[user_index].id, source_ru=f"Synthetic phrase {index}",
                     source_normalized=f"synthetic {index}", status="mastered",
-                    intended_sr_variants_json=["Sintetička rečenica"],
+                    intended_tr_variants_json=["Sintetička rečenica"],
                     mastered_at=datetime(2026, 9, index % 28 + 1, 12, tzinfo=UTC),
                 ))
         db.commit()

@@ -11,8 +11,8 @@ class TranscriptionAssistanceProvider(Protocol):
     @property
     def is_available(self) -> bool: ...
 
-    def analyze(self, *, source_ru: str, raw_text: str, canonical_sr: str | None,
-                intended_sr_variants: list[str]) -> TranscriptionAssistanceAnalysis: ...
+    def analyze(self, *, source_ru: str, raw_text: str, canonical_tr: str | None,
+                intended_tr_variants: list[str]) -> TranscriptionAssistanceAnalysis: ...
 
 
 class OpenAITranscriptionAssistanceProvider(OpenAIStructuredProvider):
@@ -22,12 +22,12 @@ class OpenAITranscriptionAssistanceProvider(OpenAIStructuredProvider):
             "openai_max_retries": settings.openai_assistance_max_retries,
         }))
 
-    def analyze(self, *, source_ru: str, raw_text: str, canonical_sr: str | None,
-                intended_sr_variants: list[str]) -> TranscriptionAssistanceAnalysis:
+    def analyze(self, *, source_ru: str, raw_text: str, canonical_tr: str | None,
+                intended_tr_variants: list[str]) -> TranscriptionAssistanceAnalysis:
         return self._parse(
             prompt_name="transcription_assistance_v3.md",
-            payload={"source_ru": source_ru, "raw_text": raw_text, "canonical_sr": canonical_sr,
-                     "intended_sr_variants": intended_sr_variants},
+            payload={"source_ru": source_ru, "raw_text": raw_text, "canonical_tr": canonical_tr,
+                     "intended_tr_variants": intended_tr_variants},
             schema=TranscriptionAssistanceAnalysis,
         )
 

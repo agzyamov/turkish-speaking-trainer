@@ -172,7 +172,7 @@ class ExerciseGenerator:
             result = ExerciseGenerationResult(
                 source_ru=catalog_phrase.source_ru,
                 topic_fit=f"Постоянный каталог A2 для темы «{topic.title_ru}».",
-                intended_sr_variants=[catalog_phrase.canonical_sr],
+                intended_tr_variants=[catalog_phrase.canonical_tr],
                 targeted_skills=target_keys,
                 difficulty=0.5,
                 novelty_signature=f"catalog:{catalog_phrase.id}",
@@ -191,8 +191,8 @@ class ExerciseGenerator:
                 source_ru=result.source_ru,
                 targeted_skill_ids=[skill_catalog[key].id for key in target_keys if key in skill_catalog],
                 target_hints_json={
-                    "intended_sr_variants": result.intended_sr_variants,
-                    "canonical_sr": result.intended_sr_variants[0],
+                    "intended_tr_variants": result.intended_tr_variants,
+                    "canonical_tr": result.intended_tr_variants[0],
                     "word_hints": [hint.model_dump() for hint in result.word_hints],
                 },
                 generation_meta_json={
@@ -240,7 +240,7 @@ class ExerciseGenerator:
         return {
             "id": phrase.id,
             "source_ru": phrase.source_ru,
-            "intended_sr_variants": phrase.intended_sr_variants_json,
+            "intended_tr_variants": phrase.intended_tr_variants_json,
             "word_hints": phrase.word_hints_json,
             "targeted_skill_keys": phrase.targeted_skill_keys_json,
             "topic_id": phrase.topic_id,
@@ -261,8 +261,8 @@ class ExerciseGenerator:
                 source_ru=str(payload["source_ru"]),
                 targeted_skill_ids=[catalog[key].id for key in target_keys if key in catalog],
                 target_hints_json={
-                    "intended_sr_variants": list(payload.get("intended_sr_variants", [])),
-                    "canonical_sr": next(iter(payload.get("intended_sr_variants", [])), None),
+                    "intended_tr_variants": list(payload.get("intended_tr_variants", [])),
+                    "canonical_tr": next(iter(payload.get("intended_tr_variants", [])), None),
                     "word_hints": list(payload.get("word_hints", [])),
                 },
                 generation_meta_json={
@@ -298,7 +298,7 @@ class ExerciseGenerator:
         language = interface_language.get()
         topic_id = entity.generation_meta_json.get("topic_id")
         topic = self.topics.get_visible(topic_id) if topic_id and entity.generation_meta_json.get("review_phrase_id") else None
-        canonical = entity.target_hints_json.get("canonical_sr") or next(iter(entity.target_hints_json.get("intended_sr_variants", [])), "")
+        canonical = entity.target_hints_json.get("canonical_tr") or next(iter(entity.target_hints_json.get("intended_tr_variants", [])), "")
         return ExerciseResponse(
             topic_id=topic_id,
             topic_title_ru=topic.title_ru if topic else None,
@@ -368,7 +368,7 @@ class ExerciseGenerator:
         return ExerciseGenerationResult(
             source_ru=source,
             topic_fit=f"Локальный A2 fallback для темы «{topic_title}».",
-            intended_sr_variants=list(variants),
+            intended_tr_variants=list(variants),
             targeted_skills=target_keys,
             difficulty=0.5,
             novelty_signature=f"local:{topic_id}:{index}",
@@ -379,7 +379,7 @@ class ExerciseGenerator:
     def _local_word_hints(source: str) -> list[dict[str, str]]:
         words = re.findall(r"[А-Яа-яЁё]+", source)
         return [
-            {"word_ru": word, "translation_sr": LOCAL_WORD_TRANSLATIONS[word.casefold()]}
+            {"word_ru": word, "translation_tr": LOCAL_WORD_TRANSLATIONS[word.casefold()]}
             for word in words
             if word.casefold() in LOCAL_WORD_TRANSLATIONS
         ]

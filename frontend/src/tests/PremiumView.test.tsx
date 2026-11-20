@@ -5,7 +5,7 @@ import { fetchCustomPhrases, deleteCustomPhrase } from "../api/training";
 import { setLanguage } from "../i18n";
 vi.mock("../api/training", () => ({ fetchCustomPhrases: vi.fn(), deleteCustomPhrase: vi.fn(), deleteCustomTopic: vi.fn() }));
 const topics = [1, 2].map(id => ({ id: `custom-${id}`, title_ru: `Личная тема ${id}`, is_custom: true, description_ru: "", phrase_count: 0, custom_phrase_count: 1, likely_intents: [], suggested_vocabulary: [] }));
-const phrases = topics.map((topic, i) => ({ id: `p${i}`, topic_id: topic.id, topic_title: topic.title_ru, source_ru: `Мой оригинал ${i}`, canonical_sr: `Moj prevod ${i}`, best_score: 0, attempts: 0, perfect_streak: 0, status: "new", created_at: "2026-10-24" }));
+const phrases = topics.map((topic, i) => ({ id: `p${i}`, topic_id: topic.id, topic_title: topic.title_ru, source_ru: `Мой оригинал ${i}`, canonical_tr: `Moj prevod ${i}`, best_score: 0, attempts: 0, perfect_streak: 0, status: "new", created_at: "2026-10-24" }));
 const props = { topics, alphabet: "latin" as const, onTopicCreated: vi.fn(), onChanged: vi.fn(), onDeleted: vi.fn() };
 afterEach(() => { cleanup(); vi.resetAllMocks(); setLanguage("ru"); });
 it.each(["ru", "en"] as const)("sorts compact personal cards by the displayed title (%s)", async language => {
@@ -43,7 +43,7 @@ it.each(["ru", "en"] as const)("filters topics, hides translations and updates c
   fireEvent.click(first);
   expect(screen.getByText(phrases[0].source_ru)).toBeInTheDocument();
   expect(screen.queryByText(phrases[1].source_ru)).not.toBeInTheDocument();
-  expect(screen.queryByText(phrases[0].canonical_sr)).not.toBeInTheDocument();
+  expect(screen.queryByText(phrases[0].canonical_tr)).not.toBeInTheDocument();
   fireEvent.click(screen.getByRole("button", { name: language === "ru" ? "Удалить фразу" : "Delete phrase" }));
   expect(deleteCustomPhrase).not.toHaveBeenCalled();
   fireEvent.click(screen.getByRole("button", { name: language === "ru" ? "Подтвердить удаление" : "Confirm deletion" }));

@@ -32,7 +32,7 @@ def test_titles_are_persisted_original_preserved_and_duplicate_skips_ai(api_clie
     session = api_client.post("/api/sessions", json={"topic_id": result["id"]}).json()
     assert session["topic"]["title_en"] == en
     # Statistics transports both titles even after reload and language changes.
-    db_session.add(ReviewPhrase(user_id=stored.owner_user_id, topic_id=stored.id, source_ru="Фраза", source_normalized="фраза", intended_sr_variants_json=["Fraza."], status="active"))
+    db_session.add(ReviewPhrase(user_id=stored.owner_user_id, topic_id=stored.id, source_ru="Фраза", source_normalized="фраза", intended_tr_variants_json=["Fraza."], status="active"))
     db_session.flush()
     from app.services.statistics_service import StatisticsService
     stats = StatisticsService(db_session, stored.owner_user_id)

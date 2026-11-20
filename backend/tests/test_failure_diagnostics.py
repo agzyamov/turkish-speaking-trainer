@@ -44,7 +44,7 @@ def test_timeout_and_schema_errors_are_different():
 def test_punctuation_rejection_retries_with_feedback_and_preserves_original(language, transcript, evidence, correction, caplog):
     from app.services.interface_language import interface_language
     invalid = AnswerAnalysis(verdict="mostly_correct", semantic_score=.98, grammar_score=.98,
-        lexical_score=1, naturalness_score=.98, fluency_score=1, corrected_sr="Da li radiš? Radim trenutno.",
+        lexical_score=1, naturalness_score=.98, fluency_score=1, corrected_tr="Da li radiš? Radim trenutno.",
         short_feedback_ru="Synthetic", detailed_feedback_ru="Synthetic", issues=[AnswerIssue(
             type="naturalness", skill_key=None, severity=.1, confidence=1, evidence=evidence, correction=correction)])
     valid = invalid.model_copy(update={"verdict": "correct", "issues": []})
@@ -60,31 +60,31 @@ def test_punctuation_rejection_retries_with_feedback_and_preserves_original(lang
             return valid
     token = interface_language.set(language)
     try:
-        result = AnswerAnalyzer(AI(available=True)).analyze(source_ru="Synthetic source", transcript_sr=transcript,
-            canonical_sr="Da li radiš? Radim trenutno.", intended_sr_variants=[], target_skills=[],
-            timing=CreateAttemptRequest(exercise_id="synthetic", transcript_sr=transcript))
+        result = AnswerAnalyzer(AI(available=True)).analyze(source_ru="Synthetic source", transcript_tr=transcript,
+            canonical_tr="Da li radiš? Radim trenutno.", intended_tr_variants=[], target_skills=[],
+            timing=CreateAttemptRequest(exercise_id="synthetic", transcript_tr=transcript))
     finally:
         interface_language.reset(token)
     assert result.verdict == "correct" and result.issues == []
     assert len(calls) == 2 and "validation_feedback" not in calls[0]
     assert calls[1]["validation_feedback"] == "non_lexical_correction"
-    assert calls[1]["transcript_sr"] == calls[0]["transcript_sr"]
+    assert calls[1]["transcript_tr"] == calls[0]["transcript_tr"]
     assert "non_lexical_correction" in caplog.text
     assert "Synthetic source" not in caplog.text and transcript not in caplog.text
 
 
 def test_invalid_retry_has_parse_failure_not_provider_outage():
     analysis = AnswerAnalysis(verdict="mostly_correct", semantic_score=.9, grammar_score=.9, lexical_score=.9,
-        naturalness_score=.9, fluency_score=1, corrected_sr="Radim trenutno.", short_feedback_ru="Synthetic",
+        naturalness_score=.9, fluency_score=1, corrected_tr="Radim trenutno.", short_feedback_ru="Synthetic",
         detailed_feedback_ru="Synthetic", issues=[AnswerIssue(type="meaning", skill_key=None, severity=.1,
         confidence=1, evidence="Radim.", correction="Radim?")])
     ai = FakeAIProvider(available=True, analysis_result=analysis)
     token = diagnostic_context.set(str(uuid4()))
     try:
         with pytest.raises(AnalysisUnavailableError) as error:
-            AnswerAnalyzer(ai).analyze(source_ru="Synthetic", transcript_sr="Radim sada.",
-                canonical_sr="Radim trenutno.", intended_sr_variants=[], target_skills=[],
-                timing=CreateAttemptRequest(exercise_id="synthetic", transcript_sr="Radim sada."))
+            AnswerAnalyzer(ai).analyze(source_ru="Synthetic", transcript_tr="Radim sada.",
+                canonical_tr="Radim trenutno.", intended_tr_variants=[], target_skills=[],
+                timing=CreateAttemptRequest(exercise_id="synthetic", transcript_tr="Radim sada."))
         assert error.value.failure.kind == "response_parse"
         assert error.value.failure.reason == "non_lexical_correction"
         assert error.value.failure.diagnostic_id == diagnostic_context.get()
@@ -98,8 +98,8 @@ def test_adapter_classifies_schema_failure_and_sends_retry_feedback():
     parse = Mock(return_value=SimpleNamespace(output_parsed={"invalid": "PRIVATE"}))
     provider._client = SimpleNamespace(responses=SimpleNamespace(parse=parse))
     with pytest.raises(AIServiceError) as error:
-        provider.analyze_answer(source_ru="Synthetic", transcript_sr="Synthetic", canonical_sr=None,
-            intended_sr_variants=[], target_skills=[], timings={}, validation_feedback="non_lexical_correction")
+        provider.analyze_answer(source_ru="Synthetic", transcript_tr="Synthetic", canonical_tr=None,
+            intended_tr_variants=[], target_skills=[], timings={}, validation_feedback="non_lexical_correction")
     assert error.value.failure.kind == "response_parse"
     assert error.value.failure.stage == "structured_output"
     assert '"previous_validation_failure": "non_lexical_correction"' in parse.call_args.kwargs["input"]
@@ -145,7 +145,7 @@ def test_failed_attempt_exposes_correlated_metadata_without_charging_attempt(api
             raise AIServiceError("PRIVATE", diagnostic("external_model", "provider_request", "quota", retryable=False))
     app.dependency_overrides[get_ai_provider] = lambda: AI(available=True)
     request_id = str(uuid4())
-    response = api_client.post("/api/attempts", json={"exercise_id": exercise["id"], "transcript_sr": "Synthetic unmatched words."}, headers={"X-Request-ID": request_id})
+    response = api_client.post("/api/attempts", json={"exercise_id": exercise["id"], "transcript_tr": "Synthetic unmatched words."}, headers={"X-Request-ID": request_id})
     assert response.status_code == 503
     detail = response.json()["detail"]
     assert detail["code"] == "analysis_unavailable" and detail["retryable"] is False

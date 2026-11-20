@@ -129,8 +129,8 @@ def test_assistance_uses_the_short_time_budget_and_utility_model(ledger):
     result = TranscriptionAssistanceAnalysis(acceptable_variant=True, candidates=[])
     messages = FakeMessages(parsed=result)
     provider._client = SimpleNamespace(messages=messages)
-    assert provider.analyze(source_ru="Мне нужен счёт.", raw_text="Treba mi račun.", canonical_sr="Treba mi račun.",
-                            intended_sr_variants=["Treba mi račun."]) == result
+    assert provider.analyze(source_ru="Мне нужен счёт.", raw_text="Treba mi račun.", canonical_tr="Treba mi račun.",
+                            intended_tr_variants=["Treba mi račun."]) == result
     assert messages.calls[0]["model"] == "utility-from-env"
 
 

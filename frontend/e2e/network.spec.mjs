@@ -21,11 +21,11 @@ const account = {
   daily_usage: { used: 0, limit: 10, remaining: 10, resets_at: "2026-09-30T00:00:00Z" },
 };
 const attempt = (requestBody) => ({
-  id: "attempt-1", exercise_id: requestBody.exercise_id, transcript_sr: requestBody.transcript_sr,
+  id: "attempt-1", exercise_id: requestBody.exercise_id, transcript_tr: requestBody.transcript_tr,
   overall_score: 0.96, base_score: 0.96, hint_penalty: 0, transcription_assisted: Boolean(requestBody.accepted_transcription_changes?.length), daily_usage: account.daily_usage,
   analysis: { verdict: "correct", semantic_score: 0.96, grammar_score: 0.96,
     lexical_score: 0.96, naturalness_score: 0.96, pronunciation_score: null,
-    fluency_score: 1, corrected_sr: requestBody.transcript_sr,
+    fluency_score: 1, corrected_tr: requestBody.transcript_tr,
     short_feedback_ru: "Верный перевод.", detailed_feedback_ru: "Верный перевод.",
     accepted_alternatives: [], issues: [], demonstrated_skills: [] },
 });
@@ -209,7 +209,7 @@ test("foreign STT letters remain editable and block grading", async ({ page }) =
   await submit(page);
   await expect(page.locator(".feedback:visible")).toBeVisible();
   expect(state.attempts).toHaveLength(1);
-  expect(state.attempts[0].transcript_sr).toBe("Platiću bankovnom karticom.");
+  expect(state.attempts[0].transcript_tr).toBe("Platiću bankovnom karticom.");
 });
 
 

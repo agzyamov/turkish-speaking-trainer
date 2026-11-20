@@ -19,7 +19,7 @@ export type MonthlyStatistics = {
 export type PhraseStatisticsItem = {
   id: string;
   source_ru: string;
-  target_sr: string;
+  target_tr: string;
   attempts: number;
   status: "learning" | "mastered";
   difficulty: "easy" | "medium" | "hard" | null;

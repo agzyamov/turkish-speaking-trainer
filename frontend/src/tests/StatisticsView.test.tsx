@@ -7,7 +7,7 @@ import { fetchMonthlyStatistics, fetchPhraseStatistics, fetchPhraseTopics } from
 import type { PhraseStatistics } from '../types/statistics';
 
 vi.mock('../api/statistics', () => ({fetchMonthlyStatistics:vi.fn(),fetchPhraseStatistics:vi.fn(),fetchPhraseTopics:vi.fn()}));
-const phrases = (title:string):PhraseStatistics => ({total:1,page:1,page_size:'20',total_pages:1,groups:[{topic_id:'topic',topic_title:title,phrases:[{id:'phrase',source_ru:'Фраза',target_sr:'Čaj i kafa.',attempts:1,status:'learning',difficulty:null,next_review_at:null}]}]});
+const phrases = (title:string):PhraseStatistics => ({total:1,page:1,page_size:'20',total_pages:1,groups:[{topic_id:'topic',topic_title:title,phrases:[{id:'phrase',source_ru:'Фраза',target_tr:'Čaj i kafa.',attempts:1,status:'learning',difficulty:null,next_review_at:null}]}]});
 beforeEach(() => {
   vi.resetAllMocks();
   vi.mocked(fetchMonthlyStatistics).mockImplementation(async month => ({month,active_days:0,total_phrases:0,total_translations:0,correct_translations:0,mastered_phrases:0,days:[]}));

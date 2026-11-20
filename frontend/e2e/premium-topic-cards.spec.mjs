@@ -12,7 +12,7 @@ for (const language of ['ru', 'en']) for (const layout of ['desktop', 'mobile', 
     }, { language, layout, storageKey: process.env.LAYOUT_AUTH_STORAGE_KEY ?? 'sb-e2e-auth-auth-token' });
     const topic = (id, title_ru, title_en, is_custom) => ({ id, title_ru, title_en, is_custom, description_ru: '', phrase_count: 2, custom_phrase_count: is_custom ? 2 : 0, likely_intents: [], suggested_vocabulary: [] });
     const topics = [topic('custom-z', 'Язык и повседневные разговоры', 'Animals and everyday conversations', true), topic('bank', 'В банке', null, false), topic('custom-a', 'Автомобиль', 'Travel', true), topic('doctor', 'Врач', null, false), topic('custom-m', 'Мои планы', 'My plans', true)];
-    let phrases = topics.filter(item => item.is_custom).flatMap(item => [1, 2].map(index => ({ id: `${item.id}-${index}`, topic_id: item.id, source_ru: `Моя фраза ${index}: я хотел бы уточнить время встречи завтра.`, canonical_sr: 'Želim da proverim vreme.', best_score: 0, attempts: 0, perfect_streak: 0, status: 'active', created_at: '2026-10-26' })));
+    let phrases = topics.filter(item => item.is_custom).flatMap(item => [1, 2].map(index => ({ id: `${item.id}-${index}`, topic_id: item.id, source_ru: `Моя фраза ${index}: я хотел бы уточнить время встречи завтра.`, canonical_tr: 'Želim da proverim vreme.', best_score: 0, attempts: 0, perfect_streak: 0, status: 'active', created_at: '2026-10-26' })));
     await page.route('**/api/**', async route => {
       const request = route.request(), path = new URL(request.url()).pathname;
       let body;

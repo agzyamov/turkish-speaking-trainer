@@ -14,7 +14,7 @@ for(const initial of ['ru','en']) for(const layout of ['desktop','mobile','andro
   const preset={id:'bank',title_ru:'Банк',is_custom:false,description_ru:'',phrase_count:1,likely_intents:[],suggested_vocabulary:[]};
   const topics=[preset,{...preset,id:'custom-legacy',title_ru:'Старая тема',title_en:null,is_custom:true,phrase_count:0,custom_phrase_count:0}];
   let saves=0,hasPhrase=false;
-  const prepared={preparation_id:'12345678-1234-1234-1234-123456789012',source_ru:'Моя новая фраза.',canonical_sr:'Moja nova fraza.',intended_sr_variants:['Moja nova fraza.'],word_hints:[]};
+  const prepared={preparation_id:'12345678-1234-1234-1234-123456789012',source_ru:'Моя новая фраза.',canonical_tr:'Moja nova fraza.',intended_tr_variants:['Moja nova fraza.'],word_hints:[]};
   await page.route('**/api/**',async route=>{
    const request=route.request(),url=new URL(request.url()),path=url.pathname;let body;
    if(path==='/api/auth/me') body={id:'titles-user',email:'title@example.invalid',role:'user',access_tier:'premium',daily_usage:{used:0,limit:100,remaining:100,resets_at:'2026-10-26T00:00:00Z'}};
@@ -32,7 +32,7 @@ for(const initial of ['ru','en']) for(const layout of ['desktop','mobile','andro
    else if(path==='/api/sessions/start') {const topic=topics.find(t=>t.id===request.postDataJSON().topic_id)??preset;body={session:{id:'s1',status:'active',requested_length:10,topic:{...topic,source:topic.is_custom?'custom':'preset'}},exercise:{id:'e1',source_ru:'Моя новая фраза.',topic_id:topic.id,topic_title_ru:topic.title_ru,word_hints:[],targeted_skills:[]}};}
    else if(path==='/api/statistics/monthly') body={month:url.searchParams.get('month'),active_days:0,total_phrases:0,total_translations:0,correct_translations:0,mastered_phrases:0,days:[]};
    else if(path==='/api/statistics/phrase-topics') body=[{topic_id:'custom-new',topic_title:'Мои путешествия',topic_title_en:'My travels',phrase_count:1}];
-   else if(path==='/api/statistics/phrases') body={total:1,page:1,page_size:'20',total_pages:1,groups:[{topic_id:'custom-new',topic_title:'Мои путешествия',topic_title_en:'My travels',phrases:[{id:'p1',source_ru:prepared.source_ru,target_sr:prepared.canonical_sr,attempts:1,status:'learning',next_review_at:null}]}]};
+   else if(path==='/api/statistics/phrases') body={total:1,page:1,page_size:'20',total_pages:1,groups:[{topic_id:'custom-new',topic_title:'Мои путешествия',topic_title_en:'My travels',phrases:[{id:'p1',source_ru:prepared.source_ru,target_tr:prepared.canonical_tr,attempts:1,status:'learning',next_review_at:null}]}]};
    else throw new Error(`Unexpected API ${path}`);
    await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify(body)});
   });

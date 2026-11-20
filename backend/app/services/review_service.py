@@ -73,21 +73,21 @@ class ReviewService:
             preparation = preparation_versions(self.ai, source)
         except (AIServiceError, ValidationError, SourceLanguageUnavailableError) as exc:
             raise PhrasePreparationUnavailableError from exc
-        variants = [" ".join(value.split()) for value in preparation.intended_sr_variants]
+        variants = [" ".join(value.split()) for value in preparation.intended_tr_variants]
         if not variants or any(not value or len(value) > 300 for value in variants):
             raise PhrasePreparationUnavailableError
         preparation.word_hints = [WordHint.model_validate(item) for item in aligned_word_hints(
             source, variants[0], [hint.model_dump() for hint in preparation.word_hints])]
         now = datetime.now(UTC)
         receipt = PhrasePreparationReceipt(user_id=self.user_id, source_ru=source,
-            preparation_json=PhrasePreparation(intended_sr_variants=variants, word_hints=preparation.word_hints, source_versions=preparation.source_versions).model_dump(),
+            preparation_json=PhrasePreparation(intended_tr_variants=variants, word_hints=preparation.word_hints, source_versions=preparation.source_versions).model_dump(),
             expires_at=now + timedelta(minutes=30))
         CustomContentRepository(self.db, self.user_id).add_receipt(receipt, now)
         return PreparedReviewPhraseResponse(
             preparation_id=receipt.id,
             source_ru=source,
-            canonical_sr=variants[0],
-            intended_sr_variants=variants,
+            canonical_tr=variants[0],
+            intended_tr_variants=variants,
             word_hints=preparation.word_hints,
             source_versions=preparation.source_versions,
         )
@@ -147,9 +147,9 @@ class ReviewService:
                 raise CustomContentError("custom_total_phrase_limit")
             phrase = self.phrases.add(ReviewPhrase(
                 user_id=self.user_id, source_ru=source, source_normalized=normalize_ru(source),
-                intended_sr_variants_json=preparation.intended_sr_variants,
+                intended_tr_variants_json=preparation.intended_tr_variants,
                 word_hints_json=[hint.model_dump() for hint in preparation.word_hints], topic_id=topic.id,
-                source_versions_json=version_payload(source, preparation.intended_sr_variants[0], preparation.source_versions) if preparation.source_versions else {},
+                source_versions_json=version_payload(source, preparation.intended_tr_variants[0], preparation.source_versions) if preparation.source_versions else {},
             ))
         receipt.saved_phrase_id = phrase.id
         receipt.saved_topic_id = topic.id
@@ -169,7 +169,7 @@ class ReviewService:
         self,
         *,
         source_ru: str,
-        intended_sr_variants: list[str],
+        intended_tr_variants: list[str],
         word_hints: list[dict[str, str]],
         targeted_skill_keys: list[str],
         score: float,
@@ -187,7 +187,7 @@ class ReviewService:
                     user_id=self.user_id,
                     source_ru=source_ru,
                     source_normalized=normalize_ru(source_ru),
-                    intended_sr_variants_json=intended_sr_variants,
+                    intended_tr_variants_json=intended_tr_variants,
                     word_hints_json=word_hints,
                     targeted_skill_keys_json=targeted_skill_keys,
                     topic_id=topic_id,
@@ -255,7 +255,7 @@ class ReviewService:
 
     def _record_word_hint(self, exercise: Exercise, word: str) -> WordHintResponse:
         stored = list(exercise.target_hints_json.get("word_hints", []))
-        canonical = exercise.target_hints_json.get("canonical_sr") or next(iter(exercise.target_hints_json.get("intended_sr_variants", [])), "")
+        canonical = exercise.target_hints_json.get("canonical_tr") or next(iter(exercise.target_hints_json.get("intended_tr_variants", [])), "")
         # Both dictionaries belong to the same immutable exercise/canonical pair.
         # This also handles a language change while a hint POST is in flight.
         selected = all_word_hints(exercise.source_ru, stored, canonical, exercise.target_hints_json.get('source_versions'))
@@ -266,7 +266,7 @@ class ReviewService:
         normalized = normalize_ru(hint.word_ru)
         already_revealed = list(exercise.generation_meta_json.get("revealed_hint_words", []))
         if normalized in already_revealed:
-            return WordHintResponse(word_ru=hint.word_ru, translation_sr=hint.translation_sr)
+            return WordHintResponse(word_ru=hint.word_ru, translation_tr=hint.translation_tr)
         learning = self.words.find_by_source(normalized)
         if learning is None:
             learning = self.words.add(
@@ -274,12 +274,12 @@ class ReviewService:
                     user_id=self.user_id,
                     source_ru=hint.word_ru,
                     source_normalized=normalized,
-                    translation_sr=hint.translation_sr,
+                    translation_tr=hint.translation_tr,
                 )
             )
         else:
             learning.hint_count += 1
-            learning.translation_sr = hint.translation_sr
+            learning.translation_tr = hint.translation_tr
             learning.status = "learning"
             learning.last_seen_at = datetime.now(UTC)
             self.db.flush()
@@ -288,14 +288,14 @@ class ReviewService:
             "revealed_hint_words": [*already_revealed, normalized],
         }
         self.db.flush()
-        return WordHintResponse(word_ru=hint.word_ru, translation_sr=hint.translation_sr)
+        return WordHintResponse(word_ru=hint.word_ru, translation_tr=hint.translation_tr)
 
     def list_words(self) -> list[LearningWordResponse]:
         return [
             LearningWordResponse(
                 id=item.id,
                 source_ru=item.source_ru,
-                translation_sr=item.translation_sr,
+                translation_tr=item.translation_tr,
                 hint_count=item.hint_count,
                 mastery=item.mastery,
                 status=item.status,
@@ -314,8 +314,8 @@ class ReviewService:
         return ReviewPhraseResponse(
             id=item.id,
             source_ru=item.source_ru,
-            source_versions=read_versions(item.source_versions_json or {}, item.source_ru, next(iter(item.intended_sr_variants_json), "")),
-            canonical_sr=next(iter(item.intended_sr_variants_json), ""),
+            source_versions=read_versions(item.source_versions_json or {}, item.source_ru, next(iter(item.intended_tr_variants_json), "")),
+            canonical_tr=next(iter(item.intended_tr_variants_json), ""),
             topic_id=item.topic_id,
             topic_title=topic_title,
             best_score=item.best_score,

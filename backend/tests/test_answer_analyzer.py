@@ -16,15 +16,15 @@ def test_exact_canonical_match_is_perfect_without_ai_analysis() -> None:
 
     result = analyzer.analyze(
         source_ru="Я ищу светлую двухкомнатную квартиру в центре.",
-        transcript_sr="  tražim svetao dvosoban stan u centru  ",
-        intended_sr_variants=["Tražim svetao dvosoban stan u centru."],
+        transcript_tr="  tražim svetao dvosoban stan u centru  ",
+        intended_tr_variants=["Tražim svetao dvosoban stan u centru."],
         target_skills=[
             {"key": "grammar.present", "category": "grammar", "title_ru": "Настоящее время"},
             {"key": "grammar.accusative", "category": "grammar", "title_ru": "Винительный падеж"},
         ],
         timing=CreateAttemptRequest(
             exercise_id="exercise",
-            transcript_sr="tražim svetao dvosoban stan u centru",
+            transcript_tr="tražim svetao dvosoban stan u centru",
         ),
     )
 
@@ -38,11 +38,11 @@ def test_exact_canonical_match_is_perfect_without_ai_analysis() -> None:
 
 
 def test_noncanonical_answer_waits_for_valid_ai_analysis() -> None:
-    request = CreateAttemptRequest(exercise_id="exercise", transcript_sr="Ne znam.")
+    request = CreateAttemptRequest(exercise_id="exercise", transcript_tr="Ne znam.")
     arguments = {
         "source_ru": "Я хотел бы заказать кофе.",
-        "transcript_sr": request.transcript_sr,
-        "intended_sr_variants": ["Voleo bih da naručim kafu."],
+        "transcript_tr": request.transcript_tr,
+        "intended_tr_variants": ["Voleo bih da naručim kafu."],
         "target_skills": [],
         "timing": request,
     }
@@ -66,7 +66,7 @@ def test_analyzer_applies_local_fluency_to_grounded_analysis() -> None:
         naturalness_score=0.7,
         pronunciation_score=0.9,
         fluency_score=0.9,
-        corrected_sr="Voleo bih da otvorim račun.",
+        corrected_tr="Voleo bih da otvorim račun.",
         short_feedback_ru="Смысл передан.",
         detailed_feedback_ru="Нужно немного поправить форму.",
         accepted_alternatives=["Želeo bih da otvorim račun."],
@@ -85,12 +85,12 @@ def test_analyzer_applies_local_fluency_to_grounded_analysis() -> None:
 
     result = analyzer.analyze(
         source_ru="Я хотел бы открыть счёт.",
-        transcript_sr="Voleo bih otvoriti račun.",
-        intended_sr_variants=["Voleo bih da otvorim račun."],
+        transcript_tr="Voleo bih otvoriti račun.",
+        intended_tr_variants=["Voleo bih da otvorim račun."],
         target_skills=[{"key": "grammar.modal_da", "category": "grammar", "title_ru": "Модальная конструкция"}],
         timing=CreateAttemptRequest(
             exercise_id="exercise",
-            transcript_sr="Voleo bih otvoriti račun.",
+            transcript_tr="Voleo bih otvoriti račun.",
             reaction_ms=5000,
             longest_pause_ms=3000,
             pause_count=4,
@@ -113,18 +113,18 @@ def test_bank_card_exact_answer_has_no_false_spelling_grade(transcript: str) -> 
     analyzer = AnswerAnalyzer(ai)
     result = analyzer.analyze(
         source_ru="Я заплачу банковской картой.",
-        transcript_sr=transcript,
-        canonical_sr="Platiću bankovnom karticom.",
-        intended_sr_variants=["Platiću bankovnom karticom."],
+        transcript_tr=transcript,
+        canonical_tr="Platiću bankovnom karticom.",
+        intended_tr_variants=["Platiću bankovnom karticom."],
         target_skills=[],
-        timing=CreateAttemptRequest(exercise_id="exercise", transcript_sr=transcript),
+        timing=CreateAttemptRequest(exercise_id="exercise", transcript_tr=transcript),
     )
 
     assert ai.analysis_calls == 0
     assert result.verdict == "correct"
     assert result.grammar_score == result.naturalness_score == 1
     assert result.issues == []
-    assert result.corrected_sr == "Platiću bankovnom karticom."
+    assert result.corrected_tr == "Platiću bankovnom karticom."
 
 
 def test_canonical_exact_answer_is_accepted_when_variants_are_missing() -> None:
@@ -132,11 +132,11 @@ def test_canonical_exact_answer_is_accepted_when_variants_are_missing() -> None:
     canonical = "Platiću bankovnom karticom."
     result = AnswerAnalyzer(ai).analyze(
         source_ru="Я заплачу банковской картой.",
-        transcript_sr=canonical,
-        canonical_sr=canonical,
-        intended_sr_variants=[],
+        transcript_tr=canonical,
+        canonical_tr=canonical,
+        intended_tr_variants=[],
         target_skills=[],
-        timing=CreateAttemptRequest(exercise_id="exercise", transcript_sr=canonical),
+        timing=CreateAttemptRequest(exercise_id="exercise", transcript_tr=canonical),
     )
 
     assert ai.analysis_calls == 0
@@ -156,9 +156,9 @@ def test_keyboard_homoglyphs_in_latin_words_match_canonical(
 ) -> None:
     ai = FakeAIProvider(available=True)
     result = AnswerAnalyzer(ai).analyze(
-        source_ru="Я заплачу или выпью воду.", transcript_sr=transcript,
-        canonical_sr=canonical, intended_sr_variants=[canonical], target_skills=[],
-        timing=CreateAttemptRequest(exercise_id="exercise", transcript_sr=transcript),
+        source_ru="Я заплачу или выпью воду.", transcript_tr=transcript,
+        canonical_tr=canonical, intended_tr_variants=[canonical], target_skills=[],
+        timing=CreateAttemptRequest(exercise_id="exercise", transcript_tr=transcript),
     )
 
     assert result.verdict == "correct"
@@ -192,7 +192,7 @@ def test_nonexact_manual_answer_is_cleaned_before_ai_analysis() -> None:
     analysis = AnswerAnalysis(
         verdict="mostly_correct", semantic_score=0.9, grammar_score=0.9,
         lexical_score=0.8, naturalness_score=0.9, fluency_score=1,
-        corrected_sr=canonical, short_feedback_ru="Уберите лишнее слово.",
+        corrected_tr=canonical, short_feedback_ru="Уберите лишнее слово.",
         detailed_feedback_ru="Фраза содержит лишнее слово.",
         issues=[AnswerIssue(type="vocabulary", skill_key="vocabulary.water", severity=0.2,
                             confidence=0.9, evidence="malo vode", correction="vodu")],
@@ -205,14 +205,14 @@ def test_nonexact_manual_answer_is_cleaned_before_ai_analysis() -> None:
 
     ai = CapturingAI(available=True, analysis_result=analysis)
     result = AnswerAnalyzer(ai).analyze(
-        source_ru="Я выпью воды.", transcript_sr=transcript,
-        canonical_sr=canonical, intended_sr_variants=[canonical],
+        source_ru="Я выпью воды.", transcript_tr=transcript,
+        canonical_tr=canonical, intended_tr_variants=[canonical],
         target_skills=[{"key": "vocabulary.water", "category": "vocabulary", "title_ru": "Вода"}],
-        timing=CreateAttemptRequest(exercise_id="exercise", transcript_sr=transcript),
+        timing=CreateAttemptRequest(exercise_id="exercise", transcript_tr=transcript),
     )
 
     assert ai.analysis_calls == 1
-    assert ai.payload["transcript_sr"] == "Popijem malo vode."
+    assert ai.payload["transcript_tr"] == "Popijem malo vode."
     assert result.verdict == "mostly_correct"
 
 
@@ -225,11 +225,11 @@ def test_unexpected_letters_and_real_diacritics_do_not_get_exact_match(transcrip
     with pytest.raises(AnalysisUnavailableError):
         AnswerAnalyzer(FakeAIProvider(available=False)).analyze(
             source_ru="Я заплачу банковской картой.",
-            transcript_sr=transcript,
-            canonical_sr="Platiću bankovnom karticom.",
-            intended_sr_variants=["Platiću bankovnom karticom."],
+            transcript_tr=transcript,
+            canonical_tr="Platiću bankovnom karticom.",
+            intended_tr_variants=["Platiću bankovnom karticom."],
             target_skills=[],
-            timing=CreateAttemptRequest(exercise_id="exercise", transcript_sr=transcript),
+            timing=CreateAttemptRequest(exercise_id="exercise", transcript_tr=transcript),
         )
 
 
@@ -239,7 +239,7 @@ def test_genuine_extra_letter_keeps_correction_without_invented_feedback() -> No
     analysis = AnswerAnalysis(
         verdict="mostly_correct", semantic_score=1, grammar_score=0.8,
         lexical_score=0.8, naturalness_score=0.8, fluency_score=1,
-        corrected_sr=canonical,
+        corrected_tr=canonical,
         short_feedback_ru="Нужно добавить букву e.",
         detailed_feedback_ru="В этом слове отсутствует e.",
         issues=[AnswerIssue(
@@ -250,11 +250,11 @@ def test_genuine_extra_letter_keeps_correction_without_invented_feedback() -> No
     ai = FakeAIProvider(available=True, analysis_result=analysis)
     result = AnswerAnalyzer(ai).analyze(
         source_ru="У меня аллергия на некоторые антибиотики.",
-        transcript_sr=transcript,
-        canonical_sr=canonical,
-        intended_sr_variants=[canonical],
+        transcript_tr=transcript,
+        canonical_tr=canonical,
+        intended_tr_variants=[canonical],
         target_skills=[{"key": "vocabulary.health", "category": "vocabulary", "title_ru": "Здоровье"}],
-        timing=CreateAttemptRequest(exercise_id="exercise", transcript_sr=transcript),
+        timing=CreateAttemptRequest(exercise_id="exercise", transcript_tr=transcript),
     )
 
     assert ai.analysis_calls == 1
@@ -278,7 +278,7 @@ def test_local_error_with_another_issue_never_keeps_invented_letter_claim(
     analysis = AnswerAnalysis(
         verdict="mostly_correct", semantic_score=0.9, grammar_score=0.8,
         lexical_score=0.8, naturalness_score=0.8, fluency_score=1,
-        corrected_sr=canonical,
+        corrected_tr=canonical,
         short_feedback_ru="Нужно добавить букву e.",
         detailed_feedback_ru="Здесь отсутствует буква e.",
         issues=[
@@ -290,14 +290,14 @@ def test_local_error_with_another_issue_never_keeps_invented_letter_claim(
     )
     result = AnswerAnalyzer(FakeAIProvider(available=True, analysis_result=analysis)).analyze(
         source_ru="У меня аллергия на некоторые антибиотики.",
-        transcript_sr=transcript,
-        canonical_sr=canonical,
-        intended_sr_variants=[canonical],
+        transcript_tr=transcript,
+        canonical_tr=canonical,
+        intended_tr_variants=[canonical],
         target_skills=[
             {"key": "vocabulary.health", "category": "vocabulary", "title_ru": "Здоровье"},
             {"key": "grammar.case", "category": "grammar", "title_ru": "Падеж"},
         ],
-        timing=CreateAttemptRequest(exercise_id="exercise", transcript_sr=transcript),
+        timing=CreateAttemptRequest(exercise_id="exercise", transcript_tr=transcript),
     )
 
     assert result.verdict == "mostly_correct"
@@ -312,18 +312,18 @@ def test_below_correct_without_grounded_issue_retries_then_refuses_grade() -> No
     analysis = AnswerAnalysis(
         verdict="mostly_correct", semantic_score=0.8, grammar_score=0.8,
         lexical_score=0.8, naturalness_score=0.8, fluency_score=1,
-        corrected_sr="Voleo bih da otvorim račun.",
+        corrected_tr="Voleo bih da otvorim račun.",
         short_feedback_ru="Нужно исправить.", detailed_feedback_ru="Неконкретная ошибка.",
     )
     ai = FakeAIProvider(available=True, analysis_result=analysis)
     transcript = "Želeo bih da otvorim račun."
     with pytest.raises(AnalysisUnavailableError):
         AnswerAnalyzer(ai).analyze(
-            source_ru="Я хотел бы открыть счёт.", transcript_sr=transcript,
-            canonical_sr="Voleo bih da otvorim račun.",
-            intended_sr_variants=["Voleo bih da otvorim račun."],
+            source_ru="Я хотел бы открыть счёт.", transcript_tr=transcript,
+            canonical_tr="Voleo bih da otvorim račun.",
+            intended_tr_variants=["Voleo bih da otvorim račun."],
             target_skills=[{"key": "grammar.modal_da", "category": "grammar", "title_ru": "Конструкция"}],
-            timing=CreateAttemptRequest(exercise_id="exercise", transcript_sr=transcript),
+            timing=CreateAttemptRequest(exercise_id="exercise", transcript_tr=transcript),
         )
     assert ai.analysis_calls == 2
 
@@ -334,7 +334,7 @@ def test_invalid_first_analysis_can_recover_on_bounded_retry() -> None:
     common = dict(
         verdict="mostly_correct", semantic_score=1, grammar_score=0.8,
         lexical_score=0.8, naturalness_score=0.8, fluency_score=1,
-        corrected_sr=canonical,
+        corrected_tr=canonical,
         short_feedback_ru="Есть ошибка.", detailed_feedback_ru="Проверьте слово.",
     )
     invalid = AnswerAnalysis(**common, issues=[AnswerIssue(
@@ -353,10 +353,10 @@ def test_invalid_first_analysis_can_recover_on_bounded_retry() -> None:
 
     ai = RecoveringAI(available=True)
     result = AnswerAnalyzer(ai).analyze(
-        source_ru="У меня аллергия на некоторые антибиотики.", transcript_sr=transcript,
-        canonical_sr=canonical, intended_sr_variants=[canonical],
+        source_ru="У меня аллергия на некоторые антибиотики.", transcript_tr=transcript,
+        canonical_tr=canonical, intended_tr_variants=[canonical],
         target_skills=[{"key": "vocabulary.health", "category": "vocabulary", "title_ru": "Здоровье"}],
-        timing=CreateAttemptRequest(exercise_id="exercise", transcript_sr=transcript),
+        timing=CreateAttemptRequest(exercise_id="exercise", transcript_tr=transcript),
     )
 
     assert ai.analysis_calls == 2
@@ -375,12 +375,12 @@ def test_generated_grounded_feedback_stays_within_schema_limit() -> None:
     analysis = AnswerAnalysis(
         verdict="mostly_correct", semantic_score=0.8, grammar_score=0.8,
         lexical_score=0.8, naturalness_score=0.8, fluency_score=1,
-        corrected_sr="Alergičan sam na neke antibiotike.",
+        corrected_tr="Alergičan sam na neke antibiotike.",
         short_feedback_ru="Есть ошибка.", detailed_feedback_ru="Есть ошибка.",
         issues=issues,
     )
 
-    result = AnswerAnalyzer._ground_token_feedback(analysis, analysis.corrected_sr)
+    result = AnswerAnalyzer._ground_token_feedback(analysis, analysis.corrected_tr)
 
     assert len(result.detailed_feedback_ru) <= 2000
     assert "Есть ещё" in result.detailed_feedback_ru
@@ -391,7 +391,7 @@ def test_unanchored_or_no_op_issue_retries_then_refuses_false_grade() -> None:
     analysis = AnswerAnalysis(
         verdict="mostly_correct", semantic_score=0.88, grammar_score=0.88,
         lexical_score=0.88, naturalness_score=0.88, fluency_score=1,
-        corrected_sr="Platiću bankovnom karticom.",
+        corrected_tr="Platiću bankovnom karticom.",
         short_feedback_ru="Неправильная буква i.",
         detailed_feedback_ru="Замените латинскую i на сербскую i.",
         issues=[AnswerIssue(
@@ -404,11 +404,11 @@ def test_unanchored_or_no_op_issue_retries_then_refuses_false_grade() -> None:
     with pytest.raises(AnalysisUnavailableError):
         AnswerAnalyzer(ai).analyze(
             source_ru="Я заплачу банковской картой.",
-            transcript_sr=transcript,
-            canonical_sr="Platiću bankovnom karticom.",
-            intended_sr_variants=["Platiću bankovnom karticom."],
+            transcript_tr=transcript,
+            canonical_tr="Platiću bankovnom karticom.",
+            intended_tr_variants=["Platiću bankovnom karticom."],
             target_skills=[{"key": "grammar.spelling", "category": "grammar", "title_ru": "Правописание"}],
-            timing=CreateAttemptRequest(exercise_id="exercise", transcript_sr=transcript),
+            timing=CreateAttemptRequest(exercise_id="exercise", transcript_tr=transcript),
         )
     assert ai.analysis_calls == 2
 
@@ -422,7 +422,7 @@ def test_analyzer_keeps_feedback_consistent_with_canonical_variant() -> None:
         naturalness_score=0.75,
         pronunciation_score=None,
         fluency_score=1.0,
-        corrected_sr="Odlično. Doći ću večeras i pokupiću aparat za kafu.",
+        corrected_tr="Odlično. Doći ću večeras i pokupiću aparat za kafu.",
         short_feedback_ru="Лучше использовать pokupiću.",
         detailed_feedback_ru="В этом контексте pokupiću звучит естественнее, чем канонический вариант.",
         accepted_alternatives=[],
@@ -435,14 +435,14 @@ def test_analyzer_keeps_feedback_consistent_with_canonical_variant() -> None:
 
     result = analyzer.analyze(
         source_ru="Отлично. Я приеду сегодня вечером и заберу кофеварку.",
-        transcript_sr="Odlično. Doći ću večeras i uzecu aparat za kafu.",
-        canonical_sr=canonical,
-        intended_sr_variants=[canonical],
+        transcript_tr="Odlično. Doći ću večeras i uzecu aparat za kafu.",
+        canonical_tr=canonical,
+        intended_tr_variants=[canonical],
         target_skills=[],
-        timing=CreateAttemptRequest(exercise_id="exercise", transcript_sr="answer"),
+        timing=CreateAttemptRequest(exercise_id="exercise", transcript_tr="answer"),
     )
 
-    assert result.corrected_sr == canonical
+    assert result.corrected_tr == canonical
     assert "pokupiću" not in result.short_feedback_ru
     assert "pokupiću" not in result.detailed_feedback_ru
     assert "uzecu" in result.detailed_feedback_ru
@@ -463,14 +463,14 @@ def test_feedback_outside_curriculum_is_preserved_without_invented_skills(
     model = AnswerAnalysis(
         verdict="mostly_correct", semantic_score=0.8, grammar_score=0.8,
         lexical_score=0.8, naturalness_score=0.8, fluency_score=1,
-        corrected_sr=canonical, short_feedback_ru="Есть ошибка.", detailed_feedback_ru="Проверьте ответ.",
+        corrected_tr=canonical, short_feedback_ru="Есть ошибка.", detailed_feedback_ru="Проверьте ответ.",
         issues=[issue], demonstrated_skills=[DemonstratedSkill(skill_key="invented", result="strong", confidence=1)],
     )
     ai = FakeAIProvider(available=True, analysis_result=model)
     result = AnswerAnalyzer(ai).analyze(
-        source_ru="Задание", transcript_sr=transcript, canonical_sr=canonical,
-        intended_sr_variants=[canonical], target_skills=targets,
-        timing=CreateAttemptRequest(exercise_id="exercise", transcript_sr=transcript),
+        source_ru="Задание", transcript_tr=transcript, canonical_tr=canonical,
+        intended_tr_variants=[canonical], target_skills=targets,
+        timing=CreateAttemptRequest(exercise_id="exercise", transcript_tr=transcript),
     )
     assert ai.analysis_calls == 1
     assert result.verdict == "mostly_correct"
@@ -483,16 +483,16 @@ def test_unknown_issue_skill_is_still_rejected(targets) -> None:
     model = AnswerAnalysis(
         verdict="mostly_correct", semantic_score=0.8, grammar_score=0.8,
         lexical_score=0.8, naturalness_score=0.8, fluency_score=1,
-        corrected_sr="Dolazim sutra.", short_feedback_ru="Есть ошибка.", detailed_feedback_ru="Проверьте ответ.",
+        corrected_tr="Dolazim sutra.", short_feedback_ru="Есть ошибка.", detailed_feedback_ru="Проверьте ответ.",
         issues=[AnswerIssue(type="meaning", skill_key="invented", severity=0.4, confidence=0.9,
                             evidence="danas", correction="sutra")],
     )
     ai = FakeAIProvider(available=True, analysis_result=model)
     with pytest.raises(AnalysisUnavailableError):
         AnswerAnalyzer(ai).analyze(
-            source_ru="Я приду завтра.", transcript_sr="Dolazim danas.",
-            intended_sr_variants=["Dolazim sutra."], target_skills=targets,
-            timing=CreateAttemptRequest(exercise_id="exercise", transcript_sr="Dolazim danas."),
+            source_ru="Я приду завтра.", transcript_tr="Dolazim danas.",
+            intended_tr_variants=["Dolazim sutra."], target_skills=targets,
+            timing=CreateAttemptRequest(exercise_id="exercise", transcript_tr="Dolazim danas."),
         )
     assert ai.analysis_calls == 2
 
@@ -501,14 +501,14 @@ def test_no_targets_does_not_allow_unexplained_lower_grade() -> None:
     model = AnswerAnalysis(
         verdict="mostly_correct", semantic_score=0.8, grammar_score=0.8,
         lexical_score=0.8, naturalness_score=0.8, fluency_score=1,
-        corrected_sr="Dolazim sutra.", short_feedback_ru="Есть ошибка.", detailed_feedback_ru="Проверьте ответ.",
+        corrected_tr="Dolazim sutra.", short_feedback_ru="Есть ошибка.", detailed_feedback_ru="Проверьте ответ.",
     )
     ai = FakeAIProvider(available=True, analysis_result=model)
     with pytest.raises(AnalysisUnavailableError):
         AnswerAnalyzer(ai).analyze(
-            source_ru="Я приду завтра.", transcript_sr="Dolazim danas.",
-            intended_sr_variants=["Dolazim sutra."], target_skills=[],
-            timing=CreateAttemptRequest(exercise_id="exercise", transcript_sr="Dolazim danas."),
+            source_ru="Я приду завтра.", transcript_tr="Dolazim danas.",
+            intended_tr_variants=["Dolazim sutra."], target_skills=[],
+            timing=CreateAttemptRequest(exercise_id="exercise", transcript_tr="Dolazim danas."),
         )
     assert ai.analysis_calls == 2
 
@@ -523,16 +523,16 @@ def test_unbound_feedback_still_requires_consistent_verdict_and_real_evidence(ve
     model = AnswerAnalysis(
         verdict=verdict, semantic_score=0.8, grammar_score=0.8,
         lexical_score=0.8, naturalness_score=0.8, fluency_score=1,
-        corrected_sr="Dolazim sutra.", short_feedback_ru="Проверьте ответ.", detailed_feedback_ru="Проверьте ответ.",
+        corrected_tr="Dolazim sutra.", short_feedback_ru="Проверьте ответ.", detailed_feedback_ru="Проверьте ответ.",
         issues=[AnswerIssue(type="meaning", skill_key=None, severity=severity, confidence=1,
                             evidence=evidence, correction=correction)],
     )
     ai = FakeAIProvider(available=True, analysis_result=model)
     with pytest.raises(AnalysisUnavailableError):
         AnswerAnalyzer(ai).analyze(
-            source_ru="Я приду завтра.", transcript_sr="Dolazim danas.",
-            intended_sr_variants=["Dolazim sutra."], target_skills=[],
-            timing=CreateAttemptRequest(exercise_id="exercise", transcript_sr="Dolazim danas."),
+            source_ru="Я приду завтра.", transcript_tr="Dolazim danas.",
+            intended_tr_variants=["Dolazim sutra."], target_skills=[],
+            timing=CreateAttemptRequest(exercise_id="exercise", transcript_tr="Dolazim danas."),
         )
     assert ai.analysis_calls == 2
 
@@ -540,14 +540,14 @@ def test_unbound_feedback_still_requires_consistent_verdict_and_real_evidence(ve
 def test_personal_phrase_can_still_accept_a_valid_alternative_without_highlights() -> None:
     model = AnswerAnalysis(
         verdict="correct", semantic_score=1, grammar_score=1, lexical_score=1,
-        naturalness_score=1, fluency_score=1, corrected_sr="Želim kafu.",
+        naturalness_score=1, fluency_score=1, corrected_tr="Želim kafu.",
         short_feedback_ru="Верно.", detailed_feedback_ru="Оба варианта допустимы.", issues=[],
     )
     ai = FakeAIProvider(available=True, analysis_result=model)
     result = AnswerAnalyzer(ai).analyze(
-        source_ru="Я хочу кофе.", transcript_sr="Hoću kafu.",
-        canonical_sr="Želim kafu.", intended_sr_variants=["Želim kafu."], target_skills=[],
-        timing=CreateAttemptRequest(exercise_id="exercise", transcript_sr="Hoću kafu."),
+        source_ru="Я хочу кофе.", transcript_tr="Hoću kafu.",
+        canonical_tr="Želim kafu.", intended_tr_variants=["Želim kafu."], target_skills=[],
+        timing=CreateAttemptRequest(exercise_id="exercise", transcript_tr="Hoću kafu."),
     )
     assert ai.analysis_calls == 1
     assert result.verdict == "correct"

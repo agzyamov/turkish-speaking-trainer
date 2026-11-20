@@ -7,7 +7,7 @@ afterEach(() => vi.unstubAllGlobals());
 it("sends only the server receipt and topic, excluding all client-supplied canonical data", async () => {
   const fetchMock = vi.fn().mockResolvedValue({ ok: true, status: 201, json: async () => ({ id: "phrase-1" }) });
   vi.stubGlobal("fetch", fetchMock);
-  await addReviewPhrase({ preparation_id: "receipt", source_ru: "tampered", canonical_sr: "tampered", intended_sr_variants: ["tampered"], word_hints: [] }, "custom-1");
+  await addReviewPhrase({ preparation_id: "receipt", source_ru: "tampered", canonical_tr: "tampered", intended_tr_variants: ["tampered"], word_hints: [] }, "custom-1");
   expect(JSON.parse(fetchMock.mock.calls[0][1].body)).toEqual({ preparation_id: "receipt", topic_id: "custom-1" });
 });
 

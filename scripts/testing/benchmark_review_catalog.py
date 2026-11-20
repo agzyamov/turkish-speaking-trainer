@@ -88,7 +88,7 @@ def main() -> None:
             source = FIXTURE["source_template"].format(index=index)
             db.add(ReviewPhrase(
                 id=f"review-{index:04}", user_id=FIXTURE["other"] if status == "other" else FIXTURE["user"],
-                source_ru=source, source_normalized=source, intended_sr_variants_json=[FIXTURE["answer"]],
+                source_ru=source, source_normalized=source, intended_tr_variants_json=[FIXTURE["answer"]],
                 topic_id=FIXTURE["topics"][index % len(FIXTURE["topics"])],
                 status="active" if status in {"active", "other"} else "mastered",
                 next_review_at=(fixed_now - timedelta(days=1) if status == "due" else

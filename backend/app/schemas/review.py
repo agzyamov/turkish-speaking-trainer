@@ -31,8 +31,8 @@ class PreparedReviewPhraseResponse(BaseModel):
     source_versions: SourceVersions | None = None
     preparation_id: str
     source_ru: str
-    canonical_sr: str
-    intended_sr_variants: list[str]
+    canonical_tr: str
+    intended_tr_variants: list[str]
     word_hints: list[WordHint]
 
 
@@ -40,7 +40,7 @@ class ReviewPhraseResponse(BaseModel):
     source_versions: SourceVersions | None = None
     id: str
     source_ru: str
-    canonical_sr: str
+    canonical_tr: str
     topic_id: str | None = None
     topic_title: str | None = None
     best_score: float = Field(ge=0, le=1)
@@ -63,7 +63,7 @@ class WordHintResponse(WordHint):
 class LearningWordResponse(BaseModel):
     id: str
     source_ru: str
-    translation_sr: str
+    translation_tr: str
     hint_count: int = Field(ge=1)
     mastery: float = Field(ge=0, le=1)
     status: str

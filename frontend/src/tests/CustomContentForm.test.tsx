@@ -6,7 +6,7 @@ import { BackendError, addReviewPhrase, createTopic, prepareReviewPhrase } from 
 
 vi.mock("../api/training", async importOriginal => ({ ...await importOriginal<typeof import("../api/training")>(), addReviewPhrase: vi.fn(), createTopic: vi.fn(), prepareReviewPhrase: vi.fn() }));
 const topic = { id: "custom-1", title_ru: "Своя тема", description_ru: "", likely_intents: [], suggested_vocabulary: [], is_custom: true, phrase_count: 0 };
-const prepared = { preparation_id: "receipt-1", source_ru: "Мне нужно позвонить хозяину.", canonical_sr: "Moram da pozovem vlasnika.", intended_sr_variants: ["Moram da pozovem vlasnika."], word_hints: [], source_versions: { ru: "Мне нужно позвонить хозяину.", en: "I need to call the landlord.", hints_ru: [], hints_en: [] } };
+const prepared = { preparation_id: "receipt-1", source_ru: "Мне нужно позвонить хозяину.", canonical_tr: "Moram da pozovem vlasnika.", intended_tr_variants: ["Moram da pozovem vlasnika."], word_hints: [], source_versions: { ru: "Мне нужно позвонить хозяину.", en: "I need to call the landlord.", hints_ru: [], hints_en: [] } };
 afterEach(() => { cleanup(); vi.resetAllMocks(); setLanguage("ru"); });
 
 describe("administrator custom content", () => {
@@ -17,7 +17,7 @@ describe("administrator custom content", () => {
     render(<CustomContentForm mode="phrase" topics={[topic]} alphabet="latin" onTopicCreated={vi.fn()} onPhraseSaved={saved} onClose={vi.fn()} />);
     fireEvent.change(screen.getByRole("textbox"), { target: { value: prepared.source_ru } });
     fireEvent.click(screen.getByRole("button", { name: language === "ru" ? "Подготовить перевод" : "Prepare translation" }));
-    expect(await screen.findByText(prepared.canonical_sr)).toBeInTheDocument();
+    expect(await screen.findByText(prepared.canonical_tr)).toBeInTheDocument();
     expect(screen.getByText(prepared.source_versions.en)).toBeInTheDocument();
     expect(screen.getByText(prepared.source_versions.ru)).toBeInTheDocument();
     expect(addReviewPhrase).not.toHaveBeenCalled();
@@ -32,9 +32,9 @@ describe("administrator custom content", () => {
     render(<CustomContentForm mode="phrase" topics={[topic]} alphabet="latin" onTopicCreated={vi.fn()} onPhraseSaved={vi.fn()} onClose={vi.fn()} />);
     fireEvent.change(screen.getByRole("textbox"), { target: { value: prepared.source_ru } });
     fireEvent.click(screen.getByText("Подготовить перевод"));
-    await screen.findByText(prepared.canonical_sr);
+    await screen.findByText(prepared.canonical_tr);
     fireEvent.change(screen.getByRole("textbox"), { target: { value: "Я задержусь на десять минут." } });
-    expect(screen.queryByText(prepared.canonical_sr)).not.toBeInTheDocument();
+    expect(screen.queryByText(prepared.canonical_tr)).not.toBeInTheDocument();
     fireEvent.click(screen.getByText("Подготовить перевод"));
     await screen.findByRole("alert");
     expect(screen.getByRole("textbox")).toHaveValue("Я задержусь на десять минут.");
@@ -47,11 +47,11 @@ describe("administrator custom content", () => {
     render(<CustomContentForm mode="phrase" topics={[topic]} alphabet="latin" onTopicCreated={vi.fn()} onPhraseSaved={vi.fn()} onClose={vi.fn()} />);
     fireEvent.change(screen.getByRole("textbox"), { target: { value: prepared.source_ru } });
     fireEvent.click(screen.getByText("Подготовить перевод"));
-    await screen.findByText(prepared.canonical_sr);
+    await screen.findByText(prepared.canonical_tr);
     fireEvent.click(screen.getByText("Сохранить фразу"));
     await screen.findByRole("alert");
     expect(screen.getByRole("combobox")).toHaveValue(topic.id);
-    expect(screen.getByText(prepared.canonical_sr)).toBeInTheDocument();
+    expect(screen.getByText(prepared.canonical_tr)).toBeInTheDocument();
     fireEvent.click(screen.getByText("Сохранить фразу"));
     await screen.findByText("Фраза сохранена.");
     expect(prepareReviewPhrase).toHaveBeenCalledOnce();

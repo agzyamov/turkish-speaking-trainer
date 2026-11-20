@@ -61,7 +61,7 @@ export function CustomContentForm({ mode, topics, selectedTopic, alphabet, onTop
           <p lang="ru"><strong>{t("Русская версия")}: </strong>{prepared.source_versions.ru}</p>
           <p lang="en"><strong>{t("Английская версия")}: </strong>{prepared.source_versions.en}</p>
         </div>}
-        <p className="custom-content-translation" role="status">{displaySerbian(prepared.canonical_sr, alphabet)}</p>
+        <p className="custom-content-translation" role="status">{displaySerbian(prepared.canonical_tr, alphabet)}</p>
         <button type="button" disabled={busy} onClick={() => { setPrepared(undefined); setError(""); }}>{t("Подготовить перевод заново")}</button>
       </>}
     </>}

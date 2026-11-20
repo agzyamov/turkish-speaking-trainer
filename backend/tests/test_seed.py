@@ -18,12 +18,12 @@ def test_seed_is_complete_and_idempotent(db_session: Session) -> None:
     assert len(TOPIC_PHRASE_HINTS) == 210
     assert all(TOPIC_PHRASE_HINTS[item.id] for item in TOPIC_PHRASES)
     for item in TOPIC_PHRASES:
-        assert aligned_word_hints(item.source_ru, item.canonical_sr, TOPIC_PHRASE_HINTS[item.id]) == TOPIC_PHRASE_HINTS[item.id]
-        assert all(hint["translation_sr"] != "перевод требует OpenAI" for hint in TOPIC_PHRASE_HINTS[item.id])
-        assert all(not re.search(r"[А-Яа-яЁё]", WordHint.model_validate(hint).translation_sr) for hint in TOPIC_PHRASE_HINTS[item.id])
-        canonical_tokens = set(re.findall(r"[a-zčćžšđ]+", item.canonical_sr.casefold()))
+        assert aligned_word_hints(item.source_ru, item.canonical_tr, TOPIC_PHRASE_HINTS[item.id]) == TOPIC_PHRASE_HINTS[item.id]
+        assert all(hint["translation_tr"] != "перевод требует OpenAI" for hint in TOPIC_PHRASE_HINTS[item.id])
+        assert all(not re.search(r"[А-Яа-яЁё]", WordHint.model_validate(hint).translation_tr) for hint in TOPIC_PHRASE_HINTS[item.id])
+        canonical_tokens = set(re.findall(r"[a-zčćžšđ]+", item.canonical_tr.casefold()))
         for hint in TOPIC_PHRASE_HINTS[item.id]:
-            hint_tokens = set(re.findall(r"[a-zčćžšđ]+", hint["translation_sr"].casefold()))
+            hint_tokens = set(re.findall(r"[a-zčćžšđ]+", hint["translation_tr"].casefold()))
             assert hint_tokens <= canonical_tokens
     assert all(
         len([item for item in TOPIC_PHRASES if item.topic_id == topic["id"]]) == 20
@@ -39,7 +39,7 @@ def test_seed_is_complete_and_idempotent(db_session: Session) -> None:
     assert db_session.scalar(select(func.count()).select_from(TopicPhrase)) == 210
     rent_phrase = db_session.get(TopicPhrase, "rent-01")
     assert rent_phrase is not None
-    assert {hint["word_ru"]: hint["translation_sr"] for hint in rent_phrase.word_hints_json}["светлую"] == "svetao"
+    assert {hint["word_ru"]: hint["translation_tr"] for hint in rent_phrase.word_hints_json}["светлую"] == "svetao"
 
     training = TrainingSession(normalized_topic_json={})
     db_session.add(training)
@@ -47,11 +47,11 @@ def test_seed_is_complete_and_idempotent(db_session: Session) -> None:
     exercise = Exercise(
         session_id=training.id,
         source_ru=rent_phrase.source_ru,
-        target_hints_json={"word_hints": [{"word_ru": "светлую", "translation_sr": "перевод требует OpenAI"}]},
+        target_hints_json={"word_hints": [{"word_ru": "светлую", "translation_tr": "перевод требует OpenAI"}]},
         generation_meta_json={"topic_phrase_id": "rent-01"},
     )
     db_session.add(exercise)
     db_session.flush()
 
     assert seed_catalog(db_session) == (0, 0, 0)
-    assert {hint["word_ru"]: hint["translation_sr"] for hint in exercise.target_hints_json["word_hints"]}["светлую"] == "svetao"
+    assert {hint["word_ru"]: hint["translation_tr"] for hint in exercise.target_hints_json["word_hints"]}["светлую"] == "svetao"

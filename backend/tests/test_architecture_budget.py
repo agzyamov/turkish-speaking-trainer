@@ -28,9 +28,9 @@ ARGUMENTS = {
     "translate_topic_title": dict(text="Банк"),
     "normalize_topic": dict(text="Банк"),
     "generate_exercise": dict(topic=TOPIC, target_skills=[], recent_sources=[]),
-    "analyze_answer": dict(source_ru="a", transcript_sr="b", canonical_sr="b", intended_sr_variants=["b"], target_skills=[], timings={}),
+    "analyze_answer": dict(source_ru="a", transcript_tr="b", canonical_tr="b", intended_tr_variants=["b"], target_skills=[], timings={}),
     "prepare_phrase": dict(source_ru="a"),
-    "analyze": dict(source_ru="a", raw_text="b", canonical_sr="b", intended_sr_variants=["b"]),
+    "analyze": dict(source_ru="a", raw_text="b", canonical_tr="b", intended_tr_variants=["b"]),
     "transcribe": dict(audio=b"x", filename="a.webm", content_type="audio/webm"),
     "transcribe_feedback": dict(audio=b"x", filename="a.webm", content_type="audio/webm"),
 }

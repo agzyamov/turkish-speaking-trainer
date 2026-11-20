@@ -1,7 +1,7 @@
 import { useSyncExternalStore } from "react";
 import messages from "./locales/en.json";
 import phraseData from "./locales/phrases.en.json";
-type Phrase = { id: string; source_ru: string; source_en: string; canonical_sr: string; word_hints: Record<string, { translation_sr: string; note?: string } | undefined> };
+type Phrase = { id: string; source_ru: string; source_en: string; canonical_tr: string; word_hints: Record<string, { translation_tr: string; note?: string } | undefined> };
 const phrases: Phrase[] = phraseData;
 
 export type InterfaceLanguage = "ru" | "en";

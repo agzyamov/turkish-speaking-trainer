@@ -87,15 +87,15 @@ def test_next_exercise_is_persisted_without_exposing_answer(api_client: TestClie
     payload = response.json()
     assert payload["source_ru"]
     assert 1 <= len(payload["targeted_skills"]) <= 3
-    assert "intended_sr_variants" not in payload
+    assert "intended_tr_variants" not in payload
     assert payload["word_hints"]
-    assert {"word_ru", "translation_sr"} <= payload["word_hints"][0].keys()
+    assert {"word_ru", "translation_tr"} <= payload["word_hints"][0].keys()
     stored = db_session.scalar(select(Exercise).where(Exercise.id == payload["id"]))
     assert stored is not None
-    assert stored.target_hints_json["intended_sr_variants"]
+    assert stored.target_hints_json["intended_tr_variants"]
     catalog_phrase = db_session.get(TopicPhrase, stored.generation_meta_json["topic_phrase_id"])
     assert catalog_phrase is not None
-    assert stored.target_hints_json["canonical_sr"] == catalog_phrase.canonical_sr
+    assert stored.target_hints_json["canonical_tr"] == catalog_phrase.canonical_tr
     assert db_session.get(TrainingSession, session_payload["id"]) is not None
 
 
@@ -107,9 +107,9 @@ def test_start_session_returns_first_exercise_in_one_request(api_client: TestCli
     assert payload["session"]["topic"]["id"] == "cafe"
     assert payload["exercise"]["session_id"] == payload["session"]["id"]
     assert payload["exercise"]["source_ru"]
-    assert "intended_sr_variants" not in payload["exercise"]
+    assert "intended_tr_variants" not in payload["exercise"]
     assert payload["exercise"]["word_hints"]
-    assert "canonical_sr" not in payload["exercise"]
+    assert "canonical_tr" not in payload["exercise"]
     assert db_session.get(Exercise, payload["exercise"]["id"]) is not None
     assert "total;dur=" in response.headers["Server-Timing"]
     assert any(
@@ -192,7 +192,7 @@ def test_preset_word_hint_comes_from_persistent_topic_catalog(api_client: TestCl
     assert response.status_code == 200
     assert response.json() == {
         "word_ru": "светлую",
-        "translation_sr": "svetao",
+        "translation_tr": "svetao",
         "is_learning": True,
     }
 
@@ -205,7 +205,7 @@ def test_topic_counts_and_selection_exclude_mastered_catalog_phrases(
     db_session.add(ReviewPhrase(
         source_ru=first.source_ru,
         source_normalized="можно мне пожалуйста меню",
-        intended_sr_variants_json=[first.canonical_sr],
+        intended_tr_variants_json=[first.canonical_tr],
         topic_id="cafe",
         topic_phrase_id=first.id,
         status="mastered",
@@ -255,7 +255,7 @@ def test_normal_session_completes_after_checked_length_and_rejects_surplus(
         response = api_client.post("/api/attempts", json={
             "client_request_id": str(uuid4()),
             "exercise_id": exercise["id"],
-            "transcript_sr": stored.target_hints_json["canonical_sr"],
+            "transcript_tr": stored.target_hints_json["canonical_tr"],
         })
         assert response.status_code == 201
         assert response.json()["daily_usage"]["used"] == expected_count
@@ -267,7 +267,7 @@ def test_normal_session_completes_after_checked_length_and_rejects_surplus(
     assert entity is not None and entity.ended_at is not None
     assert api_client.post(url).json()["detail"]["code"] == "session_completed"
     surplus_attempt = api_client.post("/api/attempts", json={
-        "exercise_id": surplus["id"], "transcript_sr": "Ne mogu.",
+        "exercise_id": surplus["id"], "transcript_tr": "Ne mogu.",
     })
     assert surplus_attempt.status_code == 409
     assert surplus_attempt.json()["detail"]["code"] == "session_completed"
@@ -282,7 +282,7 @@ def test_review_carousel_remains_open_after_requested_length(
     stored = db_session.get(Exercise, first["id"])
     assert stored is not None
     assert api_client.post("/api/attempts", json={
-        "exercise_id": first["id"], "transcript_sr": stored.target_hints_json["canonical_sr"],
+        "exercise_id": first["id"], "transcript_tr": stored.target_hints_json["canonical_tr"],
     }).status_code == 201
 
     review = api_client.post("/api/sessions", json={"review_mode": True, "length": 1}).json()
@@ -292,7 +292,7 @@ def test_review_carousel_remains_open_after_requested_length(
     assert stored_review is not None
     assert api_client.post("/api/attempts", json={
         "exercise_id": review_exercise["id"],
-        "transcript_sr": stored_review.target_hints_json["canonical_sr"],
+        "transcript_tr": stored_review.target_hints_json["canonical_tr"],
     }).status_code == 201
     assert api_client.get(f"/api/sessions/{review['id']}").json()["status"] == "active"
     assert api_client.get(f"/api/sessions/{review['id']}").json()["completed_count"] == 1
@@ -305,7 +305,7 @@ def test_added_phrase_is_counted_and_selectable_in_its_topic(
     added = ReviewPhrase(
         source_ru="Мне нужен стол у окна.",
         source_normalized="мне нужен стол у окна",
-        intended_sr_variants_json=["Treba mi sto pored prozora."],
+        intended_tr_variants_json=["Treba mi sto pored prozora."],
         topic_id="cafe",
         status="active",
     )

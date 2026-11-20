@@ -82,7 +82,7 @@ def test_invalid_model_spans_and_overlaps_are_rejected(raw, proposals):
 def test_opt_in_and_server_validated_scoring(api_client, db_session, raw, canonical, accepted):
     exercise_id = _create_exercise(api_client)
     exercise = db_session.get(Exercise, exercise_id)
-    exercise.target_hints_json = {**exercise.target_hints_json, "canonical_sr": canonical, "intended_sr_variants": [canonical, accepted]}
+    exercise.target_hints_json = {**exercise.target_hints_json, "canonical_tr": canonical, "intended_tr_variants": [canonical, accepted]}
     db_session.commit()
     app.dependency_overrides[get_transcription_provider] = lambda: FakeTranscriptionProvider(text=raw)
     original, replacement = raw.split()[0].rstrip("?"), accepted.split()[0].rstrip("?")
@@ -99,10 +99,10 @@ def test_opt_in_and_server_validated_scoring(api_client, db_session, raw, canoni
     assert result["text"] == result["raw_text"] == raw
     assert len(result["changes"]) == 1
     assert result["assistance_status"] == "analyzed"
-    assert provider.calls[0]["canonical_sr"] == canonical
+    assert provider.calls[0]["canonical_tr"] == canonical
     assert provider.calls[0]["raw_text"] == raw
     assert "audio" not in provider.calls[0]
-    request = {"exercise_id": exercise_id, "transcript_sr": accepted, "transcription_id": result["transcription_id"],
+    request = {"exercise_id": exercise_id, "transcript_tr": accepted, "transcription_id": result["transcription_id"],
                "accepted_transcription_changes": [0], "client_request_id": str(uuid4())}
     response = api_client.post("/api/attempts", json=request)
     assert response.status_code == 201, response.text
@@ -153,7 +153,7 @@ def test_reference_transcript_skips_assistance_and_receipt(api_client, db_sessio
     exercise.source_ru = "Я хочу открыть счёт."
     from app.schemas.exercises import SourceVersions
     from app.services.source_versions import version_payload
-    exercise.target_hints_json = {"canonical_sr": "Želim da otvorim račun.", "intended_sr_variants": ["Hoću da otvorim račun."]}
+    exercise.target_hints_json = {"canonical_tr": "Želim da otvorim račun.", "intended_tr_variants": ["Hoću da otvorim račun."]}
     exercise.target_hints_json["source_versions"] = version_payload(exercise.source_ru, "Želim da otvorim račun.", SourceVersions(ru=exercise.source_ru, en="I want to open an account."))
     db_session.commit()
     provider = FakeTranscriptionAssistanceProvider(error=AssertionError("Exact references must skip AI"))
@@ -168,18 +168,18 @@ def test_reference_transcript_skips_assistance_and_receipt(api_client, db_sessio
     assert provider.calls == []
     assert list(db_session.scalars(select(TranscriptionReceipt))) == []
     checked = api_client.post("/api/attempts", headers={"X-Interface-Language": language},
-        json={"exercise_id": exercise_id, "transcript_sr": response.json()["text"], "client_request_id": str(uuid4())})
+        json={"exercise_id": exercise_id, "transcript_tr": response.json()["text"], "client_request_id": str(uuid4())})
     assert checked.status_code == 201
     assert checked.json()["analysis"]["verdict"] == "correct"
     assert checked.json()["transcription_assisted"] is False
 
 
 @pytest.mark.parametrize("raw, hints", [
-    ("Želim da otvorim racun.", {"canonical_sr": "Želim da otvorim račun."}),
-    ("Ne želim da otvorim račun.", {"canonical_sr": "Želim da otvorim račun."}),
-    ("Imam 12 računa.", {"canonical_sr": "Imam 2 računa."}),
-    ("Želim otvoriti račun.", {"canonical_sr": "Želim da otvorim račun."}),
-    ("...", {"canonical_sr": "!", "intended_sr_variants": ["?"]}),
+    ("Želim da otvorim racun.", {"canonical_tr": "Želim da otvorim račun."}),
+    ("Ne želim da otvorim račun.", {"canonical_tr": "Želim da otvorim račun."}),
+    ("Imam 12 računa.", {"canonical_tr": "Imam 2 računa."}),
+    ("Želim otvoriti račun.", {"canonical_tr": "Želim da otvorim račun."}),
+    ("...", {"canonical_tr": "!", "intended_tr_variants": ["?"]}),
     ("Moj odgovor.", {}),
 ])
 def test_nonmatching_transcript_still_uses_assistance(api_client, db_session, raw, hints):
@@ -213,12 +213,12 @@ def test_multiple_suggestions_earn_normal_mastery_and_review_interval(api_client
         exercise_id = _create_exercise(api_client)
         exercise = db_session.get(Exercise, exercise_id)
         exercise.source_ru = source
-        exercise.target_hints_json = {"canonical_sr": canonical, "intended_sr_variants": []}
+        exercise.target_hints_json = {"canonical_tr": canonical, "intended_tr_variants": []}
         if target_meta is None:
             target_meta = exercise.generation_meta_json
         exercise.generation_meta_json = target_meta
         db_session.commit()
-        request = {"exercise_id": exercise_id, "transcript_sr": canonical, "client_request_id": str(uuid4())}
+        request = {"exercise_id": exercise_id, "transcript_tr": canonical, "client_request_id": str(uuid4())}
         if assisted:
             result = api_client.post("/api/transcriptions", data={"exercise_id": exercise_id, "assistance_enabled": "true"},
                 files={"audio": ("speech.webm", b"synthetic", "audio/webm")}).json()
@@ -248,7 +248,7 @@ def test_accepting_stt_suggestion_does_not_hide_an_unrelated_answer_error(api_cl
 
     exercise_id = _create_exercise(api_client)
     exercise = db_session.get(Exercise, exercise_id)
-    exercise.target_hints_json = {"canonical_sr": "Čemu danas?", "intended_sr_variants": []}
+    exercise.target_hints_json = {"canonical_tr": "Čemu danas?", "intended_tr_variants": []}
     key = exercise.generation_meta_json["targeted_skill_keys"][0]
     db_session.commit()
     app.dependency_overrides[get_transcription_provider] = lambda: FakeTranscriptionProvider(text="Cemu sutra?")
@@ -256,7 +256,7 @@ def test_accepting_stt_suggestion_does_not_hide_an_unrelated_answer_error(api_cl
         result=analysis(candidate("Cemu", "Čemu")))
     ai = FakeAIProvider(available=True, analysis_result=AnswerAnalysis(
         verdict="needs_work", semantic_score=0.3, grammar_score=0.5, lexical_score=0.3,
-        naturalness_score=0.5, fluency_score=1, corrected_sr="Čemu danas?",
+        naturalness_score=0.5, fluency_score=1, corrected_tr="Čemu danas?",
         short_feedback_ru="Изменён смысл.", detailed_feedback_ru="Сказано завтра вместо сегодня.",
         issues=[{"type": "meaning", "skill_key": key, "severity": 0.8, "confidence": 1,
                  "evidence": "sutra", "correction": "danas"}],
@@ -265,7 +265,7 @@ def test_accepting_stt_suggestion_does_not_hide_an_unrelated_answer_error(api_cl
     app.dependency_overrides[get_ai_provider] = lambda: ai
     result = api_client.post("/api/transcriptions", data={"exercise_id": exercise_id, "assistance_enabled": "true"},
         files={"audio": ("speech.webm", b"synthetic", "audio/webm")}).json()
-    response = api_client.post("/api/attempts", json={"exercise_id": exercise_id, "transcript_sr": "Čemu sutra?",
+    response = api_client.post("/api/attempts", json={"exercise_id": exercise_id, "transcript_tr": "Čemu sutra?",
         "transcription_id": result["transcription_id"], "accepted_transcription_changes": [0]})
     assert response.status_code == 201, response.text
     assert response.json()["transcription_assisted"] is True

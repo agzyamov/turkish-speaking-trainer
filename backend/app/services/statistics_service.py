@@ -98,7 +98,7 @@ class StatisticsService:
                 PhraseStatisticsItem(
                     id=phrase.id,
                     source_ru=phrase.source_ru,
-                    target_sr=next(iter(phrase.intended_sr_variants_json), "—"),
+                    target_tr=next(iter(phrase.intended_tr_variants_json), "—"),
                     attempts=phrase.attempts,
                     status="mastered" if phrase.status == "mastered" else "learning",
                     difficulty=phrase.difficulty,

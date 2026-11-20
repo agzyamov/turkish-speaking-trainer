@@ -49,15 +49,15 @@ class StructuredAIProvider(Protocol):
         self,
         *,
         source_ru: str,
-        transcript_sr: str,
-        canonical_sr: str | None,
-        intended_sr_variants: list[str],
+        transcript_tr: str,
+        canonical_tr: str | None,
+        intended_tr_variants: list[str],
         target_skills: list[dict[str, str]],
         timings: dict[str, object],
         validation_feedback: str | None = None,
     ) -> AnswerAnalysis: ...
 
-    def prepare_phrase(self, *, source_ru: str, canonical_sr: str | None = None) -> PhrasePreparation: ...
+    def prepare_phrase(self, *, source_ru: str, canonical_tr: str | None = None) -> PhrasePreparation: ...
 
 
 @lru_cache
@@ -86,8 +86,8 @@ def finalize_structured(result, payload: dict[str, object]):
     except ValueError as exc:
         raise AIServiceError("Generated Serbian violates policy", diagnostic("response_parse", "serbian_policy", "ekavica_violation")) from exc
     if isinstance(result, (PhrasePreparation, ExerciseGenerationResult)):
-        canonical = next(iter(result.intended_sr_variants), "")
-        if payload.get("canonical_sr") and canonical != payload["canonical_sr"]:
+        canonical = next(iter(result.intended_tr_variants), "")
+        if payload.get("canonical_tr") and canonical != payload["canonical_tr"]:
             raise AIServiceError("Canonical answer changed during hint preparation", diagnostic("response_parse", "grounding", "canonical_changed"))
         source = str(payload.get("source_ru", getattr(result, "source_ru", "")))
         result.word_hints = [WordHint.model_validate(item) for item in aligned_word_hints(
@@ -155,9 +155,9 @@ class OpenAIStructuredProvider:
         self,
         *,
         source_ru: str,
-        transcript_sr: str,
-        canonical_sr: str | None,
-        intended_sr_variants: list[str],
+        transcript_tr: str,
+        canonical_tr: str | None,
+        intended_tr_variants: list[str],
         target_skills: list[dict[str, str]],
         timings: dict[str, object],
         validation_feedback: str | None = None,
@@ -166,9 +166,9 @@ class OpenAIStructuredProvider:
             "source_text": source_ru,
             "feedback_language": interface_language.get(),
             "previous_validation_failure": validation_feedback,
-            "transcript_sr": transcript_sr,
-            "canonical_sr": canonical_sr,
-            "intended_sr_variants": intended_sr_variants,
+            "transcript_tr": transcript_tr,
+            "canonical_tr": canonical_tr,
+            "intended_tr_variants": intended_tr_variants,
             "target_skills": target_skills,
             "timings": timings,
             "target_level": "A2",
@@ -179,11 +179,11 @@ class OpenAIStructuredProvider:
             schema=ExplainedAnswerAnalysis,
         )
 
-    def prepare_phrase(self, *, source_ru: str, canonical_sr: str | None = None) -> PhrasePreparation:
+    def prepare_phrase(self, *, source_ru: str, canonical_tr: str | None = None) -> PhrasePreparation:
         from app.schemas.exercises import BilingualPhrasePreparation
         return self._parse(
             prompt_name="phrase_preparation_v4.md",
-            payload={"source_ru": source_ru, "canonical_sr": canonical_sr, "target_level": "A2"},
+            payload={"source_ru": source_ru, "canonical_tr": canonical_tr, "target_level": "A2"},
             schema=BilingualPhrasePreparation,
         )
 

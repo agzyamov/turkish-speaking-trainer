@@ -3,25 +3,25 @@
     "id": "job-interview-01",
     "source_ru": "Я работаю бухгалтером в небольшой компании.",
     "source_en": "I work as an accountant in a small company.",
-    "canonical_sr": "Radim kao računovođa u maloj firmi.",
+    "canonical_tr": "Radim kao računovođa u maloj firmi.",
     "word_hints": {
       "work": {
-        "translation_sr": "Radim"
+        "translation_tr": "Radim"
       },
       "as": {
-        "translation_sr": "kao"
+        "translation_tr": "kao"
       },
       "accountant": {
-        "translation_sr": "računovođa"
+        "translation_tr": "računovođa"
       },
       "in": {
-        "translation_sr": "u"
+        "translation_tr": "u"
       },
       "small": {
-        "translation_sr": "maloj"
+        "translation_tr": "maloj"
       },
       "company": {
-        "translation_sr": "firmi"
+        "translation_tr": "firmi"
       }
     }
   },
@@ -29,25 +29,25 @@
     "id": "job-interview-02",
     "source_ru": "У меня есть три года опыта в этой области.",
     "source_en": "I have three years of experience in this field.",
-    "canonical_sr": "Imam tri godine iskustva u ovoj oblasti.",
+    "canonical_tr": "Imam tri godine iskustva u ovoj oblasti.",
     "word_hints": {
       "have": {
-        "translation_sr": "Imam"
+        "translation_tr": "Imam"
       },
       "three years": {
-        "translation_sr": "tri godine"
+        "translation_tr": "tri godine"
       },
       "of experience": {
-        "translation_sr": "iskustva"
+        "translation_tr": "iskustva"
       },
       "in": {
-        "translation_sr": "u"
+        "translation_tr": "u"
       },
       "this": {
-        "translation_sr": "ovoj"
+        "translation_tr": "ovoj"
       },
       "field": {
-        "translation_sr": "oblasti"
+        "translation_tr": "oblasti"
       }
     }
   },
@@ -55,19 +55,19 @@
     "id": "job-interview-03",
     "source_ru": "Почему вы хотите работать в нашей компании?",
     "source_en": "Why do you want to work for our company?",
-    "canonical_sr": "Zašto želite da radite u našoj firmi?",
+    "canonical_tr": "Zašto želite da radite u našoj firmi?",
     "word_hints": {
       "why": {
-        "translation_sr": "Zašto"
+        "translation_tr": "Zašto"
       },
       "want": {
-        "translation_sr": "želite"
+        "translation_tr": "želite"
       },
       "to work": {
-        "translation_sr": "da radite"
+        "translation_tr": "da radite"
       },
       "our company": {
-        "translation_sr": "u našoj firmi"
+        "translation_tr": "u našoj firmi"
       }
     }
   },
@@ -75,22 +75,22 @@
     "id": "job-interview-04",
     "source_ru": "Я хорошо работаю в международной команде.",
     "source_en": "I work well in an international team.",
-    "canonical_sr": "Dobro radim u međunarodnom timu.",
+    "canonical_tr": "Dobro radim u međunarodnom timu.",
     "word_hints": {
       "work": {
-        "translation_sr": "radim"
+        "translation_tr": "radim"
       },
       "well": {
-        "translation_sr": "dobro"
+        "translation_tr": "dobro"
       },
       "in": {
-        "translation_sr": "u"
+        "translation_tr": "u"
       },
       "international": {
-        "translation_sr": "međunarodnom"
+        "translation_tr": "međunarodnom"
       },
       "team": {
-        "translation_sr": "timu"
+        "translation_tr": "timu"
       }
     }
   },
@@ -98,22 +98,22 @@
     "id": "job-interview-05",
     "source_ru": "Какие обязанности будут у нового сотрудника?",
     "source_en": "What duties will the new employee have?",
-    "canonical_sr": "Koje obaveze će imati novi zaposleni?",
+    "canonical_tr": "Koje obaveze će imati novi zaposleni?",
     "word_hints": {
       "what": {
-        "translation_sr": "Koje"
+        "translation_tr": "Koje"
       },
       "duties": {
-        "translation_sr": "obaveze"
+        "translation_tr": "obaveze"
       },
       "new": {
-        "translation_sr": "novi"
+        "translation_tr": "novi"
       },
       "employee": {
-        "translation_sr": "zaposleni"
+        "translation_tr": "zaposleni"
       },
       "have": {
-        "translation_sr": "imati"
+        "translation_tr": "imati"
       }
     }
   },
@@ -121,25 +121,25 @@
     "id": "job-interview-06",
     "source_ru": "Моя сильная сторона — спокойная работа с клиентами.",
     "source_en": "My strength is working calmly with clients.",
-    "canonical_sr": "Moja jaka strana je miran rad sa klijentima.",
+    "canonical_tr": "Moja jaka strana je miran rad sa klijentima.",
     "word_hints": {
       "my": {
-        "translation_sr": "Moja"
+        "translation_tr": "Moja"
       },
       "strength": {
-        "translation_sr": "jaka strana"
+        "translation_tr": "jaka strana"
       },
       "is": {
-        "translation_sr": "je"
+        "translation_tr": "je"
       },
       "working calmly": {
-        "translation_sr": "miran rad"
+        "translation_tr": "miran rad"
       },
       "with": {
-        "translation_sr": "sa"
+        "translation_tr": "sa"
       },
       "clients": {
-        "translation_sr": "klijentima"
+        "translation_tr": "klijentima"
       }
     }
   },
@@ -147,19 +147,19 @@
     "id": "job-interview-07",
     "source_ru": "Я закончил экономический факультет два года назад.",
     "source_en": "I graduated from the Faculty of Economics two years ago.",
-    "canonical_sr": "Završio sam Ekonomski fakultet pre dve godine.",
+    "canonical_tr": "Završio sam Ekonomski fakultet pre dve godine.",
     "word_hints": {
       "graduated": {
-        "translation_sr": "Završio sam"
+        "translation_tr": "Završio sam"
       },
       "faculty": {
-        "translation_sr": "fakultet"
+        "translation_tr": "fakultet"
       },
       "economics": {
-        "translation_sr": "Ekonomski"
+        "translation_tr": "Ekonomski"
       },
       "two years ago": {
-        "translation_sr": "pre dve godine"
+        "translation_tr": "pre dve godine"
       }
     }
   },
@@ -167,22 +167,22 @@
     "id": "job-interview-08",
     "source_ru": "Можно узнать размер начальной зарплаты?",
     "source_en": "May I ask what the starting salary is?",
-    "canonical_sr": "Mogu li da saznam kolika je početna plata?",
+    "canonical_tr": "Mogu li da saznam kolika je početna plata?",
     "word_hints": {
       "may": {
-        "translation_sr": "Mogu li"
+        "translation_tr": "Mogu li"
       },
       "ask": {
-        "translation_sr": "da saznam"
+        "translation_tr": "da saznam"
       },
       "what": {
-        "translation_sr": "kolika je"
+        "translation_tr": "kolika je"
       },
       "starting": {
-        "translation_sr": "početna"
+        "translation_tr": "početna"
       },
       "salary": {
-        "translation_sr": "plata"
+        "translation_tr": "plata"
       }
     }
   },
@@ -190,25 +190,25 @@
     "id": "job-interview-09",
     "source_ru": "Я быстро учусь и люблю новые задачи.",
     "source_en": "I learn quickly and enjoy new tasks.",
-    "canonical_sr": "Brzo učim i volim nove zadatke.",
+    "canonical_tr": "Brzo učim i volim nove zadatke.",
     "word_hints": {
       "learn": {
-        "translation_sr": "učim"
+        "translation_tr": "učim"
       },
       "quickly": {
-        "translation_sr": "Brzo"
+        "translation_tr": "Brzo"
       },
       "and": {
-        "translation_sr": "i"
+        "translation_tr": "i"
       },
       "enjoy": {
-        "translation_sr": "volim"
+        "translation_tr": "volim"
       },
       "new": {
-        "translation_sr": "nove"
+        "translation_tr": "nove"
       },
       "tasks": {
-        "translation_sr": "zadatke"
+        "translation_tr": "zadatke"
       }
     }
   },
@@ -216,16 +216,16 @@
     "id": "job-interview-10",
     "source_ru": "Когда нужно выйти на работу?",
     "source_en": "When do I need to start work?",
-    "canonical_sr": "Kada treba da počnem da radim?",
+    "canonical_tr": "Kada treba da počnem da radim?",
     "word_hints": {
       "when": {
-        "translation_sr": "Kada"
+        "translation_tr": "Kada"
       },
       "need": {
-        "translation_sr": "treba"
+        "translation_tr": "treba"
       },
       "work": {
-        "translation_sr": "da radim"
+        "translation_tr": "da radim"
       }
     }
   },
@@ -233,19 +233,19 @@
     "id": "job-interview-11",
     "source_ru": "На прошлой работе я отвечал за важные проекты.",
     "source_en": "In my previous job, I was responsible for important projects.",
-    "canonical_sr": "Na prethodnom poslu sam bio zadužen za važne projekte.",
+    "canonical_tr": "Na prethodnom poslu sam bio zadužen za važne projekte.",
     "word_hints": {
       "in my previous job": {
-        "translation_sr": "Na prethodnom poslu"
+        "translation_tr": "Na prethodnom poslu"
       },
       "i was responsible for": {
-        "translation_sr": "sam bio zadužen za"
+        "translation_tr": "sam bio zadužen za"
       },
       "important": {
-        "translation_sr": "važne"
+        "translation_tr": "važne"
       },
       "projects": {
-        "translation_sr": "projekte"
+        "translation_tr": "projekte"
       }
     }
   },
@@ -253,22 +253,22 @@
     "id": "job-interview-12",
     "source_ru": "У вас есть гибкий график работы?",
     "source_en": "Do you have flexible working hours?",
-    "canonical_sr": "Da li imate fleksibilno radno vreme?",
+    "canonical_tr": "Da li imate fleksibilno radno vreme?",
     "word_hints": {
       "do": {
-        "translation_sr": "Da li"
+        "translation_tr": "Da li"
       },
       "have": {
-        "translation_sr": "imate"
+        "translation_tr": "imate"
       },
       "flexible": {
-        "translation_sr": "fleksibilno"
+        "translation_tr": "fleksibilno"
       },
       "working": {
-        "translation_sr": "radno"
+        "translation_tr": "radno"
       },
       "hours": {
-        "translation_sr": "vreme"
+        "translation_tr": "vreme"
       }
     }
   },
@@ -276,25 +276,25 @@
     "id": "job-interview-13",
     "source_ru": "Я свободно говорю по-русски и немного по-сербски.",
     "source_en": "I speak Russian fluently and a little Serbian.",
-    "canonical_sr": "Tečno govorim ruski i pomalo srpski.",
+    "canonical_tr": "Tečno govorim ruski i pomalo srpski.",
     "word_hints": {
       "speak": {
-        "translation_sr": "govorim"
+        "translation_tr": "govorim"
       },
       "russian": {
-        "translation_sr": "ruski"
+        "translation_tr": "ruski"
       },
       "fluently": {
-        "translation_sr": "tečno"
+        "translation_tr": "tečno"
       },
       "and": {
-        "translation_sr": "i"
+        "translation_tr": "i"
       },
       "little": {
-        "translation_sr": "pomalo"
+        "translation_tr": "pomalo"
       },
       "serbian": {
-        "translation_sr": "srpski"
+        "translation_tr": "srpski"
       }
     }
   },
@@ -302,22 +302,22 @@
     "id": "job-interview-14",
     "source_ru": "Мне нравится находить простые решения сложных проблем.",
     "source_en": "I like finding simple solutions to complex problems.",
-    "canonical_sr": "Volim da nalazim jednostavna rešenja za složene probleme.",
+    "canonical_tr": "Volim da nalazim jednostavna rešenja za složene probleme.",
     "word_hints": {
       "like": {
-        "translation_sr": "volim"
+        "translation_tr": "volim"
       },
       "finding": {
-        "translation_sr": "da nalazim"
+        "translation_tr": "da nalazim"
       },
       "simple": {
-        "translation_sr": "jednostavna"
+        "translation_tr": "jednostavna"
       },
       "solutions": {
-        "translation_sr": "rešenja"
+        "translation_tr": "rešenja"
       },
       "to complex problems": {
-        "translation_sr": "za složene probleme"
+        "translation_tr": "za složene probleme"
       }
     }
   },
@@ -325,22 +325,22 @@
     "id": "job-interview-15",
     "source_ru": "С кем я буду работать каждый день?",
     "source_en": "Who will I work with every day?",
-    "canonical_sr": "Sa kim ću raditi svakog dana?",
+    "canonical_tr": "Sa kim ću raditi svakog dana?",
     "word_hints": {
       "who": {
-        "translation_sr": "kim"
+        "translation_tr": "kim"
       },
       "work": {
-        "translation_sr": "raditi"
+        "translation_tr": "raditi"
       },
       "with": {
-        "translation_sr": "Sa"
+        "translation_tr": "Sa"
       },
       "every": {
-        "translation_sr": "svakog"
+        "translation_tr": "svakog"
       },
       "day": {
-        "translation_sr": "dana"
+        "translation_tr": "dana"
       }
     }
   },
@@ -348,16 +348,16 @@
     "id": "job-interview-16",
     "source_ru": "Я могу начать со следующего понедельника.",
     "source_en": "I can start next Monday.",
-    "canonical_sr": "Mogu da počnem od sledećeg ponedeljka.",
+    "canonical_tr": "Mogu da počnem od sledećeg ponedeljka.",
     "word_hints": {
       "i can": {
-        "translation_sr": "Mogu da"
+        "translation_tr": "Mogu da"
       },
       "start": {
-        "translation_sr": "počnem"
+        "translation_tr": "počnem"
       },
       "next monday": {
-        "translation_sr": "od sledećeg ponedeljka"
+        "translation_tr": "od sledećeg ponedeljka"
       }
     }
   },
@@ -365,25 +365,25 @@
     "id": "job-interview-17",
     "source_ru": "В новой должности для меня важно профессиональное развитие.",
     "source_en": "Professional development is important to me in my new position.",
-    "canonical_sr": "Na novom radnom mestu mi je važan profesionalni razvoj.",
+    "canonical_tr": "Na novom radnom mestu mi je važan profesionalni razvoj.",
     "word_hints": {
       "professional": {
-        "translation_sr": "profesionalni"
+        "translation_tr": "profesionalni"
       },
       "development": {
-        "translation_sr": "razvoj"
+        "translation_tr": "razvoj"
       },
       "is important to me": {
-        "translation_sr": "mi je važan"
+        "translation_tr": "mi je važan"
       },
       "in": {
-        "translation_sr": "na"
+        "translation_tr": "na"
       },
       "new": {
-        "translation_sr": "novom"
+        "translation_tr": "novom"
       },
       "position": {
-        "translation_sr": "radnom mestu"
+        "translation_tr": "radnom mestu"
       }
     }
   },
@@ -391,19 +391,19 @@
     "id": "job-interview-18",
     "source_ru": "Как долго обычно длится испытательный срок?",
     "source_en": "How long does the probation period usually last?",
-    "canonical_sr": "Koliko obično traje probni rad?",
+    "canonical_tr": "Koliko obično traje probni rad?",
     "word_hints": {
       "how long": {
-        "translation_sr": "Koliko"
+        "translation_tr": "Koliko"
       },
       "probation period": {
-        "translation_sr": "probni rad"
+        "translation_tr": "probni rad"
       },
       "usually": {
-        "translation_sr": "obično"
+        "translation_tr": "obično"
       },
       "last": {
-        "translation_sr": "traje"
+        "translation_tr": "traje"
       }
     }
   },
@@ -411,25 +411,25 @@
     "id": "job-interview-19",
     "source_ru": "Я подготовил короткое портфолио своих работ.",
     "source_en": "I have prepared a short portfolio of my work.",
-    "canonical_sr": "Pripremio sam kratak portfolio svojih radova.",
+    "canonical_tr": "Pripremio sam kratak portfolio svojih radova.",
     "word_hints": {
       "have": {
-        "translation_sr": "sam"
+        "translation_tr": "sam"
       },
       "prepared": {
-        "translation_sr": "Pripremio"
+        "translation_tr": "Pripremio"
       },
       "short": {
-        "translation_sr": "kratak"
+        "translation_tr": "kratak"
       },
       "portfolio": {
-        "translation_sr": "portfolio"
+        "translation_tr": "portfolio"
       },
       "my": {
-        "translation_sr": "svojih"
+        "translation_tr": "svojih"
       },
       "work": {
-        "translation_sr": "radova"
+        "translation_tr": "radova"
       }
     }
   },
@@ -437,25 +437,25 @@
     "id": "job-interview-20",
     "source_ru": "Спасибо за приятный и полезный разговор.",
     "source_en": "Thank you for a pleasant and useful conversation.",
-    "canonical_sr": "Hvala vam na prijatnom i korisnom razgovoru.",
+    "canonical_tr": "Hvala vam na prijatnom i korisnom razgovoru.",
     "word_hints": {
       "thank you": {
-        "translation_sr": "Hvala vam"
+        "translation_tr": "Hvala vam"
       },
       "for": {
-        "translation_sr": "na"
+        "translation_tr": "na"
       },
       "pleasant": {
-        "translation_sr": "prijatnom"
+        "translation_tr": "prijatnom"
       },
       "and": {
-        "translation_sr": "i"
+        "translation_tr": "i"
       },
       "useful": {
-        "translation_sr": "korisnom"
+        "translation_tr": "korisnom"
       },
       "conversation": {
-        "translation_sr": "razgovoru"
+        "translation_tr": "razgovoru"
       }
     }
   },
@@ -463,22 +463,22 @@
     "id": "bank-01",
     "source_ru": "Я хочу открыть новый текущий счёт.",
     "source_en": "I want to open a new current account.",
-    "canonical_sr": "Želim da otvorim novi tekući račun.",
+    "canonical_tr": "Želim da otvorim novi tekući račun.",
     "word_hints": {
       "want": {
-        "translation_sr": "Želim"
+        "translation_tr": "Želim"
       },
       "to open": {
-        "translation_sr": "da otvorim"
+        "translation_tr": "da otvorim"
       },
       "new": {
-        "translation_sr": "novi"
+        "translation_tr": "novi"
       },
       "current": {
-        "translation_sr": "tekući"
+        "translation_tr": "tekući"
       },
       "account": {
-        "translation_sr": "račun"
+        "translation_tr": "račun"
       }
     }
   },
@@ -486,22 +486,22 @@
     "id": "bank-02",
     "source_ru": "Какие документы нужны для открытия счёта?",
     "source_en": "What documents are needed to open an account?",
-    "canonical_sr": "Koja dokumenta su potrebna za otvaranje računa?",
+    "canonical_tr": "Koja dokumenta su potrebna za otvaranje računa?",
     "word_hints": {
       "what": {
-        "translation_sr": "Koja"
+        "translation_tr": "Koja"
       },
       "documents": {
-        "translation_sr": "dokumenta"
+        "translation_tr": "dokumenta"
       },
       "are needed": {
-        "translation_sr": "su potrebna"
+        "translation_tr": "su potrebna"
       },
       "to open": {
-        "translation_sr": "za otvaranje"
+        "translation_tr": "za otvaranje"
       },
       "account": {
-        "translation_sr": "računa"
+        "translation_tr": "računa"
       }
     }
   },
@@ -509,19 +509,19 @@
     "id": "bank-03",
     "source_ru": "Эта банковская карта ещё не пришла.",
     "source_en": "This bank card has not arrived yet.",
-    "canonical_sr": "Ova bankovna kartica još nije stigla.",
+    "canonical_tr": "Ova bankovna kartica još nije stigla.",
     "word_hints": {
       "this": {
-        "translation_sr": "Ova"
+        "translation_tr": "Ova"
       },
       "bank": {
-        "translation_sr": "bankovna"
+        "translation_tr": "bankovna"
       },
       "card": {
-        "translation_sr": "kartica"
+        "translation_tr": "kartica"
       },
       "has not arrived yet": {
-        "translation_sr": "još nije stigla"
+        "translation_tr": "još nije stigla"
       }
     }
   },
@@ -529,22 +529,22 @@
     "id": "bank-04",
     "source_ru": "Сколько стоит ежемесячное обслуживание счёта?",
     "source_en": "How much does monthly account maintenance cost?",
-    "canonical_sr": "Koliko košta mesečno održavanje računa?",
+    "canonical_tr": "Koliko košta mesečno održavanje računa?",
     "word_hints": {
       "how much": {
-        "translation_sr": "Koliko"
+        "translation_tr": "Koliko"
       },
       "monthly": {
-        "translation_sr": "mesečno"
+        "translation_tr": "mesečno"
       },
       "account": {
-        "translation_sr": "računa"
+        "translation_tr": "računa"
       },
       "maintenance": {
-        "translation_sr": "održavanje"
+        "translation_tr": "održavanje"
       },
       "cost": {
-        "translation_sr": "košta"
+        "translation_tr": "košta"
       }
     }
   },
@@ -552,22 +552,22 @@
     "id": "bank-05",
     "source_ru": "Я могу снять деньги без комиссии?",
     "source_en": "Can I withdraw money without a fee?",
-    "canonical_sr": "Mogu li da podignem novac bez naknade?",
+    "canonical_tr": "Mogu li da podignem novac bez naknade?",
     "word_hints": {
       "can i": {
-        "translation_sr": "Mogu li"
+        "translation_tr": "Mogu li"
       },
       "withdraw": {
-        "translation_sr": "da podignem"
+        "translation_tr": "da podignem"
       },
       "money": {
-        "translation_sr": "novac"
+        "translation_tr": "novac"
       },
       "without": {
-        "translation_sr": "bez"
+        "translation_tr": "bez"
       },
       "fee": {
-        "translation_sr": "naknade"
+        "translation_tr": "naknade"
       }
     }
   },
@@ -575,22 +575,22 @@
     "id": "bank-06",
     "source_ru": "Мне нужно перевести деньги на иностранный счёт.",
     "source_en": "I need to transfer money to an account abroad.",
-    "canonical_sr": "Treba da prebacim novac na račun u inostranstvu.",
+    "canonical_tr": "Treba da prebacim novac na račun u inostranstvu.",
     "word_hints": {
       "i need to": {
-        "translation_sr": "Treba da"
+        "translation_tr": "Treba da"
       },
       "transfer": {
-        "translation_sr": "prebacim"
+        "translation_tr": "prebacim"
       },
       "money": {
-        "translation_sr": "novac"
+        "translation_tr": "novac"
       },
       "to an account": {
-        "translation_sr": "na račun"
+        "translation_tr": "na račun"
       },
       "abroad": {
-        "translation_sr": "u inostranstvu"
+        "translation_tr": "u inostranstvu"
       }
     }
   },
@@ -598,25 +598,25 @@
     "id": "bank-07",
     "source_ru": "Где находится ближайший банкомат вашего банка?",
     "source_en": "Where is your bank's nearest ATM?",
-    "canonical_sr": "Gde se nalazi najbliži bankomat vaše banke?",
+    "canonical_tr": "Gde se nalazi najbliži bankomat vaše banke?",
     "word_hints": {
       "where": {
-        "translation_sr": "Gde"
+        "translation_tr": "Gde"
       },
       "is": {
-        "translation_sr": "se nalazi"
+        "translation_tr": "se nalazi"
       },
       "your": {
-        "translation_sr": "vaše"
+        "translation_tr": "vaše"
       },
       "bank's": {
-        "translation_sr": "banke"
+        "translation_tr": "banke"
       },
       "nearest": {
-        "translation_sr": "najbliži"
+        "translation_tr": "najbliži"
       },
       "atm": {
-        "translation_sr": "bankomat"
+        "translation_tr": "bankomat"
       }
     }
   },
@@ -624,25 +624,25 @@
     "id": "bank-08",
     "source_ru": "Моя карта не работает в этом магазине.",
     "source_en": "My card does not work in this shop.",
-    "canonical_sr": "Moja kartica ne radi u ovoj prodavnici.",
+    "canonical_tr": "Moja kartica ne radi u ovoj prodavnici.",
     "word_hints": {
       "my": {
-        "translation_sr": "Moja"
+        "translation_tr": "Moja"
       },
       "card": {
-        "translation_sr": "kartica"
+        "translation_tr": "kartica"
       },
       "does not work": {
-        "translation_sr": "ne radi"
+        "translation_tr": "ne radi"
       },
       "in": {
-        "translation_sr": "u"
+        "translation_tr": "u"
       },
       "this": {
-        "translation_sr": "ovoj"
+        "translation_tr": "ovoj"
       },
       "shop": {
-        "translation_sr": "prodavnici"
+        "translation_tr": "prodavnici"
       }
     }
   },
@@ -650,16 +650,16 @@
     "id": "bank-09",
     "source_ru": "Не могли бы вы проверить последнюю операцию?",
     "source_en": "Could you check the last transaction?",
-    "canonical_sr": "Da li biste mogli da proverite poslednju transakciju?",
+    "canonical_tr": "Da li biste mogli da proverite poslednju transakciju?",
     "word_hints": {
       "check": {
-        "translation_sr": "proverite"
+        "translation_tr": "proverite"
       },
       "last": {
-        "translation_sr": "poslednju"
+        "translation_tr": "poslednju"
       },
       "transaction": {
-        "translation_sr": "transakciju"
+        "translation_tr": "transakciju"
       }
     }
   },
@@ -667,22 +667,22 @@
     "id": "bank-10",
     "source_ru": "Когда деньги поступят на мой счёт?",
     "source_en": "When will the money reach my account?",
-    "canonical_sr": "Kada će novac stići na moj račun?",
+    "canonical_tr": "Kada će novac stići na moj račun?",
     "word_hints": {
       "when": {
-        "translation_sr": "Kada"
+        "translation_tr": "Kada"
       },
       "will": {
-        "translation_sr": "će"
+        "translation_tr": "će"
       },
       "money": {
-        "translation_sr": "novac"
+        "translation_tr": "novac"
       },
       "reach": {
-        "translation_sr": "stići"
+        "translation_tr": "stići"
       },
       "my account": {
-        "translation_sr": "na moj račun"
+        "translation_tr": "na moj račun"
       }
     }
   },
@@ -690,22 +690,22 @@
     "id": "bank-11",
     "source_ru": "Я забыл код от мобильного приложения.",
     "source_en": "I forgot the password for the mobile app.",
-    "canonical_sr": "Zaboravio sam šifru za mobilnu aplikaciju.",
+    "canonical_tr": "Zaboravio sam šifru za mobilnu aplikaciju.",
     "word_hints": {
       "i forgot": {
-        "translation_sr": "Zaboravio sam"
+        "translation_tr": "Zaboravio sam"
       },
       "password": {
-        "translation_sr": "šifru"
+        "translation_tr": "šifru"
       },
       "for": {
-        "translation_sr": "za"
+        "translation_tr": "za"
       },
       "mobile": {
-        "translation_sr": "mobilnu"
+        "translation_tr": "mobilnu"
       },
       "app": {
-        "translation_sr": "aplikaciju"
+        "translation_tr": "aplikaciju"
       }
     }
   },
@@ -713,25 +713,25 @@
     "id": "bank-12",
     "source_ru": "У этого кредита фиксированная процентная ставка?",
     "source_en": "Does this loan have a fixed interest rate?",
-    "canonical_sr": "Da li ovaj kredit ima fiksnu kamatnu stopu?",
+    "canonical_tr": "Da li ovaj kredit ima fiksnu kamatnu stopu?",
     "word_hints": {
       "this": {
-        "translation_sr": "ovaj"
+        "translation_tr": "ovaj"
       },
       "loan": {
-        "translation_sr": "kredit"
+        "translation_tr": "kredit"
       },
       "have": {
-        "translation_sr": "ima"
+        "translation_tr": "ima"
       },
       "fixed": {
-        "translation_sr": "fiksnu"
+        "translation_tr": "fiksnu"
       },
       "interest": {
-        "translation_sr": "kamatnu"
+        "translation_tr": "kamatnu"
       },
       "rate": {
-        "translation_sr": "stopu"
+        "translation_tr": "stopu"
       }
     }
   },
@@ -739,16 +739,16 @@
     "id": "bank-13",
     "source_ru": "Мне нужна справка о состоянии счёта.",
     "source_en": "I need a certificate showing my account balance.",
-    "canonical_sr": "Potrebna mi je potvrda o stanju na računu.",
+    "canonical_tr": "Potrebna mi je potvrda o stanju na računu.",
     "word_hints": {
       "need": {
-        "translation_sr": "potrebna"
+        "translation_tr": "potrebna"
       },
       "certificate": {
-        "translation_sr": "potvrda"
+        "translation_tr": "potvrda"
       },
       "account balance": {
-        "translation_sr": "stanju na računu"
+        "translation_tr": "stanju na računu"
       }
     }
   },
@@ -756,25 +756,25 @@
     "id": "bank-14",
     "source_ru": "Можно оплатить этот счёт через приложение?",
     "source_en": "Can I pay this bill through the app?",
-    "canonical_sr": "Mogu li da platim ovaj račun preko aplikacije?",
+    "canonical_tr": "Mogu li da platim ovaj račun preko aplikacije?",
     "word_hints": {
       "can": {
-        "translation_sr": "Mogu li"
+        "translation_tr": "Mogu li"
       },
       "pay": {
-        "translation_sr": "da platim"
+        "translation_tr": "da platim"
       },
       "this": {
-        "translation_sr": "ovaj"
+        "translation_tr": "ovaj"
       },
       "bill": {
-        "translation_sr": "račun"
+        "translation_tr": "račun"
       },
       "through": {
-        "translation_sr": "preko"
+        "translation_tr": "preko"
       },
       "app": {
-        "translation_sr": "aplikacije"
+        "translation_tr": "aplikacije"
       }
     }
   },
@@ -782,22 +782,22 @@
     "id": "bank-15",
     "source_ru": "Я хочу изменить дневной лимит карты.",
     "source_en": "I want to change the daily card limit.",
-    "canonical_sr": "Želim da promenim dnevni limit na kartici.",
+    "canonical_tr": "Želim da promenim dnevni limit na kartici.",
     "word_hints": {
       "want": {
-        "translation_sr": "Želim"
+        "translation_tr": "Želim"
       },
       "to change": {
-        "translation_sr": "da promenim"
+        "translation_tr": "da promenim"
       },
       "daily": {
-        "translation_sr": "dnevni"
+        "translation_tr": "dnevni"
       },
       "card": {
-        "translation_sr": "na kartici"
+        "translation_tr": "na kartici"
       },
       "limit": {
-        "translation_sr": "limit"
+        "translation_tr": "limit"
       }
     }
   },
@@ -805,19 +805,19 @@
     "id": "bank-16",
     "source_ru": "Почему с карты списали дополнительную сумму?",
     "source_en": "Why was an extra amount deducted from my card?",
-    "canonical_sr": "Zašto je sa kartice skinut dodatni iznos?",
+    "canonical_tr": "Zašto je sa kartice skinut dodatni iznos?",
     "word_hints": {
       "why": {
-        "translation_sr": "Zašto"
+        "translation_tr": "Zašto"
       },
       "extra": {
-        "translation_sr": "dodatni"
+        "translation_tr": "dodatni"
       },
       "amount": {
-        "translation_sr": "iznos"
+        "translation_tr": "iznos"
       },
       "from my card": {
-        "translation_sr": "sa kartice"
+        "translation_tr": "sa kartice"
       }
     }
   },
@@ -825,28 +825,28 @@
     "id": "bank-17",
     "source_ru": "На какой адрес банк отправляет новые карты?",
     "source_en": "To which address does the bank send new cards?",
-    "canonical_sr": "Na koju adresu banka šalje nove kartice?",
+    "canonical_tr": "Na koju adresu banka šalje nove kartice?",
     "word_hints": {
       "to": {
-        "translation_sr": "Na"
+        "translation_tr": "Na"
       },
       "which": {
-        "translation_sr": "koju"
+        "translation_tr": "koju"
       },
       "address": {
-        "translation_sr": "adresu"
+        "translation_tr": "adresu"
       },
       "bank": {
-        "translation_sr": "banka"
+        "translation_tr": "banka"
       },
       "send": {
-        "translation_sr": "šalje"
+        "translation_tr": "šalje"
       },
       "new": {
-        "translation_sr": "nove"
+        "translation_tr": "nove"
       },
       "cards": {
-        "translation_sr": "kartice"
+        "translation_tr": "kartice"
       }
     }
   },
@@ -854,19 +854,19 @@
     "id": "bank-18",
     "source_ru": "Могу ли я получить выписку на сербском языке?",
     "source_en": "Can I get a statement in Serbian?",
-    "canonical_sr": "Mogu li da dobijem izvod na srpskom jeziku?",
+    "canonical_tr": "Mogu li da dobijem izvod na srpskom jeziku?",
     "word_hints": {
       "can i": {
-        "translation_sr": "Mogu li"
+        "translation_tr": "Mogu li"
       },
       "get": {
-        "translation_sr": "da dobijem"
+        "translation_tr": "da dobijem"
       },
       "statement": {
-        "translation_sr": "izvod"
+        "translation_tr": "izvod"
       },
       "in serbian": {
-        "translation_sr": "na srpskom jeziku"
+        "translation_tr": "na srpskom jeziku"
       }
     }
   },
@@ -874,16 +874,16 @@
     "id": "bank-19",
     "source_ru": "Мне нужно заблокировать потерянную карту.",
     "source_en": "I need to block my lost card.",
-    "canonical_sr": "Moram da blokiram izgubljenu karticu.",
+    "canonical_tr": "Moram da blokiram izgubljenu karticu.",
     "word_hints": {
       "i need to": {
-        "translation_sr": "Moram da"
+        "translation_tr": "Moram da"
       },
       "block": {
-        "translation_sr": "blokiram"
+        "translation_tr": "blokiram"
       },
       "my lost card": {
-        "translation_sr": "izgubljenu karticu"
+        "translation_tr": "izgubljenu karticu"
       }
     }
   },
@@ -891,25 +891,25 @@
     "id": "bank-20",
     "source_ru": "У вас есть более выгодный пакет для иностранцев?",
     "source_en": "Do you have a better package for foreigners?",
-    "canonical_sr": "Da li imate povoljniji paket za strance?",
+    "canonical_tr": "Da li imate povoljniji paket za strance?",
     "word_hints": {
       "do": {
-        "translation_sr": "Da li"
+        "translation_tr": "Da li"
       },
       "have": {
-        "translation_sr": "imate"
+        "translation_tr": "imate"
       },
       "better": {
-        "translation_sr": "povoljniji"
+        "translation_tr": "povoljniji"
       },
       "package": {
-        "translation_sr": "paket"
+        "translation_tr": "paket"
       },
       "for": {
-        "translation_sr": "za"
+        "translation_tr": "za"
       },
       "foreigners": {
-        "translation_sr": "strance"
+        "translation_tr": "strance"
       }
     }
   },
@@ -917,25 +917,25 @@
     "id": "vacation-01",
     "source_ru": "Прошлым летом мы отдыхали на Адриатическом море.",
     "source_en": "Last summer we holidayed by the Adriatic Sea.",
-    "canonical_sr": "Prošlog leta smo se odmarali na Jadranskom moru.",
+    "canonical_tr": "Prošlog leta smo se odmarali na Jadranskom moru.",
     "word_hints": {
       "last": {
-        "translation_sr": "Prošlog"
+        "translation_tr": "Prošlog"
       },
       "summer": {
-        "translation_sr": "leta"
+        "translation_tr": "leta"
       },
       "we holidayed": {
-        "translation_sr": "smo se odmarali"
+        "translation_tr": "smo se odmarali"
       },
       "by": {
-        "translation_sr": "na"
+        "translation_tr": "na"
       },
       "adriatic": {
-        "translation_sr": "Jadranskom"
+        "translation_tr": "Jadranskom"
       },
       "sea": {
-        "translation_sr": "moru"
+        "translation_tr": "moru"
       }
     }
   },
@@ -943,22 +943,22 @@
     "id": "vacation-02",
     "source_ru": "В нашем маленьком отеле был красивый сад.",
     "source_en": "Our small hotel had a beautiful garden.",
-    "canonical_sr": "U našem malom hotelu je bila lepa bašta.",
+    "canonical_tr": "U našem malom hotelu je bila lepa bašta.",
     "word_hints": {
       "our": {
-        "translation_sr": "Našem"
+        "translation_tr": "Našem"
       },
       "small": {
-        "translation_sr": "malom"
+        "translation_tr": "malom"
       },
       "hotel": {
-        "translation_sr": "hotelu"
+        "translation_tr": "hotelu"
       },
       "beautiful": {
-        "translation_sr": "lepa"
+        "translation_tr": "lepa"
       },
       "garden": {
-        "translation_sr": "bašta"
+        "translation_tr": "bašta"
       }
     }
   },
@@ -966,19 +966,19 @@
     "id": "vacation-03",
     "source_ru": "Куда вы хотите поехать в следующий отпуск?",
     "source_en": "Where do you want to go on your next holiday?",
-    "canonical_sr": "Gde želite da putujete na sledeći odmor?",
+    "canonical_tr": "Gde želite da putujete na sledeći odmor?",
     "word_hints": {
       "where": {
-        "translation_sr": "Gde"
+        "translation_tr": "Gde"
       },
       "want": {
-        "translation_sr": "želite"
+        "translation_tr": "želite"
       },
       "to go": {
-        "translation_sr": "da putujete"
+        "translation_tr": "da putujete"
       },
       "on your next holiday": {
-        "translation_sr": "na sledeći odmor"
+        "translation_tr": "na sledeći odmor"
       }
     }
   },
@@ -986,25 +986,25 @@
     "id": "vacation-04",
     "source_ru": "Я предпочитаю спокойные места без большого количества туристов.",
     "source_en": "I prefer quiet places without many tourists.",
-    "canonical_sr": "Više volim mirna mesta bez mnogo turista.",
+    "canonical_tr": "Više volim mirna mesta bez mnogo turista.",
     "word_hints": {
       "prefer": {
-        "translation_sr": "više volim"
+        "translation_tr": "više volim"
       },
       "quiet": {
-        "translation_sr": "mirna"
+        "translation_tr": "mirna"
       },
       "places": {
-        "translation_sr": "mesta"
+        "translation_tr": "mesta"
       },
       "without": {
-        "translation_sr": "bez"
+        "translation_tr": "bez"
       },
       "many": {
-        "translation_sr": "mnogo"
+        "translation_tr": "mnogo"
       },
       "tourists": {
-        "translation_sr": "turista"
+        "translation_tr": "turista"
       }
     }
   },
@@ -1012,25 +1012,25 @@
     "id": "vacation-05",
     "source_ru": "Сколько дней вы провели в горах?",
     "source_en": "How many days did you spend in the mountains?",
-    "canonical_sr": "Koliko dana ste proveli na planini?",
+    "canonical_tr": "Koliko dana ste proveli na planini?",
     "word_hints": {
       "how many": {
-        "translation_sr": "Koliko"
+        "translation_tr": "Koliko"
       },
       "days": {
-        "translation_sr": "dana"
+        "translation_tr": "dana"
       },
       "did": {
-        "translation_sr": "ste"
+        "translation_tr": "ste"
       },
       "spend": {
-        "translation_sr": "proveli"
+        "translation_tr": "proveli"
       },
       "in": {
-        "translation_sr": "na"
+        "translation_tr": "na"
       },
       "mountains": {
-        "translation_sr": "planini"
+        "translation_tr": "planini"
       }
     }
   },
@@ -1038,22 +1038,22 @@
     "id": "vacation-06",
     "source_ru": "Мы арендовали удобную машину для поездки.",
     "source_en": "We rented a comfortable car for the trip.",
-    "canonical_sr": "Iznajmili smo udoban auto za putovanje.",
+    "canonical_tr": "Iznajmili smo udoban auto za putovanje.",
     "word_hints": {
       "we rented": {
-        "translation_sr": "Iznajmili smo"
+        "translation_tr": "Iznajmili smo"
       },
       "comfortable": {
-        "translation_sr": "udoban"
+        "translation_tr": "udoban"
       },
       "car": {
-        "translation_sr": "auto"
+        "translation_tr": "auto"
       },
       "for": {
-        "translation_sr": "za"
+        "translation_tr": "za"
       },
       "trip": {
-        "translation_sr": "putovanje"
+        "translation_tr": "putovanje"
       }
     }
   },
@@ -1061,25 +1061,25 @@
     "id": "vacation-07",
     "source_ru": "На этом пляже можно купаться с детьми?",
     "source_en": "Can children swim at this beach?",
-    "canonical_sr": "Da li na ovoj plaži može da se kupa sa decom?",
+    "canonical_tr": "Da li na ovoj plaži može da se kupa sa decom?",
     "word_hints": {
       "can": {
-        "translation_sr": "može"
+        "translation_tr": "može"
       },
       "children": {
-        "translation_sr": "decom"
+        "translation_tr": "decom"
       },
       "swim": {
-        "translation_sr": "da se kupa"
+        "translation_tr": "da se kupa"
       },
       "at": {
-        "translation_sr": "na"
+        "translation_tr": "na"
       },
       "this": {
-        "translation_sr": "ovoj"
+        "translation_tr": "ovoj"
       },
       "beach": {
-        "translation_sr": "plaži"
+        "translation_tr": "plaži"
       }
     }
   },
@@ -1087,28 +1087,28 @@
     "id": "vacation-08",
     "source_ru": "Я хочу попробовать местную еду и домашнее вино.",
     "source_en": "I want to try local food and homemade wine.",
-    "canonical_sr": "Želim da probam lokalnu hranu i domaće vino.",
+    "canonical_tr": "Želim da probam lokalnu hranu i domaće vino.",
     "word_hints": {
       "want": {
-        "translation_sr": "Želim"
+        "translation_tr": "Želim"
       },
       "to try": {
-        "translation_sr": "da probam"
+        "translation_tr": "da probam"
       },
       "local": {
-        "translation_sr": "lokalnu"
+        "translation_tr": "lokalnu"
       },
       "food": {
-        "translation_sr": "hranu"
+        "translation_tr": "hranu"
       },
       "and": {
-        "translation_sr": "i"
+        "translation_tr": "i"
       },
       "homemade": {
-        "translation_sr": "domaće"
+        "translation_tr": "domaće"
       },
       "wine": {
-        "translation_sr": "vino"
+        "translation_tr": "vino"
       }
     }
   },
@@ -1116,19 +1116,19 @@
     "id": "vacation-09",
     "source_ru": "Утром мы гуляли по старому городу.",
     "source_en": "In the morning, we walked around the old town.",
-    "canonical_sr": "Ujutru smo šetali po starom gradu.",
+    "canonical_tr": "Ujutru smo šetali po starom gradu.",
     "word_hints": {
       "in the morning": {
-        "translation_sr": "Ujutru"
+        "translation_tr": "Ujutru"
       },
       "we walked around": {
-        "translation_sr": "smo šetali po"
+        "translation_tr": "smo šetali po"
       },
       "old": {
-        "translation_sr": "starom"
+        "translation_tr": "starom"
       },
       "town": {
-        "translation_sr": "gradu"
+        "translation_tr": "gradu"
       }
     }
   },
@@ -1136,25 +1136,25 @@
     "id": "vacation-10",
     "source_ru": "Когда лучше покупать дешёвые авиабилеты?",
     "source_en": "When is the best time to buy cheap plane tickets?",
-    "canonical_sr": "Kada je najbolje kupiti jeftine avionske karte?",
+    "canonical_tr": "Kada je najbolje kupiti jeftine avionske karte?",
     "word_hints": {
       "when": {
-        "translation_sr": "Kada"
+        "translation_tr": "Kada"
       },
       "is": {
-        "translation_sr": "je"
+        "translation_tr": "je"
       },
       "best": {
-        "translation_sr": "najbolje"
+        "translation_tr": "najbolje"
       },
       "to buy": {
-        "translation_sr": "kupiti"
+        "translation_tr": "kupiti"
       },
       "cheap": {
-        "translation_sr": "jeftine"
+        "translation_tr": "jeftine"
       },
       "plane tickets": {
-        "translation_sr": "avionske karte"
+        "translation_tr": "avionske karte"
       }
     }
   },
@@ -1162,22 +1162,22 @@
     "id": "vacation-11",
     "source_ru": "Нам очень понравился вид с высокой горы.",
     "source_en": "We really liked the view from the high mountain.",
-    "canonical_sr": "Mnogo nam se dopao pogled sa visoke planine.",
+    "canonical_tr": "Mnogo nam se dopao pogled sa visoke planine.",
     "word_hints": {
       "we really liked": {
-        "translation_sr": "Mnogo nam se dopao"
+        "translation_tr": "Mnogo nam se dopao"
       },
       "view": {
-        "translation_sr": "pogled"
+        "translation_tr": "pogled"
       },
       "from": {
-        "translation_sr": "sa"
+        "translation_tr": "sa"
       },
       "high": {
-        "translation_sr": "visoke"
+        "translation_tr": "visoke"
       },
       "mountain": {
-        "translation_sr": "planine"
+        "translation_tr": "planine"
       }
     }
   },
@@ -1185,25 +1185,25 @@
     "id": "vacation-12",
     "source_ru": "В гостинице есть свободный семейный номер?",
     "source_en": "Does the hotel have a family room available?",
-    "canonical_sr": "Da li hotel ima slobodnu porodičnu sobu?",
+    "canonical_tr": "Da li hotel ima slobodnu porodičnu sobu?",
     "word_hints": {
       "does": {
-        "translation_sr": "Da li"
+        "translation_tr": "Da li"
       },
       "hotel": {
-        "translation_sr": "hotel"
+        "translation_tr": "hotel"
       },
       "have": {
-        "translation_sr": "ima"
+        "translation_tr": "ima"
       },
       "family": {
-        "translation_sr": "porodičnu"
+        "translation_tr": "porodičnu"
       },
       "room": {
-        "translation_sr": "sobu"
+        "translation_tr": "sobu"
       },
       "available": {
-        "translation_sr": "slobodnu"
+        "translation_tr": "slobodnu"
       }
     }
   },
@@ -1211,22 +1211,22 @@
     "id": "vacation-13",
     "source_ru": "Я забыл тёплую куртку в автобусе.",
     "source_en": "I forgot my warm jacket on the bus.",
-    "canonical_sr": "Zaboravio sam toplu jaknu u autobusu.",
+    "canonical_tr": "Zaboravio sam toplu jaknu u autobusu.",
     "word_hints": {
       "forgot": {
-        "translation_sr": "Zaboravio sam"
+        "translation_tr": "Zaboravio sam"
       },
       "warm": {
-        "translation_sr": "toplu"
+        "translation_tr": "toplu"
       },
       "jacket": {
-        "translation_sr": "jaknu"
+        "translation_tr": "jaknu"
       },
       "on": {
-        "translation_sr": "u"
+        "translation_tr": "u"
       },
       "bus": {
-        "translation_sr": "autobusu"
+        "translation_tr": "autobusu"
       }
     }
   },
@@ -1234,22 +1234,22 @@
     "id": "vacation-14",
     "source_ru": "Мы вернёмся домой в воскресенье вечером.",
     "source_en": "We will return home on Sunday evening.",
-    "canonical_sr": "Vratićemo se kući u nedelju uveče.",
+    "canonical_tr": "Vratićemo se kući u nedelju uveče.",
     "word_hints": {
       "we will return": {
-        "translation_sr": "Vratićemo se"
+        "translation_tr": "Vratićemo se"
       },
       "home": {
-        "translation_sr": "kući"
+        "translation_tr": "kući"
       },
       "on": {
-        "translation_sr": "u"
+        "translation_tr": "u"
       },
       "sunday": {
-        "translation_sr": "nedelju"
+        "translation_tr": "nedelju"
       },
       "evening": {
-        "translation_sr": "uveče"
+        "translation_tr": "uveče"
       }
     }
   },
@@ -1257,22 +1257,22 @@
     "id": "vacation-15",
     "source_ru": "Как добраться до ближайшего песчаного пляжа?",
     "source_en": "How do we get to the nearest sandy beach?",
-    "canonical_sr": "Kako da stignemo do najbliže peščane plaže?",
+    "canonical_tr": "Kako da stignemo do najbliže peščane plaže?",
     "word_hints": {
       "how": {
-        "translation_sr": "Kako"
+        "translation_tr": "Kako"
       },
       "get": {
-        "translation_sr": "stignemo"
+        "translation_tr": "stignemo"
       },
       "nearest": {
-        "translation_sr": "najbliže"
+        "translation_tr": "najbliže"
       },
       "sandy": {
-        "translation_sr": "peščane"
+        "translation_tr": "peščane"
       },
       "beach": {
-        "translation_sr": "plaže"
+        "translation_tr": "plaže"
       }
     }
   },
@@ -1280,22 +1280,22 @@
     "id": "vacation-16",
     "source_ru": "В этом году у меня короткий зимний отпуск.",
     "source_en": "This year I have a short winter holiday.",
-    "canonical_sr": "Ove godine imam kratak zimski odmor.",
+    "canonical_tr": "Ove godine imam kratak zimski odmor.",
     "word_hints": {
       "this year": {
-        "translation_sr": "Ove godine"
+        "translation_tr": "Ove godine"
       },
       "have": {
-        "translation_sr": "imam"
+        "translation_tr": "imam"
       },
       "short": {
-        "translation_sr": "kratak"
+        "translation_tr": "kratak"
       },
       "winter": {
-        "translation_sr": "zimski"
+        "translation_tr": "zimski"
       },
       "holiday": {
-        "translation_sr": "odmor"
+        "translation_tr": "odmor"
       }
     }
   },
@@ -1303,22 +1303,22 @@
     "id": "vacation-17",
     "source_ru": "Я отправил друзьям несколько красивых фотографий.",
     "source_en": "I sent my friends some beautiful photos.",
-    "canonical_sr": "Poslao sam prijateljima nekoliko lepih fotografija.",
+    "canonical_tr": "Poslao sam prijateljima nekoliko lepih fotografija.",
     "word_hints": {
       "i sent": {
-        "translation_sr": "Poslao sam"
+        "translation_tr": "Poslao sam"
       },
       "my friends": {
-        "translation_sr": "prijateljima"
+        "translation_tr": "prijateljima"
       },
       "some": {
-        "translation_sr": "nekoliko"
+        "translation_tr": "nekoliko"
       },
       "beautiful": {
-        "translation_sr": "lepih"
+        "translation_tr": "lepih"
       },
       "photos": {
-        "translation_sr": "fotografija"
+        "translation_tr": "fotografija"
       }
     }
   },
@@ -1326,22 +1326,22 @@
     "id": "vacation-18",
     "source_ru": "Можно забронировать экскурсию на завтра?",
     "source_en": "Can we book an excursion for tomorrow?",
-    "canonical_sr": "Možemo li da rezervišemo izlet za sutra?",
+    "canonical_tr": "Možemo li da rezervišemo izlet za sutra?",
     "word_hints": {
       "can we": {
-        "translation_sr": "Možemo li"
+        "translation_tr": "Možemo li"
       },
       "book": {
-        "translation_sr": "rezervišemo"
+        "translation_tr": "rezervišemo"
       },
       "excursion": {
-        "translation_sr": "izlet"
+        "translation_tr": "izlet"
       },
       "for": {
-        "translation_sr": "za"
+        "translation_tr": "za"
       },
       "tomorrow": {
-        "translation_sr": "sutra"
+        "translation_tr": "sutra"
       }
     }
   },
@@ -1349,19 +1349,19 @@
     "id": "vacation-19",
     "source_ru": "Во время путешествия мы познакомились с интересными людьми.",
     "source_en": "We met interesting people during our trip.",
-    "canonical_sr": "Tokom putovanja smo upoznali zanimljive ljude.",
+    "canonical_tr": "Tokom putovanja smo upoznali zanimljive ljude.",
     "word_hints": {
       "met": {
-        "translation_sr": "smo upoznali"
+        "translation_tr": "smo upoznali"
       },
       "interesting": {
-        "translation_sr": "zanimljive"
+        "translation_tr": "zanimljive"
       },
       "people": {
-        "translation_sr": "ljude"
+        "translation_tr": "ljude"
       },
       "during our trip": {
-        "translation_sr": "Tokom putovanja"
+        "translation_tr": "Tokom putovanja"
       }
     }
   },
@@ -1369,22 +1369,22 @@
     "id": "vacation-20",
     "source_ru": "Следующий отпуск я хочу провести у озера.",
     "source_en": "I want to spend my next holiday by a lake.",
-    "canonical_sr": "Sledeći odmor želim da provedem pored jezera.",
+    "canonical_tr": "Sledeći odmor želim da provedem pored jezera.",
     "word_hints": {
       "want": {
-        "translation_sr": "želim"
+        "translation_tr": "želim"
       },
       "to spend": {
-        "translation_sr": "da provedem"
+        "translation_tr": "da provedem"
       },
       "my next holiday": {
-        "translation_sr": "Sledeći odmor"
+        "translation_tr": "Sledeći odmor"
       },
       "by": {
-        "translation_sr": "pored"
+        "translation_tr": "pored"
       },
       "lake": {
-        "translation_sr": "jezera"
+        "translation_tr": "jezera"
       }
     }
   },
@@ -1392,19 +1392,19 @@
     "id": "cafe-01",
     "source_ru": "Можно мне, пожалуйста, меню?",
     "source_en": "May I have the menu, please?",
-    "canonical_sr": "Mogu li da dobijem jelovnik, molim vas?",
+    "canonical_tr": "Mogu li da dobijem jelovnik, molim vas?",
     "word_hints": {
       "may": {
-        "translation_sr": "Mogu li"
+        "translation_tr": "Mogu li"
       },
       "have": {
-        "translation_sr": "da dobijem"
+        "translation_tr": "da dobijem"
       },
       "menu": {
-        "translation_sr": "jelovnik"
+        "translation_tr": "jelovnik"
       },
       "please": {
-        "translation_sr": "molim vas"
+        "translation_tr": "molim vas"
       }
     }
   },
@@ -1412,22 +1412,22 @@
     "id": "cafe-02",
     "source_ru": "Я хотел бы заказать крепкий кофе без сахара.",
     "source_en": "I would like to order a strong coffee without sugar.",
-    "canonical_sr": "Voleo bih da naručim jaku kafu bez šećera.",
+    "canonical_tr": "Voleo bih da naručim jaku kafu bez šećera.",
     "word_hints": {
       "would like to order": {
-        "translation_sr": "Voleo bih da naručim"
+        "translation_tr": "Voleo bih da naručim"
       },
       "strong": {
-        "translation_sr": "jaku"
+        "translation_tr": "jaku"
       },
       "coffee": {
-        "translation_sr": "kafu"
+        "translation_tr": "kafu"
       },
       "without": {
-        "translation_sr": "bez"
+        "translation_tr": "bez"
       },
       "sugar": {
-        "translation_sr": "šećera"
+        "translation_tr": "šećera"
       }
     }
   },
@@ -1435,25 +1435,25 @@
     "id": "cafe-03",
     "source_ru": "У вас есть свободный столик у окна?",
     "source_en": "Do you have a free table by the window?",
-    "canonical_sr": "Da li imate slobodan sto pored prozora?",
+    "canonical_tr": "Da li imate slobodan sto pored prozora?",
     "word_hints": {
       "do": {
-        "translation_sr": "Da li"
+        "translation_tr": "Da li"
       },
       "have": {
-        "translation_sr": "imate"
+        "translation_tr": "imate"
       },
       "free": {
-        "translation_sr": "slobodan"
+        "translation_tr": "slobodan"
       },
       "table": {
-        "translation_sr": "sto"
+        "translation_tr": "sto"
       },
       "by": {
-        "translation_sr": "pored"
+        "translation_tr": "pored"
       },
       "window": {
-        "translation_sr": "prozora"
+        "translation_tr": "prozora"
       }
     }
   },
@@ -1461,22 +1461,22 @@
     "id": "cafe-04",
     "source_ru": "Что вы рекомендуете на лёгкий завтрак?",
     "source_en": "What do you recommend for a light breakfast?",
-    "canonical_sr": "Šta preporučujete za lagan doručak?",
+    "canonical_tr": "Šta preporučujete za lagan doručak?",
     "word_hints": {
       "what": {
-        "translation_sr": "Šta"
+        "translation_tr": "Šta"
       },
       "recommend": {
-        "translation_sr": "preporučujete"
+        "translation_tr": "preporučujete"
       },
       "for": {
-        "translation_sr": "za"
+        "translation_tr": "za"
       },
       "light": {
-        "translation_sr": "lagan"
+        "translation_tr": "lagan"
       },
       "breakfast": {
-        "translation_sr": "doručak"
+        "translation_tr": "doručak"
       }
     }
   },
@@ -1484,28 +1484,28 @@
     "id": "cafe-05",
     "source_ru": "Этот суп слишком солёный для меня.",
     "source_en": "This soup is too salty for me.",
-    "canonical_sr": "Ova supa je previše slana za mene.",
+    "canonical_tr": "Ova supa je previše slana za mene.",
     "word_hints": {
       "this": {
-        "translation_sr": "Ova"
+        "translation_tr": "Ova"
       },
       "soup": {
-        "translation_sr": "supa"
+        "translation_tr": "supa"
       },
       "is": {
-        "translation_sr": "je"
+        "translation_tr": "je"
       },
       "too": {
-        "translation_sr": "previše"
+        "translation_tr": "previše"
       },
       "salty": {
-        "translation_sr": "slana"
+        "translation_tr": "slana"
       },
       "for": {
-        "translation_sr": "za"
+        "translation_tr": "za"
       },
       "me": {
-        "translation_sr": "mene"
+        "translation_tr": "mene"
       }
     }
   },
@@ -1513,19 +1513,19 @@
     "id": "cafe-06",
     "source_ru": "Можно заменить картофель свежим салатом?",
     "source_en": "Can the potatoes be replaced with a fresh salad?",
-    "canonical_sr": "Može li krompir da se zameni svežom salatom?",
+    "canonical_tr": "Može li krompir da se zameni svežom salatom?",
     "word_hints": {
       "can": {
-        "translation_sr": "Može li"
+        "translation_tr": "Može li"
       },
       "potatoes": {
-        "translation_sr": "krompir"
+        "translation_tr": "krompir"
       },
       "be replaced": {
-        "translation_sr": "da se zameni"
+        "translation_tr": "da se zameni"
       },
       "with a fresh salad": {
-        "translation_sr": "svežom salatom"
+        "translation_tr": "svežom salatom"
       }
     }
   },
@@ -1533,22 +1533,22 @@
     "id": "cafe-07",
     "source_ru": "Я не ем мясо, но ем молочные продукты.",
     "source_en": "I do not eat meat, but I eat dairy products.",
-    "canonical_sr": "Ne jedem meso, ali jedem mlečne proizvode.",
+    "canonical_tr": "Ne jedem meso, ali jedem mlečne proizvode.",
     "word_hints": {
       "i do not eat": {
-        "translation_sr": "Ne jedem"
+        "translation_tr": "Ne jedem"
       },
       "meat": {
-        "translation_sr": "meso"
+        "translation_tr": "meso"
       },
       "but": {
-        "translation_sr": "ali"
+        "translation_tr": "ali"
       },
       "dairy": {
-        "translation_sr": "mlečne"
+        "translation_tr": "mlečne"
       },
       "products": {
-        "translation_sr": "proizvode"
+        "translation_tr": "proizvode"
       }
     }
   },
@@ -1556,19 +1556,19 @@
     "id": "cafe-08",
     "source_ru": "В этом пироге есть грецкие орехи?",
     "source_en": "Does this pie contain walnuts?",
-    "canonical_sr": "Da li u ovoj piti ima oraha?",
+    "canonical_tr": "Da li u ovoj piti ima oraha?",
     "word_hints": {
       "this": {
-        "translation_sr": "ovoj"
+        "translation_tr": "ovoj"
       },
       "pie": {
-        "translation_sr": "piti"
+        "translation_tr": "piti"
       },
       "contain": {
-        "translation_sr": "ima"
+        "translation_tr": "ima"
       },
       "walnuts": {
-        "translation_sr": "oraha"
+        "translation_tr": "oraha"
       }
     }
   },
@@ -1576,19 +1576,19 @@
     "id": "cafe-09",
     "source_ru": "Мы ждём горячие напитки уже двадцать минут.",
     "source_en": "We have been waiting for hot drinks for twenty minutes.",
-    "canonical_sr": "Čekamo tople napitke već dvadeset minuta.",
+    "canonical_tr": "Čekamo tople napitke već dvadeset minuta.",
     "word_hints": {
       "we have been waiting": {
-        "translation_sr": "Čekamo"
+        "translation_tr": "Čekamo"
       },
       "hot": {
-        "translation_sr": "tople"
+        "translation_tr": "tople"
       },
       "drinks": {
-        "translation_sr": "napitke"
+        "translation_tr": "napitke"
       },
       "for twenty minutes": {
-        "translation_sr": "već dvadeset minuta"
+        "translation_tr": "već dvadeset minuta"
       }
     }
   },
@@ -1596,25 +1596,25 @@
     "id": "cafe-10",
     "source_ru": "Принесите отдельный счёт для каждого гостя.",
     "source_en": "Bring a separate bill for each guest.",
-    "canonical_sr": "Donesite poseban račun za svakog gosta.",
+    "canonical_tr": "Donesite poseban račun za svakog gosta.",
     "word_hints": {
       "bring": {
-        "translation_sr": "Donesite"
+        "translation_tr": "Donesite"
       },
       "separate": {
-        "translation_sr": "poseban"
+        "translation_tr": "poseban"
       },
       "bill": {
-        "translation_sr": "račun"
+        "translation_tr": "račun"
       },
       "for": {
-        "translation_sr": "za"
+        "translation_tr": "za"
       },
       "each": {
-        "translation_sr": "svakog"
+        "translation_tr": "svakog"
       },
       "guest": {
-        "translation_sr": "gosta"
+        "translation_tr": "gosta"
       }
     }
   },
@@ -1622,25 +1622,25 @@
     "id": "cafe-11",
     "source_ru": "Я возьму овощную пасту и минеральную воду.",
     "source_en": "I will have vegetable pasta and mineral water.",
-    "canonical_sr": "Uzeću testeninu sa povrćem i mineralnu vodu.",
+    "canonical_tr": "Uzeću testeninu sa povrćem i mineralnu vodu.",
     "word_hints": {
       "i will have": {
-        "translation_sr": "Uzeću"
+        "translation_tr": "Uzeću"
       },
       "vegetable": {
-        "translation_sr": "sa povrćem"
+        "translation_tr": "sa povrćem"
       },
       "pasta": {
-        "translation_sr": "testeninu"
+        "translation_tr": "testeninu"
       },
       "and": {
-        "translation_sr": "i"
+        "translation_tr": "i"
       },
       "mineral": {
-        "translation_sr": "mineralnu"
+        "translation_tr": "mineralnu"
       },
       "water": {
-        "translation_sr": "vodu"
+        "translation_tr": "vodu"
       }
     }
   },
@@ -1648,22 +1648,22 @@
     "id": "cafe-12",
     "source_ru": "Какие свежие десерты есть сегодня?",
     "source_en": "What fresh desserts do you have today?",
-    "canonical_sr": "Koje sveže deserte imate danas?",
+    "canonical_tr": "Koje sveže deserte imate danas?",
     "word_hints": {
       "what": {
-        "translation_sr": "Koje"
+        "translation_tr": "Koje"
       },
       "fresh": {
-        "translation_sr": "sveže"
+        "translation_tr": "sveže"
       },
       "desserts": {
-        "translation_sr": "deserte"
+        "translation_tr": "deserte"
       },
       "have": {
-        "translation_sr": "imate"
+        "translation_tr": "imate"
       },
       "today": {
-        "translation_sr": "danas"
+        "translation_tr": "danas"
       }
     }
   },
@@ -1671,22 +1671,22 @@
     "id": "cafe-13",
     "source_ru": "Можно сесть на летней террасе?",
     "source_en": "Can we sit on the summer terrace?",
-    "canonical_sr": "Možemo li da sednemo na letnju terasu?",
+    "canonical_tr": "Možemo li da sednemo na letnju terasu?",
     "word_hints": {
       "can": {
-        "translation_sr": "Možemo li"
+        "translation_tr": "Možemo li"
       },
       "sit": {
-        "translation_sr": "da sednemo"
+        "translation_tr": "da sednemo"
       },
       "on": {
-        "translation_sr": "na"
+        "translation_tr": "na"
       },
       "summer": {
-        "translation_sr": "letnju"
+        "translation_tr": "letnju"
       },
       "terrace": {
-        "translation_sr": "terasu"
+        "translation_tr": "terasu"
       }
     }
   },
@@ -1694,19 +1694,19 @@
     "id": "cafe-14",
     "source_ru": "Мне понравился ваш домашний лимонад.",
     "source_en": "I liked your homemade lemonade.",
-    "canonical_sr": "Dopala mi se vaša domaća limunada.",
+    "canonical_tr": "Dopala mi se vaša domaća limunada.",
     "word_hints": {
       "liked": {
-        "translation_sr": "dopala mi se"
+        "translation_tr": "dopala mi se"
       },
       "your": {
-        "translation_sr": "vaša"
+        "translation_tr": "vaša"
       },
       "homemade": {
-        "translation_sr": "domaća"
+        "translation_tr": "domaća"
       },
       "lemonade": {
-        "translation_sr": "limunada"
+        "translation_tr": "limunada"
       }
     }
   },
@@ -1714,25 +1714,25 @@
     "id": "cafe-15",
     "source_ru": "Уберите, пожалуйста, грязную чашку со стола.",
     "source_en": "Please remove the dirty cup from the table.",
-    "canonical_sr": "Sklonite prljavu šolju sa stola, molim vas.",
+    "canonical_tr": "Sklonite prljavu šolju sa stola, molim vas.",
     "word_hints": {
       "please": {
-        "translation_sr": "molim vas"
+        "translation_tr": "molim vas"
       },
       "remove": {
-        "translation_sr": "Sklonite"
+        "translation_tr": "Sklonite"
       },
       "dirty": {
-        "translation_sr": "prljavu"
+        "translation_tr": "prljavu"
       },
       "cup": {
-        "translation_sr": "šolju"
+        "translation_tr": "šolju"
       },
       "from": {
-        "translation_sr": "sa"
+        "translation_tr": "sa"
       },
       "table": {
-        "translation_sr": "stola"
+        "translation_tr": "stola"
       }
     }
   },
@@ -1740,22 +1740,22 @@
     "id": "cafe-16",
     "source_ru": "Эта порция достаточно большая для двоих?",
     "source_en": "Is this portion big enough for two people?",
-    "canonical_sr": "Da li je ova porcija dovoljno velika za dvoje?",
+    "canonical_tr": "Da li je ova porcija dovoljno velika za dvoje?",
     "word_hints": {
       "is this": {
-        "translation_sr": "Da li je ova"
+        "translation_tr": "Da li je ova"
       },
       "portion": {
-        "translation_sr": "porcija"
+        "translation_tr": "porcija"
       },
       "big": {
-        "translation_sr": "velika"
+        "translation_tr": "velika"
       },
       "enough": {
-        "translation_sr": "dovoljno"
+        "translation_tr": "dovoljno"
       },
       "for two people": {
-        "translation_sr": "za dvoje"
+        "translation_tr": "za dvoje"
       }
     }
   },
@@ -1763,13 +1763,13 @@
     "id": "cafe-17",
     "source_ru": "Я заплачу банковской картой.",
     "source_en": "I will pay by bank card.",
-    "canonical_sr": "Platiću bankovnom karticom.",
+    "canonical_tr": "Platiću bankovnom karticom.",
     "word_hints": {
       "pay": {
-        "translation_sr": "Platiću"
+        "translation_tr": "Platiću"
       },
       "by bank card": {
-        "translation_sr": "bankovnom karticom"
+        "translation_tr": "bankovnom karticom"
       }
     }
   },
@@ -1777,22 +1777,22 @@
     "id": "cafe-18",
     "source_ru": "Можно упаковать оставшуюся еду с собой?",
     "source_en": "Can you pack the leftover food to take away?",
-    "canonical_sr": "Možete li da spakujete preostalu hranu za poneti?",
+    "canonical_tr": "Možete li da spakujete preostalu hranu za poneti?",
     "word_hints": {
       "can": {
-        "translation_sr": "Možete li"
+        "translation_tr": "Možete li"
       },
       "pack": {
-        "translation_sr": "da spakujete"
+        "translation_tr": "da spakujete"
       },
       "leftover": {
-        "translation_sr": "preostalu"
+        "translation_tr": "preostalu"
       },
       "food": {
-        "translation_sr": "hranu"
+        "translation_tr": "hranu"
       },
       "to take away": {
-        "translation_sr": "za poneti"
+        "translation_tr": "za poneti"
       }
     }
   },
@@ -1800,22 +1800,22 @@
     "id": "cafe-19",
     "source_ru": "Сегодня у вас очень приятная музыка.",
     "source_en": "You have very pleasant music today.",
-    "canonical_sr": "Danas imate veoma prijatnu muziku.",
+    "canonical_tr": "Danas imate veoma prijatnu muziku.",
     "word_hints": {
       "have": {
-        "translation_sr": "imate"
+        "translation_tr": "imate"
       },
       "very": {
-        "translation_sr": "veoma"
+        "translation_tr": "veoma"
       },
       "pleasant": {
-        "translation_sr": "prijatnu"
+        "translation_tr": "prijatnu"
       },
       "music": {
-        "translation_sr": "muziku"
+        "translation_tr": "muziku"
       },
       "today": {
-        "translation_sr": "Danas"
+        "translation_tr": "Danas"
       }
     }
   },
@@ -1823,19 +1823,19 @@
     "id": "cafe-20",
     "source_ru": "Когда кухня принимает последний заказ?",
     "source_en": "When does the kitchen take its last order?",
-    "canonical_sr": "Kada kuhinja prima poslednju porudžbinu?",
+    "canonical_tr": "Kada kuhinja prima poslednju porudžbinu?",
     "word_hints": {
       "when": {
-        "translation_sr": "Kada"
+        "translation_tr": "Kada"
       },
       "kitchen": {
-        "translation_sr": "kuhinja"
+        "translation_tr": "kuhinja"
       },
       "take": {
-        "translation_sr": "prima"
+        "translation_tr": "prima"
       },
       "its last order": {
-        "translation_sr": "poslednju porudžbinu"
+        "translation_tr": "poslednju porudžbinu"
       }
     }
   },
@@ -1843,28 +1843,28 @@
     "id": "work-01",
     "source_ru": "Сегодня у нас важная встреча с новым клиентом.",
     "source_en": "Today we have an important meeting with a new client.",
-    "canonical_sr": "Danas imamo važan sastanak sa novim klijentom.",
+    "canonical_tr": "Danas imamo važan sastanak sa novim klijentom.",
     "word_hints": {
       "today": {
-        "translation_sr": "Danas"
+        "translation_tr": "Danas"
       },
       "have": {
-        "translation_sr": "imamo"
+        "translation_tr": "imamo"
       },
       "important": {
-        "translation_sr": "važan"
+        "translation_tr": "važan"
       },
       "meeting": {
-        "translation_sr": "sastanak"
+        "translation_tr": "sastanak"
       },
       "with": {
-        "translation_sr": "sa"
+        "translation_tr": "sa"
       },
       "new": {
-        "translation_sr": "novim"
+        "translation_tr": "novim"
       },
       "client": {
-        "translation_sr": "klijentom"
+        "translation_tr": "klijentom"
       }
     }
   },
@@ -1872,28 +1872,28 @@
     "id": "work-02",
     "source_ru": "Мне нужно закончить этот сложный отчёт до пятницы.",
     "source_en": "I need to finish this complex report by Friday.",
-    "canonical_sr": "Moram da završim ovaj složen izveštaj do petka.",
+    "canonical_tr": "Moram da završim ovaj složen izveštaj do petka.",
     "word_hints": {
       "i need to": {
-        "translation_sr": "Moram da"
+        "translation_tr": "Moram da"
       },
       "finish": {
-        "translation_sr": "završim"
+        "translation_tr": "završim"
       },
       "this": {
-        "translation_sr": "ovaj"
+        "translation_tr": "ovaj"
       },
       "complex": {
-        "translation_sr": "složen"
+        "translation_tr": "složen"
       },
       "report": {
-        "translation_sr": "izveštaj"
+        "translation_tr": "izveštaj"
       },
       "by": {
-        "translation_sr": "do"
+        "translation_tr": "do"
       },
       "friday": {
-        "translation_sr": "petka"
+        "translation_tr": "petka"
       }
     }
   },
@@ -1901,19 +1901,19 @@
     "id": "work-03",
     "source_ru": "Когда вы сможете обсудить новую задачу?",
     "source_en": "When can you discuss the new task?",
-    "canonical_sr": "Kada možete da razgovarate o novom zadatku?",
+    "canonical_tr": "Kada možete da razgovarate o novom zadatku?",
     "word_hints": {
       "when": {
-        "translation_sr": "Kada"
+        "translation_tr": "Kada"
       },
       "can": {
-        "translation_sr": "možete"
+        "translation_tr": "možete"
       },
       "discuss": {
-        "translation_sr": "da razgovarate"
+        "translation_tr": "da razgovarate"
       },
       "the new task": {
-        "translation_sr": "o novom zadatku"
+        "translation_tr": "o novom zadatku"
       }
     }
   },
@@ -1921,22 +1921,22 @@
     "id": "work-04",
     "source_ru": "Я отправил коллегам исправленную версию документа.",
     "source_en": "I sent my colleagues the corrected version of the document.",
-    "canonical_sr": "Poslao sam kolegama ispravljenu verziju dokumenta.",
+    "canonical_tr": "Poslao sam kolegama ispravljenu verziju dokumenta.",
     "word_hints": {
       "i sent": {
-        "translation_sr": "Poslao sam"
+        "translation_tr": "Poslao sam"
       },
       "my colleagues": {
-        "translation_sr": "kolegama"
+        "translation_tr": "kolegama"
       },
       "corrected": {
-        "translation_sr": "ispravljenu"
+        "translation_tr": "ispravljenu"
       },
       "version": {
-        "translation_sr": "verziju"
+        "translation_tr": "verziju"
       },
       "of the document": {
-        "translation_sr": "dokumenta"
+        "translation_tr": "dokumenta"
       }
     }
   },
@@ -1944,22 +1944,22 @@
     "id": "work-05",
     "source_ru": "Мы немного опоздаем из-за утреннего транспорта.",
     "source_en": "We will be a little late because of the morning transport.",
-    "canonical_sr": "Malo ćemo kasniti zbog jutarnjeg prevoza.",
+    "canonical_tr": "Malo ćemo kasniti zbog jutarnjeg prevoza.",
     "word_hints": {
       "little": {
-        "translation_sr": "malo"
+        "translation_tr": "malo"
       },
       "late": {
-        "translation_sr": "kasniti"
+        "translation_tr": "kasniti"
       },
       "because of": {
-        "translation_sr": "zbog"
+        "translation_tr": "zbog"
       },
       "morning": {
-        "translation_sr": "jutarnjeg"
+        "translation_tr": "jutarnjeg"
       },
       "transport": {
-        "translation_sr": "prevoza"
+        "translation_tr": "prevoza"
       }
     }
   },
@@ -1967,28 +1967,28 @@
     "id": "work-06",
     "source_ru": "У этого проекта слишком короткий срок.",
     "source_en": "The deadline for this project is too short.",
-    "canonical_sr": "Rok za ovaj projekat je previše kratak.",
+    "canonical_tr": "Rok za ovaj projekat je previše kratak.",
     "word_hints": {
       "deadline": {
-        "translation_sr": "rok"
+        "translation_tr": "rok"
       },
       "for": {
-        "translation_sr": "za"
+        "translation_tr": "za"
       },
       "this": {
-        "translation_sr": "ovaj"
+        "translation_tr": "ovaj"
       },
       "project": {
-        "translation_sr": "projekat"
+        "translation_tr": "projekat"
       },
       "is": {
-        "translation_sr": "je"
+        "translation_tr": "je"
       },
       "too": {
-        "translation_sr": "previše"
+        "translation_tr": "previše"
       },
       "short": {
-        "translation_sr": "kratak"
+        "translation_tr": "kratak"
       }
     }
   },
@@ -1996,19 +1996,19 @@
     "id": "work-07",
     "source_ru": "Можете помочь мне с этой таблицей?",
     "source_en": "Can you help me with this spreadsheet?",
-    "canonical_sr": "Možete li da mi pomognete sa ovom tabelom?",
+    "canonical_tr": "Možete li da mi pomognete sa ovom tabelom?",
     "word_hints": {
       "can you help me": {
-        "translation_sr": "Možete li da mi pomognete"
+        "translation_tr": "Možete li da mi pomognete"
       },
       "with": {
-        "translation_sr": "sa"
+        "translation_tr": "sa"
       },
       "this": {
-        "translation_sr": "ovom"
+        "translation_tr": "ovom"
       },
       "spreadsheet": {
-        "translation_sr": "tabelom"
+        "translation_tr": "tabelom"
       }
     }
   },
@@ -2016,25 +2016,25 @@
     "id": "work-08",
     "source_ru": "Я работаю из дома два дня в неделю.",
     "source_en": "I work from home two days a week.",
-    "canonical_sr": "Radim od kuće dva dana nedeljno.",
+    "canonical_tr": "Radim od kuće dva dana nedeljno.",
     "word_hints": {
       "work": {
-        "translation_sr": "Radim"
+        "translation_tr": "Radim"
       },
       "from": {
-        "translation_sr": "od"
+        "translation_tr": "od"
       },
       "home": {
-        "translation_sr": "kuće"
+        "translation_tr": "kuće"
       },
       "two": {
-        "translation_sr": "dva"
+        "translation_tr": "dva"
       },
       "days": {
-        "translation_sr": "dana"
+        "translation_tr": "dana"
       },
       "week": {
-        "translation_sr": "nedeljno"
+        "translation_tr": "nedeljno"
       }
     }
   },
@@ -2042,25 +2042,25 @@
     "id": "work-09",
     "source_ru": "Наш руководитель дал команде полезный совет.",
     "source_en": "Our manager gave the team useful advice.",
-    "canonical_sr": "Naš rukovodilac je dao timu koristan savet.",
+    "canonical_tr": "Naš rukovodilac je dao timu koristan savet.",
     "word_hints": {
       "our": {
-        "translation_sr": "Naš"
+        "translation_tr": "Naš"
       },
       "manager": {
-        "translation_sr": "rukovodilac"
+        "translation_tr": "rukovodilac"
       },
       "gave": {
-        "translation_sr": "je dao"
+        "translation_tr": "je dao"
       },
       "team": {
-        "translation_sr": "timu"
+        "translation_tr": "timu"
       },
       "useful": {
-        "translation_sr": "koristan"
+        "translation_tr": "koristan"
       },
       "advice": {
-        "translation_sr": "savet"
+        "translation_tr": "savet"
       }
     }
   },
@@ -2068,19 +2068,19 @@
     "id": "work-10",
     "source_ru": "Во сколько начинается общее собрание?",
     "source_en": "What time does the general meeting start?",
-    "canonical_sr": "U koliko sati počinje zajednički sastanak?",
+    "canonical_tr": "U koliko sati počinje zajednički sastanak?",
     "word_hints": {
       "what time": {
-        "translation_sr": "U koliko sati"
+        "translation_tr": "U koliko sati"
       },
       "general": {
-        "translation_sr": "zajednički"
+        "translation_tr": "zajednički"
       },
       "meeting": {
-        "translation_sr": "sastanak"
+        "translation_tr": "sastanak"
       },
       "start": {
-        "translation_sr": "počinje"
+        "translation_tr": "počinje"
       }
     }
   },
@@ -2088,22 +2088,22 @@
     "id": "work-11",
     "source_ru": "Я согласен с вашим практичным предложением.",
     "source_en": "I agree with your practical suggestion.",
-    "canonical_sr": "Slažem se sa vašim praktičnim predlogom.",
+    "canonical_tr": "Slažem se sa vašim praktičnim predlogom.",
     "word_hints": {
       "agree": {
-        "translation_sr": "Slažem se"
+        "translation_tr": "Slažem se"
       },
       "with": {
-        "translation_sr": "sa"
+        "translation_tr": "sa"
       },
       "your": {
-        "translation_sr": "vašim"
+        "translation_tr": "vašim"
       },
       "practical": {
-        "translation_sr": "praktičnim"
+        "translation_tr": "praktičnim"
       },
       "suggestion": {
-        "translation_sr": "predlogom"
+        "translation_tr": "predlogom"
       }
     }
   },
@@ -2111,22 +2111,22 @@
     "id": "work-12",
     "source_ru": "Нам не хватает информации о старом договоре.",
     "source_en": "We do not have enough information about the old contract.",
-    "canonical_sr": "Nedostaju nam informacije o starom ugovoru.",
+    "canonical_tr": "Nedostaju nam informacije o starom ugovoru.",
     "word_hints": {
       "not": {
-        "translation_sr": "nedostaju"
+        "translation_tr": "nedostaju"
       },
       "information": {
-        "translation_sr": "informacije"
+        "translation_tr": "informacije"
       },
       "about": {
-        "translation_sr": "o"
+        "translation_tr": "o"
       },
       "old": {
-        "translation_sr": "starom"
+        "translation_tr": "starom"
       },
       "contract": {
-        "translation_sr": "ugovoru"
+        "translation_tr": "ugovoru"
       }
     }
   },
@@ -2134,22 +2134,22 @@
     "id": "work-13",
     "source_ru": "Можно перенести завтрашнюю встречу на вторую половину дня?",
     "source_en": "Can we move tomorrow's meeting to the afternoon?",
-    "canonical_sr": "Možemo li da pomerimo sutrašnji sastanak za popodne?",
+    "canonical_tr": "Možemo li da pomerimo sutrašnji sastanak za popodne?",
     "word_hints": {
       "move": {
-        "translation_sr": "pomerimo"
+        "translation_tr": "pomerimo"
       },
       "tomorrow's": {
-        "translation_sr": "sutrašnji"
+        "translation_tr": "sutrašnji"
       },
       "meeting": {
-        "translation_sr": "sastanak"
+        "translation_tr": "sastanak"
       },
       "to": {
-        "translation_sr": "za"
+        "translation_tr": "za"
       },
       "afternoon": {
-        "translation_sr": "popodne"
+        "translation_tr": "popodne"
       }
     }
   },
@@ -2157,25 +2157,25 @@
     "id": "work-14",
     "source_ru": "После обеда я позвоню важному поставщику.",
     "source_en": "After lunch, I will call an important supplier.",
-    "canonical_sr": "Posle ručka ću pozvati važnog dobavljača.",
+    "canonical_tr": "Posle ručka ću pozvati važnog dobavljača.",
     "word_hints": {
       "after": {
-        "translation_sr": "Posle"
+        "translation_tr": "Posle"
       },
       "lunch": {
-        "translation_sr": "ručka"
+        "translation_tr": "ručka"
       },
       "will": {
-        "translation_sr": "ću"
+        "translation_tr": "ću"
       },
       "call": {
-        "translation_sr": "pozvati"
+        "translation_tr": "pozvati"
       },
       "important": {
-        "translation_sr": "važnog"
+        "translation_tr": "važnog"
       },
       "supplier": {
-        "translation_sr": "dobavljača"
+        "translation_tr": "dobavljača"
       }
     }
   },
@@ -2183,25 +2183,25 @@
     "id": "work-15",
     "source_ru": "Этот компьютер работает медленнее обычного.",
     "source_en": "This computer is running more slowly than usual.",
-    "canonical_sr": "Ovaj računar radi sporije nego obično.",
+    "canonical_tr": "Ovaj računar radi sporije nego obično.",
     "word_hints": {
       "this": {
-        "translation_sr": "Ovaj"
+        "translation_tr": "Ovaj"
       },
       "computer": {
-        "translation_sr": "računar"
+        "translation_tr": "računar"
       },
       "is running": {
-        "translation_sr": "radi"
+        "translation_tr": "radi"
       },
       "more slowly": {
-        "translation_sr": "sporije"
+        "translation_tr": "sporije"
       },
       "than": {
-        "translation_sr": "nego"
+        "translation_tr": "nego"
       },
       "usual": {
-        "translation_sr": "obično"
+        "translation_tr": "obično"
       }
     }
   },
@@ -2209,25 +2209,25 @@
     "id": "work-16",
     "source_ru": "Кто отвечает за подготовку месячного отчёта?",
     "source_en": "Who is responsible for preparing the monthly report?",
-    "canonical_sr": "Ko je zadužen za pripremu mesečnog izveštaja?",
+    "canonical_tr": "Ko je zadužen za pripremu mesečnog izveštaja?",
     "word_hints": {
       "who": {
-        "translation_sr": "Ko"
+        "translation_tr": "Ko"
       },
       "is responsible": {
-        "translation_sr": "je zadužen"
+        "translation_tr": "je zadužen"
       },
       "for": {
-        "translation_sr": "za"
+        "translation_tr": "za"
       },
       "preparing": {
-        "translation_sr": "pripremu"
+        "translation_tr": "pripremu"
       },
       "monthly": {
-        "translation_sr": "mesečnog"
+        "translation_tr": "mesečnog"
       },
       "report": {
-        "translation_sr": "izveštaja"
+        "translation_tr": "izveštaja"
       }
     }
   },
@@ -2235,28 +2235,28 @@
     "id": "work-17",
     "source_ru": "Я уже обсудил проблему с технической поддержкой.",
     "source_en": "I have already discussed the problem with technical support.",
-    "canonical_sr": "Već sam razgovarao o problemu sa tehničkom podrškom.",
+    "canonical_tr": "Već sam razgovarao o problemu sa tehničkom podrškom.",
     "word_hints": {
       "have": {
-        "translation_sr": "sam"
+        "translation_tr": "sam"
       },
       "already": {
-        "translation_sr": "Već"
+        "translation_tr": "Već"
       },
       "discussed": {
-        "translation_sr": "razgovarao"
+        "translation_tr": "razgovarao"
       },
       "problem": {
-        "translation_sr": "o problemu"
+        "translation_tr": "o problemu"
       },
       "with": {
-        "translation_sr": "sa"
+        "translation_tr": "sa"
       },
       "technical": {
-        "translation_sr": "tehničkom"
+        "translation_tr": "tehničkom"
       },
       "support": {
-        "translation_sr": "podrškom"
+        "translation_tr": "podrškom"
       }
     }
   },
@@ -2264,28 +2264,28 @@
     "id": "work-18",
     "source_ru": "На следующей неделе мы начнём новый этап проекта.",
     "source_en": "Next week we will start a new phase of the project.",
-    "canonical_sr": "Sledeće nedelje ćemo početi novu fazu projekta.",
+    "canonical_tr": "Sledeće nedelje ćemo početi novu fazu projekta.",
     "word_hints": {
       "next": {
-        "translation_sr": "Sledeće"
+        "translation_tr": "Sledeće"
       },
       "week": {
-        "translation_sr": "nedelje"
+        "translation_tr": "nedelje"
       },
       "will": {
-        "translation_sr": "ćemo"
+        "translation_tr": "ćemo"
       },
       "start": {
-        "translation_sr": "početi"
+        "translation_tr": "početi"
       },
       "new": {
-        "translation_sr": "novu"
+        "translation_tr": "novu"
       },
       "phase": {
-        "translation_sr": "fazu"
+        "translation_tr": "fazu"
       },
       "of the project": {
-        "translation_sr": "projekta"
+        "translation_tr": "projekta"
       }
     }
   },
@@ -2293,25 +2293,25 @@
     "id": "work-19",
     "source_ru": "Мне нравится спокойная атмосфера в нашем офисе.",
     "source_en": "I like the calm atmosphere in our office.",
-    "canonical_sr": "Sviđa mi se mirna atmosfera u našoj kancelariji.",
+    "canonical_tr": "Sviđa mi se mirna atmosfera u našoj kancelariji.",
     "word_hints": {
       "like": {
-        "translation_sr": "Sviđa mi se"
+        "translation_tr": "Sviđa mi se"
       },
       "calm": {
-        "translation_sr": "mirna"
+        "translation_tr": "mirna"
       },
       "atmosphere": {
-        "translation_sr": "atmosfera"
+        "translation_tr": "atmosfera"
       },
       "in": {
-        "translation_sr": "u"
+        "translation_tr": "u"
       },
       "our": {
-        "translation_sr": "našoj"
+        "translation_tr": "našoj"
       },
       "office": {
-        "translation_sr": "kancelariji"
+        "translation_tr": "kancelariji"
       }
     }
   },
@@ -2319,22 +2319,22 @@
     "id": "work-20",
     "source_ru": "Вы получили моё последнее электронное письмо?",
     "source_en": "Did you receive my last email?",
-    "canonical_sr": "Da li ste dobili moj poslednji imejl?",
+    "canonical_tr": "Da li ste dobili moj poslednji imejl?",
     "word_hints": {
       "did": {
-        "translation_sr": "Da li ste"
+        "translation_tr": "Da li ste"
       },
       "receive": {
-        "translation_sr": "dobili"
+        "translation_tr": "dobili"
       },
       "my": {
-        "translation_sr": "moj"
+        "translation_tr": "moj"
       },
       "last": {
-        "translation_sr": "poslednji"
+        "translation_tr": "poslednji"
       },
       "email": {
-        "translation_sr": "imejl"
+        "translation_tr": "imejl"
       }
     }
   },
@@ -2342,16 +2342,16 @@
     "id": "doctor-01",
     "source_ru": "У меня уже два дня болит горло.",
     "source_en": "My throat has been hurting for two days.",
-    "canonical_sr": "Grlo me boli već dva dana.",
+    "canonical_tr": "Grlo me boli već dva dana.",
     "word_hints": {
       "my throat": {
-        "translation_sr": "Grlo"
+        "translation_tr": "Grlo"
       },
       "has been hurting": {
-        "translation_sr": "me boli"
+        "translation_tr": "me boli"
       },
       "for two days": {
-        "translation_sr": "već dva dana"
+        "translation_tr": "već dva dana"
       }
     }
   },
@@ -2359,19 +2359,19 @@
     "id": "doctor-02",
     "source_ru": "Я хотел бы записаться на утренний осмотр.",
     "source_en": "I would like to book a morning examination.",
-    "canonical_sr": "Voleo bih da zakažem jutarnji pregled.",
+    "canonical_tr": "Voleo bih da zakažem jutarnji pregled.",
     "word_hints": {
       "like": {
-        "translation_sr": "voleo"
+        "translation_tr": "voleo"
       },
       "book": {
-        "translation_sr": "zakažem"
+        "translation_tr": "zakažem"
       },
       "morning": {
-        "translation_sr": "jutarnji"
+        "translation_tr": "jutarnji"
       },
       "examination": {
-        "translation_sr": "pregled"
+        "translation_tr": "pregled"
       }
     }
   },
@@ -2379,25 +2379,25 @@
     "id": "doctor-03",
     "source_ru": "Эта сильная боль началась вчера вечером.",
     "source_en": "This severe pain started yesterday evening.",
-    "canonical_sr": "Ovaj jak bol je počeo juče uveče.",
+    "canonical_tr": "Ovaj jak bol je počeo juče uveče.",
     "word_hints": {
       "this": {
-        "translation_sr": "Ovaj"
+        "translation_tr": "Ovaj"
       },
       "severe": {
-        "translation_sr": "jak"
+        "translation_tr": "jak"
       },
       "pain": {
-        "translation_sr": "bol"
+        "translation_tr": "bol"
       },
       "started": {
-        "translation_sr": "je počeo"
+        "translation_tr": "je počeo"
       },
       "yesterday": {
-        "translation_sr": "juče"
+        "translation_tr": "juče"
       },
       "evening": {
-        "translation_sr": "uveče"
+        "translation_tr": "uveče"
       }
     }
   },
@@ -2405,22 +2405,22 @@
     "id": "doctor-04",
     "source_ru": "Нужно ли принимать это лекарство после еды?",
     "source_en": "Should I take this medicine after meals?",
-    "canonical_sr": "Da li ovaj lek treba da uzimam posle jela?",
+    "canonical_tr": "Da li ovaj lek treba da uzimam posle jela?",
     "word_hints": {
       "should i take": {
-        "translation_sr": "treba da uzimam"
+        "translation_tr": "treba da uzimam"
       },
       "this": {
-        "translation_sr": "ovaj"
+        "translation_tr": "ovaj"
       },
       "medicine": {
-        "translation_sr": "lek"
+        "translation_tr": "lek"
       },
       "after": {
-        "translation_sr": "posle"
+        "translation_tr": "posle"
       },
       "meals": {
-        "translation_sr": "jela"
+        "translation_tr": "jela"
       }
     }
   },
@@ -2428,19 +2428,19 @@
     "id": "doctor-05",
     "source_ru": "У меня аллергия на некоторые антибиотики.",
     "source_en": "I am allergic to some antibiotics.",
-    "canonical_sr": "Alergičan sam na neke antibiotike.",
+    "canonical_tr": "Alergičan sam na neke antibiotike.",
     "word_hints": {
       "am allergic": {
-        "translation_sr": "Alergičan sam"
+        "translation_tr": "Alergičan sam"
       },
       "to": {
-        "translation_sr": "na"
+        "translation_tr": "na"
       },
       "some": {
-        "translation_sr": "neke"
+        "translation_tr": "neke"
       },
       "antibiotics": {
-        "translation_sr": "antibiotike"
+        "translation_tr": "antibiotike"
       }
     }
   },
@@ -2448,22 +2448,22 @@
     "id": "doctor-06",
     "source_ru": "Сколько раз в день нужно пить сироп?",
     "source_en": "How many times a day should I take the syrup?",
-    "canonical_sr": "Koliko puta dnevno treba da pijem sirup?",
+    "canonical_tr": "Koliko puta dnevno treba da pijem sirup?",
     "word_hints": {
       "how many times": {
-        "translation_sr": "Koliko puta"
+        "translation_tr": "Koliko puta"
       },
       "day": {
-        "translation_sr": "dnevno"
+        "translation_tr": "dnevno"
       },
       "should": {
-        "translation_sr": "treba da"
+        "translation_tr": "treba da"
       },
       "take": {
-        "translation_sr": "pijem"
+        "translation_tr": "pijem"
       },
       "syrup": {
-        "translation_sr": "sirup"
+        "translation_tr": "sirup"
       }
     }
   },
@@ -2471,22 +2471,22 @@
     "id": "doctor-07",
     "source_ru": "Я чувствую слабость и лёгкое головокружение.",
     "source_en": "I feel weak and slightly dizzy.",
-    "canonical_sr": "Osećam slabost i blagu vrtoglavicu.",
+    "canonical_tr": "Osećam slabost i blagu vrtoglavicu.",
     "word_hints": {
       "feel": {
-        "translation_sr": "osećam"
+        "translation_tr": "osećam"
       },
       "weak": {
-        "translation_sr": "slabost"
+        "translation_tr": "slabost"
       },
       "and": {
-        "translation_sr": "i"
+        "translation_tr": "i"
       },
       "slightly": {
-        "translation_sr": "blagu"
+        "translation_tr": "blagu"
       },
       "dizzy": {
-        "translation_sr": "vrtoglavicu"
+        "translation_tr": "vrtoglavicu"
       }
     }
   },
@@ -2494,22 +2494,22 @@
     "id": "doctor-08",
     "source_ru": "Можно получить направление к глазному врачу?",
     "source_en": "Can I get a referral to an eye doctor?",
-    "canonical_sr": "Mogu li da dobijem uput za očnog lekara?",
+    "canonical_tr": "Mogu li da dobijem uput za očnog lekara?",
     "word_hints": {
       "can i": {
-        "translation_sr": "Mogu li"
+        "translation_tr": "Mogu li"
       },
       "get": {
-        "translation_sr": "da dobijem"
+        "translation_tr": "da dobijem"
       },
       "referral": {
-        "translation_sr": "uput"
+        "translation_tr": "uput"
       },
       "eye": {
-        "translation_sr": "očnog"
+        "translation_tr": "očnog"
       },
       "doctor": {
-        "translation_sr": "lekara"
+        "translation_tr": "lekara"
       }
     }
   },
@@ -2517,22 +2517,22 @@
     "id": "doctor-09",
     "source_ru": "У ребёнка высокая температура с утра.",
     "source_en": "The child has had a high temperature since this morning.",
-    "canonical_sr": "Dete ima visoku temperaturu od jutros.",
+    "canonical_tr": "Dete ima visoku temperaturu od jutros.",
     "word_hints": {
       "child": {
-        "translation_sr": "dete"
+        "translation_tr": "dete"
       },
       "has had": {
-        "translation_sr": "ima"
+        "translation_tr": "ima"
       },
       "high": {
-        "translation_sr": "visoku"
+        "translation_tr": "visoku"
       },
       "temperature": {
-        "translation_sr": "temperaturu"
+        "translation_tr": "temperaturu"
       },
       "since this morning": {
-        "translation_sr": "od jutros"
+        "translation_tr": "od jutros"
       }
     }
   },
@@ -2540,19 +2540,19 @@
     "id": "doctor-10",
     "source_ru": "Мне стало лучше после нового лечения.",
     "source_en": "I feel better after the new treatment.",
-    "canonical_sr": "Bolje mi je posle nove terapije.",
+    "canonical_tr": "Bolje mi je posle nove terapije.",
     "word_hints": {
       "i feel better": {
-        "translation_sr": "Bolje mi je"
+        "translation_tr": "Bolje mi je"
       },
       "after": {
-        "translation_sr": "posle"
+        "translation_tr": "posle"
       },
       "new": {
-        "translation_sr": "nove"
+        "translation_tr": "nove"
       },
       "treatment": {
-        "translation_sr": "terapije"
+        "translation_tr": "terapije"
       }
     }
   },
@@ -2560,25 +2560,25 @@
     "id": "doctor-11",
     "source_ru": "Когда будут готовы результаты анализа крови?",
     "source_en": "When will the blood test results be ready?",
-    "canonical_sr": "Kada će biti gotovi rezultati analize krvi?",
+    "canonical_tr": "Kada će biti gotovi rezultati analize krvi?",
     "word_hints": {
       "when": {
-        "translation_sr": "Kada"
+        "translation_tr": "Kada"
       },
       "blood": {
-        "translation_sr": "krvi"
+        "translation_tr": "krvi"
       },
       "test": {
-        "translation_sr": "analize"
+        "translation_tr": "analize"
       },
       "results": {
-        "translation_sr": "rezultati"
+        "translation_tr": "rezultati"
       },
       "be": {
-        "translation_sr": "biti"
+        "translation_tr": "biti"
       },
       "ready": {
-        "translation_sr": "gotovi"
+        "translation_tr": "gotovi"
       }
     }
   },
@@ -2586,22 +2586,22 @@
     "id": "doctor-12",
     "source_ru": "Я не могу глубоко дышать без кашля.",
     "source_en": "I cannot breathe deeply without coughing.",
-    "canonical_sr": "Ne mogu duboko da dišem bez kašlja.",
+    "canonical_tr": "Ne mogu duboko da dišem bez kašlja.",
     "word_hints": {
       "cannot": {
-        "translation_sr": "Ne mogu"
+        "translation_tr": "Ne mogu"
       },
       "breathe": {
-        "translation_sr": "da dišem"
+        "translation_tr": "da dišem"
       },
       "deeply": {
-        "translation_sr": "duboko"
+        "translation_tr": "duboko"
       },
       "without": {
-        "translation_sr": "bez"
+        "translation_tr": "bez"
       },
       "coughing": {
-        "translation_sr": "kašlja"
+        "translation_tr": "kašlja"
       }
     }
   },
@@ -2609,25 +2609,25 @@
     "id": "doctor-13",
     "source_ru": "Эта таблетка вызывает сильную сонливость?",
     "source_en": "Does this tablet cause severe drowsiness?",
-    "canonical_sr": "Da li ova tableta izaziva jaku pospanost?",
+    "canonical_tr": "Da li ova tableta izaziva jaku pospanost?",
     "word_hints": {
       "does": {
-        "translation_sr": "Da li"
+        "translation_tr": "Da li"
       },
       "this": {
-        "translation_sr": "ova"
+        "translation_tr": "ova"
       },
       "tablet": {
-        "translation_sr": "tableta"
+        "translation_tr": "tableta"
       },
       "cause": {
-        "translation_sr": "izaziva"
+        "translation_tr": "izaziva"
       },
       "severe": {
-        "translation_sr": "jaku"
+        "translation_tr": "jaku"
       },
       "drowsiness": {
-        "translation_sr": "pospanost"
+        "translation_tr": "pospanost"
       }
     }
   },
@@ -2635,16 +2635,16 @@
     "id": "doctor-14",
     "source_ru": "Врач посоветовал мне больше отдыхать.",
     "source_en": "The doctor advised me to rest more.",
-    "canonical_sr": "Lekar mi je savetovao da se više odmaram.",
+    "canonical_tr": "Lekar mi je savetovao da se više odmaram.",
     "word_hints": {
       "doctor": {
-        "translation_sr": "Lekar"
+        "translation_tr": "Lekar"
       },
       "advised me": {
-        "translation_sr": "mi je savetovao"
+        "translation_tr": "mi je savetovao"
       },
       "more": {
-        "translation_sr": "više"
+        "translation_tr": "više"
       }
     }
   },
@@ -2652,22 +2652,22 @@
     "id": "doctor-15",
     "source_ru": "Где находится ближайшая дежурная аптека?",
     "source_en": "Where is the nearest pharmacy on duty?",
-    "canonical_sr": "Gde se nalazi najbliža dežurna apoteka?",
+    "canonical_tr": "Gde se nalazi najbliža dežurna apoteka?",
     "word_hints": {
       "where": {
-        "translation_sr": "Gde"
+        "translation_tr": "Gde"
       },
       "is": {
-        "translation_sr": "se nalazi"
+        "translation_tr": "se nalazi"
       },
       "nearest": {
-        "translation_sr": "najbliža"
+        "translation_tr": "najbliža"
       },
       "pharmacy": {
-        "translation_sr": "apoteka"
+        "translation_tr": "apoteka"
       },
       "on duty": {
-        "translation_sr": "dežurna"
+        "translation_tr": "dežurna"
       }
     }
   },
@@ -2675,19 +2675,19 @@
     "id": "doctor-16",
     "source_ru": "Мне нужен рецепт на обычное лекарство от давления.",
     "source_en": "I need a prescription for my usual blood pressure medicine.",
-    "canonical_sr": "Potreban mi je recept za običan lek za pritisak.",
+    "canonical_tr": "Potreban mi je recept za običan lek za pritisak.",
     "word_hints": {
       "i need": {
-        "translation_sr": "Potreban mi je"
+        "translation_tr": "Potreban mi je"
       },
       "prescription": {
-        "translation_sr": "recept"
+        "translation_tr": "recept"
       },
       "my usual": {
-        "translation_sr": "običan"
+        "translation_tr": "običan"
       },
       "blood pressure medicine": {
-        "translation_sr": "lek za pritisak"
+        "translation_tr": "lek za pritisak"
       }
     }
   },
@@ -2695,19 +2695,19 @@
     "id": "doctor-17",
     "source_ru": "У вас есть свободный термин на этой неделе?",
     "source_en": "Do you have an appointment available this week?",
-    "canonical_sr": "Da li imate slobodan termin ove nedelje?",
+    "canonical_tr": "Da li imate slobodan termin ove nedelje?",
     "word_hints": {
       "do": {
-        "translation_sr": "Da li"
+        "translation_tr": "Da li"
       },
       "have": {
-        "translation_sr": "imate"
+        "translation_tr": "imate"
       },
       "appointment": {
-        "translation_sr": "termin"
+        "translation_tr": "termin"
       },
       "this week": {
-        "translation_sr": "ove nedelje"
+        "translation_tr": "ove nedelje"
       }
     }
   },
@@ -2715,19 +2715,19 @@
     "id": "doctor-18",
     "source_ru": "Я повредил левую ногу во время тренировки.",
     "source_en": "I injured my left leg during training.",
-    "canonical_sr": "Povredio sam levu nogu tokom treninga.",
+    "canonical_tr": "Povredio sam levu nogu tokom treninga.",
     "word_hints": {
       "injured": {
-        "translation_sr": "Povredio sam"
+        "translation_tr": "Povredio sam"
       },
       "my left leg": {
-        "translation_sr": "levu nogu"
+        "translation_tr": "levu nogu"
       },
       "during": {
-        "translation_sr": "tokom"
+        "translation_tr": "tokom"
       },
       "training": {
-        "translation_sr": "treninga"
+        "translation_tr": "treninga"
       }
     }
   },
@@ -2735,19 +2735,19 @@
     "id": "doctor-19",
     "source_ru": "Можно мне сегодня заниматься лёгким спортом?",
     "source_en": "Can I do light exercise today?",
-    "canonical_sr": "Da li danas smem da se bavim lakšim sportom?",
+    "canonical_tr": "Da li danas smem da se bavim lakšim sportom?",
     "word_hints": {
       "do": {
-        "translation_sr": "da se bavim"
+        "translation_tr": "da se bavim"
       },
       "light": {
-        "translation_sr": "lakšim"
+        "translation_tr": "lakšim"
       },
       "exercise": {
-        "translation_sr": "sportom"
+        "translation_tr": "sportom"
       },
       "today": {
-        "translation_sr": "danas"
+        "translation_tr": "danas"
       }
     }
   },
@@ -2755,25 +2755,25 @@
     "id": "doctor-20",
     "source_ru": "Спасибо за подробное и понятное объяснение.",
     "source_en": "Thank you for the detailed and clear explanation.",
-    "canonical_sr": "Hvala vam na detaljnom i jasnom objašnjenju.",
+    "canonical_tr": "Hvala vam na detaljnom i jasnom objašnjenju.",
     "word_hints": {
       "thank you": {
-        "translation_sr": "Hvala vam"
+        "translation_tr": "Hvala vam"
       },
       "for": {
-        "translation_sr": "na"
+        "translation_tr": "na"
       },
       "detailed": {
-        "translation_sr": "detaljnom"
+        "translation_tr": "detaljnom"
       },
       "and": {
-        "translation_sr": "i"
+        "translation_tr": "i"
       },
       "clear": {
-        "translation_sr": "jasnom"
+        "translation_tr": "jasnom"
       },
       "explanation": {
-        "translation_sr": "objašnjenju"
+        "translation_tr": "objašnjenju"
       }
     }
   },
@@ -2781,25 +2781,25 @@
     "id": "rent-01",
     "source_ru": "Я ищу светлую двухкомнатную квартиру в центре.",
     "source_en": "I am looking for a bright two-room flat in the centre.",
-    "canonical_sr": "Tražim svetao dvosoban stan u centru.",
+    "canonical_tr": "Tražim svetao dvosoban stan u centru.",
     "word_hints": {
       "i am looking for": {
-        "translation_sr": "Tražim"
+        "translation_tr": "Tražim"
       },
       "bright": {
-        "translation_sr": "svetao"
+        "translation_tr": "svetao"
       },
       "two-room": {
-        "translation_sr": "dvosoban"
+        "translation_tr": "dvosoban"
       },
       "flat": {
-        "translation_sr": "stan"
+        "translation_tr": "stan"
       },
       "in": {
-        "translation_sr": "u"
+        "translation_tr": "u"
       },
       "centre": {
-        "translation_sr": "centru"
+        "translation_tr": "centru"
       }
     }
   },
@@ -2807,19 +2807,19 @@
     "id": "rent-02",
     "source_ru": "Сколько составляет месячная арендная плата?",
     "source_en": "How much is the monthly rent?",
-    "canonical_sr": "Kolika je mesečna kirija?",
+    "canonical_tr": "Kolika je mesečna kirija?",
     "word_hints": {
       "how much": {
-        "translation_sr": "Kolika"
+        "translation_tr": "Kolika"
       },
       "is": {
-        "translation_sr": "je"
+        "translation_tr": "je"
       },
       "monthly": {
-        "translation_sr": "mesečna"
+        "translation_tr": "mesečna"
       },
       "rent": {
-        "translation_sr": "kirija"
+        "translation_tr": "kirija"
       }
     }
   },
@@ -2827,22 +2827,22 @@
     "id": "rent-03",
     "source_ru": "В стоимость входят коммунальные услуги?",
     "source_en": "Are utilities included in the price?",
-    "canonical_sr": "Da li su komunalije uključene u cenu?",
+    "canonical_tr": "Da li su komunalije uključene u cenu?",
     "word_hints": {
       "are": {
-        "translation_sr": "su"
+        "translation_tr": "su"
       },
       "utilities": {
-        "translation_sr": "komunalije"
+        "translation_tr": "komunalije"
       },
       "included": {
-        "translation_sr": "uključene"
+        "translation_tr": "uključene"
       },
       "in": {
-        "translation_sr": "u"
+        "translation_tr": "u"
       },
       "price": {
-        "translation_sr": "cenu"
+        "translation_tr": "cenu"
       }
     }
   },
@@ -2850,25 +2850,25 @@
     "id": "rent-04",
     "source_ru": "В маленькой ванной не работает горячая вода.",
     "source_en": "The hot water is not working in the small bathroom.",
-    "canonical_sr": "U malom kupatilu ne radi topla voda.",
+    "canonical_tr": "U malom kupatilu ne radi topla voda.",
     "word_hints": {
       "hot": {
-        "translation_sr": "topla"
+        "translation_tr": "topla"
       },
       "water": {
-        "translation_sr": "voda"
+        "translation_tr": "voda"
       },
       "is not working": {
-        "translation_sr": "ne radi"
+        "translation_tr": "ne radi"
       },
       "in": {
-        "translation_sr": "U"
+        "translation_tr": "U"
       },
       "small": {
-        "translation_sr": "malom"
+        "translation_tr": "malom"
       },
       "bathroom": {
-        "translation_sr": "kupatilu"
+        "translation_tr": "kupatilu"
       }
     }
   },
@@ -2876,25 +2876,25 @@
     "id": "rent-05",
     "source_ru": "Когда мастер сможет починить старую стиральную машину?",
     "source_en": "When can the repairman fix the old washing machine?",
-    "canonical_sr": "Kada majstor može da popravi staru mašinu za veš?",
+    "canonical_tr": "Kada majstor može da popravi staru mašinu za veš?",
     "word_hints": {
       "when": {
-        "translation_sr": "Kada"
+        "translation_tr": "Kada"
       },
       "can": {
-        "translation_sr": "može"
+        "translation_tr": "može"
       },
       "repairman": {
-        "translation_sr": "majstor"
+        "translation_tr": "majstor"
       },
       "fix": {
-        "translation_sr": "da popravi"
+        "translation_tr": "da popravi"
       },
       "old": {
-        "translation_sr": "staru"
+        "translation_tr": "staru"
       },
       "washing machine": {
-        "translation_sr": "mašinu za veš"
+        "translation_tr": "mašinu za veš"
       }
     }
   },
@@ -2902,25 +2902,25 @@
     "id": "rent-06",
     "source_ru": "Я могу держать в квартире небольшую собаку?",
     "source_en": "Can I keep a small dog in the flat?",
-    "canonical_sr": "Da li mogu da držim malog psa u stanu?",
+    "canonical_tr": "Da li mogu da držim malog psa u stanu?",
     "word_hints": {
       "can i": {
-        "translation_sr": "Da li mogu"
+        "translation_tr": "Da li mogu"
       },
       "keep": {
-        "translation_sr": "da držim"
+        "translation_tr": "da držim"
       },
       "small": {
-        "translation_sr": "malog"
+        "translation_tr": "malog"
       },
       "dog": {
-        "translation_sr": "psa"
+        "translation_tr": "psa"
       },
       "in": {
-        "translation_sr": "u"
+        "translation_tr": "u"
       },
       "flat": {
-        "translation_sr": "stanu"
+        "translation_tr": "stanu"
       }
     }
   },
@@ -2928,16 +2928,16 @@
     "id": "rent-07",
     "source_ru": "Нам нужен письменный договор на один год.",
     "source_en": "We need a written contract for one year.",
-    "canonical_sr": "Potreban nam je pisani ugovor na godinu dana.",
+    "canonical_tr": "Potreban nam je pisani ugovor na godinu dana.",
     "word_hints": {
       "written": {
-        "translation_sr": "pisani"
+        "translation_tr": "pisani"
       },
       "contract": {
-        "translation_sr": "ugovor"
+        "translation_tr": "ugovor"
       },
       "for one year": {
-        "translation_sr": "na godinu dana"
+        "translation_tr": "na godinu dana"
       }
     }
   },
@@ -2945,22 +2945,22 @@
     "id": "rent-08",
     "source_ru": "Кто оплачивает срочный ремонт отопления?",
     "source_en": "Who pays for urgent heating repairs?",
-    "canonical_sr": "Ko plaća hitnu popravku grejanja?",
+    "canonical_tr": "Ko plaća hitnu popravku grejanja?",
     "word_hints": {
       "who": {
-        "translation_sr": "Ko"
+        "translation_tr": "Ko"
       },
       "pays for": {
-        "translation_sr": "plaća"
+        "translation_tr": "plaća"
       },
       "urgent": {
-        "translation_sr": "hitnu"
+        "translation_tr": "hitnu"
       },
       "heating": {
-        "translation_sr": "grejanja"
+        "translation_tr": "grejanja"
       },
       "repairs": {
-        "translation_sr": "popravku"
+        "translation_tr": "popravku"
       }
     }
   },
@@ -2968,13 +2968,13 @@
     "id": "rent-09",
     "source_ru": "Окно в спальне плохо закрывается.",
     "source_en": "The bedroom window does not close properly.",
-    "canonical_sr": "Prozor u spavaćoj sobi se loše zatvara.",
+    "canonical_tr": "Prozor u spavaćoj sobi se loše zatvara.",
     "word_hints": {
       "the bedroom window": {
-        "translation_sr": "Prozor u spavaćoj sobi"
+        "translation_tr": "Prozor u spavaćoj sobi"
       },
       "does not close properly": {
-        "translation_sr": "se loše zatvara"
+        "translation_tr": "se loše zatvara"
       }
     }
   },
@@ -2982,25 +2982,25 @@
     "id": "rent-10",
     "source_ru": "Можно посмотреть свободную квартиру завтра вечером?",
     "source_en": "Can we view the available flat tomorrow evening?",
-    "canonical_sr": "Možemo li da pogledamo slobodan stan sutra uveče?",
+    "canonical_tr": "Možemo li da pogledamo slobodan stan sutra uveče?",
     "word_hints": {
       "can we": {
-        "translation_sr": "Možemo li"
+        "translation_tr": "Možemo li"
       },
       "view": {
-        "translation_sr": "da pogledamo"
+        "translation_tr": "da pogledamo"
       },
       "available": {
-        "translation_sr": "slobodan"
+        "translation_tr": "slobodan"
       },
       "flat": {
-        "translation_sr": "stan"
+        "translation_tr": "stan"
       },
       "tomorrow": {
-        "translation_sr": "sutra"
+        "translation_tr": "sutra"
       },
       "evening": {
-        "translation_sr": "uveče"
+        "translation_tr": "uveče"
       }
     }
   },
@@ -3008,22 +3008,22 @@
     "id": "rent-11",
     "source_ru": "Залог равен двум месячным платежам.",
     "source_en": "The deposit equals two months' rent.",
-    "canonical_sr": "Depozit je jednak iznosu dve mesečne kirije.",
+    "canonical_tr": "Depozit je jednak iznosu dve mesečne kirije.",
     "word_hints": {
       "deposit": {
-        "translation_sr": "Depozit"
+        "translation_tr": "Depozit"
       },
       "equals": {
-        "translation_sr": "je jednak"
+        "translation_tr": "je jednak"
       },
       "two": {
-        "translation_sr": "dve"
+        "translation_tr": "dve"
       },
       "months": {
-        "translation_sr": "mesečne"
+        "translation_tr": "mesečne"
       },
       "rent": {
-        "translation_sr": "kirije"
+        "translation_tr": "kirije"
       }
     }
   },
@@ -3031,19 +3031,19 @@
     "id": "rent-12",
     "source_ru": "В этом тихом доме есть лифт?",
     "source_en": "Does this quiet building have a lift?",
-    "canonical_sr": "Da li u ovoj mirnoj zgradi postoji lift?",
+    "canonical_tr": "Da li u ovoj mirnoj zgradi postoji lift?",
     "word_hints": {
       "this": {
-        "translation_sr": "u ovoj"
+        "translation_tr": "u ovoj"
       },
       "quiet": {
-        "translation_sr": "mirnoj"
+        "translation_tr": "mirnoj"
       },
       "building": {
-        "translation_sr": "zgradi"
+        "translation_tr": "zgradi"
       },
       "lift": {
-        "translation_sr": "lift"
+        "translation_tr": "lift"
       }
     }
   },
@@ -3051,22 +3051,22 @@
     "id": "rent-13",
     "source_ru": "Я отправил хозяину фотографию сломанной двери.",
     "source_en": "I sent the landlord a photo of the broken door.",
-    "canonical_sr": "Poslao sam stanodavcu fotografiju polomljenih vrata.",
+    "canonical_tr": "Poslao sam stanodavcu fotografiju polomljenih vrata.",
     "word_hints": {
       "sent": {
-        "translation_sr": "Poslao sam"
+        "translation_tr": "Poslao sam"
       },
       "landlord": {
-        "translation_sr": "stanodavcu"
+        "translation_tr": "stanodavcu"
       },
       "photo": {
-        "translation_sr": "fotografiju"
+        "translation_tr": "fotografiju"
       },
       "broken": {
-        "translation_sr": "polomljenih"
+        "translation_tr": "polomljenih"
       },
       "door": {
-        "translation_sr": "vrata"
+        "translation_tr": "vrata"
       }
     }
   },
@@ -3074,22 +3074,22 @@
     "id": "rent-14",
     "source_ru": "Когда нужно оплатить следующую аренду?",
     "source_en": "When should I pay the next rent?",
-    "canonical_sr": "Kada treba da platim sledeću kiriju?",
+    "canonical_tr": "Kada treba da platim sledeću kiriju?",
     "word_hints": {
       "when": {
-        "translation_sr": "Kada"
+        "translation_tr": "Kada"
       },
       "should": {
-        "translation_sr": "treba da"
+        "translation_tr": "treba da"
       },
       "pay": {
-        "translation_sr": "platim"
+        "translation_tr": "platim"
       },
       "next": {
-        "translation_sr": "sledeću"
+        "translation_tr": "sledeću"
       },
       "rent": {
-        "translation_sr": "kiriju"
+        "translation_tr": "kiriju"
       }
     }
   },
@@ -3097,25 +3097,25 @@
     "id": "rent-15",
     "source_ru": "На кухне достаточно места для большого стола.",
     "source_en": "There is enough space for a large table in the kitchen.",
-    "canonical_sr": "U kuhinji ima dovoljno mesta za veliki sto.",
+    "canonical_tr": "U kuhinji ima dovoljno mesta za veliki sto.",
     "word_hints": {
       "there is enough space": {
-        "translation_sr": "ima dovoljno mesta"
+        "translation_tr": "ima dovoljno mesta"
       },
       "for": {
-        "translation_sr": "za"
+        "translation_tr": "za"
       },
       "large": {
-        "translation_sr": "veliki"
+        "translation_tr": "veliki"
       },
       "table": {
-        "translation_sr": "sto"
+        "translation_tr": "sto"
       },
       "in": {
-        "translation_sr": "U"
+        "translation_tr": "U"
       },
       "kitchen": {
-        "translation_sr": "kuhinji"
+        "translation_tr": "kuhinji"
       }
     }
   },
@@ -3123,25 +3123,25 @@
     "id": "rent-16",
     "source_ru": "Соседи часто слушают громкую музыку ночью.",
     "source_en": "The neighbours often listen to loud music at night.",
-    "canonical_sr": "Komšije često slušaju glasnu muziku noću.",
+    "canonical_tr": "Komšije često slušaju glasnu muziku noću.",
     "word_hints": {
       "neighbours": {
-        "translation_sr": "Komšije"
+        "translation_tr": "Komšije"
       },
       "often": {
-        "translation_sr": "često"
+        "translation_tr": "često"
       },
       "listen to": {
-        "translation_sr": "slušaju"
+        "translation_tr": "slušaju"
       },
       "loud": {
-        "translation_sr": "glasnu"
+        "translation_tr": "glasnu"
       },
       "music": {
-        "translation_sr": "muziku"
+        "translation_tr": "muziku"
       },
       "at night": {
-        "translation_sr": "noću"
+        "translation_tr": "noću"
       }
     }
   },
@@ -3149,22 +3149,22 @@
     "id": "rent-17",
     "source_ru": "Мне нравится вид с просторного балкона.",
     "source_en": "I like the view from the spacious balcony.",
-    "canonical_sr": "Sviđa mi se pogled sa prostranog balkona.",
+    "canonical_tr": "Sviđa mi se pogled sa prostranog balkona.",
     "word_hints": {
       "like": {
-        "translation_sr": "sviđa mi se"
+        "translation_tr": "sviđa mi se"
       },
       "view": {
-        "translation_sr": "pogled"
+        "translation_tr": "pogled"
       },
       "from": {
-        "translation_sr": "sa"
+        "translation_tr": "sa"
       },
       "spacious": {
-        "translation_sr": "prostranog"
+        "translation_tr": "prostranog"
       },
       "balcony": {
-        "translation_sr": "balkona"
+        "translation_tr": "balkona"
       }
     }
   },
@@ -3172,19 +3172,19 @@
     "id": "rent-18",
     "source_ru": "Можно заменить старый холодильник новым?",
     "source_en": "Can the old fridge be replaced with a new one?",
-    "canonical_sr": "Može li stari frižider da se zameni novim?",
+    "canonical_tr": "Može li stari frižider da se zameni novim?",
     "word_hints": {
       "old": {
-        "translation_sr": "stari"
+        "translation_tr": "stari"
       },
       "fridge": {
-        "translation_sr": "frižider"
+        "translation_tr": "frižider"
       },
       "be replaced": {
-        "translation_sr": "da se zameni"
+        "translation_tr": "da se zameni"
       },
       "with a new one": {
-        "translation_sr": "novim"
+        "translation_tr": "novim"
       }
     }
   },
@@ -3192,22 +3192,22 @@
     "id": "rent-19",
     "source_ru": "Я освобожу квартиру в конце следующего месяца.",
     "source_en": "I will vacate the flat at the end of next month.",
-    "canonical_sr": "Izaći ću iz stana krajem sledećeg meseca.",
+    "canonical_tr": "Izaći ću iz stana krajem sledećeg meseca.",
     "word_hints": {
       "i will vacate": {
-        "translation_sr": "Izaći ću"
+        "translation_tr": "Izaći ću"
       },
       "flat": {
-        "translation_sr": "iz stana"
+        "translation_tr": "iz stana"
       },
       "at the end of": {
-        "translation_sr": "krajem"
+        "translation_tr": "krajem"
       },
       "next": {
-        "translation_sr": "sledećeg"
+        "translation_tr": "sledećeg"
       },
       "month": {
-        "translation_sr": "meseca"
+        "translation_tr": "meseca"
       }
     }
   },
@@ -3215,25 +3215,25 @@
     "id": "rent-20",
     "source_ru": "У вас есть копия моего последнего платежа?",
     "source_en": "Do you have a copy of my last payment?",
-    "canonical_sr": "Da li imate kopiju moje poslednje uplate?",
+    "canonical_tr": "Da li imate kopiju moje poslednje uplate?",
     "word_hints": {
       "do": {
-        "translation_sr": "Da li"
+        "translation_tr": "Da li"
       },
       "have": {
-        "translation_sr": "imate"
+        "translation_tr": "imate"
       },
       "copy": {
-        "translation_sr": "kopiju"
+        "translation_tr": "kopiju"
       },
       "my": {
-        "translation_sr": "moje"
+        "translation_tr": "moje"
       },
       "last": {
-        "translation_sr": "poslednje"
+        "translation_tr": "poslednje"
       },
       "payment": {
-        "translation_sr": "uplate"
+        "translation_tr": "uplate"
       }
     }
   },
@@ -3241,22 +3241,22 @@
     "id": "transport-01",
     "source_ru": "Где находится ближайшая автобусная остановка?",
     "source_en": "Where is the nearest bus stop?",
-    "canonical_sr": "Gde se nalazi najbliža autobuska stanica?",
+    "canonical_tr": "Gde se nalazi najbliža autobuska stanica?",
     "word_hints": {
       "where": {
-        "translation_sr": "Gde"
+        "translation_tr": "Gde"
       },
       "is": {
-        "translation_sr": "se nalazi"
+        "translation_tr": "se nalazi"
       },
       "nearest": {
-        "translation_sr": "najbliža"
+        "translation_tr": "najbliža"
       },
       "bus": {
-        "translation_sr": "autobuska"
+        "translation_tr": "autobuska"
       },
       "stop": {
-        "translation_sr": "stanica"
+        "translation_tr": "stanica"
       }
     }
   },
@@ -3264,25 +3264,25 @@
     "id": "transport-02",
     "source_ru": "Я хочу купить обратный билет до Нови-Сада.",
     "source_en": "I want to buy a return ticket to Novi Sad.",
-    "canonical_sr": "Želim da kupim povratnu kartu do Novog Sada.",
+    "canonical_tr": "Želim da kupim povratnu kartu do Novog Sada.",
     "word_hints": {
       "want": {
-        "translation_sr": "želim"
+        "translation_tr": "želim"
       },
       "to buy": {
-        "translation_sr": "da kupim"
+        "translation_tr": "da kupim"
       },
       "return": {
-        "translation_sr": "povratnu"
+        "translation_tr": "povratnu"
       },
       "ticket": {
-        "translation_sr": "kartu"
+        "translation_tr": "kartu"
       },
       "novi": {
-        "translation_sr": "Novog"
+        "translation_tr": "Novog"
       },
       "sad": {
-        "translation_sr": "Sada"
+        "translation_tr": "Sada"
       }
     }
   },
@@ -3290,22 +3290,22 @@
     "id": "transport-03",
     "source_ru": "Когда отправляется следующий скорый поезд?",
     "source_en": "When does the next express train leave?",
-    "canonical_sr": "Kada polazi sledeći brzi voz?",
+    "canonical_tr": "Kada polazi sledeći brzi voz?",
     "word_hints": {
       "when": {
-        "translation_sr": "Kada"
+        "translation_tr": "Kada"
       },
       "next": {
-        "translation_sr": "sledeći"
+        "translation_tr": "sledeći"
       },
       "express": {
-        "translation_sr": "brzi"
+        "translation_tr": "brzi"
       },
       "train": {
-        "translation_sr": "voz"
+        "translation_tr": "voz"
       },
       "leave": {
-        "translation_sr": "polazi"
+        "translation_tr": "polazi"
       }
     }
   },
@@ -3313,22 +3313,22 @@
     "id": "transport-04",
     "source_ru": "Мне нужно сделать пересадку на центральной станции.",
     "source_en": "I need to change at the central station.",
-    "canonical_sr": "Treba da presednem na glavnoj stanici.",
+    "canonical_tr": "Treba da presednem na glavnoj stanici.",
     "word_hints": {
       "i need to": {
-        "translation_sr": "Treba da"
+        "translation_tr": "Treba da"
       },
       "change": {
-        "translation_sr": "presednem"
+        "translation_tr": "presednem"
       },
       "at": {
-        "translation_sr": "na"
+        "translation_tr": "na"
       },
       "central": {
-        "translation_sr": "glavnoj"
+        "translation_tr": "glavnoj"
       },
       "station": {
-        "translation_sr": "stanici"
+        "translation_tr": "stanici"
       }
     }
   },
@@ -3336,25 +3336,25 @@
     "id": "transport-05",
     "source_ru": "Этот автобус идёт через старый город?",
     "source_en": "Does this bus go through the old town?",
-    "canonical_sr": "Da li ovaj autobus ide kroz stari grad?",
+    "canonical_tr": "Da li ovaj autobus ide kroz stari grad?",
     "word_hints": {
       "does this": {
-        "translation_sr": "Da li"
+        "translation_tr": "Da li"
       },
       "bus": {
-        "translation_sr": "autobus"
+        "translation_tr": "autobus"
       },
       "go": {
-        "translation_sr": "ide"
+        "translation_tr": "ide"
       },
       "through": {
-        "translation_sr": "kroz"
+        "translation_tr": "kroz"
       },
       "old": {
-        "translation_sr": "stari"
+        "translation_tr": "stari"
       },
       "town": {
-        "translation_sr": "grad"
+        "translation_tr": "grad"
       }
     }
   },
@@ -3362,22 +3362,22 @@
     "id": "transport-06",
     "source_ru": "Сколько времени занимает дорога до аэропорта?",
     "source_en": "How long does the journey to the airport take?",
-    "canonical_sr": "Koliko traje put do aerodroma?",
+    "canonical_tr": "Koliko traje put do aerodroma?",
     "word_hints": {
       "how long": {
-        "translation_sr": "Koliko"
+        "translation_tr": "Koliko"
       },
       "journey": {
-        "translation_sr": "put"
+        "translation_tr": "put"
       },
       "to": {
-        "translation_sr": "do"
+        "translation_tr": "do"
       },
       "airport": {
-        "translation_sr": "aerodroma"
+        "translation_tr": "aerodroma"
       },
       "take": {
-        "translation_sr": "traje"
+        "translation_tr": "traje"
       }
     }
   },
@@ -3385,16 +3385,16 @@
     "id": "transport-07",
     "source_ru": "Можно оплатить билет банковской картой?",
     "source_en": "Can I pay for the ticket by bank card?",
-    "canonical_sr": "Mogu li da platim kartu bankovnom karticom?",
+    "canonical_tr": "Mogu li da platim kartu bankovnom karticom?",
     "word_hints": {
       "pay": {
-        "translation_sr": "platim"
+        "translation_tr": "platim"
       },
       "ticket": {
-        "translation_sr": "kartu"
+        "translation_tr": "kartu"
       },
       "by bank card": {
-        "translation_sr": "bankovnom karticom"
+        "translation_tr": "bankovnom karticom"
       }
     }
   },
@@ -3402,22 +3402,22 @@
     "id": "transport-08",
     "source_ru": "Мой поезд опаздывает на двадцать минут.",
     "source_en": "My train is twenty minutes late.",
-    "canonical_sr": "Moj voz kasni dvadeset minuta.",
+    "canonical_tr": "Moj voz kasni dvadeset minuta.",
     "word_hints": {
       "my": {
-        "translation_sr": "Moj"
+        "translation_tr": "Moj"
       },
       "train": {
-        "translation_sr": "voz"
+        "translation_tr": "voz"
       },
       "twenty": {
-        "translation_sr": "dvadeset"
+        "translation_tr": "dvadeset"
       },
       "minutes": {
-        "translation_sr": "minuta"
+        "translation_tr": "minuta"
       },
       "late": {
-        "translation_sr": "kasni"
+        "translation_tr": "kasni"
       }
     }
   },
@@ -3425,19 +3425,19 @@
     "id": "transport-09",
     "source_ru": "На какой платформе стоит ночной поезд?",
     "source_en": "Which platform is the night train on?",
-    "canonical_sr": "Na kom peronu stoji noćni voz?",
+    "canonical_tr": "Na kom peronu stoji noćni voz?",
     "word_hints": {
       "which platform": {
-        "translation_sr": "Na kom peronu"
+        "translation_tr": "Na kom peronu"
       },
       "is": {
-        "translation_sr": "stoji"
+        "translation_tr": "stoji"
       },
       "night": {
-        "translation_sr": "noćni"
+        "translation_tr": "noćni"
       },
       "train": {
-        "translation_sr": "voz"
+        "translation_tr": "voz"
       }
     }
   },
@@ -3445,19 +3445,19 @@
     "id": "transport-10",
     "source_ru": "Мне нужен дешёвый месячный проездной.",
     "source_en": "I need a cheap monthly travel pass.",
-    "canonical_sr": "Potrebna mi je jeftina mesečna karta.",
+    "canonical_tr": "Potrebna mi je jeftina mesečna karta.",
     "word_hints": {
       "need": {
-        "translation_sr": "potrebna mi je"
+        "translation_tr": "potrebna mi je"
       },
       "cheap": {
-        "translation_sr": "jeftina"
+        "translation_tr": "jeftina"
       },
       "monthly": {
-        "translation_sr": "mesečna"
+        "translation_tr": "mesečna"
       },
       "travel pass": {
-        "translation_sr": "karta"
+        "translation_tr": "karta"
       }
     }
   },
@@ -3465,28 +3465,28 @@
     "id": "transport-11",
     "source_ru": "В этом трамвае есть место для детской коляски?",
     "source_en": "Is there space for a pram on this tram?",
-    "canonical_sr": "Da li u ovom tramvaju ima mesta za dečja kolica?",
+    "canonical_tr": "Da li u ovom tramvaju ima mesta za dečja kolica?",
     "word_hints": {
       "is": {
-        "translation_sr": "ima"
+        "translation_tr": "ima"
       },
       "space": {
-        "translation_sr": "mesta"
+        "translation_tr": "mesta"
       },
       "for": {
-        "translation_sr": "za"
+        "translation_tr": "za"
       },
       "a pram": {
-        "translation_sr": "dečja kolica"
+        "translation_tr": "dečja kolica"
       },
       "on": {
-        "translation_sr": "u"
+        "translation_tr": "u"
       },
       "this": {
-        "translation_sr": "ovom"
+        "translation_tr": "ovom"
       },
       "tram": {
-        "translation_sr": "tramvaju"
+        "translation_tr": "tramvaju"
       }
     }
   },
@@ -3494,22 +3494,22 @@
     "id": "transport-12",
     "source_ru": "Водитель остановился перед большим мостом.",
     "source_en": "The driver stopped before the large bridge.",
-    "canonical_sr": "Vozač se zaustavio ispred velikog mosta.",
+    "canonical_tr": "Vozač se zaustavio ispred velikog mosta.",
     "word_hints": {
       "driver": {
-        "translation_sr": "Vozač"
+        "translation_tr": "Vozač"
       },
       "stopped": {
-        "translation_sr": "se zaustavio"
+        "translation_tr": "se zaustavio"
       },
       "before": {
-        "translation_sr": "ispred"
+        "translation_tr": "ispred"
       },
       "large": {
-        "translation_sr": "velikog"
+        "translation_tr": "velikog"
       },
       "bridge": {
-        "translation_sr": "mosta"
+        "translation_tr": "mosta"
       }
     }
   },
@@ -3517,25 +3517,25 @@
     "id": "transport-13",
     "source_ru": "Какой автобус едет к новой больнице?",
     "source_en": "Which bus goes to the new hospital?",
-    "canonical_sr": "Koji autobus ide do nove bolnice?",
+    "canonical_tr": "Koji autobus ide do nove bolnice?",
     "word_hints": {
       "which": {
-        "translation_sr": "Koji"
+        "translation_tr": "Koji"
       },
       "bus": {
-        "translation_sr": "autobus"
+        "translation_tr": "autobus"
       },
       "goes": {
-        "translation_sr": "ide"
+        "translation_tr": "ide"
       },
       "to": {
-        "translation_sr": "do"
+        "translation_tr": "do"
       },
       "new": {
-        "translation_sr": "nove"
+        "translation_tr": "nove"
       },
       "hospital": {
-        "translation_sr": "bolnice"
+        "translation_tr": "bolnice"
       }
     }
   },
@@ -3543,22 +3543,22 @@
     "id": "transport-14",
     "source_ru": "Я забыл синий рюкзак в такси.",
     "source_en": "I forgot my blue backpack in a taxi.",
-    "canonical_sr": "Zaboravio sam plavi ranac u taksiju.",
+    "canonical_tr": "Zaboravio sam plavi ranac u taksiju.",
     "word_hints": {
       "i forgot": {
-        "translation_sr": "Zaboravio sam"
+        "translation_tr": "Zaboravio sam"
       },
       "blue": {
-        "translation_sr": "plavi"
+        "translation_tr": "plavi"
       },
       "backpack": {
-        "translation_sr": "ranac"
+        "translation_tr": "ranac"
       },
       "in": {
-        "translation_sr": "u"
+        "translation_tr": "u"
       },
       "taxi": {
-        "translation_sr": "taksiju"
+        "translation_tr": "taksiju"
       }
     }
   },
@@ -3566,28 +3566,28 @@
     "id": "transport-15",
     "source_ru": "Можно вызвать свободное такси на этот адрес?",
     "source_en": "Can you call an available taxi to this address?",
-    "canonical_sr": "Možete li da pozovete slobodan taksi na ovu adresu?",
+    "canonical_tr": "Možete li da pozovete slobodan taksi na ovu adresu?",
     "word_hints": {
       "can": {
-        "translation_sr": "Možete li"
+        "translation_tr": "Možete li"
       },
       "call": {
-        "translation_sr": "da pozovete"
+        "translation_tr": "da pozovete"
       },
       "available": {
-        "translation_sr": "slobodan"
+        "translation_tr": "slobodan"
       },
       "taxi": {
-        "translation_sr": "taksi"
+        "translation_tr": "taksi"
       },
       "to": {
-        "translation_sr": "na"
+        "translation_tr": "na"
       },
       "this": {
-        "translation_sr": "ovu"
+        "translation_tr": "ovu"
       },
       "address": {
-        "translation_sr": "adresu"
+        "translation_tr": "adresu"
       }
     }
   },
@@ -3595,25 +3595,25 @@
     "id": "transport-16",
     "source_ru": "Сегодня городской транспорт работает до полуночи.",
     "source_en": "Today public transport runs until midnight.",
-    "canonical_sr": "Danas gradski prevoz radi do ponoći.",
+    "canonical_tr": "Danas gradski prevoz radi do ponoći.",
     "word_hints": {
       "today": {
-        "translation_sr": "Danas"
+        "translation_tr": "Danas"
       },
       "public": {
-        "translation_sr": "gradski"
+        "translation_tr": "gradski"
       },
       "transport": {
-        "translation_sr": "prevoz"
+        "translation_tr": "prevoz"
       },
       "runs": {
-        "translation_sr": "radi"
+        "translation_tr": "radi"
       },
       "until": {
-        "translation_sr": "do"
+        "translation_tr": "do"
       },
       "midnight": {
-        "translation_sr": "ponoći"
+        "translation_tr": "ponoći"
       }
     }
   },
@@ -3621,22 +3621,22 @@
     "id": "transport-17",
     "source_ru": "Нам нужно выйти на третьей остановке.",
     "source_en": "We need to get off at the third stop.",
-    "canonical_sr": "Treba da izađemo na trećoj stanici.",
+    "canonical_tr": "Treba da izađemo na trećoj stanici.",
     "word_hints": {
       "need": {
-        "translation_sr": "treba"
+        "translation_tr": "treba"
       },
       "get off": {
-        "translation_sr": "izađemo"
+        "translation_tr": "izađemo"
       },
       "at": {
-        "translation_sr": "na"
+        "translation_tr": "na"
       },
       "third": {
-        "translation_sr": "trećoj"
+        "translation_tr": "trećoj"
       },
       "stop": {
-        "translation_sr": "stanici"
+        "translation_tr": "stanici"
       }
     }
   },
@@ -3644,25 +3644,25 @@
     "id": "transport-18",
     "source_ru": "Где можно посмотреть новое расписание автобусов?",
     "source_en": "Where can I see the new bus timetable?",
-    "canonical_sr": "Gde mogu da pogledam novi red vožnje autobusa?",
+    "canonical_tr": "Gde mogu da pogledam novi red vožnje autobusa?",
     "word_hints": {
       "where": {
-        "translation_sr": "Gde"
+        "translation_tr": "Gde"
       },
       "can": {
-        "translation_sr": "mogu da"
+        "translation_tr": "mogu da"
       },
       "see": {
-        "translation_sr": "pogledam"
+        "translation_tr": "pogledam"
       },
       "new": {
-        "translation_sr": "novi"
+        "translation_tr": "novi"
       },
       "bus": {
-        "translation_sr": "autobusa"
+        "translation_tr": "autobusa"
       },
       "timetable": {
-        "translation_sr": "red vožnje"
+        "translation_tr": "red vožnje"
       }
     }
   },
@@ -3670,28 +3670,28 @@
     "id": "transport-19",
     "source_ru": "Эта дорога короче, но обычно более загруженная.",
     "source_en": "This route is shorter, but usually busier.",
-    "canonical_sr": "Ovaj put je kraći, ali je obično prometniji.",
+    "canonical_tr": "Ovaj put je kraći, ali je obično prometniji.",
     "word_hints": {
       "this": {
-        "translation_sr": "Ovaj"
+        "translation_tr": "Ovaj"
       },
       "route": {
-        "translation_sr": "put"
+        "translation_tr": "put"
       },
       "is": {
-        "translation_sr": "je"
+        "translation_tr": "je"
       },
       "shorter": {
-        "translation_sr": "kraći"
+        "translation_tr": "kraći"
       },
       "but": {
-        "translation_sr": "ali"
+        "translation_tr": "ali"
       },
       "usually": {
-        "translation_sr": "obično"
+        "translation_tr": "obično"
       },
       "busier": {
-        "translation_sr": "prometniji"
+        "translation_tr": "prometniji"
       }
     }
   },
@@ -3699,16 +3699,16 @@
     "id": "transport-20",
     "source_ru": "Последний автобус уже ушёл с конечной остановки?",
     "source_en": "Has the last bus already left the terminus?",
-    "canonical_sr": "Da li je poslednji autobus već krenuo sa krajnje stanice?",
+    "canonical_tr": "Da li je poslednji autobus već krenuo sa krajnje stanice?",
     "word_hints": {
       "has the last bus": {
-        "translation_sr": "Da li je poslednji autobus"
+        "translation_tr": "Da li je poslednji autobus"
       },
       "already": {
-        "translation_sr": "već"
+        "translation_tr": "već"
       },
       "left the terminus": {
-        "translation_sr": "krenuo sa krajnje stanice"
+        "translation_tr": "krenuo sa krajnje stanice"
       }
     }
   },
@@ -3716,31 +3716,31 @@
     "id": "misc-01",
     "source_ru": "Как дела? — Неплохо, просто сегодня у меня много работы.",
     "source_en": "How are you? — Not bad, I just have a lot of work today.",
-    "canonical_sr": "Kako si? — Nije loše, samo imam mnogo posla danas.",
+    "canonical_tr": "Kako si? — Nije loše, samo imam mnogo posla danas.",
     "word_hints": {
       "how": {
-        "translation_sr": "Kako"
+        "translation_tr": "Kako"
       },
       "are": {
-        "translation_sr": "si"
+        "translation_tr": "si"
       },
       "not": {
-        "translation_sr": "Nije"
+        "translation_tr": "Nije"
       },
       "bad": {
-        "translation_sr": "loše"
+        "translation_tr": "loše"
       },
       "just": {
-        "translation_sr": "samo"
+        "translation_tr": "samo"
       },
       "have": {
-        "translation_sr": "imam"
+        "translation_tr": "imam"
       },
       "a lot of work": {
-        "translation_sr": "mnogo posla"
+        "translation_tr": "mnogo posla"
       },
       "today": {
-        "translation_sr": "danas"
+        "translation_tr": "danas"
       }
     }
   },
@@ -3748,37 +3748,37 @@
     "id": "misc-02",
     "source_ru": "Что нового? — Ничего особенного, пью кофе и смотрю в окно.",
     "source_en": "What's new? — Nothing special, I'm drinking coffee and looking out of the window.",
-    "canonical_sr": "Šta ima? — Ništa posebno, pijem kafu i gledam kroz prozor.",
+    "canonical_tr": "Šta ima? — Ništa posebno, pijem kafu i gledam kroz prozor.",
     "word_hints": {
       "what's": {
-        "translation_sr": "Šta"
+        "translation_tr": "Šta"
       },
       "new": {
-        "translation_sr": "ima"
+        "translation_tr": "ima"
       },
       "nothing": {
-        "translation_sr": "Ništa"
+        "translation_tr": "Ništa"
       },
       "special": {
-        "translation_sr": "posebno"
+        "translation_tr": "posebno"
       },
       "drinking": {
-        "translation_sr": "pijem"
+        "translation_tr": "pijem"
       },
       "coffee": {
-        "translation_sr": "kafu"
+        "translation_tr": "kafu"
       },
       "and": {
-        "translation_sr": "i"
+        "translation_tr": "i"
       },
       "looking": {
-        "translation_sr": "gledam"
+        "translation_tr": "gledam"
       },
       "out": {
-        "translation_sr": "kroz"
+        "translation_tr": "kroz"
       },
       "window": {
-        "translation_sr": "prozor"
+        "translation_tr": "prozor"
       }
     }
   },
@@ -3786,28 +3786,28 @@
     "id": "misc-03",
     "source_ru": "Как жизнь? — Всё по-старому: работа, дом и немного отдыха.",
     "source_en": "How's life? — Same as always: work, home and a little rest.",
-    "canonical_sr": "Kako ide? — Sve po starom, posao, kuća i malo odmora.",
+    "canonical_tr": "Kako ide? — Sve po starom, posao, kuća i malo odmora.",
     "word_hints": {
       "how's": {
-        "translation_sr": "Kako ide?"
+        "translation_tr": "Kako ide?"
       },
       "same as always": {
-        "translation_sr": "Sve po starom"
+        "translation_tr": "Sve po starom"
       },
       "work": {
-        "translation_sr": "posao"
+        "translation_tr": "posao"
       },
       "home": {
-        "translation_sr": "kuća"
+        "translation_tr": "kuća"
       },
       "and": {
-        "translation_sr": "i"
+        "translation_tr": "i"
       },
       "little": {
-        "translation_sr": "malo"
+        "translation_tr": "malo"
       },
       "rest": {
-        "translation_sr": "odmora"
+        "translation_tr": "odmora"
       }
     }
   },
@@ -3815,28 +3815,28 @@
     "id": "misc-04",
     "source_ru": "Что делаешь? — Вот я и дома, готовлю что-нибудь на ужин.",
     "source_en": "What are you doing? — I'm home now, making something for dinner.",
-    "canonical_sr": "Šta radiš? — Evo me kod kuće, spremam nešto za večeru.",
+    "canonical_tr": "Šta radiš? — Evo me kod kuće, spremam nešto za večeru.",
     "word_hints": {
       "what": {
-        "translation_sr": "Šta"
+        "translation_tr": "Šta"
       },
       "are": {
-        "translation_sr": "radiš"
+        "translation_tr": "radiš"
       },
       "i'm home now": {
-        "translation_sr": "Evo me kod kuće"
+        "translation_tr": "Evo me kod kuće"
       },
       "making": {
-        "translation_sr": "spremam"
+        "translation_tr": "spremam"
       },
       "something": {
-        "translation_sr": "nešto"
+        "translation_tr": "nešto"
       },
       "for": {
-        "translation_sr": "za"
+        "translation_tr": "za"
       },
       "dinner": {
-        "translation_sr": "večeru"
+        "translation_tr": "večeru"
       }
     }
   },
@@ -3844,31 +3844,31 @@
     "id": "misc-05",
     "source_ru": "Ты где? — Я здесь, перед домом, жду, когда ты спустишься.",
     "source_en": "Where are you? — I'm here outside the building, waiting for you to come down.",
-    "canonical_sr": "Gde si? — Tu sam ispred zgrade, čekam da siđeš.",
+    "canonical_tr": "Gde si? — Tu sam ispred zgrade, čekam da siđeš.",
     "word_hints": {
       "where": {
-        "translation_sr": "Gde"
+        "translation_tr": "Gde"
       },
       "are": {
-        "translation_sr": "si"
+        "translation_tr": "si"
       },
       "i'm": {
-        "translation_sr": "sam"
+        "translation_tr": "sam"
       },
       "here": {
-        "translation_sr": "Tu"
+        "translation_tr": "Tu"
       },
       "outside": {
-        "translation_sr": "ispred"
+        "translation_tr": "ispred"
       },
       "building": {
-        "translation_sr": "zgrade"
+        "translation_tr": "zgrade"
       },
       "waiting": {
-        "translation_sr": "čekam"
+        "translation_tr": "čekam"
       },
       "to come down": {
-        "translation_sr": "da siđeš"
+        "translation_tr": "da siđeš"
       }
     }
   },
@@ -3876,25 +3876,25 @@
     "id": "misc-06",
     "source_ru": "Когда приедешь? — Буду через пять минут, на дороге пробка.",
     "source_en": "When will you get here? — In five minutes, there's a traffic jam.",
-    "canonical_sr": "Kad stižeš? — Stižem za pet minuta, gužva je na putu.",
+    "canonical_tr": "Kad stižeš? — Stižem za pet minuta, gužva je na putu.",
     "word_hints": {
       "when": {
-        "translation_sr": "Kad"
+        "translation_tr": "Kad"
       },
       "get": {
-        "translation_sr": "stižeš"
+        "translation_tr": "stižeš"
       },
       "in": {
-        "translation_sr": "za"
+        "translation_tr": "za"
       },
       "five": {
-        "translation_sr": "pet"
+        "translation_tr": "pet"
       },
       "minutes": {
-        "translation_sr": "minuta"
+        "translation_tr": "minuta"
       },
       "there's a traffic jam": {
-        "translation_sr": "gužva je na putu"
+        "translation_tr": "gužva je na putu"
       }
     }
   },
@@ -3902,25 +3902,25 @@
     "id": "misc-07",
     "source_ru": "Ты доехал? — Да, не волнуйся, всё в порядке.",
     "source_en": "Did you get there? — Yes, don't worry, everything is fine.",
-    "canonical_sr": "Jesi stigao? — Jesam, ne brini, sve je u redu.",
+    "canonical_tr": "Jesi stigao? — Jesam, ne brini, sve je u redu.",
     "word_hints": {
       "get": {
-        "translation_sr": "stigao"
+        "translation_tr": "stigao"
       },
       "yes": {
-        "translation_sr": "Jesam"
+        "translation_tr": "Jesam"
       },
       "don't worry": {
-        "translation_sr": "ne brini"
+        "translation_tr": "ne brini"
       },
       "everything": {
-        "translation_sr": "sve"
+        "translation_tr": "sve"
       },
       "is": {
-        "translation_sr": "je"
+        "translation_tr": "je"
       },
       "fine": {
-        "translation_sr": "u redu"
+        "translation_tr": "u redu"
       }
     }
   },
@@ -3928,22 +3928,22 @@
     "id": "misc-08",
     "source_ru": "Ты доехала? — Да, дам тебе знать, когда разберу вещи.",
     "source_en": "Did you arrive? — Yes, I'll let you know when I've unpacked.",
-    "canonical_sr": "Jesi stigla? — Jesam, javiću ti kad raspakujem stvari.",
+    "canonical_tr": "Jesi stigla? — Jesam, javiću ti kad raspakujem stvari.",
     "word_hints": {
       "arrive": {
-        "translation_sr": "stigla"
+        "translation_tr": "stigla"
       },
       "yes": {
-        "translation_sr": "Jesam"
+        "translation_tr": "Jesam"
       },
       "i'll let you know": {
-        "translation_sr": "javiću ti"
+        "translation_tr": "javiću ti"
       },
       "when": {
-        "translation_sr": "kad"
+        "translation_tr": "kad"
       },
       "i've unpacked": {
-        "translation_sr": "raspakujem stvari"
+        "translation_tr": "raspakujem stvari"
       }
     }
   },
@@ -3951,25 +3951,25 @@
     "id": "misc-09",
     "source_ru": "Я немного опаздываю, подожди немного у пекарни, сейчас приду.",
     "source_en": "I'm running a little late, wait by the bakery for a bit, I'll be right there.",
-    "canonical_sr": "Kasnim malo, sačekaj malo kod pekare, dolazim odmah.",
+    "canonical_tr": "Kasnim malo, sačekaj malo kod pekare, dolazim odmah.",
     "word_hints": {
       "i'm": {
-        "translation_sr": "Kasnim"
+        "translation_tr": "Kasnim"
       },
       "little": {
-        "translation_sr": "malo"
+        "translation_tr": "malo"
       },
       "wait": {
-        "translation_sr": "sačekaj"
+        "translation_tr": "sačekaj"
       },
       "by": {
-        "translation_sr": "kod"
+        "translation_tr": "kod"
       },
       "bakery": {
-        "translation_sr": "pekare"
+        "translation_tr": "pekare"
       },
       "i'll be right there": {
-        "translation_sr": "dolazim odmah"
+        "translation_tr": "dolazim odmah"
       }
     }
   },
@@ -3977,25 +3977,25 @@
     "id": "misc-10",
     "source_ru": "Я уже вышел, дай знать, если нужно купить хлеб.",
     "source_en": "I've already left, let me know if I need to buy bread.",
-    "canonical_sr": "Već sam krenuo, javi mi ako treba da kupim hleb.",
+    "canonical_tr": "Već sam krenuo, javi mi ako treba da kupim hleb.",
     "word_hints": {
       "i've already left": {
-        "translation_sr": "Već sam krenuo"
+        "translation_tr": "Već sam krenuo"
       },
       "let me know": {
-        "translation_sr": "javi mi"
+        "translation_tr": "javi mi"
       },
       "if": {
-        "translation_sr": "ako"
+        "translation_tr": "ako"
       },
       "need": {
-        "translation_sr": "treba"
+        "translation_tr": "treba"
       },
       "buy": {
-        "translation_sr": "kupim"
+        "translation_tr": "kupim"
       },
       "bread": {
-        "translation_sr": "hleb"
+        "translation_tr": "hleb"
       }
     }
   },
@@ -4003,31 +4003,31 @@
     "id": "misc-11",
     "source_ru": "Я уже вышла, напиши, что ещё нужно на ужин.",
     "source_en": "I've set off already, text me what else we need for dinner.",
-    "canonical_sr": "Već sam krenula, piši mi šta još treba za večeru.",
+    "canonical_tr": "Već sam krenula, piši mi šta još treba za večeru.",
     "word_hints": {
       "i've set off": {
-        "translation_sr": "Već sam krenula"
+        "translation_tr": "Već sam krenula"
       },
       "text": {
-        "translation_sr": "piši"
+        "translation_tr": "piši"
       },
       "me": {
-        "translation_sr": "mi"
+        "translation_tr": "mi"
       },
       "what": {
-        "translation_sr": "šta"
+        "translation_tr": "šta"
       },
       "else": {
-        "translation_sr": "još"
+        "translation_tr": "još"
       },
       "need": {
-        "translation_sr": "treba"
+        "translation_tr": "treba"
       },
       "for": {
-        "translation_sr": "za"
+        "translation_tr": "za"
       },
       "dinner": {
-        "translation_sr": "večeru"
+        "translation_tr": "večeru"
       }
     }
   },
@@ -4035,31 +4035,31 @@
     "id": "misc-12",
     "source_ru": "Выхожу сейчас, буду через десять минут, поставь воду для кофе.",
     "source_en": "I'm leaving now, I'll be there in ten minutes, put some water on for coffee.",
-    "canonical_sr": "Krećem sad, tu sam za deset minuta, stavi vodu za kafu.",
+    "canonical_tr": "Krećem sad, tu sam za deset minuta, stavi vodu za kafu.",
     "word_hints": {
       "i'm leaving now": {
-        "translation_sr": "Krećem sad"
+        "translation_tr": "Krećem sad"
       },
       "i'll be there": {
-        "translation_sr": "tu sam"
+        "translation_tr": "tu sam"
       },
       "in": {
-        "translation_sr": "za"
+        "translation_tr": "za"
       },
       "ten": {
-        "translation_sr": "deset"
+        "translation_tr": "deset"
       },
       "minutes": {
-        "translation_sr": "minuta"
+        "translation_tr": "minuta"
       },
       "put some water on": {
-        "translation_sr": "stavi vodu"
+        "translation_tr": "stavi vodu"
       },
       "for": {
-        "translation_sr": "za"
+        "translation_tr": "za"
       },
       "coffee": {
-        "translation_sr": "kafu"
+        "translation_tr": "kafu"
       }
     }
   },
@@ -4067,28 +4067,28 @@
     "id": "misc-13",
     "source_ru": "Минутку, ищу ключи, и можно будет выходить.",
     "source_en": "Just a moment, I'm looking for my keys, then we can leave.",
-    "canonical_sr": "Samo trenutak, tražim ključeve, pa možemo da krenemo.",
+    "canonical_tr": "Samo trenutak, tražim ključeve, pa možemo da krenemo.",
     "word_hints": {
       "just": {
-        "translation_sr": "Samo"
+        "translation_tr": "Samo"
       },
       "moment": {
-        "translation_sr": "trenutak"
+        "translation_tr": "trenutak"
       },
       "i'm looking for": {
-        "translation_sr": "tražim"
+        "translation_tr": "tražim"
       },
       "my keys": {
-        "translation_sr": "ključeve"
+        "translation_tr": "ključeve"
       },
       "then": {
-        "translation_sr": "pa"
+        "translation_tr": "pa"
       },
       "can": {
-        "translation_sr": "možemo"
+        "translation_tr": "možemo"
       },
       "leave": {
-        "translation_sr": "da krenemo"
+        "translation_tr": "da krenemo"
       }
     }
   },
@@ -4096,25 +4096,25 @@
     "id": "misc-14",
     "source_ru": "Погоди-погоди, смотри, ты оставил телефон на столе.",
     "source_en": "Wait, wait, look, you've left your phone on the table.",
-    "canonical_sr": "Čekaj, čekaj, pazi, ostavio si telefon na stolu.",
+    "canonical_tr": "Čekaj, čekaj, pazi, ostavio si telefon na stolu.",
     "word_hints": {
       "wait": {
-        "translation_sr": "čekaj"
+        "translation_tr": "čekaj"
       },
       "look": {
-        "translation_sr": "pazi"
+        "translation_tr": "pazi"
       },
       "you've left": {
-        "translation_sr": "ostavio si"
+        "translation_tr": "ostavio si"
       },
       "your phone": {
-        "translation_sr": "telefon"
+        "translation_tr": "telefon"
       },
       "on": {
-        "translation_sr": "na"
+        "translation_tr": "na"
       },
       "table": {
-        "translation_sr": "stolu"
+        "translation_tr": "stolu"
       }
     }
   },
@@ -4122,22 +4122,22 @@
     "id": "misc-15",
     "source_ru": "Вот тебе пульт, держи, смотри, что тебе нравится.",
     "source_en": "Here's the remote, here you go, watch whatever you like.",
-    "canonical_sr": "Evo ti daljinski, izvoli, gledaj šta ti se sviđa.",
+    "canonical_tr": "Evo ti daljinski, izvoli, gledaj šta ti se sviđa.",
     "word_hints": {
       "here's": {
-        "translation_sr": "Evo"
+        "translation_tr": "Evo"
       },
       "remote": {
-        "translation_sr": "daljinski"
+        "translation_tr": "daljinski"
       },
       "here you go": {
-        "translation_sr": "izvoli"
+        "translation_tr": "izvoli"
       },
       "watch": {
-        "translation_sr": "gledaj"
+        "translation_tr": "gledaj"
       },
       "whatever you like": {
-        "translation_sr": "šta ti se sviđa"
+        "translation_tr": "šta ti se sviđa"
       }
     }
   },
@@ -4145,25 +4145,25 @@
     "id": "misc-16",
     "source_ru": "Вот он, мой шарф, всё это время был под курткой.",
     "source_en": "Here's my scarf, it was under my jacket the whole time.",
-    "canonical_sr": "Evo ga moj šal, sve vreme je bio ispod jakne.",
+    "canonical_tr": "Evo ga moj šal, sve vreme je bio ispod jakne.",
     "word_hints": {
       "here's": {
-        "translation_sr": "Evo ga"
+        "translation_tr": "Evo ga"
       },
       "scarf": {
-        "translation_sr": "šal"
+        "translation_tr": "šal"
       },
       "was": {
-        "translation_sr": "je bio"
+        "translation_tr": "je bio"
       },
       "under my jacket": {
-        "translation_sr": "ispod jakne"
+        "translation_tr": "ispod jakne"
       },
       "whole": {
-        "translation_sr": "sve"
+        "translation_tr": "sve"
       },
       "time": {
-        "translation_sr": "vreme"
+        "translation_tr": "vreme"
       }
     }
   },
@@ -4171,28 +4171,28 @@
     "id": "misc-17",
     "source_ru": "Вот твоя сумка, не волнуйся, ты ничего не забыла.",
     "source_en": "Here's your bag, don't worry, you haven't forgotten anything.",
-    "canonical_sr": "Evo je tvoja torba, ne brini, ništa nisi zaboravila.",
+    "canonical_tr": "Evo je tvoja torba, ne brini, ništa nisi zaboravila.",
     "word_hints": {
       "here's": {
-        "translation_sr": "Evo"
+        "translation_tr": "Evo"
       },
       "your": {
-        "translation_sr": "tvoja"
+        "translation_tr": "tvoja"
       },
       "bag": {
-        "translation_sr": "torba"
+        "translation_tr": "torba"
       },
       "don't worry": {
-        "translation_sr": "ne brini"
+        "translation_tr": "ne brini"
       },
       "haven't": {
-        "translation_sr": "nisi"
+        "translation_tr": "nisi"
       },
       "forgotten": {
-        "translation_sr": "zaboravila"
+        "translation_tr": "zaboravila"
       },
       "anything": {
-        "translation_sr": "ništa"
+        "translation_tr": "ništa"
       }
     }
   },
@@ -4200,31 +4200,31 @@
     "id": "misc-18",
     "source_ru": "А вот и наши друзья, пойдём ко входу.",
     "source_en": "Here are our friends, let's head towards the entrance.",
-    "canonical_sr": "Evo ih naši prijatelji, hajde da krenemo prema ulazu.",
+    "canonical_tr": "Evo ih naši prijatelji, hajde da krenemo prema ulazu.",
     "word_hints": {
       "here": {
-        "translation_sr": "Evo"
+        "translation_tr": "Evo"
       },
       "are": {
-        "translation_sr": "ih"
+        "translation_tr": "ih"
       },
       "our": {
-        "translation_sr": "naši"
+        "translation_tr": "naši"
       },
       "friends": {
-        "translation_sr": "prijatelji"
+        "translation_tr": "prijatelji"
       },
       "let's": {
-        "translation_sr": "hajde da"
+        "translation_tr": "hajde da"
       },
       "head": {
-        "translation_sr": "krenemo"
+        "translation_tr": "krenemo"
       },
       "towards": {
-        "translation_sr": "prema"
+        "translation_tr": "prema"
       },
       "entrance": {
-        "translation_sr": "ulazu"
+        "translation_tr": "ulazu"
       }
     }
   },
@@ -4232,31 +4232,31 @@
     "id": "misc-19",
     "source_ru": "Будешь чай или кофе? — Мне всё равно, лишь бы горячее.",
     "source_en": "Would you like tea or coffee? — I don't mind, as long as it's hot.",
-    "canonical_sr": "Hoćeš čaj ili kafu? — Svejedno mi je, samo da je toplo.",
+    "canonical_tr": "Hoćeš čaj ili kafu? — Svejedno mi je, samo da je toplo.",
     "word_hints": {
       "would you like": {
-        "translation_sr": "Hoćeš"
+        "translation_tr": "Hoćeš"
       },
       "tea": {
-        "translation_sr": "čaj"
+        "translation_tr": "čaj"
       },
       "or": {
-        "translation_sr": "ili"
+        "translation_tr": "ili"
       },
       "coffee": {
-        "translation_sr": "kafu"
+        "translation_tr": "kafu"
       },
       "don't": {
-        "translation_sr": "Svejedno"
+        "translation_tr": "Svejedno"
       },
       "mind": {
-        "translation_sr": "mi je"
+        "translation_tr": "mi je"
       },
       "as long as": {
-        "translation_sr": "samo da"
+        "translation_tr": "samo da"
       },
       "it's hot": {
-        "translation_sr": "je toplo"
+        "translation_tr": "je toplo"
       }
     }
   },
@@ -4264,31 +4264,31 @@
     "id": "misc-20",
     "source_ru": "Что будешь на ужин? — Можно суп, сегодня мне не хочется готовить.",
     "source_en": "What will you have for dinner? — Soup sounds good, I don't feel like cooking today.",
-    "canonical_sr": "Šta ćeš za večeru? — Može supa, danas mi se ne kuva.",
+    "canonical_tr": "Šta ćeš za večeru? — Može supa, danas mi se ne kuva.",
     "word_hints": {
       "what": {
-        "translation_sr": "Šta"
+        "translation_tr": "Šta"
       },
       "for": {
-        "translation_sr": "za"
+        "translation_tr": "za"
       },
       "dinner": {
-        "translation_sr": "večeru"
+        "translation_tr": "večeru"
       },
       "soup sounds good": {
-        "translation_sr": "Može supa"
+        "translation_tr": "Može supa"
       },
       "don't": {
-        "translation_sr": "ne"
+        "translation_tr": "ne"
       },
       "feel": {
-        "translation_sr": "se"
+        "translation_tr": "se"
       },
       "like": {
-        "translation_sr": "kuva"
+        "translation_tr": "kuva"
       },
       "today": {
-        "translation_sr": "danas"
+        "translation_tr": "danas"
       }
     }
   },
@@ -4296,34 +4296,34 @@
     "id": "misc-21",
     "source_ru": "Сядем на улице? — Да, конечно, погода очень хорошая.",
     "source_en": "Shall we sit outside? — Sure, of course, the weather is really nice.",
-    "canonical_sr": "Da sednemo napolju? — Može, naravno, baš je lepo vreme.",
+    "canonical_tr": "Da sednemo napolju? — Može, naravno, baš je lepo vreme.",
     "word_hints": {
       "shall": {
-        "translation_sr": "Da"
+        "translation_tr": "Da"
       },
       "sit": {
-        "translation_sr": "sednemo"
+        "translation_tr": "sednemo"
       },
       "outside": {
-        "translation_sr": "napolju"
+        "translation_tr": "napolju"
       },
       "sure": {
-        "translation_sr": "Može"
+        "translation_tr": "Može"
       },
       "of course": {
-        "translation_sr": "naravno"
+        "translation_tr": "naravno"
       },
       "weather": {
-        "translation_sr": "vreme"
+        "translation_tr": "vreme"
       },
       "is": {
-        "translation_sr": "je"
+        "translation_tr": "je"
       },
       "really": {
-        "translation_sr": "baš"
+        "translation_tr": "baš"
       },
       "nice": {
-        "translation_sr": "lepo"
+        "translation_tr": "lepo"
       }
     }
   },
@@ -4331,25 +4331,25 @@
     "id": "misc-22",
     "source_ru": "Погуляем после обеда? — Ладно, только посуду помою.",
     "source_en": "Shall we go for a walk after lunch? — Sure, let me just wash the dishes.",
-    "canonical_sr": "Da prošetamo posle ručka? — Važi, samo da operem sudove.",
+    "canonical_tr": "Da prošetamo posle ručka? — Važi, samo da operem sudove.",
     "word_hints": {
       "go": {
-        "translation_sr": "prošetamo"
+        "translation_tr": "prošetamo"
       },
       "after": {
-        "translation_sr": "posle"
+        "translation_tr": "posle"
       },
       "lunch": {
-        "translation_sr": "ručka"
+        "translation_tr": "ručka"
       },
       "sure": {
-        "translation_sr": "Važi"
+        "translation_tr": "Važi"
       },
       "let me just wash": {
-        "translation_sr": "samo da operem"
+        "translation_tr": "samo da operem"
       },
       "dishes": {
-        "translation_sr": "sudove"
+        "translation_tr": "sudove"
       }
     }
   },
@@ -4357,37 +4357,37 @@
     "id": "misc-23",
     "source_ru": "Увидимся завтра в шесть у парка. — Договорились, дай знать, когда выйдешь.",
     "source_en": "See you tomorrow at six by the park. — Agreed, get in touch when you leave.",
-    "canonical_sr": "Vidimo se sutra u šest kod parka. — Dogovoreno, javi se kad kreneš.",
+    "canonical_tr": "Vidimo se sutra u šest kod parka. — Dogovoreno, javi se kad kreneš.",
     "word_hints": {
       "see": {
-        "translation_sr": "Vidimo se"
+        "translation_tr": "Vidimo se"
       },
       "tomorrow": {
-        "translation_sr": "sutra"
+        "translation_tr": "sutra"
       },
       "at": {
-        "translation_sr": "u"
+        "translation_tr": "u"
       },
       "six": {
-        "translation_sr": "šest"
+        "translation_tr": "šest"
       },
       "by": {
-        "translation_sr": "kod"
+        "translation_tr": "kod"
       },
       "park": {
-        "translation_sr": "parka"
+        "translation_tr": "parka"
       },
       "agreed": {
-        "translation_sr": "Dogovoreno"
+        "translation_tr": "Dogovoreno"
       },
       "get in touch": {
-        "translation_sr": "javi se"
+        "translation_tr": "javi se"
       },
       "when": {
-        "translation_sr": "kad"
+        "translation_tr": "kad"
       },
       "leave": {
-        "translation_sr": "kreneš"
+        "translation_tr": "kreneš"
       }
     }
   },
@@ -4395,34 +4395,34 @@
     "id": "misc-24",
     "source_ru": "Позвоню тебе позже, сейчас я в магазине и несу пакеты.",
     "source_en": "I'll call you later, I'm at the shop now carrying bags.",
-    "canonical_sr": "Zovem te kasnije, sad sam u prodavnici i nosim kese.",
+    "canonical_tr": "Zovem te kasnije, sad sam u prodavnici i nosim kese.",
     "word_hints": {
       "call": {
-        "translation_sr": "Zovem"
+        "translation_tr": "Zovem"
       },
       "you": {
-        "translation_sr": "te"
+        "translation_tr": "te"
       },
       "later": {
-        "translation_sr": "kasnije"
+        "translation_tr": "kasnije"
       },
       "i'm": {
-        "translation_sr": "sam"
+        "translation_tr": "sam"
       },
       "at": {
-        "translation_sr": "u"
+        "translation_tr": "u"
       },
       "shop": {
-        "translation_sr": "prodavnici"
+        "translation_tr": "prodavnici"
       },
       "now": {
-        "translation_sr": "sad"
+        "translation_tr": "sad"
       },
       "carrying": {
-        "translation_sr": "nosim"
+        "translation_tr": "nosim"
       },
       "bags": {
-        "translation_sr": "kese"
+        "translation_tr": "kese"
       }
     }
   },
@@ -4430,28 +4430,28 @@
     "id": "misc-25",
     "source_ru": "Ладно, увидимся, созвонимся завтра и договоримся насчёт выходных.",
     "source_en": "All right, see you, let's talk tomorrow and make plans for the weekend.",
-    "canonical_sr": "Ajde, vidimo se, čujemo se sutra da se dogovorimo za vikend.",
+    "canonical_tr": "Ajde, vidimo se, čujemo se sutra da se dogovorimo za vikend.",
     "word_hints": {
       "all right": {
-        "translation_sr": "Ajde"
+        "translation_tr": "Ajde"
       },
       "see": {
-        "translation_sr": "vidimo se"
+        "translation_tr": "vidimo se"
       },
       "let's talk": {
-        "translation_sr": "čujemo se"
+        "translation_tr": "čujemo se"
       },
       "tomorrow": {
-        "translation_sr": "sutra"
+        "translation_tr": "sutra"
       },
       "make plans": {
-        "translation_sr": "da se dogovorimo"
+        "translation_tr": "da se dogovorimo"
       },
       "for": {
-        "translation_sr": "za"
+        "translation_tr": "za"
       },
       "weekend": {
-        "translation_sr": "vikend"
+        "translation_tr": "vikend"
       }
     }
   },
@@ -4459,28 +4459,28 @@
     "id": "misc-26",
     "source_ru": "Большое спасибо, что принёс вещи. — Не за что, мне по пути.",
     "source_en": "Thanks a lot for bringing the things. — You're welcome, it's on my way.",
-    "canonical_sr": "Hvala puno što si doneo stvari. — Nema na čemu, usput mi je.",
+    "canonical_tr": "Hvala puno što si doneo stvari. — Nema na čemu, usput mi je.",
     "word_hints": {
       "thanks": {
-        "translation_sr": "hvala"
+        "translation_tr": "hvala"
       },
       "lot": {
-        "translation_sr": "puno"
+        "translation_tr": "puno"
       },
       "for": {
-        "translation_sr": "što"
+        "translation_tr": "što"
       },
       "bringing": {
-        "translation_sr": "doneo"
+        "translation_tr": "doneo"
       },
       "things": {
-        "translation_sr": "stvari"
+        "translation_tr": "stvari"
       },
       "you're welcome": {
-        "translation_sr": "Nema na čemu"
+        "translation_tr": "Nema na čemu"
       },
       "it's on my way": {
-        "translation_sr": "usput mi je"
+        "translation_tr": "usput mi je"
       }
     }
   },
@@ -4488,34 +4488,34 @@
     "id": "misc-27",
     "source_ru": "Извини, я пролил немного воды. — Ничего страшного, бывает, вот тряпка.",
     "source_en": "Sorry, I spilled some water. — Never mind, it happens, here's a cloth.",
-    "canonical_sr": "Izvini, prosuo sam malo vode. — Nema veze, dešava se, evo krpe.",
+    "canonical_tr": "Izvini, prosuo sam malo vode. — Nema veze, dešava se, evo krpe.",
     "word_hints": {
       "sorry": {
-        "translation_sr": "Izvini"
+        "translation_tr": "Izvini"
       },
       "spilled": {
-        "translation_sr": "prosuo"
+        "translation_tr": "prosuo"
       },
       "some": {
-        "translation_sr": "malo"
+        "translation_tr": "malo"
       },
       "water": {
-        "translation_sr": "vode"
+        "translation_tr": "vode"
       },
       "never": {
-        "translation_sr": "Nema"
+        "translation_tr": "Nema"
       },
       "mind": {
-        "translation_sr": "veze"
+        "translation_tr": "veze"
       },
       "it happens": {
-        "translation_sr": "dešava se"
+        "translation_tr": "dešava se"
       },
       "here's": {
-        "translation_sr": "evo"
+        "translation_tr": "evo"
       },
       "cloth": {
-        "translation_sr": "krpe"
+        "translation_tr": "krpe"
       }
     }
   },
@@ -4523,34 +4523,34 @@
     "id": "misc-28",
     "source_ru": "Не нужно спешить, у нас ещё полчаса до фильма.",
     "source_en": "There's no need to rush, we still have half an hour before the film.",
-    "canonical_sr": "Nema potrebe da žuriš, imamo još pola sata do filma.",
+    "canonical_tr": "Nema potrebe da žuriš, imamo još pola sata do filma.",
     "word_hints": {
       "there's no need": {
-        "translation_sr": "Nema potrebe"
+        "translation_tr": "Nema potrebe"
       },
       "to": {
-        "translation_sr": "da"
+        "translation_tr": "da"
       },
       "rush": {
-        "translation_sr": "žuriš"
+        "translation_tr": "žuriš"
       },
       "still": {
-        "translation_sr": "još"
+        "translation_tr": "još"
       },
       "have": {
-        "translation_sr": "imamo"
+        "translation_tr": "imamo"
       },
       "half": {
-        "translation_sr": "pola"
+        "translation_tr": "pola"
       },
       "hour": {
-        "translation_sr": "sata"
+        "translation_tr": "sata"
       },
       "before": {
-        "translation_sr": "do"
+        "translation_tr": "do"
       },
       "film": {
-        "translation_sr": "filma"
+        "translation_tr": "filma"
       }
     }
   },
@@ -4558,25 +4558,25 @@
     "id": "misc-29",
     "source_ru": "Расслабься, всё будет хорошо, нам не обязательно всё заканчивать сегодня.",
     "source_en": "Relax, it'll be fine, we don't have to finish everything today.",
-    "canonical_sr": "Opusti se, biće dobro, ne moramo sve da završimo danas.",
+    "canonical_tr": "Opusti se, biće dobro, ne moramo sve da završimo danas.",
     "word_hints": {
       "relax": {
-        "translation_sr": "Opusti se"
+        "translation_tr": "Opusti se"
       },
       "it'll be fine": {
-        "translation_sr": "biće dobro"
+        "translation_tr": "biće dobro"
       },
       "we don't have to": {
-        "translation_sr": "ne moramo"
+        "translation_tr": "ne moramo"
       },
       "finish": {
-        "translation_sr": "da završimo"
+        "translation_tr": "da završimo"
       },
       "everything": {
-        "translation_sr": "sve"
+        "translation_tr": "sve"
       },
       "today": {
-        "translation_sr": "danas"
+        "translation_tr": "danas"
       }
     }
   },
@@ -4584,22 +4584,22 @@
     "id": "misc-30",
     "source_ru": "Не торопись, кофе горячий, можешь обжечься.",
     "source_en": "Take it slowly, the coffee is hot, you could burn yourself.",
-    "canonical_sr": "Polako, kafa je vruća, možeš da se opečeš.",
+    "canonical_tr": "Polako, kafa je vruća, možeš da se opečeš.",
     "word_hints": {
       "take it slowly": {
-        "translation_sr": "Polako"
+        "translation_tr": "Polako"
       },
       "coffee": {
-        "translation_sr": "kafa"
+        "translation_tr": "kafa"
       },
       "is": {
-        "translation_sr": "je"
+        "translation_tr": "je"
       },
       "hot": {
-        "translation_sr": "vruća"
+        "translation_tr": "vruća"
       },
       "you could burn yourself": {
-        "translation_sr": "možeš da se opečeš"
+        "translation_tr": "možeš da se opečeš"
       }
     }
   },
@@ -4607,25 +4607,25 @@
     "id": "misc-31",
     "source_ru": "Мне очень нравится эта лампа, она красиво смотрится рядом с диваном.",
     "source_en": "I really like this lamp, it looks lovely next to the sofa.",
-    "canonical_sr": "Baš mi se sviđa ova lampa, lepo izgleda pored kauča.",
+    "canonical_tr": "Baš mi se sviđa ova lampa, lepo izgleda pored kauča.",
     "word_hints": {
       "really": {
-        "translation_sr": "baš"
+        "translation_tr": "baš"
       },
       "this": {
-        "translation_sr": "ova"
+        "translation_tr": "ova"
       },
       "lamp": {
-        "translation_sr": "lampa"
+        "translation_tr": "lampa"
       },
       "looks": {
-        "translation_sr": "izgleda"
+        "translation_tr": "izgleda"
       },
       "lovely": {
-        "translation_sr": "lepo"
+        "translation_tr": "lepo"
       },
       "next to the sofa": {
-        "translation_sr": "pored kauča"
+        "translation_tr": "pored kauča"
       }
     }
   },
@@ -4633,28 +4633,28 @@
     "id": "misc-32",
     "source_ru": "Мне не нравится этот цвет, комната выглядит слишком тёмной.",
     "source_en": "I don't like this colour, the room looks too dark.",
-    "canonical_sr": "Ne sviđa mi se ova boja, soba izgleda previše tamno.",
+    "canonical_tr": "Ne sviđa mi se ova boja, soba izgleda previše tamno.",
     "word_hints": {
       "i don't like": {
-        "translation_sr": "Ne sviđa mi se"
+        "translation_tr": "Ne sviđa mi se"
       },
       "this": {
-        "translation_sr": "ova"
+        "translation_tr": "ova"
       },
       "colour": {
-        "translation_sr": "boja"
+        "translation_tr": "boja"
       },
       "room": {
-        "translation_sr": "soba"
+        "translation_tr": "soba"
       },
       "looks": {
-        "translation_sr": "izgleda"
+        "translation_tr": "izgleda"
       },
       "too": {
-        "translation_sr": "previše"
+        "translation_tr": "previše"
       },
       "dark": {
-        "translation_sr": "tamno"
+        "translation_tr": "tamno"
       }
     }
   },
@@ -4662,25 +4662,25 @@
     "id": "misc-33",
     "source_ru": "Этот пирог просто супер, есть ещё один кусочек?",
     "source_en": "This pie is great, is there another slice?",
-    "canonical_sr": "Super je ova pita, je l' ima još jedno parče?",
+    "canonical_tr": "Super je ova pita, je l' ima još jedno parče?",
     "word_hints": {
       "this": {
-        "translation_sr": "ova"
+        "translation_tr": "ova"
       },
       "pie": {
-        "translation_sr": "pita"
+        "translation_tr": "pita"
       },
       "is great": {
-        "translation_sr": "Super je"
+        "translation_tr": "Super je"
       },
       "there": {
-        "translation_sr": "ima"
+        "translation_tr": "ima"
       },
       "another": {
-        "translation_sr": "još jedno"
+        "translation_tr": "još jedno"
       },
       "slice": {
-        "translation_sr": "parče"
+        "translation_tr": "parče"
       }
     }
   },
@@ -4688,22 +4688,22 @@
     "id": "misc-34",
     "source_ru": "Как хорошо, что ты пришёл, мне нужна помощь с полкой.",
     "source_en": "It's really good that you came, I need help with the shelf.",
-    "canonical_sr": "Baš dobro što si došao, treba mi pomoć oko police.",
+    "canonical_tr": "Baš dobro što si došao, treba mi pomoć oko police.",
     "word_hints": {
       "it's really good that": {
-        "translation_sr": "Baš dobro što"
+        "translation_tr": "Baš dobro što"
       },
       "came": {
-        "translation_sr": "si došao"
+        "translation_tr": "si došao"
       },
       "i need help": {
-        "translation_sr": "treba mi pomoć"
+        "translation_tr": "treba mi pomoć"
       },
       "with": {
-        "translation_sr": "oko"
+        "translation_tr": "oko"
       },
       "shelf": {
-        "translation_sr": "police"
+        "translation_tr": "police"
       }
     }
   },
@@ -4711,31 +4711,31 @@
     "id": "misc-35",
     "source_ru": "Правда? Я не знал, что ты теперь живёшь на нашей улице.",
     "source_en": "Really? I didn't know you live on our street now.",
-    "canonical_sr": "Stvarno? Nisam znao da sada živiš u našoj ulici.",
+    "canonical_tr": "Stvarno? Nisam znao da sada živiš u našoj ulici.",
     "word_hints": {
       "really": {
-        "translation_sr": "Stvarno"
+        "translation_tr": "Stvarno"
       },
       "didn't": {
-        "translation_sr": "nisam"
+        "translation_tr": "nisam"
       },
       "know": {
-        "translation_sr": "znao"
+        "translation_tr": "znao"
       },
       "live": {
-        "translation_sr": "živiš"
+        "translation_tr": "živiš"
       },
       "on": {
-        "translation_sr": "u"
+        "translation_tr": "u"
       },
       "our": {
-        "translation_sr": "našoj"
+        "translation_tr": "našoj"
       },
       "street": {
-        "translation_sr": "ulici"
+        "translation_tr": "ulici"
       },
       "now": {
-        "translation_sr": "sada"
+        "translation_tr": "sada"
       }
     }
   },
@@ -4743,28 +4743,28 @@
     "id": "misc-36",
     "source_ru": "Серьёзно? Опять не работает лифт, а у нас полные пакеты.",
     "source_en": "Seriously? The lift isn't working again, and we're carrying full bags.",
-    "canonical_sr": "Ozbiljno? Opet ne radi lift, a nosimo pune kese.",
+    "canonical_tr": "Ozbiljno? Opet ne radi lift, a nosimo pune kese.",
     "word_hints": {
       "seriously": {
-        "translation_sr": "Ozbiljno"
+        "translation_tr": "Ozbiljno"
       },
       "lift": {
-        "translation_sr": "lift"
+        "translation_tr": "lift"
       },
       "isn't working again": {
-        "translation_sr": "Opet ne radi"
+        "translation_tr": "Opet ne radi"
       },
       "and": {
-        "translation_sr": "a"
+        "translation_tr": "a"
       },
       "we're carrying": {
-        "translation_sr": "nosimo"
+        "translation_tr": "nosimo"
       },
       "full": {
-        "translation_sr": "pune"
+        "translation_tr": "pune"
       },
       "bags": {
-        "translation_sr": "kese"
+        "translation_tr": "kese"
       }
     }
   },
@@ -4772,25 +4772,25 @@
     "id": "misc-37",
     "source_ru": "Да ладно, мы ни за что не съедим всё это сами.",
     "source_en": "Oh come on, there's no way we can eat all that ourselves.",
-    "canonical_sr": "Ma daj, nema šanse da sve to pojedemo sami.",
+    "canonical_tr": "Ma daj, nema šanse da sve to pojedemo sami.",
     "word_hints": {
       "oh come on": {
-        "translation_sr": "Ma daj"
+        "translation_tr": "Ma daj"
       },
       "there's no way": {
-        "translation_sr": "nema šanse"
+        "translation_tr": "nema šanse"
       },
       "eat": {
-        "translation_sr": "pojedemo"
+        "translation_tr": "pojedemo"
       },
       "all": {
-        "translation_sr": "sve"
+        "translation_tr": "sve"
       },
       "that": {
-        "translation_sr": "to"
+        "translation_tr": "to"
       },
       "ourselves": {
-        "translation_sr": "sami"
+        "translation_tr": "sami"
       }
     }
   },
@@ -4798,25 +4798,25 @@
     "id": "misc-38",
     "source_ru": "Понятия не имею, где зарядка, посмотри возле кровати.",
     "source_en": "I've no idea where the charger is, look next to the bed.",
-    "canonical_sr": "Nemam pojma gde je punjač, pogledaj pored kreveta.",
+    "canonical_tr": "Nemam pojma gde je punjač, pogledaj pored kreveta.",
     "word_hints": {
       "i've no idea": {
-        "translation_sr": "Nemam pojma"
+        "translation_tr": "Nemam pojma"
       },
       "where": {
-        "translation_sr": "gde"
+        "translation_tr": "gde"
       },
       "charger": {
-        "translation_sr": "punjač"
+        "translation_tr": "punjač"
       },
       "is": {
-        "translation_sr": "je"
+        "translation_tr": "je"
       },
       "look": {
-        "translation_sr": "pogledaj"
+        "translation_tr": "pogledaj"
       },
       "next to the bed": {
-        "translation_sr": "pored kreveta"
+        "translation_tr": "pored kreveta"
       }
     }
   },
@@ -4824,28 +4824,28 @@
     "id": "misc-39",
     "source_ru": "Не знаю, открыт ли ещё магазин, посмотрим, когда придём.",
     "source_en": "I don't know if the shop is still open, we'll see when we get there.",
-    "canonical_sr": "Ne znam da li prodavnica još radi, videćemo kad stignemo.",
+    "canonical_tr": "Ne znam da li prodavnica još radi, videćemo kad stignemo.",
     "word_hints": {
       "don't": {
-        "translation_sr": "ne"
+        "translation_tr": "ne"
       },
       "know": {
-        "translation_sr": "znam"
+        "translation_tr": "znam"
       },
       "if": {
-        "translation_sr": "da li"
+        "translation_tr": "da li"
       },
       "shop": {
-        "translation_sr": "prodavnica"
+        "translation_tr": "prodavnica"
       },
       "is still open": {
-        "translation_sr": "još radi"
+        "translation_tr": "još radi"
       },
       "we'll see": {
-        "translation_sr": "videćemo"
+        "translation_tr": "videćemo"
       },
       "when we get there": {
-        "translation_sr": "kad stignemo"
+        "translation_tr": "kad stignemo"
       }
     }
   },
@@ -4853,25 +4853,25 @@
     "id": "misc-40",
     "source_ru": "Я не уверен, что у нас есть молоко, проверь в холодильнике.",
     "source_en": "I'm not sure we have any milk, check in the fridge.",
-    "canonical_sr": "Nisam siguran da imamo mleka, proveri u frižideru.",
+    "canonical_tr": "Nisam siguran da imamo mleka, proveri u frižideru.",
     "word_hints": {
       "i'm not sure": {
-        "translation_sr": "Nisam siguran"
+        "translation_tr": "Nisam siguran"
       },
       "have": {
-        "translation_sr": "imamo"
+        "translation_tr": "imamo"
       },
       "any milk": {
-        "translation_sr": "mleka"
+        "translation_tr": "mleka"
       },
       "check": {
-        "translation_sr": "proveri"
+        "translation_tr": "proveri"
       },
       "in": {
-        "translation_sr": "u"
+        "translation_tr": "u"
       },
       "fridge": {
-        "translation_sr": "frižideru"
+        "translation_tr": "frižideru"
       }
     }
   },
@@ -4879,28 +4879,28 @@
     "id": "misc-41",
     "source_ru": "Я не уверена, что это твой зонт, мой синий.",
     "source_en": "I'm not certain this is your umbrella, mine is blue.",
-    "canonical_sr": "Nisam sigurna da je ovo tvoj kišobran, moj je plavi.",
+    "canonical_tr": "Nisam sigurna da je ovo tvoj kišobran, moj je plavi.",
     "word_hints": {
       "i'm not certain": {
-        "translation_sr": "Nisam sigurna"
+        "translation_tr": "Nisam sigurna"
       },
       "this": {
-        "translation_sr": "ovo"
+        "translation_tr": "ovo"
       },
       "is": {
-        "translation_sr": "je"
+        "translation_tr": "je"
       },
       "your": {
-        "translation_sr": "tvoj"
+        "translation_tr": "tvoj"
       },
       "umbrella": {
-        "translation_sr": "kišobran"
+        "translation_tr": "kišobran"
       },
       "mine": {
-        "translation_sr": "moj"
+        "translation_tr": "moj"
       },
       "blue": {
-        "translation_sr": "plavi"
+        "translation_tr": "plavi"
       }
     }
   },
@@ -4908,31 +4908,31 @@
     "id": "misc-42",
     "source_ru": "Думаю, да, но дам тебе знать вечером, когда проверю расписание.",
     "source_en": "I think so, but I'll let you know tonight after I check my schedule.",
-    "canonical_sr": "Mislim da da, ali javiću ti večeras kad proverim raspored.",
+    "canonical_tr": "Mislim da da, ali javiću ti večeras kad proverim raspored.",
     "word_hints": {
       "think": {
-        "translation_sr": "Mislim"
+        "translation_tr": "Mislim"
       },
       "so": {
-        "translation_sr": "da da"
+        "translation_tr": "da da"
       },
       "but": {
-        "translation_sr": "ali"
+        "translation_tr": "ali"
       },
       "i'll let you know": {
-        "translation_sr": "javiću ti"
+        "translation_tr": "javiću ti"
       },
       "tonight": {
-        "translation_sr": "večeras"
+        "translation_tr": "večeras"
       },
       "after": {
-        "translation_sr": "kad"
+        "translation_tr": "kad"
       },
       "check": {
-        "translation_sr": "proverim"
+        "translation_tr": "proverim"
       },
       "my schedule": {
-        "translation_sr": "raspored"
+        "translation_tr": "raspored"
       }
     }
   },
@@ -4940,28 +4940,28 @@
     "id": "misc-43",
     "source_ru": "Думаю, нет, наверное, останемся дома из-за дождя.",
     "source_en": "I don't think so, we'll probably stay at home because of the rain.",
-    "canonical_sr": "Mislim da ne, verovatno ćemo ostati kod kuće zbog kiše.",
+    "canonical_tr": "Mislim da ne, verovatno ćemo ostati kod kuće zbog kiše.",
     "word_hints": {
       "i don't think so": {
-        "translation_sr": "Mislim da ne"
+        "translation_tr": "Mislim da ne"
       },
       "we'll": {
-        "translation_sr": "ćemo"
+        "translation_tr": "ćemo"
       },
       "probably": {
-        "translation_sr": "verovatno"
+        "translation_tr": "verovatno"
       },
       "stay": {
-        "translation_sr": "ostati"
+        "translation_tr": "ostati"
       },
       "at": {
-        "translation_sr": "kod"
+        "translation_tr": "kod"
       },
       "home": {
-        "translation_sr": "kuće"
+        "translation_tr": "kuće"
       },
       "because of the rain": {
-        "translation_sr": "zbog kiše"
+        "translation_tr": "zbog kiše"
       }
     }
   },
@@ -4969,31 +4969,31 @@
     "id": "misc-44",
     "source_ru": "Может, завтра сходим на рынок, сегодня я очень устал.",
     "source_en": "Maybe we can go to the market tomorrow, I'm really tired today.",
-    "canonical_sr": "Možda možemo sutra na pijacu, danas sam baš umoran.",
+    "canonical_tr": "Možda možemo sutra na pijacu, danas sam baš umoran.",
     "word_hints": {
       "maybe": {
-        "translation_sr": "Možda"
+        "translation_tr": "Možda"
       },
       "to": {
-        "translation_sr": "na"
+        "translation_tr": "na"
       },
       "market": {
-        "translation_sr": "pijacu"
+        "translation_tr": "pijacu"
       },
       "tomorrow": {
-        "translation_sr": "sutra"
+        "translation_tr": "sutra"
       },
       "i'm": {
-        "translation_sr": "sam"
+        "translation_tr": "sam"
       },
       "really": {
-        "translation_sr": "baš"
+        "translation_tr": "baš"
       },
       "tired": {
-        "translation_sr": "umoran"
+        "translation_tr": "umoran"
       },
       "today": {
-        "translation_sr": "danas"
+        "translation_tr": "danas"
       }
     }
   },
@@ -5001,19 +5001,19 @@
     "id": "misc-45",
     "source_ru": "Я не понял, немного помедленнее, как называется эта улица?",
     "source_en": "I didn't understand, a little more slowly, what's that street called?",
-    "canonical_sr": "Nisam razumeo, samo malo sporije, kako se zove ta ulica?",
+    "canonical_tr": "Nisam razumeo, samo malo sporije, kako se zove ta ulica?",
     "word_hints": {
       "didn't": {
-        "translation_sr": "nisam"
+        "translation_tr": "nisam"
       },
       "understand": {
-        "translation_sr": "razumeo"
+        "translation_tr": "razumeo"
       },
       "a little more slowly": {
-        "translation_sr": "samo malo sporije"
+        "translation_tr": "samo malo sporije"
       },
       "what's that street called": {
-        "translation_sr": "kako se zove ta ulica"
+        "translation_tr": "kako se zove ta ulica"
       }
     }
   },
@@ -5021,25 +5021,25 @@
     "id": "misc-46",
     "source_ru": "Я не поняла последнее слово, повторите, пожалуйста.",
     "source_en": "I didn't catch the last word, please repeat it.",
-    "canonical_sr": "Nisam razumela poslednju reč, ponovite, molim vas.",
+    "canonical_tr": "Nisam razumela poslednju reč, ponovite, molim vas.",
     "word_hints": {
       "didn't": {
-        "translation_sr": "Nisam"
+        "translation_tr": "Nisam"
       },
       "catch": {
-        "translation_sr": "razumela"
+        "translation_tr": "razumela"
       },
       "last": {
-        "translation_sr": "poslednju"
+        "translation_tr": "poslednju"
       },
       "word": {
-        "translation_sr": "reč"
+        "translation_tr": "reč"
       },
       "please": {
-        "translation_sr": "molim vas"
+        "translation_tr": "molim vas"
       },
       "repeat": {
-        "translation_sr": "ponovite"
+        "translation_tr": "ponovite"
       }
     }
   },
@@ -5047,28 +5047,28 @@
     "id": "misc-47",
     "source_ru": "Что это значит в счёте? — Подождите минутку, сейчас посмотрю.",
     "source_en": "What does this mean on the bill? — Please wait a moment, I'll take a look.",
-    "canonical_sr": "Šta to znači na računu? — Sačekajte trenutak, sad ću pogledati.",
+    "canonical_tr": "Šta to znači na računu? — Sačekajte trenutak, sad ću pogledati.",
     "word_hints": {
       "what": {
-        "translation_sr": "Šta"
+        "translation_tr": "Šta"
       },
       "this": {
-        "translation_sr": "to"
+        "translation_tr": "to"
       },
       "mean": {
-        "translation_sr": "znači"
+        "translation_tr": "znači"
       },
       "on": {
-        "translation_sr": "na"
+        "translation_tr": "na"
       },
       "bill": {
-        "translation_sr": "računu"
+        "translation_tr": "računu"
       },
       "please wait a moment": {
-        "translation_sr": "Sačekajte trenutak"
+        "translation_tr": "Sačekajte trenutak"
       },
       "i'll take a look": {
-        "translation_sr": "sad ću pogledati"
+        "translation_tr": "sad ću pogledati"
       }
     }
   },
@@ -5076,34 +5076,34 @@
     "id": "misc-48",
     "source_ru": "Как это сказать по-сербски, та штука для открывания бутылок?",
     "source_en": "How do you say it in Serbian, that thing for opening bottles?",
-    "canonical_sr": "Kako se to kaže na srpskom, ona stvar za otvaranje flaša?",
+    "canonical_tr": "Kako se to kaže na srpskom, ona stvar za otvaranje flaša?",
     "word_hints": {
       "how": {
-        "translation_sr": "Kako"
+        "translation_tr": "Kako"
       },
       "say": {
-        "translation_sr": "kaže"
+        "translation_tr": "kaže"
       },
       "in": {
-        "translation_sr": "na"
+        "translation_tr": "na"
       },
       "serbian": {
-        "translation_sr": "srpskom"
+        "translation_tr": "srpskom"
       },
       "that": {
-        "translation_sr": "ona"
+        "translation_tr": "ona"
       },
       "thing": {
-        "translation_sr": "stvar"
+        "translation_tr": "stvar"
       },
       "for": {
-        "translation_sr": "za"
+        "translation_tr": "za"
       },
       "opening": {
-        "translation_sr": "otvaranje"
+        "translation_tr": "otvaranje"
       },
       "bottles": {
-        "translation_sr": "flaša"
+        "translation_tr": "flaša"
       }
     }
   },
@@ -5111,31 +5111,31 @@
     "id": "misc-49",
     "source_ru": "Теперь понимаю, значит, сначала поворачиваю налево, потом иду прямо.",
     "source_en": "Now I understand, so I turn left first, then go straight on.",
-    "canonical_sr": "Sad razumem, znači prvo skrenem levo, pa idem pravo.",
+    "canonical_tr": "Sad razumem, znači prvo skrenem levo, pa idem pravo.",
     "word_hints": {
       "now": {
-        "translation_sr": "Sad"
+        "translation_tr": "Sad"
       },
       "understand": {
-        "translation_sr": "razumem"
+        "translation_tr": "razumem"
       },
       "so": {
-        "translation_sr": "znači"
+        "translation_tr": "znači"
       },
       "turn": {
-        "translation_sr": "skrenem"
+        "translation_tr": "skrenem"
       },
       "left": {
-        "translation_sr": "levo"
+        "translation_tr": "levo"
       },
       "first": {
-        "translation_sr": "prvo"
+        "translation_tr": "prvo"
       },
       "then": {
-        "translation_sr": "pa"
+        "translation_tr": "pa"
       },
       "go straight on": {
-        "translation_sr": "idem pravo"
+        "translation_tr": "idem pravo"
       }
     }
   },
@@ -5143,37 +5143,37 @@
     "id": "misc-50",
     "source_ru": "Можно и так: сначала купим хлеб, потом сядем выпить кофе.",
     "source_en": "That works too, let's buy bread first, then sit down for a coffee.",
-    "canonical_sr": "Može i tako, prvo da kupimo hleb, pa da sednemo na kafu.",
+    "canonical_tr": "Može i tako, prvo da kupimo hleb, pa da sednemo na kafu.",
     "word_hints": {
       "that": {
-        "translation_sr": "tako"
+        "translation_tr": "tako"
       },
       "works": {
-        "translation_sr": "može"
+        "translation_tr": "može"
       },
       "too": {
-        "translation_sr": "i"
+        "translation_tr": "i"
       },
       "let's": {
-        "translation_sr": "da"
+        "translation_tr": "da"
       },
       "buy": {
-        "translation_sr": "kupimo"
+        "translation_tr": "kupimo"
       },
       "bread": {
-        "translation_sr": "hleb"
+        "translation_tr": "hleb"
       },
       "first": {
-        "translation_sr": "prvo"
+        "translation_tr": "prvo"
       },
       "then sit down": {
-        "translation_sr": "pa da sednemo"
+        "translation_tr": "pa da sednemo"
       },
       "for": {
-        "translation_sr": "na"
+        "translation_tr": "na"
       },
       "coffee": {
-        "translation_sr": "kafu"
+        "translation_tr": "kafu"
       }
     }
   }

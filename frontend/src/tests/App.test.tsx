@@ -160,7 +160,7 @@ describe("App", () => {
   it.each([false, true])("renders a short nonliteral personal hint as one button (native=%s)", async native => {
     vi.spyOn(Capacitor, "isNativePlatform").mockReturnValue(native);
     const baseFetch = mockApi();
-    const hints = [{ word_ru: "мне не с кем", translation_sr: "nemam s kim" }, { word_ru: "поговорить", translation_sr: "da pričam" }];
+    const hints = [{ word_ru: "мне не с кем", translation_tr: "nemam s kim" }, { word_ru: "поговорить", translation_tr: "da pričam" }];
     const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
       if (input.toString().endsWith("/word-hints")) return { ok: true, json: async () => ({ ...hints[0], is_learning: true }) };
       const response = await baseFetch(input, init);
@@ -331,14 +331,14 @@ describe("App", () => {
       }];
       else if (url === "/api/review-phrases/prepare" && init?.method === "POST") body = {
         preparation_id: "12345678-1234-1234-1234-123456789012",
-        source_ru: "Мне нужно позвонить хозяину.", canonical_sr: "Moram da pozovem vlasnika.",
-        intended_sr_variants: ["Moram da pozovem vlasnika."], word_hints: [],
+        source_ru: "Мне нужно позвонить хозяину.", canonical_tr: "Moram da pozovem vlasnika.",
+        intended_tr_variants: ["Moram da pozovem vlasnika."], word_hints: [],
       };
       else if (url === "/api/review-phrases" && init?.method === "POST") {
         reviewCount = Math.max(reviewCount, 1);
         body = {
           id: "review-1", source_ru: "Мне нужно позвонить хозяину.", best_score: 0,
-          canonical_sr: "Moram da pozovem vlasnika.", topic_id: "bank", topic_title: "В банке",
+          canonical_tr: "Moram da pozovem vlasnika.", topic_id: "bank", topic_title: "В банке",
           attempts: 0, perfect_streak: 0, status: "active", created_at: "2026-09-17T10:00:00Z",
         };
       }
@@ -372,7 +372,7 @@ describe("App", () => {
       else if (url.startsWith("/api/statistics/phrases?")) body = {
         total: 1, page: 1, page_size: "10", total_pages: 1,
         groups: [{ topic_id: "bank", topic_title: "В банке", phrases: [{
-          id: "phrase-1", source_ru: "Я хочу открыть счёт.", target_sr: "Želim da otvorim račun.",
+          id: "phrase-1", source_ru: "Я хочу открыть счёт.", target_tr: "Želim da otvorim račun.",
           attempts: 2, status: "mastered", difficulty: "easy", next_review_at: "2026-10-04T10:00:00Z",
         }] }],
       };
@@ -392,22 +392,22 @@ describe("App", () => {
           exercise: {
             id: "exercise-1", session_id: "session-1", source_ru: "Я хочу открыть счёт.",
             targeted_skills: ["modal_verbs"], expected_level: "A2", difficulty: 1,
-            word_hints: [{ word_ru: "хочу", translation_sr: "želim" }],
+            word_hints: [{ word_ru: "хочу", translation_tr: "želim" }],
           },
         } : session;
       }
       else if (url.endsWith("/next-exercise")) body = {
         id: "exercise-1", session_id: "session-1", source_ru: "Я хочу открыть счёт.",
         targeted_skills: ["modal_verbs"], expected_level: "A2", difficulty: 1,
-        word_hints: [{ word_ru: "хочу", translation_sr: "želim" }],
+        word_hints: [{ word_ru: "хочу", translation_tr: "želim" }],
       };
       else if (url === "/api/attempts") body = {
-        id: "attempt-1", exercise_id: "exercise-1", transcript_sr: "Želim da otvorim račun.", overall_score: 0.91,
+        id: "attempt-1", exercise_id: "exercise-1", transcript_tr: "Želim da otvorim račun.", overall_score: 0.91,
         base_score: 0.91, hint_penalty: 0,
         analysis: {
           verdict: "correct", semantic_score: 0.95, grammar_score: 0.9, lexical_score: 0.9,
           naturalness_score: 0.88, pronunciation_score: null, fluency_score: 1,
-          corrected_sr: "Želim da otvorim račun.", short_feedback_ru: "Ответ естественный и точный.",
+          corrected_tr: "Želim da otvorim račun.", short_feedback_ru: "Ответ естественный и точный.",
           detailed_feedback_ru: "Смысл и конструкция переданы правильно.", accepted_alternatives: [], issues: [],
           demonstrated_skills: [{ skill_key: "modal_verbs", result: "strong", confidence: 0.9 }],
         },
@@ -416,7 +416,7 @@ describe("App", () => {
             state: "LEARNING", attempts: 1, next_review_at: "2026-09-18T10:00:00Z",
           }]}),
       };
-      else if (url.endsWith("/word-hints")) body = { word_ru: "хочу", translation_sr: "želim", is_learning: true };
+      else if (url.endsWith("/word-hints")) body = { word_ru: "хочу", translation_tr: "želim", is_learning: true };
       else return Promise.resolve({ ok: false, status: 404, json: async () => ({}) });
       return Promise.resolve({ ok: true, status: 200, json: async () => body });
     });
@@ -612,7 +612,7 @@ describe("App", () => {
     fireEvent.click(screen.getByRole("button", { name: "Проверить ответ" }));
     await waitFor(() => expect(fetchMock.mock.calls.some(([url]) => url.toString() === "/api/attempts")).toBe(true));
     const submitted = fetchMock.mock.calls.find(([url]) => url.toString() === "/api/attempts")!;
-    expect(JSON.parse(submitted[1]?.body as string)).toMatchObject({ transcript_sr: "Čemu sada?", transcription_id: "receipt-1", accepted_transcription_changes: [0] });
+    expect(JSON.parse(submitted[1]?.body as string)).toMatchObject({ transcript_tr: "Čemu sada?", transcription_id: "receipt-1", accepted_transcription_changes: [0] });
   });
 
   it("places check and static microphone retry below the transcript without automatically grading", async () => {
@@ -1137,7 +1137,7 @@ describe("App", () => {
     fireEvent.click(screen.getByRole("button", { name: "Проверить ответ" }));
     await waitFor(() => {
       const call = fetchMock.mock.calls.find(([url]) => url === "/api/attempts");
-      expect(JSON.parse(call?.[1]?.body as string).transcript_sr).toBe("Želim da otvorim račun!");
+      expect(JSON.parse(call?.[1]?.body as string).transcript_tr).toBe("Želim da otvorim račun!");
     });
     expect((await screen.findAllByText("Желим да отворим рачун.")).length).toBeGreaterThan(0);
 
@@ -1175,7 +1175,7 @@ describe("App", () => {
     fireEvent.click(screen.getByRole("button", { name: "Проверить ответ" }));
     await waitFor(() => {
       const call = fetchMock.mock.calls.find(([url]) => url === "/api/attempts");
-      expect(JSON.parse(call?.[1]?.body as string).transcript_sr).toBe("Platiću bankovnom karticom.");
+      expect(JSON.parse(call?.[1]?.body as string).transcript_tr).toBe("Platiću bankovnom karticom.");
     });
   });
 
@@ -1295,7 +1295,7 @@ describe("App", () => {
     fireEvent.click(check);
     await waitFor(() => {
       const call = fetchMock.mock.calls.find(([url]) => url.toString().endsWith("/api/attempts"));
-      expect(JSON.parse(call?.[1]?.body as string).transcript_sr).toBe("Platiću bankovnom karticom.");
+      expect(JSON.parse(call?.[1]?.body as string).transcript_tr).toBe("Platiću bankovnom karticom.");
     });
   });
 
@@ -1552,7 +1552,7 @@ describe("App", () => {
     expect(await screen.findByText("Верно")).toBeInTheDocument();
     const attempts = fetchMock.mock.calls.filter(([url]) => url.toString() === "/api/attempts");
     expect(attempts).toHaveLength(1);
-    expect(JSON.parse(attempts[0][1]?.body as string).transcript_sr).toBe("Moj odgovor");
+    expect(JSON.parse(attempts[0][1]?.body as string).transcript_tr).toBe("Moj odgovor");
   });
 
   it("shows compact desktop topics and closes premium creation actions", async () => {
@@ -1686,7 +1686,7 @@ describe("App", () => {
 
     await waitFor(() => {
       const call = fetchMock.mock.calls.find(([url]) => url === "/api/attempts");
-      expect(JSON.parse(call?.[1]?.body as string).transcript_sr)
+      expect(JSON.parse(call?.[1]?.body as string).transcript_tr)
         .toBe("Želim da otvorim račun. Platiću karticom.");
     });
   });
@@ -1732,7 +1732,7 @@ describe("App", () => {
     const fetchMock = vi.fn().mockImplementation((input: RequestInfo | URL, init?: RequestInit) => {
       if (input.toString().endsWith("/word-hints")) {
         return new Promise((resolve) => {
-          finishHintRequest = () => resolve({ ok: true, status: 200, json: async () => ({ word_ru: "хочу", translation_sr: "želim", is_learning: true }) });
+          finishHintRequest = () => resolve({ ok: true, status: 200, json: async () => ({ word_ru: "хочу", translation_tr: "želim", is_learning: true }) });
         });
       }
       if (input.toString() === "/api/attempts") return baseFetch(input, init).then(async (response: Response) => ({
@@ -1771,13 +1771,13 @@ describe("App", () => {
         exercise: {
           id: "exercise-1", session_id: "session-1", source_ru: "Я хочу открыть счёт.",
           targeted_skills: [], expected_level: "A2", difficulty: 1,
-          word_hints: [{ word_ru: "хочу", translation_sr: "želim" }, { word_ru: "открыть", translation_sr: "otvoriti" }],
+          word_hints: [{ word_ru: "хочу", translation_tr: "želim" }, { word_ru: "открыть", translation_tr: "otvoriti" }],
         },
       }) });
       if (url.endsWith("/word-hints")) return new Promise((resolve) => {
         const word = JSON.parse(init?.body as string).word as string;
         saves.push({ url: word, finish: () => resolve({ ok: true, status: 200,
-          json: async () => ({ word_ru: word, translation_sr: word === "хочу" ? "želim" : "otvoriti", is_learning: true }) }) });
+          json: async () => ({ word_ru: word, translation_tr: word === "хочу" ? "želim" : "otvoriti", is_learning: true }) }) });
       });
       return baseFetch(input, init);
     });
@@ -1983,7 +1983,7 @@ describe("App", () => {
     expect(bodies).toHaveLength(2);
     expect(bodies[0].client_request_id).toMatch(/^[0-9a-f-]{36}$/);
     expect(bodies[1].client_request_id).toBe(bodies[0].client_request_id);
-    expect(bodies[1].transcript_sr).toBe(bodies[0].transcript_sr);
+    expect(bodies[1].transcript_tr).toBe(bodies[0].transcript_tr);
   });
 
   it("keeps an edited answer and request ID when the attempt is still pending on the server", async () => {
@@ -2012,7 +2012,7 @@ describe("App", () => {
       .map(([, init]) => JSON.parse(init?.body as string));
     expect(bodies).toHaveLength(2);
     expect(bodies[1].client_request_id).toBe(bodies[0].client_request_id);
-    expect(bodies[1].transcript_sr).toBe("Moj odgovor");
+    expect(bodies[1].transcript_tr).toBe("Moj odgovor");
   });
 
   it("keeps the edited answer stable while a check is pending and restores editing after a network error", async () => {
@@ -2119,7 +2119,7 @@ describe("App", () => {
     fireEvent.click(screen.getByRole("button", { name: /Следующая фраза/ }));
     const nextWord = await screen.findByRole("button", { name: "хочу" });
     await act(async () => { settleHint(outcome === "result"
-      ? { ok: true, status: 200, json: async () => ({ word_ru: "хочу", translation_sr: "želim", is_learning: true }) }
+      ? { ok: true, status: 200, json: async () => ({ word_ru: "хочу", translation_tr: "želim", is_learning: true }) }
       : { ok: false, status: 503, json: async () => ({ detail: "unavailable" }) }); });
     expect(nextWord).not.toHaveClass("is-used");
     expect(screen.queryByRole("alert")).not.toBeInTheDocument();

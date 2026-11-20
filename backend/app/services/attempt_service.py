@@ -62,7 +62,7 @@ class _Reservation:
     fencing_token: int
     exercise_id: str
     source_ru: str
-    canonical_sr: str | None
+    canonical_tr: str | None
     intended_variants: list[str]
     target_keys: list[str]
     target_skills: list[dict[str, str]]
@@ -89,7 +89,7 @@ class AttemptService:
         self.review = ReviewService(db, ai, user.id)
 
     def create(self, request: CreateAttemptRequest) -> AttemptResponse:
-        if has_unexpected_letter_script(request.transcript_sr):
+        if has_unexpected_letter_script(request.transcript_tr):
             raise UnexpectedTranscriptScriptError()
         assistance = self._transcription_evidence(request)
         reserved = self._reserve(request)
@@ -98,9 +98,9 @@ class AttemptService:
         try:
             analysis = self.analyzer.analyze(
                 source_ru=reserved.source_ru,
-                transcript_sr=request.transcript_sr.strip(),
-                canonical_sr=reserved.canonical_sr,
-                intended_sr_variants=reserved.intended_variants,
+                transcript_tr=request.transcript_tr.strip(),
+                canonical_tr=reserved.canonical_tr,
+                intended_tr_variants=reserved.intended_variants,
                 target_skills=reserved.target_skills,
                 timing=request,
             )
@@ -168,8 +168,8 @@ class AttemptService:
             for key in target_keys
             if key in catalog
         ]
-        intended_variants = list(exercise.target_hints_json.get("intended_sr_variants", []))
-        canonical_sr = exercise.target_hints_json.get("canonical_sr")
+        intended_variants = list(exercise.target_hints_json.get("intended_tr_variants", []))
+        canonical_tr = exercise.target_hints_json.get("canonical_tr")
         settings = get_settings()
         lease_seconds = max(60.0, 2 * settings.openai_timeout_seconds * (settings.openai_max_retries + 1) + 30.0)
         token = (existing.fencing_token or 0) + 1 if existing is not None else 1
@@ -194,7 +194,7 @@ class AttemptService:
             fencing_token=token,
             exercise_id=exercise.id,
             source_ru=self._analysis_source(exercise),
-            canonical_sr=str(canonical_sr) if canonical_sr else None,
+            canonical_tr=str(canonical_tr) if canonical_tr else None,
             intended_variants=intended_variants,
             target_keys=target_keys,
             target_skills=target_skills,
@@ -246,7 +246,7 @@ class AttemptService:
         catalog = {skill.key: skill for skill in self.skills.list(limit=500)}
         base_score = self.analyzer.overall_score(analysis)
         available_hints = all_word_hints(exercise.source_ru, list(exercise.target_hints_json.get("word_hints", [])),
-            exercise.target_hints_json.get("canonical_sr") or next(iter(exercise.target_hints_json.get("intended_sr_variants", [])), ""), exercise.target_hints_json.get('source_versions'))
+            exercise.target_hints_json.get("canonical_tr") or next(iter(exercise.target_hints_json.get("intended_tr_variants", [])), ""), exercise.target_hints_json.get('source_versions'))
         hinted_words = list(dict.fromkeys(
             hint["word_ru"]
             for word in request.hinted_words if (hint := resolve_hint(available_hints, word)) is not None
@@ -266,7 +266,7 @@ class AttemptService:
         attempt = self.attempts.add(
             Attempt(
                 exercise_id=exercise.id,
-                transcript_sr=request.transcript_sr.strip(),
+                transcript_tr=request.transcript_tr.strip(),
                 reaction_ms=request.reaction_ms,
                 speech_duration_ms=request.speech_duration_ms,
                 longest_pause_ms=request.longest_pause_ms,
@@ -296,7 +296,7 @@ class AttemptService:
         )
         self.review.record_attempt(
             source_ru=exercise.source_ru,
-            intended_sr_variants=intended_variants,
+            intended_tr_variants=intended_variants,
             word_hints=list(exercise.target_hints_json.get("word_hints", [])),
             targeted_skill_keys=target_keys,
             score=overall_score,
@@ -312,7 +312,7 @@ class AttemptService:
         response = AttemptResponse(
             id=attempt.id,
             exercise_id=attempt.exercise_id,
-            transcript_sr=attempt.transcript_sr,
+            transcript_tr=attempt.transcript_tr,
             overall_score=overall_score,
             analysis=analysis,
             learner_updates=learner_updates,

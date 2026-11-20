@@ -28,7 +28,7 @@ class HeldAI(FakeAIProvider):
         super().__init__(available=True, analysis_result=AnswerAnalysis(
             verdict="mostly_correct", semantic_score=0.8, grammar_score=0.8,
             lexical_score=0.8, naturalness_score=0.8, fluency_score=1,
-            corrected_sr="Dobar dan.", short_feedback_ru="Почти верно.",
+            corrected_tr="Dobar dan.", short_feedback_ru="Почти верно.",
             detailed_feedback_ru="Проверьте ответ.", issues=[AnswerIssue(
                 type="meaning", skill_key=None, severity=0.5, confidence=1,
                 evidence="Ne znam.", correction="Dobar dan.",
@@ -55,7 +55,7 @@ def _setup(engine, *, length: int = 1) -> tuple[str, list[str]]:
         for exercise_id in exercises:
             db.add(Exercise(
                 id=exercise_id, session_id="session", source_ru="Привет.",
-                target_hints_json={"canonical_sr": "Dobar dan.", "intended_sr_variants": ["Dobar dan."]},
+                target_hints_json={"canonical_tr": "Dobar dan.", "intended_tr_variants": ["Dobar dan."]},
                 targeted_skill_ids=[], generation_meta_json={"targeted_skill_keys": []},
             ))
         db.commit()
@@ -118,7 +118,7 @@ def test_ai_wait_releases_sqlite_writer_and_reserves_slot(database_engine, reque
                 user = db.get(User, user_id)
                 assert user is not None
                 outcome["first"] = AttemptService(db, ai, user).create(CreateAttemptRequest(
-                    exercise_id=exercises[0], transcript_sr="Ne znam.", client_request_id=request_id,
+                    exercise_id=exercises[0], transcript_tr="Ne znam.", client_request_id=request_id,
                 ))
         except Exception as exc:
             outcome["first"] = exc
@@ -135,13 +135,13 @@ def test_ai_wait_releases_sqlite_writer_and_reserves_slot(database_engine, reque
             assert user is not None
             with pytest.raises(AttemptInProgressError):
                 AttemptService(db, FakeAIProvider(), user).create(CreateAttemptRequest(
-                    exercise_id=exercises[1], transcript_sr="Dobar dan.",
+                    exercise_id=exercises[1], transcript_tr="Dobar dan.",
                 ))
             db.rollback()
             if request_id:
                 with pytest.raises(AttemptInProgressError):
                     AttemptService(db, FakeAIProvider(), user).create(CreateAttemptRequest(
-                        exercise_id=exercises[0], transcript_sr="Ne znam.", client_request_id=request_id,
+                        exercise_id=exercises[0], transcript_tr="Ne znam.", client_request_id=request_id,
                     ))
                 db.rollback()
             with pytest.raises(SessionPendingError):
@@ -178,7 +178,7 @@ def test_inflight_daily_slot_is_retryable_then_actual_limit(database_engine, tie
                 user = db.get(User, user_id)
                 assert user is not None
                 outcome["first"] = AttemptService(db, ai, user).create(CreateAttemptRequest(
-                    exercise_id=exercises[0], transcript_sr="Ne znam.",
+                    exercise_id=exercises[0], transcript_tr="Ne znam.",
                 ))
         except Exception as exc:
             outcome["first"] = exc
@@ -192,7 +192,7 @@ def test_inflight_daily_slot_is_retryable_then_actual_limit(database_engine, tie
             assert user is not None
             with pytest.raises(AttemptInProgressError):
                 AttemptService(db, FakeAIProvider(), user).create(CreateAttemptRequest(
-                    exercise_id=exercises[1], transcript_sr="Dobar dan.",
+                    exercise_id=exercises[1], transcript_tr="Dobar dan.",
                 ))
             db.rollback()
         ai.release.set()
@@ -203,7 +203,7 @@ def test_inflight_daily_slot_is_retryable_then_actual_limit(database_engine, tie
             assert user is not None
             with pytest.raises(DailyLimitExceededError):
                 AttemptService(db, FakeAIProvider(), user).create(CreateAttemptRequest(
-                    exercise_id=exercises[1], transcript_sr="Dobar dan.",
+                    exercise_id=exercises[1], transcript_tr="Dobar dan.",
                 ))
     finally:
         ai.release.set()
@@ -216,7 +216,7 @@ def test_expired_lease_retry_fences_old_worker(database_engine) -> None:
     user_id, exercises = _setup(engine)
     request_id = str(uuid4())
     request = CreateAttemptRequest(
-        exercise_id=exercises[0], transcript_sr="Dobar dan.", client_request_id=request_id,
+        exercise_id=exercises[0], transcript_tr="Dobar dan.", client_request_id=request_id,
     )
     try:
         with Session(engine) as first_db:
@@ -241,9 +241,9 @@ def test_expired_lease_retry_fences_old_worker(database_engine) -> None:
                 third_lease = second_service._reserve(request)
                 assert third_lease.fencing_token == new_lease.fencing_token + 1
                 analysis = second_service.analyzer.analyze(
-                    source_ru=third_lease.source_ru, transcript_sr=request.transcript_sr,
-                    canonical_sr=third_lease.canonical_sr,
-                    intended_sr_variants=third_lease.intended_variants,
+                    source_ru=third_lease.source_ru, transcript_tr=request.transcript_tr,
+                    canonical_tr=third_lease.canonical_tr,
+                    intended_tr_variants=third_lease.intended_variants,
                     target_skills=third_lease.target_skills, timing=request,
                 )
                 with pytest.raises(AttemptInProgressError):
@@ -283,7 +283,7 @@ def test_parallel_finalization_serializes_learner_updates(database_engine) -> No
                 assert user is not None
                 barrier.wait(timeout=5)
                 results.append(AttemptService(db, FakeAIProvider(), user).create(CreateAttemptRequest(
-                    exercise_id=exercise_id, transcript_sr="Dobar dan.",
+                    exercise_id=exercise_id, transcript_tr="Dobar dan.",
                 )))
         except Exception as exc:
             results.append(exc)
@@ -332,7 +332,7 @@ def test_reservation_uses_time_after_session_lock_across_utc_midnight(database_e
             user = db.get(User, user_id)
             assert user is not None
             AttemptService(db, FakeAIProvider(), user)._reserve(CreateAttemptRequest(
-                exercise_id=exercises[0], transcript_sr="Dobar dan.", client_request_id=str(uuid4()),
+                exercise_id=exercises[0], transcript_tr="Dobar dan.", client_request_id=str(uuid4()),
             ))
         with Session(engine) as db:
             entry = db.scalar(select(AttemptRequest))
@@ -342,7 +342,7 @@ def test_reservation_uses_time_after_session_lock_across_utc_midnight(database_e
             assert user is not None
             with pytest.raises(AttemptInProgressError):
                 AttemptService(db, FakeAIProvider(), user)._reserve(CreateAttemptRequest(
-                    exercise_id=exercises[1], transcript_sr="Dobar dan.", client_request_id=str(uuid4()),
+                    exercise_id=exercises[1], transcript_tr="Dobar dan.", client_request_id=str(uuid4()),
                 ))
     finally:
         settings.free_daily_phrase_limit = old_limit

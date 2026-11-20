@@ -5,7 +5,7 @@ from uuid import uuid4
 
 import pytest
 from alembic.config import Config
-from sqlalchemy import MetaData, Table, event, inspect, select
+from sqlalchemy import MetaData, Table, event, inspect
 from sqlalchemy.engine import make_url
 
 from alembic import command
@@ -45,12 +45,18 @@ def test_idempotency_migration_upgrade_downgrade_roundtrip(tmp_path: Path) -> No
                 id="error", attempt_id="attempt", type="grammar", severity=0.5,
                 confidence=1.0, evidence_json={"evidence": "Test"},
             ))
-            history = {table.name: connection.execute(select(table)).all() for table in (sessions, exercises, attempts, errors)}
+            def rows(table: Table) -> list:
+                # Raw rows: later revisions rename columns, so the reflected names go stale; the values must not.
+                return connection.exec_driver_sql(f"SELECT * FROM {table.name} ORDER BY id").all()
+
+            # Only the columns present at this revision are compared; later revisions append more.
+            history = {table.name: rows(table) for table in (sessions, exercises, attempts, errors)}
 
             def assert_history_preserved() -> None:
                 assert connection.exec_driver_sql("PRAGMA foreign_keys").scalar() == 1
                 for table in (sessions, exercises, attempts, errors):
-                    assert connection.execute(select(table)).all() == history[table.name]
+                    width = len(history[table.name][0])
+                    assert [tuple(row)[:width] for row in rows(table)] == [tuple(row) for row in history[table.name]]
                 assert connection.exec_driver_sql("PRAGMA foreign_key_check").all() == []
 
             command.upgrade(config, "head")

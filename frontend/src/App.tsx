@@ -813,7 +813,7 @@ function TrainerApp({ account, onAccountChange, onSignOut }: { account: CurrentU
     if (topics.find((topic) => topic.id === topicId)?.phrase_count) void startTraining(topicId);
   }
 
-  async function showWordHint(word: string, localHint?: Pick<WordHint, "word_ru" | "translation_sr">) {
+  async function showWordHint(word: string, localHint?: Pick<WordHint, "word_ru" | "translation_tr">) {
     if (!exercise || checkingRef.current) return;
     const normalized = word.toLocaleLowerCase("ru-RU");
     setActiveHint(current => current === normalized ? undefined : normalized);
@@ -870,7 +870,7 @@ function TrainerApp({ account, onAccountChange, onSignOut }: { account: CurrentU
 
   function renderPhrase() {
     const localized = exercise ? exerciseSource(exercise) : undefined;
-    const hints: Record<string, { translation_sr: string; note?: string } | undefined> = localized?.hints ?? {};
+    const hints: Record<string, { translation_tr: string; note?: string } | undefined> = localized?.hints ?? {};
     if (exercise && !localized) return null;
     return <h2 id="exercise-title" className="interactive-phrase" aria-label={localized ? localized.source : t("Готовим фразу…")}>
       {exercise && localized ? splitHintFragments(localized.source, Object.keys(hints)).map((part, index) => {
@@ -878,7 +878,7 @@ function TrainerApp({ account, onAccountChange, onSignOut }: { account: CurrentU
         const word = part;
         const normalized = word.toLocaleLowerCase("ru-RU");
         if (!localHint) return <span key={index}>{part}</span>;
-        return <WordHintToken key={`${part}-${index}`} word={part} used={Boolean(wordHints[normalized])} disabled={checking || Boolean(attempt)} onDismiss={() => setActiveHint(undefined)} active={activeHint === normalized && (mobileLayout ? visiblePanel === 1 : view === "practice")} translation={wordHints[normalized] ? [displaySerbian(wordHints[normalized].translation_sr, alphabet), localHint.note ? t(localHint.note) : ""].filter(Boolean).join(" · ") : t("Загружаем…")} onClick={() => void showWordHint(word, { word_ru: word, translation_sr: localHint.translation_sr })} />;
+        return <WordHintToken key={`${part}-${index}`} word={part} used={Boolean(wordHints[normalized])} disabled={checking || Boolean(attempt)} onDismiss={() => setActiveHint(undefined)} active={activeHint === normalized && (mobileLayout ? visiblePanel === 1 : view === "practice")} translation={wordHints[normalized] ? [displaySerbian(wordHints[normalized].translation_tr, alphabet), localHint.note ? t(localHint.note) : ""].filter(Boolean).join(" · ") : t("Загружаем…")} onClick={() => void showWordHint(word, { word_ru: word, translation_tr: localHint.translation_tr })} />;
       }) : t("Готовим фразу…")}
     </h2>;
   }
@@ -887,7 +887,7 @@ function TrainerApp({ account, onAccountChange, onSignOut }: { account: CurrentU
     if (!attempt) return null;
     const scorePercent = Math.round(attempt.overall_score * 100);
     return <div className={`feedback ${native ? "android-feedback" : ""} feedback--${attempt.analysis.verdict}`}>
-      <AnswerResult answer={attempt.transcript_sr} attempt={attempt} alphabet={alphabet} />
+      <AnswerResult answer={attempt.transcript_tr} attempt={attempt} alphabet={alphabet} />
       {attempt.overall_score !== 1 && <div className="feedback__score"><span>{scorePercent}%</span><strong>{t(attempt.analysis.verdict === "correct" ? "Верно" : attempt.analysis.verdict === "mostly_correct" ? "Почти верно" : "Нужно доработать")}</strong></div>}
       {attempt.hint_penalty > 0 && <div className="hint-penalty"><Icon name="bulb" /><span>{t("Подсказки: −")}{Math.round(attempt.hint_penalty * 100)}%</span></div>}
       {scorePercent < 100 && <details><summary>{t("Разбор")}</summary><p>{displayFeedback(attempt.analysis.detailed_feedback_ru, alphabet)}</p>{attempt.analysis.issues.map((issue, index) => <p className="issue" key={`${issue.skill_key}-${issue.type}-${index}`}>{displaySerbian(issue.evidence, alphabet)}{t(issue.correction ? ` → ${displaySerbian(issue.correction, alphabet)}` : "")}{issue.explanation_ru && <span className="issue-explanation">{displayFeedback(issue.explanation_ru, alphabet)}</span>}</p>)}</details>}

@@ -151,7 +151,7 @@ def test_admin_user_counts_keep_utc_boundaries_owners_and_zeroes(
         exercise = Exercise(session_id=owned_session.id, source_ru=f"Phrase {suffix}")
         db_session.add(exercise)
         db_session.flush()
-        db_session.add(Attempt(exercise_id=exercise.id, transcript_sr=f"Odgovor {suffix}", created_at=created_at))
+        db_session.add(Attempt(exercise_id=exercise.id, transcript_tr=f"Odgovor {suffix}", created_at=created_at))
         return owned_session
 
     day_start = datetime(2026, 10, 1, tzinfo=UTC)
@@ -280,17 +280,17 @@ def test_user_daily_attempt_limit_per_utc_day(
     exercise = api_client.post(f"/api/sessions/{session['id']}/next-exercise").json()
     stored_exercise = db_session.get(Exercise, exercise["id"])
     assert stored_exercise is not None
-    canonical = stored_exercise.target_hints_json["canonical_sr"]
+    canonical = stored_exercise.target_hints_json["canonical_tr"]
     now = datetime.now(UTC)
     db_session.add_all([
-        Attempt(exercise_id=exercise["id"], transcript_sr=f"attempt {index}", created_at=now)
+        Attempt(exercise_id=exercise["id"], transcript_tr=f"attempt {index}", created_at=now)
         for index in range(used)
     ])
     db_session.flush()
 
     response = api_client.post(
         "/api/attempts",
-        json={"exercise_id": exercise["id"], "transcript_sr": canonical},
+        json={"exercise_id": exercise["id"], "transcript_tr": canonical},
     )
     if used < limit:
         assert response.status_code == 201
@@ -309,7 +309,7 @@ def test_user_daily_attempt_limit_per_utc_day(
     db_session.flush()
     assert api_client.post(
         "/api/attempts",
-        json={"exercise_id": exercise["id"], "transcript_sr": canonical},
+        json={"exercise_id": exercise["id"], "transcript_tr": canonical},
     ).status_code == 201
 
 

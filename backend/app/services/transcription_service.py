@@ -92,8 +92,8 @@ class TranscriptionService:
         raw = serbian_latin(result.text)
         if not assistance_enabled:
             return TranscriptionResponse(text=raw)
-        variants = list(exercise.target_hints_json.get("intended_sr_variants", []))
-        canonical = exercise.target_hints_json.get("canonical_sr")
+        variants = list(exercise.target_hints_json.get("intended_tr_variants", []))
+        canonical = exercise.target_hints_json.get("canonical_tr")
         if canonical:
             variants.append(str(canonical))
         # validate_analysis already discards proposals for these exact references.
@@ -106,8 +106,8 @@ class TranscriptionService:
         try:
             analysis = TranscriptionAssistanceAnalysis.model_validate(self.assistance_provider.analyze(
                 source_ru=exercise.source_ru, raw_text=raw,
-                canonical_sr=serbian_latin(str(canonical)) if canonical else None,
-                intended_sr_variants=[serbian_latin(v) for v in variants],
+                canonical_tr=serbian_latin(str(canonical)) if canonical else None,
+                intended_tr_variants=[serbian_latin(v) for v in variants],
             ))
             changes = validate_analysis(raw, [serbian_latin(v) for v in variants], analysis)
         except (AIServiceError, ValidationError, ValueError) as exc:

@@ -21,14 +21,14 @@ for (const language of ['ru', 'en']) for (const layout of ['desktop', 'mobile', 
       else if (path === '/api/auth/me/preferences') body = { assistance_enabled: false };
       else if (path === '/api/topics') body = [topic];
       else if (path === '/api/review-phrases/summary') body = { phrase_count: 0 };
-      else if (path === '/api/sessions/start') body = { session: { id: 's1', status: 'active', requested_length: 10, completed_count: 0, topic: { ...topic, source: 'preset' } }, exercise: { id: 'e1', source_ru: current.source_ru, word_hints: [{ word_ru: 'когда', translation_sr: 'Kada' }, { word_ru: 'лучше', translation_sr: 'najbolje' }, { word_ru: 'покупать', translation_sr: 'kupiti' }], targeted_skills: [], expected_level: 'A2', difficulty: 1 } };
+      else if (path === '/api/sessions/start') body = { session: { id: 's1', status: 'active', requested_length: 10, completed_count: 0, topic: { ...topic, source: 'preset' } }, exercise: { id: 'e1', source_ru: current.source_ru, word_hints: [{ word_ru: 'когда', translation_tr: 'Kada' }, { word_ru: 'лучше', translation_tr: 'najbolje' }, { word_ru: 'покупать', translation_tr: 'kupiti' }], targeted_skills: [], expected_level: 'A2', difficulty: 1 } };
       else if (path.endsWith('/word-hints')) {
         const word = route.request().postDataJSON().word;
         saved.push(word);
-        const translations = en ? current.word_hints : { 'Когда': { translation_sr: 'Kada' }, 'лучше': { translation_sr: 'najbolje' }, 'покупать': { translation_sr: 'kupiti' } };
+        const translations = en ? current.word_hints : { 'Когда': { translation_tr: 'Kada' }, 'лучше': { translation_tr: 'najbolje' }, 'покупать': { translation_tr: 'kupiti' } };
         const hint = translations[word.toLowerCase()] ?? translations[word];
         if (!hint) throw new Error(`Unknown source word ${word}`);
-        body = { word_ru: word, translation_sr: hint.translation_sr, is_learning: true };
+        body = { word_ru: word, translation_tr: hint.translation_tr, is_learning: true };
       } else throw new Error(`Unexpected path ${path}`);
       await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(body) });
     });

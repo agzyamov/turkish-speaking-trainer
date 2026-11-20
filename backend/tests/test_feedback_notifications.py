@@ -72,13 +72,13 @@ def test_twentieth_attempt_notifies_once_even_on_idempotent_replay(api_client, d
     for index in range(18):
         exercise = Exercise(session_id=session_id, source_ru=f"synthetic {index}")
         db_session.add(exercise); db_session.flush()
-        db_session.add(Attempt(exercise_id=exercise.id, transcript_sr="synthetic"))
+        db_session.add(Attempt(exercise_id=exercise.id, transcript_tr="synthetic"))
     db_session.commit()
-    payload = {"exercise_id": started["exercise"]["id"], "transcript_sr": db_session.get(Exercise, started["exercise"]["id"]).target_hints_json["canonical_sr"], "client_request_id": str(uuid4())}
+    payload = {"exercise_id": started["exercise"]["id"], "transcript_tr": db_session.get(Exercise, started["exercise"]["id"]).target_hints_json["canonical_tr"], "client_request_id": str(uuid4())}
     assert api_client.post("/api/attempts", json=payload).status_code == 201
     assert sent == []
     exercise = api_client.post(f"/api/sessions/{session_id}/next-exercise").json()
-    payload = {**payload, "exercise_id": exercise["id"], "transcript_sr": db_session.get(Exercise, exercise["id"]).target_hints_json["canonical_sr"], "client_request_id": str(uuid4())}
+    payload = {**payload, "exercise_id": exercise["id"], "transcript_tr": db_session.get(Exercise, exercise["id"]).target_hints_json["canonical_tr"], "client_request_id": str(uuid4())}
     response = api_client.post("/api/attempts", json=payload)
     assert response.status_code == 201
     assert response.json()["daily_usage"]["used"] == 20
@@ -119,7 +119,7 @@ def test_feedback_transcription_uses_no_serbian_language_or_debug_storage(api_cl
 
 
 def test_review_exercise_contains_original_topic(api_client, db_session):
-    db_session.add(ReviewPhrase(user_id=LEGACY_USER_ID, topic_id="bank", source_ru="Синтетическая фраза", source_normalized="синтетическая фраза", intended_sr_variants_json=["Test."], status="active"))
+    db_session.add(ReviewPhrase(user_id=LEGACY_USER_ID, topic_id="bank", source_ru="Синтетическая фраза", source_normalized="синтетическая фраза", intended_tr_variants_json=["Test."], status="active"))
     db_session.commit()
     response = api_client.post("/api/sessions/start", json={"review_mode": True})
     assert response.status_code == 201

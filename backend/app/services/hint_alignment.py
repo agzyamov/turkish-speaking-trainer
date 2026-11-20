@@ -29,7 +29,7 @@ def aligned_word_hints(source: str, canonical: str, hints: list[dict[str, str]])
         hint = WordHint.model_validate(raw).model_dump()
         key = hint["word_ru"].strip().casefold()
         fragment = words(key)
-        translation = words(serbian_latin(hint["translation_sr"]))
+        translation = words(serbian_latin(hint["translation_tr"]))
         if not 1 <= len(fragment) <= MAX_SOURCE_WORDS or not 1 <= len(translation) <= MAX_TARGET_WORDS:
             continue
         # Compare complete tokens, preserving diacritics; mi must not match nemam.
@@ -40,9 +40,9 @@ def aligned_word_hints(source: str, canonical: str, hints: list[dict[str, str]])
                  and source[source_matches[i].start():source_matches[i + len(fragment) - 1].end()].casefold() == key]
         if not spans:
             continue
-        if key in candidates and words(candidates[key][0]["translation_sr"]) != words(hint["translation_sr"]):
+        if key in candidates and words(candidates[key][0]["translation_tr"]) != words(hint["translation_tr"]):
             conflicts.add(key)
-        candidates[key] = ({"word_ru": key, "translation_sr": hint["translation_sr"].strip()}, spans)
+        candidates[key] = ({"word_ru": key, "translation_tr": hint["translation_tr"].strip()}, spans)
     occupied: set[int] = set()
     selected: list[tuple[int, dict[str, str]]] = []
     for key, (hint, spans) in sorted(candidates.items(), key=lambda item: -len(words(item[0]))):

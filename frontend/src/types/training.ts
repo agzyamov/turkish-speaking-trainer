@@ -29,7 +29,7 @@ export type TrainingSession = {
   topic: TopicContext;
 };
 
-export type SourceVersions = { ru: string; en: string; hints_ru: Array<Pick<WordHint, "word_ru" | "translation_sr">>; hints_en: Array<Pick<WordHint, "word_ru" | "translation_sr">> };
+export type SourceVersions = { ru: string; en: string; hints_ru: Array<Pick<WordHint, "word_ru" | "translation_tr">>; hints_en: Array<Pick<WordHint, "word_ru" | "translation_tr">> };
 
 export type Exercise = {
   source_versions?: SourceVersions | null;
@@ -43,9 +43,9 @@ export type Exercise = {
   targeted_skills: string[];
   expected_level: "A2";
   difficulty: number;
-  word_hints?: Array<Pick<WordHint, "word_ru" | "translation_sr">>;
+  word_hints?: Array<Pick<WordHint, "word_ru" | "translation_tr">>;
   source_en?: string | null;
-  source_hints?: Array<Pick<WordHint, "word_ru" | "translation_sr">>;
+  source_hints?: Array<Pick<WordHint, "word_ru" | "translation_tr">>;
 };
 
 export type StartedTraining = {
@@ -71,7 +71,7 @@ export type AnswerAnalysis = {
   naturalness_score: number;
   pronunciation_score: number | null;
   fluency_score: number;
-  corrected_sr: string;
+  corrected_tr: string;
   short_feedback_ru: string;
   detailed_feedback_ru: string;
   accepted_alternatives: string[];
@@ -88,7 +88,7 @@ export type Attempt = {
   transcription_assisted?: boolean;
   id: string;
   exercise_id: string;
-  transcript_sr: string;
+  transcript_tr: string;
   overall_score: number;
   base_score: number;
   hint_penalty: number;
@@ -108,7 +108,7 @@ export type ReviewPhrase = {
   source_versions?: SourceVersions | null;
   id: string;
   source_ru: string;
-  canonical_sr: string;
+  canonical_tr: string;
   topic_id: string | null;
   topic_title: string | null;
   best_score: number;
@@ -126,14 +126,14 @@ export type PreparedReviewPhrase = {
   source_versions?: SourceVersions | null;
   preparation_id: string;
   source_ru: string;
-  canonical_sr: string;
-  intended_sr_variants: string[];
-  word_hints: Array<{ word_ru: string; translation_sr: string }>;
+  canonical_tr: string;
+  intended_tr_variants: string[];
+  word_hints: Array<{ word_ru: string; translation_tr: string }>;
 };
 
 export type WordHint = {
   word_ru: string;
-  translation_sr: string;
+  translation_tr: string;
   is_learning: boolean;
 };
 

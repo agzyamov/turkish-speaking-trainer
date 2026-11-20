@@ -27,9 +27,9 @@ for (const language of ['ru', 'en']) {
       } else if (path === '/api/topics') body = topics;
       else if (path === '/api/review-phrases/summary') body = { phrase_count: 0 };
       else if (path === '/api/auth/me/preferences') body = { assistance_enabled: true };
-      else if (path === '/api/exercises/e1/word-hints') body = { word_ru: request.postDataJSON().word, translation_sr: 'želim', is_learning: true };
-      else if (path === '/api/sessions/start') body = { session: { id: 's1', status: 'active', requested_length: 20, completed_count: 0, topic: { ...topics[0], source: 'preset' } }, exercise: { id: 'e1', source_ru: ru ? 'Я хочу открыть счёт.' : 'I want to open an account.', source_en: 'I want to open an account.', source_hints: [{ word_ru: ru ? 'хочу' : 'want', translation_sr: 'želim' }], word_hints: [{ word_ru: 'хочу', translation_sr: 'želim' }], targeted_skills: [] } };
-      else if (path === '/api/custom-phrases') body = [{ id: 'phrase-demo', source_ru: 'Я скоро вернусь.', canonical_sr: 'Uskoro ću se vratiti.', topic_id: 'personal-demo', status: 'active' }];
+      else if (path === '/api/exercises/e1/word-hints') body = { word_ru: request.postDataJSON().word, translation_tr: 'želim', is_learning: true };
+      else if (path === '/api/sessions/start') body = { session: { id: 's1', status: 'active', requested_length: 20, completed_count: 0, topic: { ...topics[0], source: 'preset' } }, exercise: { id: 'e1', source_ru: ru ? 'Я хочу открыть счёт.' : 'I want to open an account.', source_en: 'I want to open an account.', source_hints: [{ word_ru: ru ? 'хочу' : 'want', translation_tr: 'želim' }], word_hints: [{ word_ru: 'хочу', translation_tr: 'želim' }], targeted_skills: [] } };
+      else if (path === '/api/custom-phrases') body = [{ id: 'phrase-demo', source_ru: 'Я скоро вернусь.', canonical_tr: 'Uskoro ću se vratiti.', topic_id: 'personal-demo', status: 'active' }];
       else throw new Error(`Unexpected store screenshot API ${path}`);
       await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(body) });
     });

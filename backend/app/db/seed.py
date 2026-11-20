@@ -112,7 +112,7 @@ def seed_catalog(session: Session) -> tuple[int, int, int]:
             "topic_id": item.topic_id,
             "position": item.position,
             "source_ru": item.source_ru,
-            "canonical_sr": item.canonical_sr,
+            "canonical_tr": item.canonical_tr,
             "word_hints_json": TOPIC_PHRASE_HINTS[item.id],
             "targeted_skill_keys_json": list(item.targeted_skill_keys_json),
             "enabled": True,
@@ -129,15 +129,15 @@ def seed_catalog(session: Session) -> tuple[int, int, int]:
     for phrase in session.scalars(select(ReviewPhrase)):
         item = catalog.get(phrase.topic_phrase_id)
         if (item and phrase.source_ru == item.source_ru
-                and next(iter(phrase.intended_sr_variants_json), "") == item.canonical_sr
+                and next(iter(phrase.intended_tr_variants_json), "") == item.canonical_tr
                 and phrase.word_hints_json != phrase_hints[item.id]):
             phrase.word_hints_json = phrase_hints[item.id]
             flag_modified(phrase, "updated_at")
     for exercise in session.scalars(select(Exercise)):
         topic_phrase_id = exercise.generation_meta_json.get("topic_phrase_id")
         item = catalog.get(topic_phrase_id)
-        canonical = exercise.target_hints_json.get("canonical_sr") or next(iter(exercise.target_hints_json.get("intended_sr_variants", [])), "")
-        if item and exercise.source_ru == item.source_ru and canonical in ("", item.canonical_sr):
+        canonical = exercise.target_hints_json.get("canonical_tr") or next(iter(exercise.target_hints_json.get("intended_tr_variants", [])), "")
+        if item and exercise.source_ru == item.source_ru and canonical in ("", item.canonical_tr):
             exercise.target_hints_json = {
                 **exercise.target_hints_json,
                 "word_hints": phrase_hints[topic_phrase_id],

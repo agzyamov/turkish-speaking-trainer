@@ -345,9 +345,9 @@ def test_deterministic_analysis_uses_schema_and_catalog_skills_through_real_anal
     assert provider.is_available
     result = provider.analyze_answer(
         source_ru="Тестовый ответ",
-        transcript_sr="Izvinite, možete li da mi pomognete?",
-        canonical_sr="Radim kao računovođa u maloj firmi.",
-        intended_sr_variants=["Radim kao računovođa u maloj firmi."],
+        transcript_tr="Izvinite, možete li da mi pomognete?",
+        canonical_tr="Radim kao računovođa u maloj firmi.",
+        intended_tr_variants=["Radim kao računovođa u maloj firmi."],
         target_skills=[{"key": "grammar.present"}, {"key": "unknown.generated.skill"}],
         timings={},
     )
@@ -366,14 +366,14 @@ def test_deterministic_analysis_uses_schema_and_catalog_skills_through_real_anal
         supabase_publishable_key="sb_publishable_testlab_local_only", admin_emails="",
     )).analyze(
         source_ru="Тестовый ответ",
-        transcript_sr=transcript,
-        intended_sr_variants=["Radim kao računovođa u maloj firmi."],
+        transcript_tr=transcript,
+        intended_tr_variants=["Radim kao računovođa u maloj firmi."],
         target_skills=[{"key": "grammar.present"}],
-        timing=CreateAttemptRequest(exercise_id="test", transcript_sr=transcript),
-        canonical_sr="Radim kao računovođa u maloj firmi.",
+        timing=CreateAttemptRequest(exercise_id="test", transcript_tr=transcript),
+        canonical_tr="Radim kao računovođa u maloj firmi.",
     )
     assert checked.verdict == "correct"
-    assert checked.corrected_sr == "Radim kao računovođa u maloj firmi."
+    assert checked.corrected_tr == "Radim kao računovođa u maloj firmi."
     assert [item.skill_key for item in checked.demonstrated_skills] == ["grammar.present"]
 
 

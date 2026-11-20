@@ -6,7 +6,7 @@ from app.services.hint_alignment import aligned_word_hints
 
 
 def hint(source, target):
-    return {"word_ru": source, "translation_sr": target}
+    return {"word_ru": source, "translation_tr": target}
 
 
 @pytest.mark.parametrize("canonical", ["Nemam s kim da pričam.", "Немам с ким да причам."])
@@ -41,8 +41,8 @@ def test_custom_fragment_api_and_one_penalty_without_ai(api_client, db_session):
     started = api_client.post("/api/sessions/start", json={"topic_id": "bank", "length": 10}).json()
     exercise = db_session.get(Exercise, started["exercise"]["id"])
     exercise.source_ru = "Мне не с кем поговорить."
-    exercise.target_hints_json = {"canonical_sr": "Nemam s kim da pričam.",
-        "intended_sr_variants": ["Nemam s kim da pričam."], "word_hints": [
+    exercise.target_hints_json = {"canonical_tr": "Nemam s kim da pričam.",
+        "intended_tr_variants": ["Nemam s kim da pričam."], "word_hints": [
             hint("мне не с кем", "nemam s kim"), hint("мне", "mi"), hint("поговорить", "da pričam")]}
     exercise.generation_meta_json = {**exercise.generation_meta_json, "targeted_skill_keys": []}
     db_session.commit()
@@ -51,13 +51,13 @@ def test_custom_fragment_api_and_one_penalty_without_ai(api_client, db_session):
     legacy = api_client.post(url, json={"word": "мне"})
     assert legacy.status_code == 200
     assert legacy.json()["word_ru"] == "мне не с кем"
-    assert legacy.json()["translation_sr"] == "nemam s kim"
+    assert legacy.json()["translation_tr"] == "nemam s kim"
     for _ in range(2):
         opened = api_client.post(url, json={"word": "мне не с кем"})
         assert opened.status_code == 200
-        assert opened.json()["translation_sr"] == "nemam s kim"
+        assert opened.json()["translation_tr"] == "nemam s kim"
     result = api_client.post("/api/attempts", json={"exercise_id": exercise.id,
-        "transcript_sr": "Nemam s kim da pričam.", "hinted_words": ["мне не с кем", "мне не с кем", "мне", "кем"]})
+        "transcript_tr": "Nemam s kim da pričam.", "hinted_words": ["мне не с кем", "мне не с кем", "мне", "кем"]})
     assert result.status_code == 201, result.text
     assert result.json()["hint_penalty"] == .08
     assert [w.source_ru for w in db_session.scalars(select(WordLearningItem))] == ["мне не с кем"]
@@ -77,7 +77,7 @@ def test_personal_canonical_never_borrows_preset_english_hints():
     phrase = TOPIC_PHRASES[0]
     token = interface_language.set("en")
     try:
-        assert preset_english_source(phrase.source_ru, phrase.canonical_sr) is not None
+        assert preset_english_source(phrase.source_ru, phrase.canonical_tr) is not None
         assert preset_english_source(phrase.source_ru, "Drugačiji prevod.") is None
         assert word_hints_for_language(phrase.source_ru, [], "Drugačiji prevod.") == []
     finally:
@@ -92,12 +92,12 @@ def test_new_preparation_prompt_filters_noncanonical_model_hints_and_preserves_c
     from app.services.ai_adapter import AIServiceError, OpenAIStructuredProvider
     provider = OpenAIStructuredProvider(Settings(openai_api_key="mock", openai_text_model="from-env"))
     parse = Mock(return_value=SimpleNamespace(output_parsed=PhrasePreparation(
-        intended_sr_variants=["Nemam s kim da pričam."], source_versions={"ru": "Мне не с кем поговорить.", "en": "I have nobody to talk to."}, word_hints=[
+        intended_tr_variants=["Nemam s kim da pričam."], source_versions={"ru": "Мне не с кем поговорить.", "en": "I have nobody to talk to."}, word_hints=[
             hint("мне", "mi"), hint("мне не с кем", "nemam s kim"), hint("поговорить", "da pričam")])))
     provider._client = SimpleNamespace(responses=SimpleNamespace(parse=parse))
-    result = provider.prepare_phrase(source_ru="Мне не с кем поговорить.", canonical_sr="Nemam s kim da pričam.")
+    result = provider.prepare_phrase(source_ru="Мне не с кем поговорить.", canonical_tr="Nemam s kim da pričam.")
     assert [h.word_ru for h in result.word_hints] == ["мне не с кем", "поговорить"]
     assert "максимум 4" in parse.call_args.kwargs["instructions"]
     assert parse.call_args.kwargs["model"] == "from-env"
     with pytest.raises(AIServiceError):
-        provider.prepare_phrase(source_ru="Мне не с кем поговорить.", canonical_sr="Nemam s kim da razgovaram.")
+        provider.prepare_phrase(source_ru="Мне не с кем поговорить.", canonical_tr="Nemam s kim da razgovaram.")

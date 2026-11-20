@@ -84,14 +84,14 @@ def test_transcription_returns_non_serbian_letters_for_review(api_client: TestCl
     assert response.status_code == 200
     assert response.json() == {"text": text, "review_required": True}
     assistance.analyze.assert_not_called()
-    rejected = api_client.post("/api/attempts", json={"exercise_id": exercise_id, "transcript_sr": text})
+    rejected = api_client.post("/api/attempts", json={"exercise_id": exercise_id, "transcript_tr": text})
     assert rejected.status_code == 422
     assert rejected.json() == {"detail": {"code": "transcript_unexpected_script"}}
     assert db_session.scalar(select(func.count()).select_from(Attempt)) == 0
     assert db_session.scalar(select(func.count()).select_from(AttemptRequest)) == 0
     # The rejection leaves quota/session usable for the edited answer.
-    canonical = db_session.get(Exercise, exercise_id).target_hints_json["canonical_sr"]
-    accepted = api_client.post("/api/attempts", json={"exercise_id": exercise_id, "transcript_sr": canonical})
+    canonical = db_session.get(Exercise, exercise_id).target_hints_json["canonical_tr"]
+    accepted = api_client.post("/api/attempts", json={"exercise_id": exercise_id, "transcript_tr": canonical})
     assert accepted.status_code == 201
 
 

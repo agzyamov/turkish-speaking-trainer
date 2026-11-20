@@ -33,14 +33,14 @@ def main():
     checkpoint = folder / "prepared.json"
     results = json.loads(checkpoint.read_text(encoding="utf-8")) if checkpoint.exists() else {}
     jobs = [{"key": f"{p.id}:{lang}", "source": p.source_ru if lang == "ru" else TOPIC_PHRASES_EN[p.source_ru],
-             "canonical": p.canonical_sr} for p in TOPIC_PHRASES for lang in ("ru", "en")]
+             "canonical": p.canonical_tr} for p in TOPIC_PHRASES for lang in ("ru", "en")]
     if args.manual:
         jobs.extend({"key": f"manual:{p['id']}", "source": p["source_ru"],
-                     "canonical": p["intended_sr_variants_json"][0]}
+                     "canonical": p["intended_tr_variants_json"][0]}
                     for p in json.loads(args.manual.read_text(encoding="utf-8")))
     def prepare(job):
         provider = OpenAIStructuredProvider(get_settings())
-        result = provider.prepare_phrase(source_ru=job["source"], canonical_sr=job["canonical"])
+        result = provider.prepare_phrase(source_ru=job["source"], canonical_tr=job["canonical"])
         hints = aligned_word_hints(job["source"], job["canonical"], [h.model_dump() for h in result.word_hints])
         if not hints:
             raise RuntimeError("No aligned hints")
@@ -74,7 +74,7 @@ def main():
                 raise SystemExit("Refusing empty dictionary")
         checkpoint.write_text(json.dumps(results, ensure_ascii=False, indent=2), encoding="utf-8")
         ru = {p.id: results[f"{p.id}:ru"]["hints"] for p in TOPIC_PHRASES}
-        en = {TOPIC_PHRASES_EN[p.source_ru]: {h["word_ru"]: h["translation_sr"] for h in results[f"{p.id}:en"]["hints"]} for p in TOPIC_PHRASES}
+        en = {TOPIC_PHRASES_EN[p.source_ru]: {h["word_ru"]: h["translation_tr"] for h in results[f"{p.id}:en"]["hints"]} for p in TOPIC_PHRASES}
         for name, variable, data in [("topic_phrase_hints.py", "TOPIC_PHRASE_HINTS", ru),
                                      ("topic_phrase_hints_en.py", "ENGLISH_WORD_HINTS", en)]:
             (ROOT / "backend/app/db" / name).write_text(
@@ -82,7 +82,7 @@ def main():
                 + variable + " = " + pformat(data, width=110, sort_dicts=False) + "\n", encoding="utf-8")
         from app.db.misc_phrases import MISC_PHRASES
         for p in MISC_PHRASES:
-            p["hints_ru"] = {h["word_ru"]: h["translation_sr"] for h in ru[p["id"]]}
+            p["hints_ru"] = {h["word_ru"]: h["translation_tr"] for h in ru[p["id"]]}
             p["hints_en"] = en[p["source_en"]]
         (ROOT / "backend/app/db/misc_phrases.py").write_text(
             '"""Curated everyday Serbian phrases with short canonical hints."""\n\nMISC_PHRASES = '
@@ -90,7 +90,7 @@ def main():
         frontend = ROOT / "frontend/src/locales/phrases.en.json"
         phrases = json.loads(frontend.read_text(encoding="utf-8"))
         for p in phrases:
-            p["word_hints"] = {key: {"translation_sr": value} for key, value in en[p["source_en"]].items()}
+            p["word_hints"] = {key: {"translation_tr": value} for key, value in en[p["source_en"]].items()}
         frontend.write_text(json.dumps(phrases, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
         print("Exported 210 RU + 210 EN preset dictionaries; private rows remain in artifacts.")
 

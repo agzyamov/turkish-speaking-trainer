@@ -22,7 +22,7 @@ for (const language of ['ru', 'en']) for (const layout of ['desktop', 'compact-d
         days: [1, 10, 20].map((count, index) => ({ date: `2026-10-0${5 + index}`, phrase_count: 1, translation_count: count, correct_translation_count: 0, mastered_phrase_count: 0 })),
       };
       else if (url.pathname === '/api/statistics/phrase-topics') body = [{ topic_id: 'bank', topic_title: 'В банке', phrase_count: 45 }];
-      else if (url.pathname === '/api/statistics/phrases') body = { total: 45, page: Number(url.searchParams.get('page')), page_size: url.searchParams.get('page_size'), total_pages: url.searchParams.get('page_size') === '50' ? 1 : 3, groups: [{ topic_id: 'bank', topic_title: 'В банке', phrases: [{ id: 'phrase', source_ru: 'Я хочу открыть счёт.', target_sr: 'Želim da otvorim račun.', attempts: 20, status: 'learning', difficulty: null, next_review_at: null }] }] };
+      else if (url.pathname === '/api/statistics/phrases') body = { total: 45, page: Number(url.searchParams.get('page')), page_size: url.searchParams.get('page_size'), total_pages: url.searchParams.get('page_size') === '50' ? 1 : 3, groups: [{ topic_id: 'bank', topic_title: 'В банке', phrases: [{ id: 'phrase', source_ru: 'Я хочу открыть счёт.', target_tr: 'Želim da otvorim račun.', attempts: 20, status: 'learning', difficulty: null, next_review_at: null }] }] };
       else throw new Error(`Unexpected fixture route ${url.pathname}`);
       await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(body) });
     });

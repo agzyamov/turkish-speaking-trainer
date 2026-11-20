@@ -57,7 +57,7 @@ try {
   await expect.poll(()=>page.evaluate(async()=>{try{return (await fetch('http://10.0.2.2:8765/api/health',{signal:AbortSignal.timeout(3000)})).ok;}catch{return false;}}),{timeout:30000}).toBe(true);
   await tap(page.getByRole('button',{name:'Проверить',exact:true}));
   await expect(page.locator('.android-training-page .feedback')).toBeVisible();
-  if(attempts.length!==2 || attempts[0].client_request_id!==attempts[1].client_request_id || attempts[0].transcript_sr!==attempts[1].transcript_sr) throw Error('Retry request identity changed');
+  if(attempts.length!==2 || attempts[0].client_request_id!==attempts[1].client_request_id || attempts[0].transcript_tr!==attempts[1].transcript_tr) throw Error('Retry request identity changed');
   report.deviceNetworkRetry={radioDisabled:true,offlineHoldSeconds,draftPreserved:true,sameAttemptRequest:true};
   console.log('Android: device offline/retry passed');
   await tap(page.getByRole('button',{name:'Следующая',exact:true}));
@@ -115,7 +115,7 @@ try {
   releases.push(()=>releaseTranscript());
   await page.route('**/api/transcriptions',async route=>{
     transcriptEntered=true;await transcriptGate;
-    await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({transcript_sr:'Kasni odgovor.',timings:{}})}).catch(()=>{});
+    await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({transcript_tr:'Kasni odgovor.',timings:{}})}).catch(()=>{});
   });
   await page.getByRole('button',{name:'Ответить голосом',exact:true}).click();
   await page.getByRole('button',{name:'Завершить запись',exact:true}).click();
@@ -174,8 +174,8 @@ try {
   await answer.fill(incorrect);await closeKeyboard();
   // A render-only structured fixture, not an AI-quality or persisted-attempt check.
   await page.route('**/api/attempts',async route=>{
-    const fixture={...gradeResponse,exercise_id:route.request().postDataJSON().exercise_id,transcript_sr:incorrect,overall_score:.88,base_score:.88,
-      analysis:{...gradeResponse.analysis,verdict:'needs_work',corrected_sr:'Malo ćemo kasniti zbog jutarnjeg prevoza.',issues:[{type:'grammar',skill_key:'present_tense',severity:.5,confidence:1,evidence:'jutreneg prevoza',correction:'jutarnjeg prevoza'}]}};
+    const fixture={...gradeResponse,exercise_id:route.request().postDataJSON().exercise_id,transcript_tr:incorrect,overall_score:.88,base_score:.88,
+      analysis:{...gradeResponse.analysis,verdict:'needs_work',corrected_tr:'Malo ćemo kasniti zbog jutarnjeg prevoza.',issues:[{type:'grammar',skill_key:'present_tense',severity:.5,confidence:1,evidence:'jutreneg prevoza',correction:'jutarnjeg prevoza'}]}};
     await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify(fixture)});
   });
   await tap(page.getByRole('button',{name:'Проверить',exact:true}));

@@ -13,7 +13,7 @@ for (const language of ['ru', 'en']) for (const layout of ['web', 'android']) {
       localStorage.setItem(storageKey, JSON.stringify({ access_token: 'e2e-local-only', refresh_token: 'e2e-local-only', token_type: 'bearer', expires_at: 4102444800, user: { id: 'misc-user', aud: 'authenticated', role: 'authenticated', email: 'learner@example.invalid', app_metadata: {}, user_metadata: {}, created_at: '2026-10-01T00:00:00Z' } }));
     }, { language, storageKey: process.env.PRACTICE_AUTH_STORAGE_KEY ?? 'sb-e2e-auth-auth-token' });
     const topic = { id: 'misc', title_ru: 'Разное', description_ru: 'Повседневные разговоры, короткие диалоги и разговорные выражения.', phrase_count: 50, is_custom: false, likely_intents: [], suggested_vocabulary: [] };
-    const hints = en ? Object.entries(phrase.word_hints).map(([word_ru, hint]) => ({ word_ru, translation_sr: hint.translation_sr })) : [{ word_ru: 'Ладно', translation_sr: 'Ajde' }];
+    const hints = en ? Object.entries(phrase.word_hints).map(([word_ru, hint]) => ({ word_ru, translation_tr: hint.translation_tr })) : [{ word_ru: 'Ладно', translation_tr: 'Ajde' }];
     await page.route('**/api/**', async route => {
       const path = new URL(route.request().url()).pathname;
       let body;
@@ -22,7 +22,7 @@ for (const language of ['ru', 'en']) for (const layout of ['web', 'android']) {
       else if (path === '/api/topics') body = [topic];
       else if (path === '/api/review-phrases/summary') body = { phrase_count: 1 };
       else if (path === '/api/sessions/start') body = { session: { id: 's1', topic: { ...topic, source: 'preset' }, status: 'active', requested_length: 50, completed_count: 0 }, exercise: { id: 'e1', session_id: 's1', source_ru: phrase.source_ru, word_hints: hints, targeted_skills: [], expected_level: 'A2', difficulty: 1 } };
-      else if (path.endsWith('/word-hints')) body = { word_ru: route.request().postDataJSON().word, translation_sr: 'Ajde', learning_status: 'learning', correct_streak: 0 };
+      else if (path.endsWith('/word-hints')) body = { word_ru: route.request().postDataJSON().word, translation_tr: 'Ajde', learning_status: 'learning', correct_streak: 0 };
       else throw new Error(`Unexpected fixture path ${path}`);
       await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(body) });
     });

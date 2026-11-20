@@ -55,7 +55,7 @@ for (const language of ['ru', 'en']) for (const layout of ['desktop', 'android']
       await submit.click();
       await expect.poll(() => attempts.length).toBe(2);
       expect(attempts[1].client_request_id).toBe(attempts[0].client_request_id);
-      expect(attempts[1].transcript_sr).toBe(attempts[0].transcript_sr);
+      expect(attempts[1].transcript_tr).toBe(attempts[0].transcript_tr);
     });
   }
 }

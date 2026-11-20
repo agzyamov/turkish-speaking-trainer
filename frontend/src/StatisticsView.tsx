@@ -74,7 +74,7 @@ function PhraseList({ alphabet, topicId }: { alphabet: SerbianAlphabet; topicId:
           <div className="phrase-table-wrap"><table className="phrase-table">
             <thead><tr><th>{t("Фраза на русском")}</th><th>{t("Фраза на сербском")}</th><th>{t("Попытки")}</th><th>{t("Статус")}</th><th>{t("Следующий повтор")}</th></tr></thead>
             <tbody>{group.phrases.map((phrase) => <tr key={phrase.id}>
-              <td><span className="phrase-cell-label">{t("Фраза на русском")}</span><span>{t(phrase.source_ru)}</span></td><td lang={alphabet === "cyrillic" ? "sr-Cyrl" : "sr-Latn"}><span className="phrase-cell-label">{t("Фраза на сербском")}</span><span>{displaySerbian(phrase.target_sr, alphabet)}</span></td><td><span className="phrase-cell-label">{t("Попытки")}</span><span>{phrase.attempts}</span></td>
+              <td><span className="phrase-cell-label">{t("Фраза на русском")}</span><span>{t(phrase.source_ru)}</span></td><td lang={alphabet === "cyrillic" ? "sr-Cyrl" : "sr-Latn"}><span className="phrase-cell-label">{t("Фраза на сербском")}</span><span>{displaySerbian(phrase.target_tr, alphabet)}</span></td><td><span className="phrase-cell-label">{t("Попытки")}</span><span>{phrase.attempts}</span></td>
               <td><span className="phrase-cell-label">{t("Статус")}</span><span className={`phrase-status phrase-status--${phrase.status}`}>{t(phrase.status === "mastered" ? "выучена" : "в изучении")}</span></td>
               <td><span className="phrase-cell-label">{t("Следующий повтор")}</span><span>{t(phrase.status === "mastered" ? formatReviewDate(phrase.next_review_at) : "—")}</span></td>
             </tr>)}</tbody>

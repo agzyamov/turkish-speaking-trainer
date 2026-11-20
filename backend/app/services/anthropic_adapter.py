@@ -105,9 +105,9 @@ class AnthropicStructuredProvider:
         self,
         *,
         source_ru: str,
-        transcript_sr: str,
-        canonical_sr: str | None,
-        intended_sr_variants: list[str],
+        transcript_tr: str,
+        canonical_tr: str | None,
+        intended_tr_variants: list[str],
         target_skills: list[dict[str, str]],
         timings: dict[str, object],
         validation_feedback: str | None = None,
@@ -118,20 +118,20 @@ class AnthropicStructuredProvider:
                 "source_text": source_ru,
                 "feedback_language": interface_language.get(),
                 "previous_validation_failure": validation_feedback,
-                "transcript_sr": transcript_sr,
-                "canonical_sr": canonical_sr,
-                "intended_sr_variants": intended_sr_variants,
+                "transcript_tr": transcript_tr,
+                "canonical_tr": canonical_tr,
+                "intended_tr_variants": intended_tr_variants,
                 "target_skills": target_skills,
                 "timings": timings,
                 "target_level": "A2",
             },
         )
 
-    def prepare_phrase(self, *, source_ru: str, canonical_sr: str | None = None) -> PhrasePreparation:
+    def prepare_phrase(self, *, source_ru: str, canonical_tr: str | None = None) -> PhrasePreparation:
         from app.schemas.exercises import BilingualPhrasePreparation
         return self._parse(
             prompt_name="phrase_preparation_v4.md", role="utility", schema=BilingualPhrasePreparation,
-            payload={"source_ru": source_ru, "canonical_sr": canonical_sr, "target_level": "A2"},
+            payload={"source_ru": source_ru, "canonical_tr": canonical_tr, "target_level": "A2"},
         )
 
     def _parse(self, *, prompt_name: str, role: ModelRole, payload: dict[str, object], schema: StructuredSchema):
@@ -193,10 +193,10 @@ class AnthropicTranscriptionAssistanceProvider(AnthropicStructuredProvider):
         super().__init__(settings, timeout_seconds=settings.anthropic_assistance_timeout_seconds,
                          max_retries=settings.anthropic_assistance_max_retries)
 
-    def analyze(self, *, source_ru: str, raw_text: str, canonical_sr: str | None,
-                intended_sr_variants: list[str]) -> TranscriptionAssistanceAnalysis:
+    def analyze(self, *, source_ru: str, raw_text: str, canonical_tr: str | None,
+                intended_tr_variants: list[str]) -> TranscriptionAssistanceAnalysis:
         return self._parse(
             prompt_name="transcription_assistance_v3.md", role="utility", schema=TranscriptionAssistanceAnalysis,
-            payload={"source_ru": source_ru, "raw_text": raw_text, "canonical_sr": canonical_sr,
-                     "intended_sr_variants": intended_sr_variants},
+            payload={"source_ru": source_ru, "raw_text": raw_text, "canonical_tr": canonical_tr,
+                     "intended_tr_variants": intended_tr_variants},
         )

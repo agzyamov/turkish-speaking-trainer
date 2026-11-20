@@ -10,7 +10,7 @@ for (const language of ['ru', 'en']) for (const layout of ['desktop', 'mobile', 
       localStorage.setItem(storageKey, JSON.stringify({ access_token: 'e2e-only', refresh_token: 'e2e-only', expires_at: 4102444800, token_type: 'bearer', user: { id: 'custom-admin', email: 'admin@example.invalid', aud: 'authenticated', role: 'authenticated', app_metadata: {}, user_metadata: {} } }));
     }, { language, layout, storageKey: process.env.LAYOUT_AUTH_STORAGE_KEY ?? "sb-e2e-auth-auth-token" });
     const topics = [{ id: 'bank', title_ru: 'В банке', description_ru: '', phrase_count: 20, is_custom: false, likely_intents: [], suggested_vocabulary: [] }];
-    const prepared = { preparation_id: '12345678-1234-1234-1234-123456789012', source_ru: 'Я скоро вернусь.', canonical_sr: 'Uskoro se vraćam.', intended_sr_variants: ['Uskoro se vraćam.'], word_hints: [] };
+    const prepared = { preparation_id: '12345678-1234-1234-1234-123456789012', source_ru: 'Я скоро вернусь.', canonical_tr: 'Uskoro se vraćam.', intended_tr_variants: ['Uskoro se vraćam.'], word_hints: [] };
     let saved = false;
     await page.route('**/api/**', async route => {
       const request = route.request();
@@ -48,7 +48,7 @@ for (const language of ['ru', 'en']) for (const layout of ['desktop', 'mobile', 
     await page.getByRole('button', { name: language === 'ru' ? 'Создать фразу' : 'Create phrase', exact: true }).click();
     await page.getByLabel(language === 'ru' ? 'Фраза на русском языке' : 'Phrase in Russian').fill(prepared.source_ru);
     await page.getByRole('button', { name: language === 'ru' ? 'Подготовить перевод' : 'Prepare translation', exact: true }).click();
-    await expect(page.getByText(prepared.canonical_sr, { exact: true })).toBeVisible();
+    await expect(page.getByText(prepared.canonical_tr, { exact: true })).toBeVisible();
     await page.getByRole('combobox').selectOption('custom-test');
     const form = page.getByRole('form', { name: language === 'ru' ? 'Добавить фразу' : 'Add phrase' });
     for (const control of await form.locator('input, select, button').all()) {

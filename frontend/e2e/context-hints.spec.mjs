@@ -14,7 +14,7 @@ for (const language of ['ru', 'en']) for (const layout of ['desktop', 'mobile', 
     const source = en ? 'I have nobody to talk to.' : 'Мне не с кем поговорить.';
     const fragment = en ? 'I have nobody' : 'Мне не с кем';
     const verb = en ? 'to talk to' : 'поговорить';
-    const hints = [{ word_ru: fragment.toLowerCase(), translation_sr: 'nemam s kim' }, { word_ru: verb, translation_sr: 'da pričam' }];
+    const hints = [{ word_ru: fragment.toLowerCase(), translation_tr: 'nemam s kim' }, { word_ru: verb, translation_tr: 'da pričam' }];
     const saved = [];
     const topic = { id: 'custom-hints', title_ru: en ? 'Short hints' : 'Короткие подсказки', phrase_count: 1, is_custom: true };
     await page.route('**/api/**', async route => {

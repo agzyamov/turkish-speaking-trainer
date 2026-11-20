@@ -9,7 +9,7 @@ class TopicPhraseSeed:
     topic_id: str
     position: int
     source_ru: str
-    canonical_sr: str
+    canonical_tr: str
     targeted_skill_keys_json: tuple[str, ...]
 
 
@@ -193,7 +193,7 @@ PHRASES: dict[str, tuple[tuple[str, str], ...]] = {
 }
 
 
-PHRASES["misc"] = tuple((item["source_ru"], item["canonical_sr"]) for item in MISC_PHRASES)
+PHRASES["misc"] = tuple((item["source_ru"], item["canonical_tr"]) for item in MISC_PHRASES)
 
 CASE_SKILLS = (
     "grammar.accusative",
@@ -210,7 +210,7 @@ def phrase_seeds() -> tuple[TopicPhraseSeed, ...]:
         expected_count = 50 if topic_id == "misc" else 20
         if len(phrases) != expected_count:
             raise ValueError(f"Topic {topic_id} must contain exactly {expected_count} phrases")
-        for position, (source_ru, canonical_sr) in enumerate(phrases, start=1):
+        for position, (source_ru, canonical_tr) in enumerate(phrases, start=1):
             form_skill = "grammar.questions" if source_ru.endswith("?") else "grammar.present"
             skills = [form_skill, CASE_SKILLS[(position - 1) % len(CASE_SKILLS)]]
             if position % 2 == 0:
@@ -221,7 +221,7 @@ def phrase_seeds() -> tuple[TopicPhraseSeed, ...]:
                     topic_id=topic_id,
                     position=position,
                     source_ru=source_ru,
-                    canonical_sr=canonical_sr,
+                    canonical_tr=canonical_tr,
                     targeted_skill_keys_json=tuple(skills),
                 )
             )

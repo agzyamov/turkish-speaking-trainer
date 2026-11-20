@@ -12,7 +12,7 @@ def submit(client, db, **extra):
     session = client.post('/api/sessions', json={'topic_id': 'cafe'}).json()
     exercise = client.post(f"/api/sessions/{session['id']}/next-exercise").json()
     stored = db.get(Exercise, exercise['id'])
-    payload = {'exercise_id': stored.id, 'transcript_sr': stored.target_hints_json['canonical_sr'], **extra}
+    payload = {'exercise_id': stored.id, 'transcript_tr': stored.target_hints_json['canonical_tr'], **extra}
     response = client.post('/api/attempts', json=payload)
     assert response.status_code == 201, response.text
     return payload, response.json()
@@ -85,7 +85,7 @@ def test_concurrent_successes_award_daily_start_once(tmp_path):
             db.add(TrainingSession(id='reward-session', user_id=user_id, status='active', normalized_topic_json={'session_length': 20}))
             db.flush()
             for exercise_id in ids:
-                db.add(Exercise(id=exercise_id, session_id='reward-session', source_ru='Добрый день.', target_hints_json={'canonical_sr': 'Dobar dan.'}, targeted_skill_ids=[], generation_meta_json={'targeted_skill_keys': []}))
+                db.add(Exercise(id=exercise_id, session_id='reward-session', source_ru='Добрый день.', target_hints_json={'canonical_tr': 'Dobar dan.'}, targeted_skill_ids=[], generation_meta_json={'targeted_skill_keys': []}))
             db.commit()
         barrier = Barrier(2)
 
@@ -93,7 +93,7 @@ def test_concurrent_successes_award_daily_start_once(tmp_path):
             with Session(engine) as db:
                 user = db.get(User, user_id)
                 barrier.wait(timeout=5)
-                return AttemptService(db, FakeAIProvider(), user).create(CreateAttemptRequest(exercise_id=exercise_id, transcript_sr='Dobar dan.')).first_success_today
+                return AttemptService(db, FakeAIProvider(), user).create(CreateAttemptRequest(exercise_id=exercise_id, transcript_tr='Dobar dan.')).first_success_today
 
         with ThreadPoolExecutor(max_workers=2) as pool:
             assert sorted(pool.map(check, ids)) == [False, True]

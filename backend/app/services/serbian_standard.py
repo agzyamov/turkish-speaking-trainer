@@ -34,14 +34,14 @@ def is_ekavian_candidate(text: str) -> bool:
 
 def validate_generated_serbian(result: BaseModel) -> None:
     """Check Serbian output fields only, after Pydantic validation."""
-    texts = list(getattr(result, "intended_sr_variants", []))
-    texts.extend(hint.translation_sr for hint in getattr(result, "word_hints", []))
+    texts = list(getattr(result, "intended_tr_variants", []))
+    texts.extend(hint.translation_tr for hint in getattr(result, "word_hints", []))
     versions = getattr(result, "source_versions", None)
     if versions is not None:
-        texts.extend(hint.translation_sr for hint in [*versions.hints_ru, *versions.hints_en])
+        texts.extend(hint.translation_tr for hint in [*versions.hints_ru, *versions.hints_en])
     texts.extend(getattr(result, "suggested_vocabulary", []))
-    if hasattr(result, "corrected_sr"):
-        texts.append(result.corrected_sr)
+    if hasattr(result, "corrected_tr"):
+        texts.append(result.corrected_tr)
         texts.extend(result.accepted_alternatives)
         texts.extend(issue.correction for issue in result.issues if issue.correction)
     # STT candidates are hypotheses about what was said, not generated answers.

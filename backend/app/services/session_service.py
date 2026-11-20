@@ -89,7 +89,7 @@ class SessionService:
                     "review_phrase": {
                         "id": review_phrase.id,
                         "source_ru": review_phrase.source_ru,
-                        "intended_sr_variants": review_phrase.intended_sr_variants_json,
+                        "intended_tr_variants": review_phrase.intended_tr_variants_json,
                         "word_hints": review_phrase.word_hints_json,
                         "targeted_skill_keys": review_phrase.targeted_skill_keys_json,
                         "topic_id": review_phrase.topic_id,

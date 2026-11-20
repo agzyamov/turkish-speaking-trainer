@@ -31,9 +31,9 @@ for (const layout of ['desktop', 'mobile', 'android']) for (const language of ['
       else if (path === '/api/review-phrases/summary') body = { phrase_count: 0 };
       else if (path === '/api/sessions/start') { starts += 1; body = { session, exercise }; }
       else if (path === '/api/transcriptions') body = { text: transcript };
-      else if (path === '/api/attempts') body = { id: 'attempt-result', exercise_id: exercise.id, transcript_sr: transcript, overall_score: score, base_score: score, hint_penalty: 0, daily_usage: account.daily_usage,
+      else if (path === '/api/attempts') body = { id: 'attempt-result', exercise_id: exercise.id, transcript_tr: transcript, overall_score: score, base_score: score, hint_penalty: 0, daily_usage: account.daily_usage,
         analysis: { verdict, semantic_score: 1, grammar_score: 0.88, lexical_score: 0.88, naturalness_score: 0.88, pronunciation_score: null, fluency_score: 1,
-          corrected_sr: corrected, short_feedback_ru: 'Исправьте слово.', detailed_feedback_ru: 'Исправьте слово.', accepted_alternatives: [], demonstrated_skills: [],
+          corrected_tr: corrected, short_feedback_ru: 'Исправьте слово.', detailed_feedback_ru: 'Исправьте слово.', accepted_alternatives: [], demonstrated_skills: [],
           issues: verdict === 'correct' ? [] : [{ type: 'grammar', skill_key: null, severity: 0.5, confidence: 1, evidence: 'jutreneg prevoza', correction: 'jutarnjeg prevoza' }] } };
       else if (path === `/api/sessions/${session.id}/next-exercise`) body = { ...exercise, id: 'exercise-next', source_ru: 'Мы придём завтра.' };
       else throw new Error(`Unexpected fixture route: ${path}`);

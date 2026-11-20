@@ -6,12 +6,12 @@ import { setLanguage } from "../i18n";
 import { displaySerbian, type SerbianAlphabet } from "../serbianScript";
 
 const attempt: Attempt = {
-  id: "attempt-1", exercise_id: "exercise-1", transcript_sr: "Račun želim otovrim.",
+  id: "attempt-1", exercise_id: "exercise-1", transcript_tr: "Račun želim otovrim.",
   overall_score: .5, base_score: .5, hint_penalty: 0,
   analysis: {
     verdict: "needs_work", semantic_score: .5, grammar_score: .5, lexical_score: .5,
     naturalness_score: .5, pronunciation_score: null, fluency_score: 1,
-    corrected_sr: "Želim otvorim račun.", short_feedback_ru: "Исправьте ответ.",
+    corrected_tr: "Želim otvorim račun.", short_feedback_ru: "Исправьте ответ.",
     detailed_feedback_ru: "Исправьте порядок и написание.", accepted_alternatives: [],
     issues: [{ type: "vocabulary", skill_key: "vocabulary", severity: 0.8, confidence: 0.9,
       evidence: "otovrim", correction: "otvorim" }], demonstrated_skills: [],
@@ -25,13 +25,13 @@ describe("AnswerResult", () => {
       it(`marks errors without a curriculum skill (${language}, ${alphabet})`, () => {
         setLanguage(language);
         const issue = { ...attempt.analysis.issues[0], skill_key: null, evidence: "otovrim", correction: "otvorim" };
-        render(<AnswerResult answer={attempt.transcript_sr} alphabet={alphabet}
+        render(<AnswerResult answer={attempt.transcript_tr} alphabet={alphabet}
           attempt={{ ...attempt, analysis: { ...attempt.analysis, issues: [issue], demonstrated_skills: [] } }} />);
         const marks = document.querySelectorAll("mark");
         expect(marks).toHaveLength(1);
         expect(marks[0]).toHaveTextContent(displaySerbian("otovrim", alphabet));
         expect(marks[0]).toHaveAttribute("title", displaySerbian("otvorim", alphabet));
-        expect(document.querySelector(".result-phrase__text")).toHaveTextContent(displaySerbian(attempt.transcript_sr, alphabet));
+        expect(document.querySelector(".result-phrase__text")).toHaveTextContent(displaySerbian(attempt.transcript_tr, alphabet));
       });
 
       it(`preserves unreported Da and marks the reported word order (${language}, ${alphabet})`, () => {
@@ -42,7 +42,7 @@ describe("AnswerResult", () => {
           { ...attempt.analysis.issues[0], evidence: "Baš lepo je", correction: "baš je lepo" },
         ];
         render(<AnswerResult answer={answer} alphabet={alphabet} attempt={{ ...attempt, analysis: {
-          ...attempt.analysis, corrected_sr: "Da sednemo napolju? — Može, naravno, baš je lepo vreme.", issues,
+          ...attempt.analysis, corrected_tr: "Da sednemo napolju? — Može, naravno, baš je lepo vreme.", issues,
         } }} />);
         expect(Array.from(document.querySelectorAll("mark"), mark => mark.textContent))
           .toEqual([displaySerbian("lepo", alphabet), displaySerbian("je", alphabet)]);
@@ -62,7 +62,7 @@ describe("AnswerResult", () => {
     }
   }
   it("marks only evidence explicitly reported in validated analysis", () => {
-    render(<AnswerResult answer={attempt.transcript_sr} attempt={attempt} />);
+    render(<AnswerResult answer={attempt.transcript_tr} attempt={attempt} />);
     expect(screen.queryByText("Фраза на русском")).not.toBeInTheDocument();
     expect(document.querySelectorAll(".result-phrase")).toHaveLength(2);
     const userRow = screen.getByText("Ваш вариант").parentElement as HTMLElement;

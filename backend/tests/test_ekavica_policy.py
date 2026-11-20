@@ -31,26 +31,26 @@ def test_ekavian_je_and_shared_forms_are_not_mechanically_replaced(text):
 def test_preparation_has_common_policy_and_rejects_model_dialect_leakage(language):
     provider = OpenAIStructuredProvider(Settings(openai_api_key="mock", openai_text_model="env-model"))
     parse = Mock(return_value=SimpleNamespace(output_parsed=PhrasePreparation(
-        intended_sr_variants=["Imam dvije kafe."],
+        intended_tr_variants=["Imam dvije kafe."],
     )))
     provider._client = SimpleNamespace(responses=SimpleNamespace(parse=parse))
     token = interface_language.set(language)
     try:
         with pytest.raises(AIServiceError):
             provider.prepare_phrase(source_ru="У меня два кофе.")
-        parse.return_value.output_parsed = PhrasePreparation(intended_sr_variants=["Imam dve kafe."], source_versions={"ru": "У меня два кофе.", "en": "I have two coffees."})
-        assert provider.prepare_phrase(source_ru="У меня два кофе.").intended_sr_variants == ["Imam dve kafe."]
+        parse.return_value.output_parsed = PhrasePreparation(intended_tr_variants=["Imam dve kafe."], source_versions={"ru": "У меня два кофе.", "en": "I have two coffees."})
+        assert provider.prepare_phrase(source_ru="У меня два кофе.").intended_tr_variants == ["Imam dve kafe."]
     finally:
         interface_language.reset(token)
     assert "Ekavica" in parse.call_args.kwargs["instructions"]
-    assert "transcript_sr, raw_text и evidence" in parse.call_args.kwargs["instructions"]
+    assert "transcript_tr, raw_text и evidence" in parse.call_args.kwargs["instructions"]
 
 
 def test_generated_hints_and_alternatives_cannot_leak_ijekavica():
     with pytest.raises(ValueError):
         validate_generated_serbian(PhrasePreparation(
-            intended_sr_variants=["Imam dve kafe."],
-            word_hints=[{"word_ru": "две", "translation_sr": "dvije"}],
+            intended_tr_variants=["Imam dve kafe."],
+            word_hints=[{"word_ru": "две", "translation_tr": "dvije"}],
         ))
     with pytest.raises(ValueError):
         validate_generated_serbian(correct_analysis().model_copy(update={"accepted_alternatives": ["Dvije kafe."]}))
@@ -58,22 +58,22 @@ def test_generated_hints_and_alternatives_cannot_leak_ijekavica():
 
 def correct_analysis():
     return AnswerAnalysis(verdict="correct", semantic_score=1, grammar_score=1, lexical_score=1,
-                          naturalness_score=1, fluency_score=1, corrected_sr="Imam dve kafe.",
+                          naturalness_score=1, fluency_score=1, corrected_tr="Imam dve kafe.",
                           short_feedback_ru="Верно.", detailed_feedback_ru="Верно.")
 
 
 @pytest.mark.parametrize("language", ["ru", "en"])
 def test_stale_ijekavian_canonical_cannot_override_correct_ekavian_answer(language):
     ai = FakeAIProvider(available=True, analysis_result=correct_analysis())
-    arguments = dict(source_ru="У меня два кофе.", transcript_sr="Imam dve kafe.",
-                     canonical_sr="Imam dvije kafe.", intended_sr_variants=["Imam dvije kafe."],
-                     target_skills=[], timing=CreateAttemptRequest(exercise_id="fixture", transcript_sr="Imam dve kafe."))
+    arguments = dict(source_ru="У меня два кофе.", transcript_tr="Imam dve kafe.",
+                     canonical_tr="Imam dvije kafe.", intended_tr_variants=["Imam dvije kafe."],
+                     target_skills=[], timing=CreateAttemptRequest(exercise_id="fixture", transcript_tr="Imam dve kafe."))
     token = interface_language.set(language)
     try:
         result = AnswerAnalyzer(ai).analyze(**arguments)
     finally:
         interface_language.reset(token)
-    assert result.corrected_sr == "Imam dve kafe."
+    assert result.corrected_tr == "Imam dve kafe."
     assert result.verdict == "correct"
     assert ai.analysis_calls == 1
 
@@ -81,9 +81,9 @@ def test_stale_ijekavian_canonical_cannot_override_correct_ekavian_answer(langua
 def test_ijekavian_snapshot_never_gets_perfect_score_via_exact_match():
     with pytest.raises(AnalysisUnavailableError):
         AnswerAnalyzer(FakeAIProvider(available=False)).analyze(
-            source_ru="У меня два кофе.", transcript_sr="Imam dvije kafe.", canonical_sr="Imam dvije kafe.",
-            intended_sr_variants=["Imam dvije kafe."], target_skills=[],
-            timing=CreateAttemptRequest(exercise_id="fixture", transcript_sr="Imam dvije kafe."),
+            source_ru="У меня два кофе.", transcript_tr="Imam dvije kafe.", canonical_tr="Imam dvije kafe.",
+            intended_tr_variants=["Imam dvije kafe."], target_skills=[],
+            timing=CreateAttemptRequest(exercise_id="fixture", transcript_tr="Imam dvije kafe."),
         )
 
 
@@ -93,11 +93,11 @@ def test_complete_seed_and_bilingual_hint_catalog_follow_ekavica(db_session):
     phrases = list(db_session.scalars(select(TopicPhrase)))
     assert len(phrases) == 210
     for phrase in phrases:
-        validate_generated_serbian(PhrasePreparation(intended_sr_variants=[phrase.canonical_sr],
+        validate_generated_serbian(PhrasePreparation(intended_tr_variants=[phrase.canonical_tr],
                                                      word_hints=phrase.word_hints_json))
     for hints in ENGLISH_WORD_HINTS.values():
         validate_generated_serbian(PhrasePreparation(word_hints=[
-            {"word_ru": word, "translation_sr": translation} for word, translation in hints.items()
+            {"word_ru": word, "translation_tr": translation} for word, translation in hints.items()
         ]))
 
 
@@ -113,9 +113,9 @@ def test_ijekavian_input_and_evidence_stay_literal_and_receive_dialect_feedback(
     })
     ai = FakeAIProvider(available=True, analysis_result=result)
     analyzed = AnswerAnalyzer(ai).analyze(
-        source_ru="У меня два кофе.", transcript_sr=transcript, canonical_sr="Imam dve kafe.",
-        intended_sr_variants=[], target_skills=[],
-        timing=CreateAttemptRequest(exercise_id="fixture", transcript_sr=transcript),
+        source_ru="У меня два кофе.", transcript_tr=transcript, canonical_tr="Imam dve kafe.",
+        intended_tr_variants=[], target_skills=[],
+        timing=CreateAttemptRequest(exercise_id="fixture", transcript_tr=transcript),
     )
     assert analyzed.issues[0].evidence == "dvije"
     assert analyzed.issues[0].correction == "dve"
@@ -127,9 +127,9 @@ def test_model_cannot_silently_accept_known_ijekavian_answer():
     ai = FakeAIProvider(available=True, analysis_result=correct_analysis())
     with pytest.raises(AnalysisUnavailableError):
         AnswerAnalyzer(ai).analyze(
-            source_ru="У меня два кофе.", transcript_sr="Imam dvije kafe.", canonical_sr="Imam dve kafe.",
-            intended_sr_variants=[], target_skills=[],
-            timing=CreateAttemptRequest(exercise_id="fixture", transcript_sr="Imam dvije kafe."),
+            source_ru="У меня два кофе.", transcript_tr="Imam dvije kafe.", canonical_tr="Imam dve kafe.",
+            intended_tr_variants=[], target_skills=[],
+            timing=CreateAttemptRequest(exercise_id="fixture", transcript_tr="Imam dvije kafe."),
         )
     assert ai.analysis_calls == 2
 
@@ -138,7 +138,7 @@ def test_model_cannot_silently_accept_known_ijekavian_answer():
                                     "phrase_preparation_v3.md", "transcription_assistance_v3.md"])
 def test_every_structured_operation_loads_shared_policy(prompt):
     provider = OpenAIStructuredProvider(Settings(openai_api_key="mock", openai_text_model="env-model"))
-    parse = Mock(return_value=SimpleNamespace(output_parsed=PhrasePreparation(intended_sr_variants=["Dve kafe."])))
+    parse = Mock(return_value=SimpleNamespace(output_parsed=PhrasePreparation(intended_tr_variants=["Dve kafe."])))
     provider._client = SimpleNamespace(responses=SimpleNamespace(parse=parse))
     provider._parse(prompt_name=prompt, payload={}, schema=PhrasePreparation)
     assert "Обязательный вариант сербского языка: Ekavica" in parse.call_args.kwargs["instructions"]

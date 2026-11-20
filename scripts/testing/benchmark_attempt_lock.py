@@ -90,14 +90,14 @@ def main() -> None:
                 if not release.wait(10):
                     raise RuntimeError("Synthetic analysis release timed out")
                 return AnswerAnalysis(verdict="correct", semantic_score=1, grammar_score=1, lexical_score=1,
-                                      naturalness_score=1, fluency_score=1, corrected_sr=FIXTURE["answer"],
+                                      naturalness_score=1, fluency_score=1, corrected_tr=FIXTURE["answer"],
                                       short_feedback_ru="Синтетическая проверка.", detailed_feedback_ru="Синтетическая проверка.")
 
         def analyze():
             with Session(engine, expire_on_commit=False) as db:
                 user = db.get(User, FIXTURE["user"])
                 result = AttemptService(db, WaitingAI(db), user).create(CreateAttemptRequest(
-                    exercise_id=FIXTURE["exercise"], client_request_id=FIXTURE["request"], transcript_sr=FIXTURE["answer"]))
+                    exercise_id=FIXTURE["exercise"], client_request_id=FIXTURE["request"], transcript_tr=FIXTURE["answer"]))
                 db.commit()
                 return result.id
 
