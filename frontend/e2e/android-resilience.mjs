@@ -168,7 +168,7 @@ try {
   if(attempts.length!==beforeGrade+1)throw Error('Grading duplicated during resume');
   report.grading={nativeHomeResume:true,pendingRequestRetained:true,singleSubmission:true};
   console.log('Android: grading background/resume passed');
-  stage='word-level highlight in both alphabets';
+  stage='word-level highlight';
   await tap(page.getByRole('button',{name:'Следующая',exact:true}));await record();
   const incorrect='Malo ćemo kasniti zbog jutreneg prevoza.';
   await answer.fill(incorrect);await closeKeyboard();
@@ -181,13 +181,9 @@ try {
   await tap(page.getByRole('button',{name:'Проверить',exact:true}));
   const marks=page.locator('.android-training-page .result-phrases mark');
   await expect(marks).toHaveCount(1);await expect(marks).toHaveText('jutreneg');
-  await tap(page.getByRole('button',{name:'Настройки',exact:true}));
-  await page.getByRole('radio',{name:/Кириллица/}).check();
-  await tap(page.getByRole('button',{name:'Тренировка',exact:true}));
-  await expect(marks).toHaveCount(1);await expect(marks).toHaveText('јутренег');
   await page.unrouteAll({behavior:'wait'});
-  report.wordHighlight={latin:true,cyrillic:true,unchangedNeighborExcluded:true,structuredRenderingFixture:true};
-  console.log('Android: exact word highlight passed in both alphabets');
+  report.wordHighlight={unchangedNeighborExcluded:true,structuredRenderingFixture:true};
+  console.log('Android: exact word highlight passed');
   stage='auth refresh on expiration';
   // Sign an expired LOCAL fixture JWT in the runner. No production credential is read or used.
   const fixtureEnv=Object.fromEntries(readFileSync(new URL('../../.env.testlab',import.meta.url),'utf8').split(/\r?\n/).map(line=>{const i=line.indexOf('=');return [line.slice(0,i),line.slice(i+1)];}));

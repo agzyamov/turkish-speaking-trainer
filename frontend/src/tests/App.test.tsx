@@ -1117,36 +1117,35 @@ describe("App", () => {
     expect(screen.queryByRole("combobox", { name: "Тема" })).not.toBeInTheDocument();
   });
 
-  it("uses the selected alphabet for hints, transcription, feedback and statistics", async () => {
+  it("shows target-language text as written for hints, transcription, feedback and statistics", async () => {
     voiceMock.available = true;
     const fetchMock = mockApi();
     vi.stubGlobal("fetch", fetchMock);
     render(<App />);
 
     fireEvent.click(await screen.findByRole("button", { name: "Настройки" }));
-    fireEvent.click(screen.getByRole("radio", { name: /Кириллица/ }));
-    expect(window.localStorage.getItem("serbotalk.serbian-alphabet.user-1")).toBe("cyrillic");
+    expect(screen.queryByRole("radio", { name: /Кириллица|Латиница/ })).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "Практика" }));
     fireEvent.click(await screen.findByRole("button", { name: /В банке/ }));
     fireEvent.click(await screen.findByRole("button", { name: "хочу" }));
-    expect(screen.getByText("желим")).toBeInTheDocument();
+    expect(screen.getByText("želim")).toBeInTheDocument();
 
     const answer = await recordAnswer();
-    expect(answer).toHaveValue("Желим да отворим рачун.");
-    fireEvent.change(answer, { target: { value: "Желим да отворим рачун!" } });
+    expect(answer).toHaveValue("Želim da otvorim račun.");
+    fireEvent.change(answer, { target: { value: "Želim da otvorim račun!" } });
     fireEvent.click(screen.getByRole("button", { name: "Проверить ответ" }));
     await waitFor(() => {
       const call = fetchMock.mock.calls.find(([url]) => url === "/api/attempts");
       expect(JSON.parse(call?.[1]?.body as string).transcript_tr).toBe("Želim da otvorim račun!");
     });
-    expect((await screen.findAllByText("Желим да отворим рачун.")).length).toBeGreaterThan(0);
+    expect((await screen.findAllByText("Želim da otvorim račun.")).length).toBeGreaterThan(0);
 
     fireEvent.click(screen.getByRole("button", { name: "Статистика" }));
     fireEvent.click(await screen.findByRole("button", { name: "Фразы по темам →" }));
-    expect(await screen.findByText("Желим да отворим рачун.")).toBeInTheDocument();
+    expect(await screen.findByText("Želim da otvorim račun.")).toBeInTheDocument();
   });
 
-  it("ignores a transcription after leaving practice and uses the new alphabet on retry", async () => {
+  it("ignores a transcription after leaving practice and uses the retry", async () => {
     voiceMock.available = true;
     const baseFetch = mockApi();
     let finishTranscription!: (value: { ok: boolean; status: number; json: () => Promise<unknown> }) => void;
@@ -1164,14 +1163,13 @@ describe("App", () => {
     fireEvent.click(await screen.findByRole("button", { name: "Завершить запись" }));
     await waitFor(() => expect(fetchMock.mock.calls.some(([url]) => url.toString() === "/api/transcriptions")).toBe(true));
     fireEvent.click(screen.getByRole("button", { name: "Настройки" }));
-    fireEvent.click(screen.getByRole("radio", { name: /Кириллица/ }));
     await act(async () => { finishTranscription({ ok: true, status: 200, json: async () => ({ text: "Platic\u0301u bankovnom karticom." }) }); });
     fireEvent.click(screen.getByRole("button", { name: "Практика" }));
     expect(screen.queryByLabelText("Ваш ответ")).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: /Ответить голосом|Записать заново/ }));
     fireEvent.click(await screen.findByRole("button", { name: "Завершить запись" }));
     const answer = await screen.findByLabelText("Ваш ответ");
-    expect(answer).toHaveValue("Платићу банковном картицом.");
+    expect(answer).toHaveValue("Platiću bankovnom karticom.");
     fireEvent.click(screen.getByRole("button", { name: "Проверить ответ" }));
     await waitFor(() => {
       const call = fetchMock.mock.calls.find(([url]) => url === "/api/attempts");
@@ -1186,12 +1184,11 @@ describe("App", () => {
     render(<App />);
 
     fireEvent.click(await screen.findByRole("button", { name: "Настройки" }));
-    fireEvent.click(screen.getByRole("radio", { name: /Кириллица/ }));
     fireEvent.click(screen.getByRole("button", { name: "Темы" }));
     fireEvent.click(await screen.findByRole("button", { name: /В банке/ }));
     expect(await screen.findByRole("heading", { name: "Я хочу открыть счёт." })).toBeInTheDocument();
     expect(screen.queryByLabelText("Ваш ответ")).not.toBeInTheDocument();
-    expect((await recordAnswer())).toHaveValue("Желим да отворим рачун.");
+    expect((await recordAnswer())).toHaveValue("Želim da otvorim račun.");
   });
 
   it("shows and applies the reviewed Allergičen suggestion when soft assistance is enabled", async () => {
@@ -1672,7 +1669,7 @@ describe("App", () => {
     expect(screen.getByRole("button", { name: /Следующая фраза/ })).toBeEnabled();
   });
 
-  it("submits a manually edited answer with mixed keyboard layout as Serbian Latin", async () => {
+  it("repairs look-alike Cyrillic letters in a typed answer and blocks other Cyrillic letters", async () => {
     voiceMock.available = true;
     const fetchMock = mockApi();
     vi.stubGlobal("fetch", fetchMock);
@@ -1680,14 +1677,17 @@ describe("App", () => {
 
     fireEvent.click(await screen.findByRole("button", { name: /В банке/ }));
     const input = await recordAnswer();
-    fireEvent.change(input, { target: { value: "Želim da otvorim račuн. Platiću kartiсom." } });
-    expect(input).toHaveValue("Želim da otvorim račuн. Platiću kartiсom.");
+    fireEvent.change(input, { target: { value: "Yeni bir hesap aчmak istiyorum." } });
+    expect(screen.getByRole("alert")).toHaveTextContent("не из турецкого алфавита");
+    expect(screen.getByRole("button", { name: "Проверить ответ" })).toBeDisabled();
+    fireEvent.change(input, { target: { value: "Yeni bir hesap aсmak istiyоrum." } });
+    expect(input).toHaveValue("Yeni bir hesap aсmak istiyоrum.");
     fireEvent.click(screen.getByRole("button", { name: "Проверить ответ" }));
 
     await waitFor(() => {
       const call = fetchMock.mock.calls.find(([url]) => url === "/api/attempts");
-      expect(JSON.parse(call?.[1]?.body as string).transcript_tr)
-        .toBe("Želim da otvorim račun. Platiću karticom.");
+      // C-18: sent verbatim; the backend repairs look-alike letters for grading only.
+      expect(JSON.parse(call?.[1]?.body as string).transcript_tr).toBe("Yeni bir hesap aсmak istiyоrum.");
     });
   });
 
@@ -1984,6 +1984,37 @@ describe("App", () => {
     expect(bodies[0].client_request_id).toMatch(/^[0-9a-f-]{36}$/);
     expect(bodies[1].client_request_id).toBe(bodies[0].client_request_id);
     expect(bodies[1].transcript_tr).toBe(bodies[0].transcript_tr);
+  });
+
+  it.each([
+    ["budget_exhausted", "/api/attempts", "до начала следующего месяца"],
+    ["user_daily_budget_exhausted", "/api/attempts", "Практика продолжится завтра"],
+    ["transcription_budget_exhausted", "/api/transcriptions", "до начала следующего месяца"],
+    ["transcription_daily_budget_exhausted", "/api/transcriptions", "Практика продолжится завтра"],
+  ])("explains a paused practice when the AI budget is spent (%s)", async (code, route, message) => {
+    voiceMock.available = true;
+    const baseFetch = mockApi();
+    // Shapes as the backend sends them: speech-to-text puts the budget code in detail.code;
+    // grading wraps it as analysis_unavailable with the reason in detail.failure.reason.
+    const detail = route === "/api/transcriptions" ? { code } : { code: "analysis_unavailable", retryable: false, message: "paused",
+      failure: { kind: "external_model", stage: "budget", reason: code, diagnostic_id: "00000000-0000-4000-8000-000000000001", retryable: false } };
+    const fetchMock = vi.fn((input: RequestInfo | URL, init?: RequestInit) => input.toString() === route
+      ? Promise.resolve({ ok: false, status: 503, json: async () => ({ detail }) })
+      : baseFetch(input, init));
+    vi.stubGlobal("fetch", fetchMock);
+    render(<App />);
+    fireEvent.click(await screen.findByRole("button", { name: /В банке/ }));
+    if (route === "/api/attempts") {
+      await recordAnswer();
+      fireEvent.click(screen.getByRole("button", { name: "Проверить ответ" }));
+    } else {
+      fireEvent.click(await screen.findByRole("button", { name: /Ответить голосом|Записать заново/ }));
+      fireEvent.click(await screen.findByRole("button", { name: "Завершить запись" }));
+    }
+    const alert = await screen.findByRole("alert");
+    expect(alert).toHaveTextContent(message);
+    expect(alert).toHaveTextContent("проверяется без ИИ");
+    expect(screen.queryByText("Верно")).not.toBeInTheDocument();
   });
 
   it("keeps an edited answer and request ID when the attempt is still pending on the server", async () => {

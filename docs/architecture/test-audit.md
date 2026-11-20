@@ -27,8 +27,8 @@ Audit date: 2026-11-20. Every test file was read and judged against the views, c
 
 ## Findings that need action before the phase they block
 
-1. **Most end-to-end specs never run.** CI runs only the unit tests. `just e2e` runs one spec (`mocked.spec.mjs`), and that spec fails today: line 160 clicks a control whose text no longer exists in the source. About 30 specs have no runner at all. ADR-0003 relies on the existing tests as a safety net for the restructure; today only the unit tests provide it. Before Phase 4: repair `mocked.spec.mjs`, wire the specs that do not need a device into `just e2e` and CI.
-2. **`play-store-assets.spec.mjs` fails today** (expects version 1.43; the project is at 1.45) and is a screenshot generator, not a test. Remove it from the test tree.
+1. **Most end-to-end specs never run.** CI runs only the unit tests. `just e2e` runs one spec (`mocked.spec.mjs`), and that spec fails today: line 160 clicks a control whose text no longer exists in the source. About 30 specs have no runner at all. ADR-0003 relies on the existing tests as a safety net for the restructure; today only the unit tests provide it. Before Phase 4: repair `mocked.spec.mjs`, wire the specs that do not need a device into `just e2e` and CI. Status 2026-11-20: `mocked.spec.mjs` repaired and green locally (17 passed, 1 `fixme`: a pre-existing 2px overlap of the calendar date and count at 1280px, which also fails on the inherited code). It runs in CI as the required job `E2E (mocked)`. The other specs are not yet wired. The agent runs Playwright outside the OS sandbox through `sandbox.excludedCommands` (`pnpm exec playwright test *`, `pnpm exec playwright install *`), because Chromium must register a Mach service that the sandbox does not allow.
+2. **`play-store-assets.spec.mjs`** was a screenshot generator, not a test. Removed 2026-11-20.
 3. **Release facts pinned in unit tests.** `androidManifest.test.ts` asserts the version, version code and APK file name; `SettingsView.test.tsx` reads `build.gradle`. Every Android release breaks them. Keep only the permission checks.
 4. **Tests that reach across the application boundary.** Resolved 2026-11-20 for `i18n.test.tsx`, which no longer reads backend files. Backend `test_interface_language.py` still reads `frontend/src/locales/phrases.en.json` on purpose: that file is generated from the backend catalogue (`scripts/export_phrases_en.py`) and the test is the check that it is up to date.
 5. **Tests that depend on private methods or exact SQL** (`test_attempt_reservations.py`, `test_answer_analyzer.py`, `test_topics_and_sessions_api.py`) will break on internal refactoring without any behaviour change.
@@ -57,7 +57,7 @@ Audit date: 2026-11-20. Every test file was read and judged against the views, c
 | C-21, Q-10 tokens, accessibility, visual | No (Phase 6) |
 | C-26 secrets | Yes: gitleaks hook and CI job |
 | C-31 migration compatible with previous backend | No |
-| Q-7 clear state when AI is unavailable | Backend yes, including the new budget reasons. Frontend has an "AI outage" test but nothing for budget exhaustion (Phase 4) |
+| Q-7 clear state when AI is unavailable | Backend yes, including the new budget reasons. Frontend: "AI outage" test and, new, budget-paused messages for the response shapes the backend sends (`App.test.tsx`, `budgetPause.test.ts`); custom topic creation not covered |
 
 ## Identity and infrastructure left in tests
 

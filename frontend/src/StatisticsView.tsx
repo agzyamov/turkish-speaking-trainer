@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 
 import { fetchMonthlyStatistics, fetchPhraseStatistics, fetchPhraseTopics } from "./api/statistics";
 import type { MonthlyStatistics, PhraseStatistics, PhraseStatisticsTopic } from "./types/statistics";
-import { displaySerbian, type SerbianAlphabet } from "./serbianScript";
 import { GoldStar } from "./GoldStar";
 
 const weekDays = ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"];
@@ -28,7 +27,7 @@ function formatReviewDate(value: string | null): string {
   return new Intl.DateTimeFormat(getLocale(), { day: "2-digit", month: "2-digit", year: "numeric" }).format(new Date(value));
 }
 
-function PhraseList({ alphabet, topicId }: { alphabet: SerbianAlphabet; topicId: string }) {
+function PhraseList({ topicId }: { topicId: string }) {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState<PageSize>("20");
   const [statistics, setStatistics] = useState<PhraseStatistics>();
@@ -72,9 +71,9 @@ function PhraseList({ alphabet, topicId }: { alphabet: SerbianAlphabet; topicId:
         {statistics.groups.map((group) => <section className="phrase-group" key={group.topic_id ?? "custom"}>
           <h3>{topicText(group.topic_id, group.topic_title, group.topic_title_en)}</h3>
           <div className="phrase-table-wrap"><table className="phrase-table">
-            <thead><tr><th>{t("Фраза на русском")}</th><th>{t("Фраза на сербском")}</th><th>{t("Попытки")}</th><th>{t("Статус")}</th><th>{t("Следующий повтор")}</th></tr></thead>
+            <thead><tr><th>{t("Фраза на русском")}</th><th>{t("Фраза на турецком")}</th><th>{t("Попытки")}</th><th>{t("Статус")}</th><th>{t("Следующий повтор")}</th></tr></thead>
             <tbody>{group.phrases.map((phrase) => <tr key={phrase.id}>
-              <td><span className="phrase-cell-label">{t("Фраза на русском")}</span><span>{t(phrase.source_ru)}</span></td><td lang={alphabet === "cyrillic" ? "sr-Cyrl" : "sr-Latn"}><span className="phrase-cell-label">{t("Фраза на сербском")}</span><span>{displaySerbian(phrase.target_tr, alphabet)}</span></td><td><span className="phrase-cell-label">{t("Попытки")}</span><span>{phrase.attempts}</span></td>
+              <td><span className="phrase-cell-label">{t("Фраза на русском")}</span><span>{t(phrase.source_ru)}</span></td><td lang="tr"><span className="phrase-cell-label">{t("Фраза на турецком")}</span><span>{phrase.target_tr}</span></td><td><span className="phrase-cell-label">{t("Попытки")}</span><span>{phrase.attempts}</span></td>
               <td><span className="phrase-cell-label">{t("Статус")}</span><span className={`phrase-status phrase-status--${phrase.status}`}>{t(phrase.status === "mastered" ? "выучена" : "в изучении")}</span></td>
               <td><span className="phrase-cell-label">{t("Следующий повтор")}</span><span>{t(phrase.status === "mastered" ? formatReviewDate(phrase.next_review_at) : "—")}</span></td>
             </tr>)}</tbody>
@@ -90,7 +89,7 @@ function PhraseList({ alphabet, topicId }: { alphabet: SerbianAlphabet; topicId:
   </section>;
 }
 
-function PhrasesPage({ alphabet }: { alphabet: SerbianAlphabet }) {
+function PhrasesPage() {
   const [topics, setTopics] = useState<PhraseStatisticsTopic[]>();
   const [selectedTopic, setSelectedTopic] = useState("");
   const [error, setError] = useState(false);
@@ -113,7 +112,7 @@ function PhrasesPage({ alphabet }: { alphabet: SerbianAlphabet }) {
         {topics.map(topic => <option key={topic.topic_id ?? "unassigned"} value={topic.topic_id ?? "unassigned"}>{topicText(topic.topic_id, topic.topic_title, topic.topic_title_en)} · {topic.phrase_count}</option>)}
       </select>
     </label>
-    <PhraseList key={selectedTopic} alphabet={alphabet} topicId={selectedTopic} />
+    <PhraseList key={selectedTopic} topicId={selectedTopic} />
   </>;
 }
 
@@ -185,8 +184,7 @@ function ActivityTab() {
   </>;
 }
 
-export function StatisticsView({ alphabet = "latin", page, onPageChange }: {
-  alphabet?: SerbianAlphabet;
+export function StatisticsView({ page, onPageChange }: {
   page?: "activity" | "phrases";
   onPageChange?: (page: "activity" | "phrases") => void;
 }) {
@@ -195,7 +193,7 @@ export function StatisticsView({ alphabet = "latin", page, onPageChange }: {
   const changePage = (next: "activity" | "phrases") => { setLocalPage(next); onPageChange?.(next); };
   return currentPage === "phrases" ? <main className="statistics-page phrase-statistics-page">
     <header className="phrase-page-heading"><button type="button" onClick={() => changePage("activity")}>{t("← К статистике")}</button><h1>{t("Фразы по темам")}</h1></header>
-    <PhrasesPage alphabet={alphabet} />
+    <PhrasesPage />
   </main> : <main className="statistics-page">
     <ActivityTab />
     <button className="statistics-phrases-link" type="button" onClick={() => changePage("phrases")}>{t("Фразы по темам →")}</button>

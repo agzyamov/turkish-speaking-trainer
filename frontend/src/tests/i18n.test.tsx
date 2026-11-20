@@ -8,18 +8,15 @@ import { SettingsView } from "../SettingsView";
 
 afterEach(() => { cleanup(); vi.restoreAllMocks(); setLanguage("ru"); localStorage.clear(); });
 
-it("places language first and switches settings immediately without changing the Serbian alphabet", () => {
-  const onAlphabetChange = vi.fn();
-  const view = render(<SettingsView alphabet="cyrillic" onAlphabetChange={onAlphabetChange} />);
+it("places language first and switches settings immediately", () => {
+  const view = render(<SettingsView />);
   expect(view.container.querySelector("fieldset")).toHaveClass("language-settings");
   fireEvent.click(screen.getByRole("radio", { name: "English" }));
   expect(screen.getByRole("heading", { name: "Settings" })).toBeInTheDocument();
-  expect(screen.getByRole("radio", { name: /Cyrillic/ })).toBeChecked();
-  expect(onAlphabetChange).not.toHaveBeenCalled();
   expect(document.documentElement.lang).toBe("en");
   expect(localStorage.getItem("serbotalk.interface-language")).toBe("en");
   cleanup();
-  render(<SettingsView alphabet="cyrillic" onAlphabetChange={onAlphabetChange} />);
+  render(<SettingsView />);
   expect(screen.getByRole("radio", { name: "English" })).toBeChecked();
   fireEvent.click(screen.getByRole("radio", { name: "Русский" }));
   expect(screen.getByRole("heading", { name: "Настройки" })).toBeInTheDocument();

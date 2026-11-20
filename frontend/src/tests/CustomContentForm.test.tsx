@@ -14,7 +14,7 @@ describe("administrator custom content", () => {
     setLanguage(language);
     vi.mocked(prepareReviewPhrase).mockResolvedValue(prepared);
     const saved = vi.fn();
-    render(<CustomContentForm mode="phrase" topics={[topic]} alphabet="latin" onTopicCreated={vi.fn()} onPhraseSaved={saved} onClose={vi.fn()} />);
+    render(<CustomContentForm mode="phrase" topics={[topic]} onTopicCreated={vi.fn()} onPhraseSaved={saved} onClose={vi.fn()} />);
     fireEvent.change(screen.getByRole("textbox"), { target: { value: prepared.source_ru } });
     fireEvent.click(screen.getByRole("button", { name: language === "ru" ? "Подготовить перевод" : "Prepare translation" }));
     expect(await screen.findByText(prepared.canonical_tr)).toBeInTheDocument();
@@ -29,7 +29,7 @@ describe("administrator custom content", () => {
 
   it("invalidates a prepared translation after editing and preserves the draft after failure", async () => {
     vi.mocked(prepareReviewPhrase).mockResolvedValueOnce(prepared).mockRejectedValueOnce(new Error("offline"));
-    render(<CustomContentForm mode="phrase" topics={[topic]} alphabet="latin" onTopicCreated={vi.fn()} onPhraseSaved={vi.fn()} onClose={vi.fn()} />);
+    render(<CustomContentForm mode="phrase" topics={[topic]} onTopicCreated={vi.fn()} onPhraseSaved={vi.fn()} onClose={vi.fn()} />);
     fireEvent.change(screen.getByRole("textbox"), { target: { value: prepared.source_ru } });
     fireEvent.click(screen.getByText("Подготовить перевод"));
     await screen.findByText(prepared.canonical_tr);
@@ -44,7 +44,7 @@ describe("administrator custom content", () => {
   it("retains the translation and topic when saving fails and allows retry", async () => {
     vi.mocked(prepareReviewPhrase).mockResolvedValue(prepared);
     vi.mocked(addReviewPhrase).mockRejectedValueOnce(new Error("offline")).mockResolvedValueOnce({} as never);
-    render(<CustomContentForm mode="phrase" topics={[topic]} alphabet="latin" onTopicCreated={vi.fn()} onPhraseSaved={vi.fn()} onClose={vi.fn()} />);
+    render(<CustomContentForm mode="phrase" topics={[topic]} onTopicCreated={vi.fn()} onPhraseSaved={vi.fn()} onClose={vi.fn()} />);
     fireEvent.change(screen.getByRole("textbox"), { target: { value: prepared.source_ru } });
     fireEvent.click(screen.getByText("Подготовить перевод"));
     await screen.findByText(prepared.canonical_tr);
@@ -61,7 +61,7 @@ describe("administrator custom content", () => {
     let finish!: (value: typeof topic) => void;
     vi.mocked(createTopic).mockImplementation(() => new Promise(resolve => { finish = resolve; }));
     const created = vi.fn();
-    render(<CustomContentForm mode="topic" topics={[]} alphabet="latin" onTopicCreated={created} onPhraseSaved={vi.fn()} onClose={vi.fn()} />);
+    render(<CustomContentForm mode="topic" topics={[]} onTopicCreated={created} onPhraseSaved={vi.fn()} onClose={vi.fn()} />);
     fireEvent.change(screen.getByRole("textbox"), { target: { value: "   " } });
     expect(screen.getByText("Сохранить тему")).toBeDisabled();
     fireEvent.change(screen.getByRole("textbox"), { target: { value: "  Своя   тема  " } });
@@ -75,7 +75,7 @@ describe("administrator custom content", () => {
   });
   it.each(["ru", "en"] as const)("blocks sixteen words and shows the word limit (%s)", language => {
     setLanguage(language);
-    render(<CustomContentForm mode="phrase" topics={[topic]} alphabet="latin" onTopicCreated={vi.fn()} onPhraseSaved={vi.fn()} onClose={vi.fn()} />);
+    render(<CustomContentForm mode="phrase" topics={[topic]} onTopicCreated={vi.fn()} onPhraseSaved={vi.fn()} onClose={vi.fn()} />);
     fireEvent.change(screen.getByRole("textbox"), { target: { value: Array(16).fill("слово").join(" ") } });
     expect(screen.getByRole("alert")).toHaveTextContent(language === "ru" ? "не более 15 слов" : "no more than 15 words");
     expect(screen.getByRole("button", { name: language === "ru" ? "Подготовить перевод" : "Prepare translation" })).toBeDisabled();
@@ -86,7 +86,7 @@ describe("administrator custom content", () => {
     setLanguage(language);
     const manage = vi.fn();
     const topics = Array.from({ length: 5 }, (_, index) => ({ ...topic, id: `topic-${index}`, custom_phrase_count: 30 }));
-    render(<CustomContentForm mode={mode} topics={topics} alphabet="latin" onTopicCreated={vi.fn()} onPhraseSaved={vi.fn()} onClose={vi.fn()} onManage={manage} />);
+    render(<CustomContentForm mode={mode} topics={topics} onTopicCreated={vi.fn()} onPhraseSaved={vi.fn()} onClose={vi.fn()} onManage={manage} />);
     expect(screen.getByRole("alert")).toHaveTextContent(language === "ru" ? mode === "topic" ? "5 пользовательских тем" : "30 фраз в теме" : mode === "topic" ? "5 custom topics" : "30 phrases");
     fireEvent.change(screen.getByRole("textbox"), { target: { value: "Новый текст" } });
     expect(screen.getByRole("button", { name: language === "ru" ? mode === "topic" ? "Сохранить тему" : "Подготовить перевод" : mode === "topic" ? "Save topic" : "Prepare translation" })).toBeDisabled();
@@ -95,7 +95,7 @@ describe("administrator custom content", () => {
   });
 
   it("offers creating a topic when only presets exist", () => {
-    render(<CustomContentForm mode="phrase" topics={[{ ...topic, is_custom: false }]} alphabet="latin" onTopicCreated={vi.fn()} onPhraseSaved={vi.fn()} onClose={vi.fn()} onCreateTopic={vi.fn()} />);
+    render(<CustomContentForm mode="phrase" topics={[{ ...topic, is_custom: false }]} onTopicCreated={vi.fn()} onPhraseSaved={vi.fn()} onClose={vi.fn()} onCreateTopic={vi.fn()} />);
     expect(screen.getByText("Сначала создайте свою тему для фраз.")).toBeInTheDocument();
     expect(screen.getByText("Подготовить перевод")).toBeDisabled();
     expect(screen.getByText("Создать свою тему")).toBeInTheDocument();
@@ -108,7 +108,7 @@ it.each(["ru", "en"] as const)("keeps the topic draft after translation failure 
   setLanguage(language);
   const created = vi.fn();
   vi.mocked(createTopic).mockRejectedValueOnce(new BackendError(503, {code: "topic_translation_unavailable"})).mockResolvedValueOnce({...topic, title_en: "My topic"});
-  render(<CustomContentForm mode="topic" topics={[]} alphabet="latin" onTopicCreated={created} onPhraseSaved={vi.fn()} onClose={vi.fn()} />);
+  render(<CustomContentForm mode="topic" topics={[]} onTopicCreated={created} onPhraseSaved={vi.fn()} onClose={vi.fn()} />);
   fireEvent.change(screen.getByRole("textbox"), {target:{value:"Своя тема"}});
   fireEvent.click(screen.getByRole("button", {name:language === "ru" ? "Сохранить тему" : "Save topic"}));
   expect(await screen.findByRole("alert")).toHaveTextContent(language === "ru" ? "Не удалось перевести название темы. Тема не сохранена." : "Could not translate the topic title. The topic was not saved.");

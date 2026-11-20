@@ -69,7 +69,7 @@ describe("administrator model debug settings", () => {
   it.each([ ["user", false], ["admin", false], ["user", true], ["admin", true] ] as const)("requires server capability and admin role (%s, %s)", async (role, allowed) => {
     const account = { id: "maxim", email: "suezergut@gmail.com", display_name: "Максим Сумин", role,
       can_debug_models: allowed, daily_usage: { used: 0, limit: null, remaining: null } } as CurrentUser;
-    render(<SettingsView alphabet="latin" onAlphabetChange={() => {}} account={account} />);
+    render(<SettingsView account={account} />);
     if (role === "admin" && allowed) {
       await waitFor(() => expect(fetchModelDebug).toHaveBeenCalledOnce());
       expect(screen.getByRole("switch", { name: "Режим отладки" })).toBeInTheDocument();

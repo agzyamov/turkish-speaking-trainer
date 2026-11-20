@@ -17,48 +17,48 @@ it("uses Unicode code point offsets without splitting emoji", () => {
 });
 it("renders the off switch and dispatches the choice", () => {
   const onChange = vi.fn();
-  render(<SettingsView alphabet="latin" onAlphabetChange={() => {}} onAssistanceChange={onChange} />);
+  render(<SettingsView onAssistanceChange={onChange} />);
   expect(screen.getByRole("switch", { name: "Мягкие подсказки при распознавании" })).not.toBeChecked();
   fireEvent.click(screen.getByRole("switch", { name: "Мягкие подсказки при распознавании" }));
   expect(onChange).toHaveBeenCalledWith(true);
 });
 it("shows only a compact suggestion, supports undo and hides edited drafts", () => {
   const toggle = vi.fn();
-  const { rerender } = render(<TranscriptionAssistanceView draft={{ response, selected: [], edited: false }} alphabet="cyrillic" disabled={false} onToggle={toggle} />);
+  const { rerender } = render(<TranscriptionAssistanceView draft={{ response, selected: [], edited: false }} disabled={false} onToggle={toggle} />);
   expect(screen.getByText("Возможное искажение распознавания.")).toBeInTheDocument();
-  expect(screen.getByText("Цему → Чему")).toBeInTheDocument();
+  expect(screen.getByText("Cemu → Čemu")).toBeInTheDocument();
   expect(screen.queryByText("🙂 Cemu?")).not.toBeInTheDocument();
   expect(screen.queryByText("Исходная расшифровка")).not.toBeInTheDocument();
   fireEvent.click(screen.getByRole("button", { name: "Принять подсказку" }));
   expect(toggle).toHaveBeenCalledWith(0);
-  rerender(<TranscriptionAssistanceView draft={{ response, selected: [0], edited: false }} alphabet="latin" disabled={true} onToggle={toggle} />);
+  rerender(<TranscriptionAssistanceView draft={{ response, selected: [0], edited: false }} disabled={true} onToggle={toggle} />);
   expect(screen.getByRole("button", { name: "Отменить" })).toBeDisabled();
   expect(screen.queryByText(/С подсказкой|Уточнено написание/)).not.toBeInTheDocument();
-  rerender(<TranscriptionAssistanceView draft={{ response, selected: [0], edited: true }} alphabet="latin" disabled={false} onToggle={toggle} />);
+  rerender(<TranscriptionAssistanceView draft={{ response, selected: [0], edited: true }} disabled={false} onToggle={toggle} />);
   expect(screen.queryByRole("button")).not.toBeInTheDocument();
   expect(screen.queryByRole("region", { name: "Мягкие подсказки" })).not.toBeInTheDocument();
   expect(screen.queryByText(/Текст исправлен вручную/)).not.toBeInTheDocument();
 });
 
 it("leaves no assistance panel when there are no suggestions", () => {
-  const { container } = render(<TranscriptionAssistanceView draft={{ response: { text: "Moj odgovor.", assistance_status: "analyzed", changes: [] }, selected: [], edited: false }} alphabet="latin" disabled={false} onToggle={() => {}} />);
+  const { container } = render(<TranscriptionAssistanceView draft={{ response: { text: "Moj odgovor.", assistance_status: "analyzed", changes: [] }, selected: [], edited: false }} disabled={false} onToggle={() => {}} />);
   expect(container).toBeEmptyDOMElement();
   expect(screen.queryByRole("button")).not.toBeInTheDocument();
 });
 
 it("reports failed assistance without making STT unusable", () => {
-  render(<TranscriptionAssistanceView draft={{ response: { text: "Moj odgovor.", assistance_status: "unavailable" }, selected: [], edited: false }} alphabet="latin" disabled={false} onToggle={() => {}} />);
+  render(<TranscriptionAssistanceView draft={{ response: { text: "Moj odgovor.", assistance_status: "unavailable" }, selected: [], edited: false }} disabled={false} onToggle={() => {}} />);
   expect(screen.getByRole("status")).toHaveTextContent("Мягкие подсказки временно недоступны");
   expect(screen.queryByRole("button")).not.toBeInTheDocument();
 });
 
-it("renders every dynamic suggestion in Cyrillic without explanations", () => {
+it("renders every dynamic suggestion as written, without explanations", () => {
   const dynamic: TranscriptionResponse = { text: "racun racun racun racun racun", assistance_status: "analyzed", changes: Array.from({ length: 5 }, (_, i) => ({
     start: i * 6, end: i * 6 + 5, original: "racun", replacement: "račun", kind: "phonetic_ambiguity", action: "suggested", reason_code: "confirm_ambiguous_sound", explanation_ru: `Возможна потеря диакритики ${i + 1}.`,
   })) };
   const toggle = vi.fn();
-  render(<TranscriptionAssistanceView draft={{ response: dynamic, selected: [], edited: false }} alphabet="cyrillic" disabled={false} onToggle={toggle} />);
-  expect(screen.getAllByText("рацун → рачун")).toHaveLength(5);
+  render(<TranscriptionAssistanceView draft={{ response: dynamic, selected: [], edited: false }} disabled={false} onToggle={toggle} />);
+  expect(screen.getAllByText("racun → račun")).toHaveLength(5);
   expect(screen.queryByText(/Возможна потеря диакритики/)).not.toBeInTheDocument();
   fireEvent.click(screen.getAllByRole("button", { name: "Принять подсказку" })[4]);
   expect(toggle).toHaveBeenCalledWith(4);
@@ -75,7 +75,7 @@ it("applies and undoes multiple suggestions independently despite changing word 
     const [selected, setSelected] = useState<number[]>([]);
     const response = { text: raw, changes };
     return <><output aria-label="Итоговый ответ">{assistedText(response, selected)}</output>
-      <TranscriptionAssistanceView draft={{ response, selected, edited: false }} alphabet="latin" disabled={false}
+      <TranscriptionAssistanceView draft={{ response, selected, edited: false }} disabled={false}
         onToggle={index => setSelected(current => current.includes(index) ? current.filter(i => i !== index) : [...current, index])} /></>;
   }
   render(<Harness />);

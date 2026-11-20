@@ -59,13 +59,13 @@
     "allowUnsandboxedCommands": false,
     "network": {
       "allowedDomains": [
-        "registry.npmjs.org",
-        "pypi.org",
+        "api.github.com",
+        "cdn.playwright.dev",
         "files.pythonhosted.org",
         "github.com",
-        "api.github.com",
         "objects.githubusercontent.com",
-        "cdn.playwright.dev"
+        "pypi.org",
+        "registry.npmjs.org"
       ],
       "allowLocalBinding": true
     },
@@ -151,6 +151,10 @@
         }
       ]
     },
-    "autoAllowBashIfSandboxed": true
+    "autoAllowBashIfSandboxed": true,
+    "excludedCommands": [
+      "pnpm exec playwright test *",
+      "pnpm exec playwright install *"
+    ]
   }
 }

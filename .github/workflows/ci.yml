@@ -92,11 +92,34 @@ jobs:
       - run: just frontend-test
       - run: just frontend-build
 
+  # Mocked browser flow (all API responses are defined in the spec; no backend, no provider).
+  e2e:
+    name: E2E (mocked)
+    needs: changes
+    if: needs.changes.outputs.frontend == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: frontend/pnpm-lock.yaml
+      - uses: extractions/setup-just@v3
+      - run: just frontend-install
+      - run: cd frontend && pnpm exec playwright install --with-deps chromium
+      - run: just e2e
+        env:
+          E2E_BROWSER_CHANNEL: chromium
+
   # Single required status for branch protection: passes when every job that ran passed.
   required:
     name: Required checks
     if: always()
-    needs: [secrets, backend, frontend]
+    needs: [secrets, backend, frontend, e2e]
     runs-on: ubuntu-latest
     steps:
       - name: Fail if any needed job failed or was cancelled

@@ -52,7 +52,8 @@ def test_latin_text_is_expected(text):
     assert has_unexpected_letter_script(text) is False
 
 
-@pytest.mark.parametrize("text", ["Привет", "Hesap открыть", "مرحبا", "Γειά", "Želim račun и ещё"])
+# The last four are Latin-script compatibility forms; frontend/src/turkishText.ts rejects the same ones.
+@pytest.mark.parametrize("text", ["Привет", "Hesap открыть", "مرحبا", "Γειά", "Želim račun и ещё", "ªbc", "ｇüzel", "ᵃçmak", "ⁱyi"])
 def test_other_scripts_are_flagged(text):
     assert has_unexpected_letter_script(text) is True
 

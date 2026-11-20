@@ -6,7 +6,7 @@ import { setLanguage } from "../i18n";
 vi.mock("../api/training", () => ({ fetchCustomPhrases: vi.fn(), deleteCustomPhrase: vi.fn(), deleteCustomTopic: vi.fn() }));
 const topics = [1, 2].map(id => ({ id: `custom-${id}`, title_ru: `Личная тема ${id}`, is_custom: true, description_ru: "", phrase_count: 0, custom_phrase_count: 1, likely_intents: [], suggested_vocabulary: [] }));
 const phrases = topics.map((topic, i) => ({ id: `p${i}`, topic_id: topic.id, topic_title: topic.title_ru, source_ru: `Мой оригинал ${i}`, canonical_tr: `Moj prevod ${i}`, best_score: 0, attempts: 0, perfect_streak: 0, status: "new", created_at: "2026-10-24" }));
-const props = { topics, alphabet: "latin" as const, onTopicCreated: vi.fn(), onChanged: vi.fn(), onDeleted: vi.fn() };
+const props = { topics, onTopicCreated: vi.fn(), onChanged: vi.fn(), onDeleted: vi.fn() };
 afterEach(() => { cleanup(); vi.resetAllMocks(); setLanguage("ru"); });
 it.each(["ru", "en"] as const)("sorts compact personal cards by the displayed title (%s)", async language => {
   setLanguage(language);

@@ -3,7 +3,6 @@ import { afterEach, describe, expect, it } from "vitest";
 import { AnswerResult } from "../AnswerResult";
 import type { Attempt } from "../types/training";
 import { setLanguage } from "../i18n";
-import { displaySerbian, type SerbianAlphabet } from "../serbianScript";
 
 const attempt: Attempt = {
   id: "attempt-1", exercise_id: "exercise-1", transcript_tr: "Račun želim otovrim.",
@@ -21,46 +20,54 @@ const attempt: Attempt = {
 describe("AnswerResult", () => {
   afterEach(() => { cleanup(); setLanguage("ru"); });
   for (const language of ["ru", "en"] as const) {
-    for (const alphabet of ["latin", "cyrillic"] as const satisfies readonly SerbianAlphabet[]) {
-      it(`marks errors without a curriculum skill (${language}, ${alphabet})`, () => {
+      it(`marks errors without a curriculum skill (${language})`, () => {
         setLanguage(language);
         const issue = { ...attempt.analysis.issues[0], skill_key: null, evidence: "otovrim", correction: "otvorim" };
-        render(<AnswerResult answer={attempt.transcript_tr} alphabet={alphabet}
+        render(<AnswerResult answer={attempt.transcript_tr}
           attempt={{ ...attempt, analysis: { ...attempt.analysis, issues: [issue], demonstrated_skills: [] } }} />);
         const marks = document.querySelectorAll("mark");
         expect(marks).toHaveLength(1);
-        expect(marks[0]).toHaveTextContent(displaySerbian("otovrim", alphabet));
-        expect(marks[0]).toHaveAttribute("title", displaySerbian("otvorim", alphabet));
-        expect(document.querySelector(".result-phrase__text")).toHaveTextContent(displaySerbian(attempt.transcript_tr, alphabet));
+        expect(marks[0]).toHaveTextContent("otovrim");
+        expect(marks[0]).toHaveAttribute("title", "otvorim");
+        expect(document.querySelector(".result-phrase__text")).toHaveTextContent(attempt.transcript_tr);
       });
 
-      it(`preserves unreported Da and marks the reported word order (${language}, ${alphabet})`, () => {
+      it(`preserves unreported Da and marks the reported word order (${language})`, () => {
         setLanguage(language);
         const answer = "Sednemo Napolju. Da, naravno. Baš lepo je vreme.";
         const issues = [
           { ...attempt.analysis.issues[0], evidence: "Sednemo", correction: "Da sednemo" },
           { ...attempt.analysis.issues[0], evidence: "Baš lepo je", correction: "baš je lepo" },
         ];
-        render(<AnswerResult answer={answer} alphabet={alphabet} attempt={{ ...attempt, analysis: {
+        render(<AnswerResult answer={answer} attempt={{ ...attempt, analysis: {
           ...attempt.analysis, corrected_tr: "Da sednemo napolju? — Može, naravno, baš je lepo vreme.", issues,
         } }} />);
         expect(Array.from(document.querySelectorAll("mark"), mark => mark.textContent))
-          .toEqual([displaySerbian("lepo", alphabet), displaySerbian("je", alphabet)]);
-        expect(document.querySelector(".result-phrase__text")).toHaveTextContent(displaySerbian(answer, alphabet));
+          .toEqual(["lepo", "je"]);
+        expect(document.querySelector(".result-phrase__text")).toHaveTextContent(answer);
       });
 
-      it(`marks Da when analysis explicitly reports Da → Može (${language}, ${alphabet})`, () => {
+      it(`marks Da when analysis explicitly reports Da → Može (${language})`, () => {
         setLanguage(language);
         const issues = [{ ...attempt.analysis.issues[0], evidence: "Da", correction: "Može" }];
-        render(<AnswerResult answer="Sednemo Napolju. Da, naravno. Baš lepo je vreme." alphabet={alphabet}
+        render(<AnswerResult answer="Sednemo Napolju. Da, naravno. Baš lepo je vreme."
           attempt={{ ...attempt, analysis: { ...attempt.analysis, issues } }} />);
         const marks = document.querySelectorAll("mark");
         expect(marks).toHaveLength(1);
-        expect(marks[0]).toHaveTextContent(displaySerbian("Da", alphabet));
-        expect(marks[0]).toHaveAttribute("title", displaySerbian("Može", alphabet));
+        expect(marks[0]).toHaveTextContent("Da");
+        expect(marks[0]).toHaveAttribute("title", "Može");
       });
-    }
   }
+  it("finds evidence with Turkish dotted and dotless capitals", () => {
+    const issues = [{ ...attempt.analysis.issues[0], evidence: "istanbul'a", correction: "İzmir'e" }];
+    render(<AnswerResult answer="İstanbul'a yarın gidiyorum." attempt={{ ...attempt, analysis: { ...attempt.analysis, issues } }} />);
+    // Found despite İ/i: the marks cover only the changed parts of "İstanbul'a", never other words.
+    const marked = Array.from(document.querySelectorAll("mark"), mark => mark.textContent ?? "");
+    expect(marked.length).toBeGreaterThan(0);
+    expect(marked.every(part => "İstanbul'a".includes(part))).toBe(true);
+    expect(screen.getByText("Ваш вариант").parentElement).toHaveTextContent("İstanbul'a yarın gidiyorum.");
+  });
+
   it("marks only evidence explicitly reported in validated analysis", () => {
     render(<AnswerResult answer={attempt.transcript_tr} attempt={attempt} />);
     expect(screen.queryByText("Фраза на русском")).not.toBeInTheDocument();
@@ -115,16 +122,16 @@ describe("AnswerResult", () => {
     expect(document.querySelector("mark")).not.toBeInTheDocument();
   });
 
-  it("does not mark equivalent Unicode or alphabet variants, but retains a real extra letter", () => {
-    const answer = "Platic\u0301u karticom. Alllergičan sam.";
+  it("does not mark equivalent Unicode or case variants, but retains a real extra letter", () => {
+    const answer = "Teşekku\u0308rler. Kahvve lütfen.";
     const issues = [
-      { ...attempt.analysis.issues[0], evidence: "Platiću", correction: "Платићу" },
-      { ...attempt.analysis.issues[0], evidence: "Alllergičan", correction: "Allergičan" },
+      { ...attempt.analysis.issues[0], evidence: "Teşekkürler", correction: "TEŞEKKÜRLER" },
+      { ...attempt.analysis.issues[0], evidence: "Kahvve", correction: "Kahve" },
     ];
-    render(<AnswerResult answer={answer} attempt={{ ...attempt, analysis: { ...attempt.analysis, issues } }} alphabet="cyrillic" />);
+    render(<AnswerResult answer={answer} attempt={{ ...attempt, analysis: { ...attempt.analysis, issues } }} />);
     const marks = document.querySelectorAll("mark");
     expect(marks).toHaveLength(1);
-    expect(marks[0]).toHaveTextContent("Алллергичан");
-    expect(screen.getByText("Ваш вариант").parentElement).toHaveTextContent("Платићу картицом. Алллергичан сам.");
+    expect(marks[0]).toHaveTextContent("Kahvve");
+    expect(screen.getByText("Ваш вариант").parentElement).toHaveTextContent("Teşekkürler. Kahvve lütfen.");
   });
 });

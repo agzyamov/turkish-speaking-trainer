@@ -28,12 +28,13 @@ it("distinguishes a 45-second request timeout from lifecycle cancellation", asyn
   expect(vi.getTimerCount()).toBe(0);
 });
 
-it.each(["latin", "cyrillic"] as const)("sends the selected %s alphabet in the multipart request", async alphabet => {
+it("sends no alphabet field: Turkish has one script", async () => {
   const controller = new AbortController();
-  const request = transcribeAudio("exercise", new Blob(), controller.signal, false, alphabet);
+  const request = transcribeAudio("exercise", new Blob(), controller.signal, false);
   const assertion = expect(request).rejects.toMatchObject({ name: "AbortError" });
   const form = requests.at(-1)!.body as FormData;
-  expect(form.get("alphabet")).toBe(alphabet);
+  expect(form.get("alphabet")).toBeNull();
+  expect(form.get("exercise_id")).toBe("exercise");
   controller.abort();
   await assertion;
 });

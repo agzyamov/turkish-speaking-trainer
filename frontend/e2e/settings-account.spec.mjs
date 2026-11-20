@@ -49,9 +49,7 @@ for (const language of ['ru', 'en']) for (const layout of ['desktop', 'mobile', 
     await expect(settings.getByRole('heading', { name: en ? 'Настройки' : 'Settings', exact: true })).toBeVisible();
     await page.keyboard.press(en ? 'ArrowRight' : 'ArrowLeft');
     await expect(settings.getByRole('heading', { name: en ? 'Settings' : 'Настройки', exact: true })).toBeVisible();
-    const alphabet = settings.getByRole('radio', { name: en ? /Cyrillic/ : /Кириллица/ });
-    await alphabet.locator('..').click();
-    await expect(alphabet).toBeChecked();
+    await expect(settings.getByRole('radio', { name: en ? /Cyrillic/ : /Кириллица/ })).toHaveCount(0);
     await expect(settings.locator('.settings-icon--bell svg')).toBeVisible();
     await expect(settings.locator('.settings-icon--celebrate svg')).toBeVisible();
     const sounds = settings.getByRole('switch', { name: en ? 'Success sounds' : 'Звуки успеха' });

@@ -4,7 +4,7 @@ import { Capacitor } from "@capacitor/core";
 import { PremiumView } from "../PremiumView";
 import { setLanguage } from "../i18n";
 
-const props = { topics: [], alphabet: "latin" as const,
+const props = { topics: [],
   onTopicCreated: vi.fn(), onChanged: vi.fn(), onDeleted: vi.fn() };
 afterEach(() => { cleanup(); vi.restoreAllMocks(); setLanguage("ru"); });
 

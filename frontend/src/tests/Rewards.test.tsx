@@ -56,7 +56,7 @@ it.each(["sounds", "animations"] as const)("disables %s independently", preferen
 it.each(["ru", "en"] as const)("renders localized rewards and persists independent switches in %s", language => {
   setLanguage(language);
   const en = language === "en";
-  const view = render(<><SettingsView alphabet="latin" onAlphabetChange={() => {}} /><RewardOverlay reward={{ id: "a1", kind: "twenty" }} /></>);
+  const view = render(<><SettingsView /><RewardOverlay reward={{ id: "a1", kind: "twenty" }} /></>);
   expect(screen.getByRole("status")).toHaveTextContent(en ? "20 repetitions today!" : "20 повторений за день!");
   expect(document.querySelectorAll(".reward-confetti i")).toHaveLength(32);
   fireEvent.click(screen.getByRole("switch", { name: en ? "Success animations" : "Анимации успеха" }));
@@ -65,7 +65,7 @@ it.each(["ru", "en"] as const)("renders localized rewards and persists independe
   fireEvent.click(screen.getByRole("switch", { name: en ? "Success sounds" : "Звуки успеха" }));
   expect(localStorage.getItem("serbotalk.rewards.sounds")).toBe("false");
   view.unmount();
-  render(<SettingsView alphabet="latin" onAlphabetChange={() => {}} />);
+  render(<SettingsView />);
   expect(screen.getByRole("switch", { name: en ? "Success animations" : "Анимации успеха" })).not.toBeChecked();
   expect(screen.getByRole("switch", { name: en ? "Success sounds" : "Звуки успеха" })).not.toBeChecked();
 });

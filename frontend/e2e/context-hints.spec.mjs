@@ -1,8 +1,8 @@
 import { test, expect } from '@playwright/test';
 import { mkdir } from 'node:fs/promises';
 
-for (const language of ['ru', 'en']) for (const layout of ['desktop', 'mobile', 'android']) for (const alphabet of ['latin', 'cyrillic']) {
-  test(`short nonliteral hints ${language} ${layout} ${alphabet}`, async ({ page }) => {
+for (const language of ['ru', 'en']) for (const layout of ['desktop', 'mobile', 'android']) {
+  test(`short nonliteral hints ${language} ${layout}`, async ({ page }) => {
     const en = language === 'en';
     await page.setViewportSize(layout === 'desktop' ? { width: 1366, height: 900 } : { width: 360, height: 800 });
     if (layout === 'android') await page.addInitScript(() => { window.CapacitorCustomPlatform = { name: 'android' }; });
@@ -10,7 +10,6 @@ for (const language of ['ru', 'en']) for (const layout of ['desktop', 'mobile', 
       localStorage.setItem('serbotalk.interface-language', lang);
       localStorage.setItem('sb-e2e-auth-auth-token', JSON.stringify({ access_token: 'e2e-local-only', refresh_token: 'e2e-local-only', token_type: 'bearer', expires_at: 4102444800, user: { id: 'hint-user', aud: 'authenticated', role: 'authenticated', email: 'learner@example.invalid', app_metadata: {}, user_metadata: {}, created_at: '2026-10-01T00:00:00Z' } }));
     }, language);
-    await page.addInitScript(value => localStorage.setItem('serbotalk.serbian-alphabet.hint-user', value), alphabet);
     const source = en ? 'I have nobody to talk to.' : 'Мне не с кем поговорить.';
     const fragment = en ? 'I have nobody' : 'Мне не с кем';
     const verb = en ? 'to talk to' : 'поговорить';
@@ -41,7 +40,7 @@ for (const language of ['ru', 'en']) for (const layout of ['desktop', 'mobile', 
     await expect(phrase.getByRole('button', { name: en ? 'I' : 'Мне', exact: true })).toHaveCount(0);
     const button = phrase.getByRole('button', { name: fragment, exact: true });
     await button.click();
-    await expect(page.locator('.word-tooltip')).toHaveText(alphabet === 'latin' ? 'nemam s kim' : 'немам с ким');
+    await expect(page.locator('.word-tooltip')).toHaveText('nemam s kim');
     await expect(button).toHaveClass(/is-used/);
     await expect(phrase.getByRole('button', { name: verb, exact: true })).not.toHaveClass(/is-used/);
     await expect.poll(() => saved.length).toBe(1);
@@ -51,7 +50,7 @@ for (const language of ['ru', 'en']) for (const layout of ['desktop', 'mobile', 
     const colors = await button.evaluate(el => ({ color: getComputedStyle(el).color, background: getComputedStyle(el).backgroundColor }));
     expect(colors.color).not.toBe('rgb(0, 0, 0)');
     await mkdir('../artifacts/context-hints/screens', { recursive: true });
-    await page.screenshot({ path: `../artifacts/context-hints/screens/${language}-${layout}-${alphabet}.png` });
+    await page.screenshot({ path: `../artifacts/context-hints/screens/${language}-${layout}.png` });
     await page.keyboard.press('Escape');
     await expect(page.locator('.word-tooltip')).toHaveCount(0);
   });

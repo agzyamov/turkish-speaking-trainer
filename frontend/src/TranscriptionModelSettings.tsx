@@ -52,7 +52,7 @@ export function TranscriptionModelSettings() {
       <option value="">{t("По умолчанию")}{settings?.default_model ? ` (${settings.default_model})` : ""}</option>
       {settings?.options.map(model => <option key={model} value={model}>{model}</option>)}
     </select>
-    <p>{t("Язык записи — сербский. Выбранный выше алфавит передаётся модели. Качество проверяйте на собственных записях.")}</p>
+    <p>{t("Язык записи — турецкий. Качество распознавания проверяйте на собственных записях.")}</p>
     {busy && <p role="status">{t("Загружаем или сохраняем модель…")}</p>}
     {error && <p role="alert">{t(error)}</p>}
     {!busy && !settings && <button type="button" onClick={() => { setBusy(true); setError(undefined); setReload(value => value + 1); }}>{t("Повторить загрузку")}</button>}

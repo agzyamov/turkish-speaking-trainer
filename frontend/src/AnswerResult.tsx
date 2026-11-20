@@ -1,6 +1,6 @@
 import { t } from "./i18n";
 import type { Attempt } from "./types/training";
-import { displaySerbian, toSerbianLatin, type SerbianAlphabet } from "./serbianScript";
+import { latinForEvaluation } from "./turkishText";
 
 type MarkedRange = { start: number; end: number; explanation: string };
 type Word = { start: number; end: number; normalized: string };
@@ -9,7 +9,7 @@ function words(text: string): Word[] {
   return Array.from(text.matchAll(/[\p{L}\p{N}]+/gu), (match) => ({
     start: match.index,
     end: match.index + match[0].length,
-    normalized: match[0].toLocaleLowerCase("sr-Latn"),
+    normalized: match[0].toLocaleLowerCase("tr"),
   }));
 }
 
@@ -73,19 +73,19 @@ function changedWords(evidence: string, correction: string): Word[] {
 function evidenceRanges(answer: string, attempt: Attempt): MarkedRange[] {
   if (attempt.analysis.verdict === "correct") return [];
   const ranges: MarkedRange[] = [];
-  const lowerAnswer = answer.toLocaleLowerCase("sr-Latn");
+  const lowerAnswer = answer.toLocaleLowerCase("tr");
   const isWord = (character: string | undefined) => Boolean(character && /[\p{L}\p{N}]/u.test(character));
   for (const issue of attempt.analysis.issues) {
     if (issue.severity <= 0) continue;
-    const evidence = toSerbianLatin(issue.evidence.trim());
+    const evidence = latinForEvaluation(issue.evidence.trim());
     if (!evidence) continue;
-    const correction = issue.correction ? toSerbianLatin(issue.correction.trim()) : undefined;
-    if (correction && evidence.toLocaleLowerCase("sr-Latn") === correction.toLocaleLowerCase("sr-Latn")) continue;
-    const start = lowerAnswer.indexOf(evidence.toLocaleLowerCase("sr-Latn"));
+    const correction = issue.correction ? latinForEvaluation(issue.correction.trim()) : undefined;
+    if (correction && evidence.toLocaleLowerCase("tr") === correction.toLocaleLowerCase("tr")) continue;
+    const start = lowerAnswer.indexOf(evidence.toLocaleLowerCase("tr"));
     const end = start + evidence.length;
-    if (start < 0 || lowerAnswer.indexOf(evidence.toLocaleLowerCase("sr-Latn"), end) >= 0) continue;
+    if (start < 0 || lowerAnswer.indexOf(evidence.toLocaleLowerCase("tr"), end) >= 0) continue;
     if ((isWord(evidence[0]) && isWord(answer[start - 1])) || (isWord(evidence.at(-1)) && isWord(answer[end]))) continue;
-    if (answer.slice(start, end).toLocaleLowerCase("sr-Latn") !== evidence.toLocaleLowerCase("sr-Latn")) continue;
+    if (answer.slice(start, end).toLocaleLowerCase("tr") !== evidence.toLocaleLowerCase("tr")) continue;
     const parts = correction ? changedWords(evidence, correction) : [{ start: 0, end: evidence.length }];
     if (parts.some((part) => ranges.some((range) => start + part.start < range.end && start + part.end > range.start))) continue;
     ranges.push(...parts.map((part) => ({ start: start + part.start, end: start + part.end, explanation: issue.correction ?? issue.evidence })));
@@ -93,23 +93,23 @@ function evidenceRanges(answer: string, attempt: Attempt): MarkedRange[] {
   return ranges.sort((left, right) => left.start - right.start);
 }
 
-function HighlightedAnswer({ answer, attempt, alphabet }: { answer: string; attempt: Attempt; alphabet: SerbianAlphabet }) {
-  const latinAnswer = toSerbianLatin(answer);
+function HighlightedAnswer({ answer, attempt }: { answer: string; attempt: Attempt }) {
+  const latinAnswer = latinForEvaluation(answer);
   const ranges = evidenceRanges(latinAnswer, attempt);
   const content: React.ReactNode[] = [];
   let cursor = 0;
   for (const [index, range] of ranges.entries()) {
-    if (cursor < range.start) content.push(<span key={`text-${index}`}>{displaySerbian(latinAnswer.slice(cursor, range.start), alphabet)}</span>);
-    content.push(<mark className="answer-mark answer-mark--issue" title={displaySerbian(range.explanation, alphabet)} key={`issue-${index}`}>{displaySerbian(latinAnswer.slice(range.start, range.end), alphabet)}</mark>);
+    if (cursor < range.start) content.push(<span key={`text-${index}`}>{latinAnswer.slice(cursor, range.start)}</span>);
+    content.push(<mark className="answer-mark answer-mark--issue" title={range.explanation} key={`issue-${index}`}>{latinAnswer.slice(range.start, range.end)}</mark>);
     cursor = range.end;
   }
-  content.push(<span key="tail">{displaySerbian(latinAnswer.slice(cursor), alphabet)}</span>);
-  return <span className="result-phrase__text" lang={alphabet === "cyrillic" ? "sr-Cyrl" : "sr-Latn"}>{content}</span>;
+  content.push(<span key="tail">{latinAnswer.slice(cursor)}</span>);
+  return <span className="result-phrase__text" lang="tr">{content}</span>;
 }
 
-export function AnswerResult({ answer, attempt, alphabet = "latin" }: { answer: string; attempt: Attempt; alphabet?: SerbianAlphabet }) {
+export function AnswerResult({ answer, attempt }: { answer: string; attempt: Attempt }) {
   return <div className="result-phrases">
-    <div className="result-phrase"><small>{t("Ваш вариант")}</small><HighlightedAnswer answer={answer} attempt={attempt} alphabet={alphabet} /></div>
-    <div className="result-phrase correction"><small>{t(attempt.analysis.verdict === "correct" ? "Вариант перевода" : "Правильный вариант")}</small><span className="result-phrase__text" lang={alphabet === "cyrillic" ? "sr-Cyrl" : "sr-Latn"}>{displaySerbian(attempt.analysis.corrected_tr, alphabet)}</span></div>
+    <div className="result-phrase"><small>{t("Ваш вариант")}</small><HighlightedAnswer answer={answer} attempt={attempt} /></div>
+    <div className="result-phrase correction"><small>{t(attempt.analysis.verdict === "correct" ? "Вариант перевода" : "Правильный вариант")}</small><span className="result-phrase__text" lang="tr">{latinForEvaluation(attempt.analysis.corrected_tr)}</span></div>
   </div>;
 }

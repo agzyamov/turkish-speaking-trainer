@@ -14,7 +14,7 @@ describe("custom content deletion", () => {
     setLanguage(language);
     vi.mocked(fetchCustomPhrases).mockResolvedValue([phrase]);
     const changed = vi.fn();
-    render(<CustomContentManager topics={[topic]} alphabet="latin" onDeleted={changed} onClose={vi.fn()} />);
+    render(<CustomContentManager topics={[topic]} onDeleted={changed} onClose={vi.fn()} />);
     await screen.findByText(phrase.source_ru);
     fireEvent.click(screen.getByRole("button", { name: language === "ru" ? "Удалить тему" : "Delete topic" }));
     expect(deleteCustomTopic).not.toHaveBeenCalled();
@@ -29,7 +29,7 @@ describe("custom content deletion", () => {
   it("keeps a phrase on failure, allows cancellation and retries deletion", async () => {
     vi.mocked(fetchCustomPhrases).mockResolvedValue([phrase]);
     vi.mocked(deleteCustomPhrase).mockRejectedValueOnce(new Error("offline")).mockResolvedValueOnce(undefined);
-    render(<CustomContentManager topics={[topic]} alphabet="latin" onDeleted={vi.fn()} onClose={vi.fn()} />);
+    render(<CustomContentManager topics={[topic]} onDeleted={vi.fn()} onClose={vi.fn()} />);
     await screen.findByText(phrase.source_ru);
     fireEvent.click(screen.getByText("Удалить фразу"));
     fireEvent.click(screen.getByText("Отмена"));

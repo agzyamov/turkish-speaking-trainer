@@ -1,9 +1,12 @@
 import { BackendError } from "./api/training";
+import { budgetPauseMessage } from "./budgetPause";
 
 export const topicLimitMessage = "Достигнут лимит: 5 пользовательских тем. Удалите свою тему, чтобы добавить новую.";
 export const phraseLimitMessage = "Достигнут лимит: 30 фраз в теме. Удалите свою фразу, чтобы добавить новую.";
 export function customContentError(error: unknown, fallback: string): string {
   if (!(error instanceof BackendError)) return fallback;
+  const budgetPause = budgetPauseMessage(error);
+  if (budgetPause) return budgetPause;
   const messages: Record<string, string> = {
     topic_translation_unavailable: "Не удалось перевести название темы. Тема не сохранена. Повторите попытку.",
     custom_topic_limit: topicLimitMessage,

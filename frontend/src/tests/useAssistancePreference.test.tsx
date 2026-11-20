@@ -8,7 +8,7 @@ vi.mock("../api/users", () => ({ fetchPreferences: vi.fn(), updatePreferences: v
 
 function Client() {
   const preference = useAssistancePreference(false);
-  return <SettingsView alphabet="latin" onAlphabetChange={() => undefined}
+  return <SettingsView
     assistanceEnabled={preference.enabled} assistanceSaving={preference.saving}
     assistanceError={preference.error} onAssistanceChange={value => { void preference.change(value); }} />;
 }
