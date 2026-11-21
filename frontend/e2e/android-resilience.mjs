@@ -3,7 +3,7 @@ import { createHmac } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { loginTestlab, installSyntheticMicrophone } from "./flow.mjs";
 import { createRadioGuard, requireApkVersion, restoreMicrophonePermission } from "./android-resilience-utils.mjs";
-const pkg = "com.serbiantalk.trainer.testlab";
+const pkg = "com.turktalk.trainer.testlab";
 const inputMode = process.env.TESTLAB_ANDROID_INPUT ?? "native";
 if (!["native", "webview"].includes(inputMode)) throw Error("Input mode must be native or webview");
 const offlineHoldSeconds = Number(process.env.TESTLAB_OFFLINE_HOLD_SECONDS ?? 120);

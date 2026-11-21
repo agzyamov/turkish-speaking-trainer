@@ -118,7 +118,8 @@ export function AuthGate({ children }: { children: (account: CurrentUser, onAcco
   async function login() {
     setAuthError(undefined);
     try {
-      await signInWithGoogle();
+      // The gate belongs to the app, so Google returns to the app rather than to the landing page at "/".
+      await signInWithGoogle("/app");
     } catch {
       setAuthError("app.couldNotOpenGoogle");
     }

@@ -19,6 +19,6 @@ describe("Android release metadata", () => {
     expect(packageJson.version).toBe("1.45.0");
     expect(androidBuild).toContain("versionCode 55");
     expect(androidBuild).toContain('versionName "1.45"');
-    expect(androidBuild).toContain('outputFileName = "SerboTalk-andorid16-1.45.apk"');
+    expect(androidBuild).toContain('outputFileName = "TurkTalk-android16-1.45.apk"');
   });
 });

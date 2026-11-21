@@ -2,7 +2,7 @@ import { _android, expect } from "@playwright/test";
 import { readFileSync } from "node:fs";
 import { loginTestlab } from "./flow.mjs";
 
-const packageName = "com.serbiantalk.trainer.testlab";
+const packageName = "com.turktalk.trainer.testlab";
 const expectedVersion =
   process.env.TESTLAB_ANDROID_VERSION ??
   JSON.parse(readFileSync(new URL("../package.json", import.meta.url), "utf8"))

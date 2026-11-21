@@ -27,7 +27,7 @@ class Settings(BaseSettings):
     manual_payments: PaymentConfig = Field(default_factory=PaymentConfig)
     database_url: str = "sqlite:///./data/trainer.db"
     cors_allowed_origin_regex: str = (
-        r"https://serbian-speaking-trainer(?:-[a-z0-9-]+)?\.vercel\.app"
+        r"https://turktalk(?:-[a-z0-9-]+)?\.vercel\.app"
     )
     default_level: str = "A2"
     default_session_length: int = Field(default=20, ge=1, le=100)

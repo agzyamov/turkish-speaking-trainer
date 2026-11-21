@@ -6,7 +6,7 @@ import { createClient, type Session, type SupabaseClient } from "@supabase/supab
 
 const supabaseUrl = (import.meta.env.VITE_SUPABASE_URL ?? "").trim();
 const supabasePublishableKey = (import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY ?? "").trim();
-const nativeRedirectUrl = "com.serbiantalk.trainer://auth/callback";
+const nativeRedirectUrl = "com.turktalk.trainer://auth/callback";
 
 let client: SupabaseClient | undefined;
 let nativeListenerReady = false;
@@ -54,7 +54,7 @@ export function onAuthStateChange(callback: (session: Session | null) => void): 
 
 export async function signInWithGoogle(redirectPath: "/" | "/app" = "/"): Promise<void> {
   const native = Capacitor.isNativePlatform();
-  const webPath = window.location.pathname === "/app" ? "/app" : redirectPath;
+  const webPath = /^\/app\/?$/.test(window.location.pathname) ? "/app" : redirectPath;
   const redirectTo = native ? nativeRedirectUrl : `${window.location.origin}${webPath}`;
   const { data, error } = await getSupabase().auth.signInWithOAuth({
     provider: "google",

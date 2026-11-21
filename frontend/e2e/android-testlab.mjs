@@ -3,7 +3,7 @@ import { captureMetrics } from "./metrics.mjs";
 import { installSyntheticMicrophone, loginTestlab, runPracticeFlow } from "./flow.mjs";
 
 // Experimental Playwright Android WebView API; requires an installed debug testlab flavor.
-const packageName = "com.serbiantalk.trainer.testlab";
+const packageName = "com.turktalk.trainer.testlab";
 const devices = await _android.devices();
 const device = process.env.TESTLAB_ANDROID_SERIAL ? devices.find(candidate => candidate.serial() === process.env.TESTLAB_ANDROID_SERIAL) : devices.length === 1 ? devices[0] : undefined;
 if (!device) throw new Error("Specify one connected Android device with TESTLAB_ANDROID_SERIAL");

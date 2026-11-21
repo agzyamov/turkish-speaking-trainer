@@ -33,7 +33,7 @@ try {
     } finally { Pop-Location }
     $destination = Join-Path $Repository "artifacts\testlab"
     New-Item -ItemType Directory -Path $destination -Force | Out-Null
-    Copy-Item -LiteralPath ("android\app\build\outputs\apk\lab\debug\SerboTalk-andorid16-{0}.apk" -f $androidVersion) -Destination $destination
+    Copy-Item -LiteralPath ("android\app\build\outputs\apk\lab\debug\TurkTalk-android16-{0}.apk" -f $androidVersion) -Destination $destination
 } finally {
     foreach ($name in $variables) { [Environment]::SetEnvironmentVariable($name, $previous[$name], "Process") }
     Pop-Location

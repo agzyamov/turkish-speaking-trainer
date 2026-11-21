@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { validateAndroidEnvironment } from "../../build/androidEnvironment";
+import { validateAndroidEnvironment, validateHostedWebEnvironment } from "../../build/androidEnvironment";
 
 const valid = {
   VITE_API_BASE_URL: "https://api.example.com",
@@ -29,5 +29,13 @@ describe("Android release environment", () => {
   });
   it.each(["https://", "http://example.supabase.co", "https://localhost", "https://user:password@example.supabase.co"])("rejects invalid Auth URL %s", url => {
     expect(() => validateAndroidEnvironment({ ...valid, VITE_SUPABASE_URL: url })).toThrow(/SUPABASE/);
+  });
+});
+
+describe("hosted web environment", () => {
+  it("requires an absolute HTTPS API URL because vercel.json has no /api proxy", () => {
+    expect(() => validateHostedWebEnvironment({ VITE_API_BASE_URL: "https://api.turktalk.example" })).not.toThrow();
+    for (const url of ["", "/api", "http://api.turktalk.example", "https://user:pw@api.turktalk.example"])
+      expect(() => validateHostedWebEnvironment({ VITE_API_BASE_URL: url })).toThrow(/Hosted web build requires/);
   });
 });

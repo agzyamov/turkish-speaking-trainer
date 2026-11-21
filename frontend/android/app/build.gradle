@@ -3,10 +3,10 @@ import groovy.json.JsonSlurper
 apply plugin: 'com.android.application'
 
 android {
-    namespace = "com.serbiantalk.trainer"
+    namespace = "com.turktalk.trainer"
     compileSdk = rootProject.ext.compileSdkVersion
     defaultConfig {
-        applicationId "com.serbiantalk.trainer"
+        applicationId "com.turktalk.trainer"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 55
@@ -63,7 +63,7 @@ tasks.configureEach { task ->
 
 android.applicationVariants.all { variant ->
     variant.outputs.all {
-        outputFileName = "SerboTalk-andorid16-1.45.apk"
+        outputFileName = "TurkTalk-android16-1.45.apk"
     }
 }
 

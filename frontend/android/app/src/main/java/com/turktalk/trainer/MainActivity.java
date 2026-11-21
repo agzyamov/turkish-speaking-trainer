@@ -1,4 +1,4 @@
-package com.serbiantalk.trainer;
+package com.turktalk.trainer;
 
 import com.getcapacitor.BridgeActivity;
 

@@ -3,10 +3,12 @@ import tailwindcss from "@tailwindcss/vite";
 import { defineConfig } from "vitest/config";
 import { loadEnv } from "vite";
 import { resolve } from "node:path";
-import { validateAndroidEnvironment } from "./build/androidEnvironment.ts";
+import { validateAndroidEnvironment, validateHostedWebEnvironment } from "./build/androidEnvironment.ts";
 
 export default defineConfig(({ mode }) => {
   if (mode === "android") validateAndroidEnvironment(loadEnv(mode, process.cwd(), "VITE_"));
+  // Vercel sets VERCEL_ENV on its builds; local and CI builds may keep the API relative for mocks.
+  else if (process.env.VERCEL_ENV) validateHostedWebEnvironment({ ...loadEnv(mode, process.cwd(), "VITE_"), ...process.env });
   const input: Record<string, string> = { main: resolve("index.html") };
   if (mode === "testlab") input.testlab = resolve("testlab.html");
   else if (mode !== "android") input.landing = resolve("landing.html");

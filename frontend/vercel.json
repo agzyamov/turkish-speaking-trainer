@@ -2,21 +2,11 @@
   "routes": [
     {
       "src": "^/$",
-      "has": [
-        {
-          "type": "host",
-          "value": "serbotalk.app"
-        }
-      ],
       "dest": "/landing.html"
     },
     {
       "src": "^/app/?$",
       "dest": "/index.html"
-    },
-    {
-      "src": "^/api/(.*)$",
-      "dest": "https://serbian-speaking-trainer-api.vercel.app/api/$1"
     },
     {
       "src": "^/(privacy|terms|delete-account)$",
