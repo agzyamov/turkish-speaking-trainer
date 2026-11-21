@@ -33,6 +33,11 @@
   --color-danger: #f07a6a;
   --color-info: #8cb8d8;
 
+  /* Google sign-in button: Google's brand surface, not part of the tea-house palette. */
+  --color-google: #ffffff;
+  --color-google-ink: #26352d;
+  --color-google-line: #d5ddd8;
+
   --container-settings: 980px;
   /* Desktop workspace: topics column plus practice column. */
   --container-workspace: 1020px;

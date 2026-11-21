@@ -42,6 +42,8 @@ import { TopicGrid } from "./features/shell/TopicGrid";
 import { topicIconName } from "./features/shell/topicIcons";
 import { PracticeDone, ReviewComplete, WelcomeCard } from "./features/shell/StageStates";
 import { cn } from "./shared/lib/utils";
+import { authCard, authLegal, authPage, googleButton } from "./features/auth/authStyles";
+import { Button } from "./shared/ui/button";
 
 type StartupState = "loading" | "ready" | "fallback";
 
@@ -82,8 +84,8 @@ export default function App() {
 
 function LoginLanguageButton() {
   const language = useLanguage();
-  return <div className="login-languages" role="group" aria-label={t("Язык интерфейса")}>
-    {(["ru", "en"] as const).map(locale => <button key={locale} className="login-language" type="button" aria-label={t(locale === "ru" ? "Выбрать русский язык" : "Выбрать английский язык")} aria-pressed={language === locale} onClick={() => setLanguage(locale)}>
+  return <div className="login-languages mb-4.5 flex justify-center gap-3" role="group" aria-label={t("Язык интерфейса")}>
+    {(["ru", "en"] as const).map(locale => <button key={locale} className="login-language grid size-11.5 cursor-pointer place-items-center rounded-sm border border-line bg-surface-raised p-1 hover:bg-selected aria-pressed:border-reward outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-surface [&_svg]:block" type="button" aria-label={t(locale === "ru" ? "Выбрать русский язык" : "Выбрать английский язык")} aria-pressed={language === locale} onClick={() => setLanguage(locale)}>
       <svg aria-hidden="true" viewBox="0 0 60 60" width="36" height="36">
         {locale === "ru" ? <><path fill="#fff" d="M0 0h60v20H0z"/><path fill="#0039a6" d="M0 20h60v20H0z"/><path fill="#d52b1e" d="M0 40h60v20H0z"/></> : <>
           <path fill="#012169" d="M0 0h60v60H0z"/><path stroke="#fff" strokeWidth="12" d="m0 0 60 60M60 0 0 60"/><path stroke="#c8102e" strokeWidth="4" d="m0 0 60 60M60 0 0 60"/><path stroke="#fff" strokeWidth="20" d="M30 0v60M0 30h60"/><path stroke="#c8102e" strokeWidth="12" d="M30 0v60M0 30h60"/>
@@ -96,7 +98,7 @@ function LoginLanguageButton() {
 // Both translations participate in layout so switching languages never moves the form.
 function LoginCopy({ as: Tag, text, href }: { as: "h1" | "p" | "a"; text: keyof typeof messages; href?: string }) {
   const language = useLanguage();
-  return <Tag className="login-copy" href={href}>{(["ru", "en"] as const).map(locale => <span key={locale} lang={locale} aria-hidden={language !== locale} className={language !== locale ? "login-copy__sizing" : undefined}>{locale === "ru" ? text : messages[text]}</span>)}</Tag>;
+  return <Tag className="login-copy grid [&>span]:col-start-1 [&>span]:row-start-1 [&>span]:self-center" href={href}>{(["ru", "en"] as const).map(locale => <span key={locale} lang={locale} aria-hidden={language !== locale} className={language !== locale ? "login-copy__sizing pointer-events-none invisible" : undefined}>{locale === "ru" ? text : messages[text]}</span>)}</Tag>;
 }
 
 function AuthenticatedApp() {
@@ -140,16 +142,16 @@ function AuthenticatedApp() {
     catch { setAuthError("Не удалось открыть вход через Google."); }
   }
 
-  if (!authReady) return <main className="auth-page auth-page--loading"><div className="auth-loading" role="status" aria-label={t("Авторизация и загрузка")}>
+  if (!authReady) return <main className={cn(authPage, "auth-page--loading")}><div className="auth-loading" role="status" aria-label={t("Авторизация и загрузка")}>
     <span className="auth-loading__ring"><img src={appLogo} alt="SerboTalk" /></span>
     <p>{t("Авторизация и загрузка...")}</p>
   </div></main>;
-  if (!isAuthConfigured()) return <main className="auth-page"><div className="auth-card panel"><LoginLanguageButton /><h1>{t("Нужна настройка входа")}</h1><p>{t("Добавьте VITE_SUPABASE_URL и VITE_SUPABASE_PUBLISHABLE_KEY в окружение frontend.")}</p></div></main>;
-  if (hasSession && !account && authError) return <main className="auth-page"><div className="auth-card panel"><LoginLanguageButton />
-    <p className="error" role="alert">{t(authError)}</p>
-    <button type="button" onClick={() => { setAuthReady(false); setAuthAttempt(value => value + 1); }}>{t("Повторить загрузку профиля")}</button>
+  if (!isAuthConfigured()) return <main className={authPage}><div className={authCard}><LoginLanguageButton /><h1>{t("Нужна настройка входа")}</h1><p>{t("Добавьте VITE_SUPABASE_URL и VITE_SUPABASE_PUBLISHABLE_KEY в окружение frontend.")}</p></div></main>;
+  if (hasSession && !account && authError) return <main className={authPage}><div className={authCard}><LoginLanguageButton />
+    <p role="alert">{t(authError)}</p>
+    <Button className="mt-4" onClick={() => { setAuthReady(false); setAuthAttempt(value => value + 1); }}>{t("Повторить загрузку профиля")}</Button>
   </div></main>;
-  if (!hasSession || !account) return <main className="auth-page"><div className="auth-card panel"><LoginLanguageButton /><LoginCopy as="h1" text="Добро пожаловать в SerboTalk" /><LoginCopy as="p" text="Войдите или зарегистрируйтесь, чтобы сохранять свой прогресс на всех устройствах." /><button className="google-sign-in" type="button" onClick={() => void login()}>{t("Войти через Google")}</button><EmailLogin /><ReviewLogin />{authError && <p className="error" role="alert">{t(authError)}</p>}<nav className="auth-legal" aria-label={t("Правовая информация")}><LoginCopy as="a" href="/privacy" text="Конфиденциальность" /><LoginCopy as="a" href="/terms" text="Условия" /><LoginCopy as="a" href="/delete-account" text="Удаление аккаунта" /></nav></div></main>;
+  if (!hasSession || !account) return <main className={authPage}><div className={authCard}><LoginLanguageButton /><LoginCopy as="h1" text="Добро пожаловать в SerboTalk" /><LoginCopy as="p" text="Войдите или зарегистрируйтесь, чтобы сохранять свой прогресс на всех устройствах." /><button className={googleButton} type="button" onClick={() => void login()}>{t("Войти через Google")}</button><EmailLogin /><ReviewLogin />{authError && <p role="alert">{t(authError)}</p>}<nav className={authLegal} aria-label={t("Правовая информация")}><LoginCopy as="a" href="/privacy" text="Конфиденциальность" /><LoginCopy as="a" href="/terms" text="Условия" /><LoginCopy as="a" href="/delete-account" text="Удаление аккаунта" /></nav></div></main>;
   return <TrainerApp key={account.id} account={account} onAccountChange={setAccount} onSignOut={() => void signOut()} />;
 }
 
@@ -831,7 +833,7 @@ function TrainerApp({ account, onAccountChange, onSignOut }: { account: CurrentU
       done={!isReviewMode && completedCount >= (session?.requested_length ?? 10)} onNext={() => void nextExercise()} />;
   }
 
-  if (startupState === "loading") return <main className="auth-page auth-page--loading"><PhraseLoading /></main>;
+  if (startupState === "loading") return <main className={cn(authPage, "auth-page--loading")}><PhraseLoading /></main>;
 
   const topicGrid = (compact: boolean) => <TopicGrid compact={compact} topics={orderedTopics} personalStart={premiumActive ? mainTopics.length : undefined}
     selectedTopic={customTopic ? undefined : selectedTopic} reviewSelected={isReviewMode} reviewCount={reviewPhraseCount}

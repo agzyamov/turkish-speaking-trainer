@@ -8,11 +8,11 @@ export function LegalPage({ kind }: { kind: LegalPageKind }) {
   const deletion = kind === "delete-account";
 
   return (
-    <main className="legal-page">
-      <article className="legal-card panel">
-        <a className="legal-back" href="/">{t("← Вернуться в SerboTalk")}</a>
+    <main className="legal-page min-h-screen bg-canvas px-4 py-8 text-ink">
+      <article className="legal-card mx-auto max-w-[760px] rounded-card border border-line bg-surface p-[clamp(1.25rem,4vw,2.5rem)] [&_a]:text-accent-bright [&_h1]:mb-1 [&_h1]:mt-5 [&_h1]:font-display [&_h1]:text-title [&_h1]:font-bold [&_h2]:mb-2 [&_h2]:mt-7 [&_h2]:text-lg [&_h2]:font-semibold [&_li]:mb-2.5 [&_li]:leading-relaxed [&_li]:text-ink-soft [&_p]:leading-relaxed [&_p]:text-ink-soft">
+        <a className="legal-back inline-block" href="/">{t("← Вернуться в SerboTalk")}</a>
         <h1>{t(deletion ? "Удаление аккаунта SerboTalk" : privacy ? "Политика конфиденциальности" : "Условия использования")}</h1>
-        <p className="legal-updated">{t("Обновлено: ")}{t(updatedAt)}</p>
+        <p className="legal-updated text-ink-muted!">{t("Обновлено: ")}{t(updatedAt)}</p>
 
         {deletion ? <>
           <p>{t("Запросить удаление аккаунта и связанных данных можно без входа в приложение и без его повторной установки.")}</p>

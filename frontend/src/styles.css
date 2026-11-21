@@ -43,35 +43,13 @@
 body { margin: 0; min-width: 320px; min-height: 100vh; background: var(--color-canvas); }
 button, input, textarea, select { color: inherit; font: inherit; }
 button { cursor: pointer; background: var(--panel); }
-.review-login { margin-top: 1rem; text-align: left; color: var(--muted); font-size: .8rem; }
-.review-login summary { cursor: pointer; color: var(--blue-bright); text-align: center; }
-.review-login form, .review-login label { display: grid; gap: .6rem; }
-.review-login form { margin-top: .8rem; }
-.review-login input { min-width: 0; width: 100%; padding: .65rem; background: var(--panel); color: var(--text); border: 1px solid var(--line); border-radius: 8px; }
-.review-login input:focus { outline: 2px solid var(--blue); }
-.review-login button { padding: .65rem; background: var(--panel); color: var(--text); border: 1px solid var(--blue); border-radius: 8px; }
-.review-login input:disabled, .review-login button:disabled { background: var(--panel); color: var(--muted); cursor: wait; opacity: .7; }
-.review-login [role="alert"] { color: var(--color-danger); }
+
 .icon { display: block; flex: 0 0 auto; }
 .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
 
 .panel { border: 1px solid var(--line); border-radius: 14px; background: linear-gradient(145deg, var(--color-surface), var(--color-surface)); box-shadow: inset 0 1px rgba(255,255,255,.025), 0 22px 60px rgba(0,0,0,.18); }
 
 .error { margin: .6rem 0 0; color: var(--color-danger); font-size: .75rem; }
-
-.auth-page {
-  min-height: 100vh;
-  display: grid;
-  place-items: center;
-  padding: 24px;
-  background: radial-gradient(circle at top, var(--color-surface), var(--color-canvas) 70%);
-}
-
-.auth-card {
-  width: min(460px, 100%);
-  padding: 44px;
-  text-align: center;
-}
 
 .auth-loading { display: grid; justify-items: center; gap: 1.5rem; text-align: center; }
 .auth-loading p { margin: 0; color: var(--color-ink-muted); font-size: 1rem; font-weight: 700; }
@@ -85,75 +63,12 @@ button { cursor: pointer; background: var(--panel); }
 
 @keyframes auth-orbit { to { transform: rotate(360deg); } }
 @media (prefers-reduced-motion: reduce) { .auth-loading__ring::before { animation: none; } }
-.auth-card h1 { margin: 0 0 12px; }
-.auth-card p { color: var(--muted, var(--color-ink-muted)); line-height: 1.55; }
-
-.google-sign-in {
-  border: 1px solid #d5ddd8;
-  border-radius: 10px;
-  background: #fff;
-  color: #26352d;
-  cursor: pointer;
-  font: inherit;
-}
-
-.google-sign-in {
-  width: 100%;
-  margin-top: 16px;
-  padding: 13px 18px;
-  font-weight: 700;
-  box-shadow: 0 6px 18px rgb(31 72 49 / 9%);
-}
-
-@media (max-width: 760px) {
-  .auth-card { padding: 30px 22px; }
-}
-.auth-legal {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 1rem;
-  margin-top: 1.25rem;
-  font-size: 0.85rem;
-}
-
-.legal-page {
-  min-height: 100vh;
-  padding: 2rem 1rem;
-  background: var(--bg, var(--color-canvas));
-}
-
-.legal-card {
-  max-width: 760px;
-  margin: 0 auto;
-  padding: clamp(1.25rem, 4vw, 2.5rem);
-}
-
-.legal-card h1 { margin: 1.25rem 0 0.25rem; }
-.legal-card h2 { margin: 1.75rem 0 0.5rem; font-size: 1.15rem; }
-.legal-card p { line-height: 1.65; }
-.legal-updated { color: var(--muted); }
-.legal-page { background: var(--color-canvas); color: var(--text); }
-.legal-card a, .auth-legal a { color: var(--blue-bright); }
-.legal-card li { line-height: 1.65; margin-bottom: .65rem; }
-.legal-back { display: inline-block; }
 
 .premium-badge { display: block; flex: 0 0 auto; color: var(--gold); }
 
 .mobile-web-shell [hidden] { display: none !important; }
 
 .mobile-web-shell input, .mobile-web-shell select, .mobile-web-shell textarea { min-width: 0; font-size: 16px; }
-
-/* Login and completion share the device language and dark app palette. */
-.login-languages { display: flex; justify-content: center; gap: 12px; margin-bottom: 18px; }
-.login-language { display: grid; place-items: center; width: 46px; height: 46px; padding: 4px; border: 1px solid var(--line); border-radius: 4px; background: var(--panel); color: var(--text); }
-.login-language svg { display: block; }
-.login-language[aria-pressed="true"] { border-color: var(--gold); }
-.login-language:hover { background: var(--color-selected); }
-.login-copy { display: grid; }
-.login-copy > span { grid-area: 1 / 1; align-self: center; }
-.login-copy__sizing { visibility: hidden; pointer-events: none; }
-.login-language:focus-visible { outline: 2px solid var(--cyan); outline-offset: 3px; }
 
 .payment-form { width: 100%; min-width: 0; margin-block: 1rem; padding: 1rem; text-align: left; color: var(--text); background: var(--panel); border: 1px solid var(--line); border-radius: 16px; }
 .payment-form header { display: flex; gap: 1rem; align-items: flex-start; justify-content: space-between; }

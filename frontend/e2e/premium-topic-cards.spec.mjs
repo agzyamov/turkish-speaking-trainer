@@ -23,6 +23,8 @@ for (const language of ['ru', 'en']) for (const layout of ['desktop', 'mobile', 
       else if (path === '/api/review-phrases/summary') body = { phrase_count: 0 };
       else if (path === '/api/sessions/start') body = { session: { id: 's1', status: 'active', requested_length: 10, topic: { id: 'bank', title_ru: 'В банке', source: 'preset' } }, exercise: { id: 'e1', source_ru: 'Я хочу открыть счёт.', word_hints: [], targeted_skills: [] } };
       else if (path === '/api/custom-phrases') body = phrases;
+      // The native pager passes the statistics panel on its way to Premium, which loads the week.
+      else if (path === '/api/statistics/monthly') body = { month: new URL(request.url()).searchParams.get('month') ?? '2026-11', active_days: 0, total_phrases: 0, total_translations: 0, correct_translations: 0, mastered_phrases: 0, days: [] };
       else if (path.startsWith('/api/custom-phrases/') && request.method() === 'DELETE') {
         phrases = phrases.filter(phrase => phrase.id !== path.split('/').at(-1));
         await route.fulfill({ status: 204 }); return;
@@ -46,6 +48,8 @@ for (const language of ['ru', 'en']) for (const layout of ['desktop', 'mobile', 
     await mkdir(artifacts, { recursive: true });
     await home.screenshot({ path: `${artifacts}/home-${language}-${layout}.png` });
     await page.getByRole('button', { name: ru ? 'Премиум' : 'Premium', exact: true }).click();
+    // The native pager scrolls sideways; let it settle on the Premium panel before measuring.
+    if (layout === 'android') await expect(page.locator('.android-premium-page')).toBeInViewport({ ratio: 0.99 });
     const premium = page.locator('.premium-page');
     await expect(premium.locator('.premium-topic strong')).toHaveText(expected);
     await expect(premium.locator('.premium-catalog-grid')).toHaveCSS('grid-template-columns', /\d/);

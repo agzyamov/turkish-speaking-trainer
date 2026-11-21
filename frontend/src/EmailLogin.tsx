@@ -1,6 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 import { isEmailOtpEnabled, requestEmailCode, verifyEmailCode } from "./emailAuth";
 import { t, useLanguage } from "./i18n";
+import { cn } from "./shared/lib/utils";
+import { Button } from "./shared/ui/button";
+import { Input } from "./shared/ui/input";
+import { authDetails } from "./features/auth/authStyles";
 
 export function EmailLogin({ onSignedIn }: { onSignedIn?: () => void } = {}) {
   useLanguage();
@@ -40,20 +44,20 @@ export function EmailLogin({ onSignedIn }: { onSignedIn?: () => void } = {}) {
     finally { pending.current = false; setBusy(false); }
   }
 
-  return <details className="email-login">
+  return <details className={cn("email-login", authDetails)}>
     <summary>{t("Войти по email")}</summary>
     <form aria-label={t("Вход по коду из письма")} onSubmit={event => { event.preventDefault(); void (sent ? verify() : sendCode()); }}>
       <p>{t("Отправим одноразовый код на вашу почту. Пароль не нужен.")}</p>
-      <label>{t("Email")}<input type="email" required autoComplete="email" autoCapitalize="none" spellCheck={false} maxLength={254} value={email} disabled={busy || sent} onChange={event => setEmail(event.target.value)} /></label>
+      <label>{t("Email")}<Input type="email" required autoComplete="email" autoCapitalize="none" spellCheck={false} maxLength={254} value={email} disabled={busy || sent} onChange={event => setEmail(event.target.value)} /></label>
       {sent && <>
         <p role="status">{t("Код отправлен. Проверьте входящие и папку «Спам».")}</p>
-        <label>{t("Код из письма")}<input type="text" inputMode="numeric" autoComplete="one-time-code" required pattern="[0-9]{6,10}" maxLength={10} value={code} disabled={busy} onChange={event => setCode(event.target.value.replace(/\D/g, ""))} /></label>
+        <label>{t("Код из письма")}<Input type="text" inputMode="numeric" autoComplete="one-time-code" required pattern="[0-9]{6,10}" maxLength={10} value={code} disabled={busy} onChange={event => setCode(event.target.value.replace(/\D/g, ""))} /></label>
       </>}
-      <button type="submit" disabled={busy || (!sent && remaining > 0)}>{t(busy ? sent ? "Входим…" : "Отправляем код…" : sent ? "Войти" : "Получить код")}</button>
+      <Button variant="primary" type="submit" disabled={busy || (!sent && remaining > 0)}>{t(busy ? sent ? "Входим…" : "Отправляем код…" : sent ? "Войти" : "Получить код")}</Button>
       {remaining > 0 && <p>{t(`Повторная отправка через ${remaining} с.`)}</p>}
       {sent && <>
-        <button type="button" disabled={busy || remaining > 0} onClick={() => void sendCode()}>{t("Отправить код ещё раз")}</button>
-        <button type="button" disabled={busy} onClick={() => { setSent(false); setCode(""); setError(undefined); }}>{t("Изменить email")}</button>
+        <Button disabled={busy || remaining > 0} onClick={() => void sendCode()}>{t("Отправить код ещё раз")}</Button>
+        <Button disabled={busy} onClick={() => { setSent(false); setCode(""); setError(undefined); }}>{t("Изменить email")}</Button>
       </>}
       {error && <p role="alert">{t(error)}</p>}
     </form>
