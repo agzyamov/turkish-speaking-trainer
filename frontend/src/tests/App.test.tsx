@@ -1706,6 +1706,18 @@ describe("App", () => {
     expect(screen.queryByLabelText("Прогресс навыков")).not.toBeInTheDocument();
   });
 
+  it.each([false, true])("gives the phone statistics panel the compact layout (native=%s)", async native => {
+    vi.spyOn(Capacitor, "isNativePlatform").mockReturnValue(native);
+    if (!native) vi.stubGlobal("matchMedia", vi.fn(() => ({ matches: true, addEventListener: vi.fn(), removeEventListener: vi.fn() })));
+    vi.stubGlobal("fetch", mockApi());
+    const { container } = render(<App />);
+    fireEvent.click(await screen.findByRole("button", { name: "Статистика" }));
+    await screen.findByRole("heading", { name: "Календарь занятий" });
+    const page = container.querySelector(".android-statistics-page .statistics-page")!;
+    expect(page).toHaveClass("w-full");
+    expect(page.className).not.toContain("*2/3");
+  });
+
   it("shows only the current week and separates attempts from mastered phrases", async () => {
     vi.stubGlobal("fetch", mockApi());
     render(<App />);

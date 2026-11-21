@@ -34,6 +34,10 @@
   --color-info: #8cb8d8;
 
   --container-settings: 980px;
+  /* Desktop workspace: topics column plus practice column. */
+  --container-workspace: 1020px;
+  --spacing-gutter: clamp(1rem, 1.4vw, 1.5rem);
+  --spacing-workspace-gap: clamp(0.85rem, 1.4vw, 1.5rem);
 
   /* Phone header bar height (without the status-bar inset); the panel pager is sized from it. */
   --spacing-phone-header: 58px;
@@ -53,6 +57,8 @@
   --text-title-compact--line-height: 1.2;
   --text-caption: 0.8rem;
   --text-caption--line-height: 1.5;
+  --text-day-count: clamp(1.2rem, 2.8vw, 2rem);
+  --text-day-count--line-height: 1;
   --text-micro: 0.65rem;
   --text-micro--line-height: 1.3;
 

@@ -47,8 +47,8 @@ type StartupState = "loading" | "ready" | "fallback";
 
 
 const loadStatistics = (retryUrl?: string) => (retryUrl
-  ? import(/* @vite-ignore */ retryUrl) as Promise<typeof import("./StatisticsView")>
-  : import("./StatisticsView")).then(({ StatisticsView }) => ({ default: StatisticsView }));
+  ? import(/* @vite-ignore */ retryUrl) as Promise<typeof import("./features/statistics/StatisticsView")>
+  : import("./features/statistics/StatisticsView")).then(({ StatisticsView }) => ({ default: StatisticsView }));
 const loadAdminUsers = (retryUrl?: string) => (retryUrl
   ? import(/* @vite-ignore */ retryUrl) as Promise<typeof import("./AdminUsersView")>
   : import("./AdminUsersView")).then(({ AdminUsersView }) => ({ default: AdminUsersView }));
@@ -889,7 +889,7 @@ function TrainerApp({ account, onAccountChange, onSignOut }: { account: CurrentU
           </section>
 
           <section className={cn(page, "android-statistics-page", isNative && "pt-1.5")} hidden={!isNative && visiblePanel !== 2} aria-label={t("Статистика")}>
-            {visiblePanel === 2 && <DeferredPanel load={loadStatistics} panelProps={{ page: statisticsPage, onPageChange: setStatisticsPage }} label={t("статистику")} />}
+            {visiblePanel === 2 && <DeferredPanel load={loadStatistics} panelProps={{ page: statisticsPage, onPageChange: setStatisticsPage, compact: true }} label={t("статистику")} />}
           </section>
           <section className={cn(page, "android-premium-page")} hidden={!isNative && visiblePanel !== 3}>
             {visiblePanel === 3 && premiumPanel}
@@ -912,7 +912,7 @@ function TrainerApp({ account, onAccountChange, onSignOut }: { account: CurrentU
         onHome={resetTraining} onShow={showView} onRetry={retryCatalog} />
 
       {view === "admin" ? <DeferredPanel key="admin" load={loadAdminUsers} panelProps={{}} label={t("пользователей")} /> : view === "statistics" ? <DeferredPanel key="statistics" load={loadStatistics} panelProps={{ page: statisticsPage, onPageChange: setStatisticsPage }} label={t("статистику")} /> : view === "premium" ? premiumPanel : view === "settings" ? settings : (
-        <main className="workspace mx-auto grid min-h-[calc(100vh-4rem)] max-w-[1020px] grid-cols-[minmax(0,1fr)_minmax(0,2fr)] gap-[clamp(0.85rem,1.4vw,1.5rem)] px-[clamp(1rem,1.4vw,1.5rem)] pb-6 pt-4">
+        <main className="workspace mx-auto grid min-h-[calc(100vh-4rem)] max-w-workspace grid-cols-[minmax(0,1fr)_minmax(0,2fr)] gap-workspace-gap px-gutter pb-6 pt-4">
           <aside className="topics-panel flex min-h-0 flex-col gap-4 rounded-card border border-line bg-surface p-4">
             <div className="panel-heading grid gap-1.5 px-0.5">
               <h2 className="m-0 font-display text-xl font-bold text-ink">{t("Темы для практики")}</h2>

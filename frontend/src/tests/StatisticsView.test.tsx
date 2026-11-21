@@ -1,7 +1,7 @@
 import { StrictMode } from 'react';
 import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
-import { StatisticsView } from '../StatisticsView';
+import { StatisticsView } from '../features/statistics/StatisticsView';
 import { setLanguage } from '../i18n';
 import { fetchMonthlyStatistics, fetchPhraseStatistics, fetchPhraseTopics } from '../api/statistics';
 import type { PhraseStatistics } from '../types/statistics';
@@ -224,4 +224,13 @@ it.each(['ru', 'en'] as const)('uses bilingual custom titles for filter and grou
   render(<StatisticsView page="phrases" />);
   expect(await screen.findByRole('heading',{name:language==='ru'?'Моя тема':'My topic'})).toBeInTheDocument();
   expect(screen.getByRole('combobox',{name:language==='ru'?'Тема':'Topic'})).toHaveTextContent(language==='ru'?'Моя тема':'My topic');
+});
+
+it.each([true, false])('stacks phrase rows with their own labels only in the compact layout (compact=%s)', async compact => {
+  const { container } = render(<StatisticsView page="phrases" compact={compact} />);
+  await screen.findByRole('heading', { name: 'Фразы' });
+  expect(container.querySelector('thead')!.classList.contains('hidden')).toBe(compact);
+  const label = container.querySelector('.phrase-cell-label')!;
+  expect(label).toHaveClass(compact ? 'block' : 'hidden');
+  expect(container.querySelector('.statistics-page')!.className.includes('*2/3')).toBe(!compact);
 });
