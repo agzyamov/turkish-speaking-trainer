@@ -6,15 +6,14 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { App as CapacitorApp } from "@capacitor/app";
 import { Capacitor } from "@capacitor/core";
 
-import { BackendError, fetchNextExercise, fetchReviewSummary, fetchTopics, startTrainingSession, submitAttempt, transcribeAudio } from "./api/training";
-import type { Attempt, AttemptTimings, Exercise, TopicListItem, TrainingSession } from "./types/training";
-import { supportsVoiceRecording, VoiceRecorder } from "./voiceRecorder";
+import { BackendError, fetchNextExercise, fetchReviewSummary, fetchTopics, startTrainingSession, submitAttempt } from "./api/training";
+import type { Attempt, Exercise, TopicListItem, TrainingSession } from "./types/training";
+import { supportsVoiceRecording } from "./voiceRecorder";
 import { DeferredPanel } from "./DeferredPanel";
 import { fetchCurrentUser } from "./api/users";
 import type { CurrentUser } from "./types/auth";
 import { LegalPage } from "./LegalPage";
 import { assistedText } from "./transcriptionAssistance";
-import { transcriptionErrorMessage } from "./transcriptionError";
 import type { AssistanceDraft } from "./TranscriptionAssistanceView";
 import { useAssistancePreference } from "./useAssistancePreference";
 import { useMobileLayout } from "./useMobileLayout";
@@ -27,11 +26,11 @@ import { useRewards } from "./useRewards";
 import { finishUiTimingWhenVisible, startUiTiming } from "./performance";
 import "./index.css";
 import { Icon } from "./shared/ui/icon";
-import type { VoiceState } from "./features/practice/AnswerActions";
 import { PhraseLoading } from "./features/practice/PhraseLoading";
 import { InteractivePhrase } from "./features/practice/InteractivePhrase";
 import { PracticeCard } from "./features/practice/PracticeCard";
 import { useWordHints } from "./features/practice/useWordHints";
+import { useVoiceAnswer } from "./features/practice/useVoiceAnswer";
 import { AuthGate } from "./features/auth/AuthGate";
 import { QueryProvider } from "./shared/lib/QueryProvider";
 import { AppHeader, MobileHeader, type AppView, type BackendState } from "./features/shell/AppHeader";
@@ -113,22 +112,14 @@ function TrainerApp({ account, onAccountChange, onSignOut }: { account: CurrentU
   const [preparingPhrase, setPreparingPhrase] = useState(false);
   const [error, setError] = useState<string>();
   const [errorDiagnosticId, setErrorDiagnosticId] = useState<string>();
-  const [voiceState, setVoiceState] = useState<VoiceState>("idle");
-  const unexpectedScriptStreakRef = useRef(0);
-  const [transcriptionBreakRecommended, setTranscriptionBreakRecommended] = useState(false);
-  const voiceRef = useRef<VoiceRecorder | undefined>(undefined);
-  const voiceTimingRef = useRef<AttemptTimings | undefined>(undefined);
   const nextExerciseRef = useRef<{ sessionId: string; requestId: string; promise: Promise<Exercise>; controller: AbortController } | undefined>(undefined);
   const pendingAttemptRef = useRef<{ payload: string; id: string } | undefined>(undefined);
   const checkingRef = useRef(false);
   const advancingRef = useRef(false);
   const nextRequestIdRef = useRef<string | undefined>(undefined);
   const flowEpochRef = useRef(0);
-  const voiceEpochRef = useRef(0);
   const answerEditEpochRef = useRef(0);
-  const voiceStartEditEpochRef = useRef(0);
   const flowControllerRef = useRef<AbortController | undefined>(undefined);
-  const voiceControllerRef = useRef<AbortController | undefined>(undefined);
   const catalogEpochRef = useRef(0);
   const catalogControllerRef = useRef<AbortController | undefined>(undefined);
   const reviewSummaryEpochRef = useRef(0);
@@ -142,6 +133,20 @@ function TrainerApp({ account, onAccountChange, onSignOut }: { account: CurrentU
   const hints = useWordHints({ exercise, checkingRef, flowEpochRef, onClearError: () => setError(undefined), onClearDiagnostic: () => setErrorDiagnosticId(undefined), onError: setError });
   const { abortAll: abortHints } = hints;
   const voiceSupported = supportsVoiceRecording();
+  const voice = useVoiceAnswer({
+    exercise,
+    voiceSupported,
+    assistanceEnabled,
+    answerEditEpochRef,
+    onError: setError,
+    onDiagnostic: setErrorDiagnosticId,
+    onTranscribed: (text, draft) => {
+      setAnswer(text);
+      setHasTranscript(true);
+      setAssistanceDraft(draft);
+    },
+  });
+  const { voiceState, setVoiceState, voiceBusy, voiceTimingRef, transcriptionBreakRecommended, stopVoice, interruptVoice, abortVoice, startVoice, finishVoice } = voice;
   const isNative = Capacitor.isNativePlatform();
   const { compact, shell: mobileShellRef } = useMobileLayout(startupState !== "loading" && !isNative);
   const mobileLayout = isNative || compact;
@@ -328,15 +333,13 @@ function TrainerApp({ account, onAccountChange, onSignOut }: { account: CurrentU
       catalogEpochRef.current += 1;
       reviewSummaryEpochRef.current += 1;
       accountRefreshEpochRef.current += 1;
-      voiceEpochRef.current += 1;
+      abortVoice();
       abortHints();
       flowControllerRef.current?.abort();
-      voiceControllerRef.current?.abort();
       nextExerciseRef.current?.controller.abort();
       catalogControllerRef.current?.abort();
-      voiceRef.current?.stop();
     },
-    [abortHints],
+    [abortHints, abortVoice],
   ); // stable: runs on unmount only
   useEffect(() => {
     const refreshWhenVisible = () => {
@@ -353,26 +356,6 @@ function TrainerApp({ account, onAccountChange, onSignOut }: { account: CurrentU
     : currentTopic
       ? topicText(currentTopic.id, currentTopic.title_ru, currentTopic.title_en)
       : "";
-  const voiceBusy = voiceState === "connecting" || voiceState === "recording" || voiceState === "transcribing";
-
-  const stopVoice = useCallback(() => {
-    voiceEpochRef.current += 1;
-    voiceControllerRef.current?.abort();
-    voiceControllerRef.current = undefined;
-    if (voiceRef.current) {
-      voiceRef.current.stop();
-      voiceRef.current = undefined;
-    }
-    voiceTimingRef.current = undefined;
-    setVoiceState("idle");
-  }, []);
-
-  const interruptVoice = useCallback(() => {
-    if (!voiceRef.current && !voiceControllerRef.current) return;
-    stopVoice();
-    setVoiceState("error");
-    setError("app.recordingInterruptedPhraseAnswer");
-  }, [stopVoice]);
 
   function showAndroidPanel(panel: number) {
     const pager = androidPagerRef.current;
@@ -473,75 +456,6 @@ function TrainerApp({ account, onAccountChange, onSignOut }: { account: CurrentU
     if (next !== "practice") interruptVoice();
     setView(next);
     if (!isNative) setAndroidPanel(next === "statistics" ? 2 : next === "premium" ? 3 : next === "settings" || next === "admin" ? 4 : 1);
-  }
-
-  async function finishVoice() {
-    const recorder = voiceRef.current;
-    if (!recorder || !exercise) return;
-    const epoch = voiceEpochRef.current;
-    const exerciseId = exercise.id;
-    const controller = new AbortController();
-    voiceControllerRef.current = controller;
-    setVoiceState("transcribing");
-    setError(undefined);
-    setErrorDiagnosticId(undefined);
-    try {
-      const recording = await recorder.finish();
-      if (voiceEpochRef.current !== epoch) return;
-      voiceRef.current = undefined;
-      startUiTiming("transcription");
-      const transcript = await transcribeAudio(exerciseId, recording.audio, controller.signal, assistanceEnabled);
-      if (voiceEpochRef.current !== epoch) return;
-      const unexpectedScript = hasUnexpectedLetterScript(transcript.text);
-      unexpectedScriptStreakRef.current = unexpectedScript ? unexpectedScriptStreakRef.current + 1 : 0;
-      setTranscriptionBreakRecommended(unexpectedScriptStreakRef.current >= 3);
-      if (answerEditEpochRef.current === voiceStartEditEpochRef.current) {
-        voiceTimingRef.current = recording.timing;
-        setAnswer(transcript.review_required ? transcript.text : latinForEvaluation(transcript.text));
-        if (transcript.review_required) voiceTimingRef.current = undefined;
-        setHasTranscript(true);
-        setAssistanceDraft(
-          transcript.transcription_id || transcript.assistance_status
-            ? { response: transcript, selected: (transcript.changes ?? []).flatMap((c, i) => (c.action === "applied" ? [i] : [])), edited: false }
-            : undefined,
-        );
-      }
-      setVoiceState("idle");
-    } catch (error) {
-      if (voiceEpochRef.current !== epoch) return;
-      unexpectedScriptStreakRef.current = error instanceof BackendError && error.code === "transcription_unexpected_script" ? unexpectedScriptStreakRef.current + 1 : 0;
-      setTranscriptionBreakRecommended(unexpectedScriptStreakRef.current >= 3);
-      recorder.stop();
-      voiceRef.current = undefined;
-      voiceTimingRef.current = undefined;
-      setVoiceState("error");
-      setErrorDiagnosticId(failureOf(error)?.diagnostic_id);
-      setError(budgetPauseMessage(error) ?? transcriptionErrorMessage(error));
-    } finally {
-      if (voiceEpochRef.current === epoch) voiceControllerRef.current = undefined;
-    }
-  }
-
-  async function startVoice() {
-    if (!exercise || !voiceSupported) return;
-    stopVoice();
-    voiceStartEditEpochRef.current = answerEditEpochRef.current;
-    setError(undefined);
-    setErrorDiagnosticId(undefined);
-    setVoiceState("connecting");
-    const epoch = voiceEpochRef.current;
-    const recorder = new VoiceRecorder();
-    voiceRef.current = recorder;
-    try {
-      await recorder.start();
-      if (voiceEpochRef.current === epoch && voiceRef.current === recorder) setVoiceState("recording");
-    } catch {
-      recorder.stop();
-      if (voiceEpochRef.current !== epoch) return;
-      if (voiceRef.current === recorder) voiceRef.current = undefined;
-      setVoiceState("error");
-      setError("app.couldNotAccessMicrophone");
-    }
   }
 
   function enterAnswerManually() {
