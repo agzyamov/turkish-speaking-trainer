@@ -6,8 +6,8 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { App as CapacitorApp } from "@capacitor/app";
 import { Capacitor } from "@capacitor/core";
 
-import { BackendError, fetchNextExercise, fetchReviewSummary, fetchTopics, revealWordHint, startTrainingSession, submitAttempt, transcribeAudio } from "./api/training";
-import type { Attempt, AttemptTimings, Exercise, TopicListItem, TrainingSession, WordHint } from "./types/training";
+import { BackendError, fetchNextExercise, fetchReviewSummary, fetchTopics, startTrainingSession, submitAttempt, transcribeAudio } from "./api/training";
+import type { Attempt, AttemptTimings, Exercise, TopicListItem, TrainingSession } from "./types/training";
 import { supportsVoiceRecording, VoiceRecorder } from "./voiceRecorder";
 import { DeferredPanel } from "./DeferredPanel";
 import { fetchCurrentUser } from "./api/users";
@@ -31,6 +31,7 @@ import type { VoiceState } from "./features/practice/AnswerActions";
 import { PhraseLoading } from "./features/practice/PhraseLoading";
 import { InteractivePhrase } from "./features/practice/InteractivePhrase";
 import { PracticeCard } from "./features/practice/PracticeCard";
+import { useWordHints } from "./features/practice/useWordHints";
 import { AuthGate } from "./features/auth/AuthGate";
 import { AppHeader, MobileHeader, type AppView, type BackendState } from "./features/shell/AppHeader";
 import { TopicGrid } from "./features/shell/TopicGrid";
@@ -41,15 +42,12 @@ import { authPage } from "./features/auth/authStyles";
 
 type StartupState = "loading" | "ready" | "fallback";
 
-
 const loadStatistics = (retryUrl?: string) => (retryUrl
   ? import(/* @vite-ignore */ retryUrl) as Promise<typeof import("./features/statistics/StatisticsView")>
   : import("./features/statistics/StatisticsView")).then(({ StatisticsView }) => ({ default: StatisticsView }));
 const loadAdminUsers = (retryUrl?: string) => (retryUrl
   ? import(/* @vite-ignore */ retryUrl) as Promise<typeof import("./AdminUsersView")>
   : import("./AdminUsersView")).then(({ AdminUsersView }) => ({ default: AdminUsersView }));
-
-
 
 function requestId(): string {
   if (typeof crypto.randomUUID === "function") return crypto.randomUUID();
@@ -64,8 +62,6 @@ function resetTimeLabel(iso: string): string {
   if (Number.isNaN(date.getTime())) return t("app.afterLimitResets");
   return t("app.resetsAfter", { time: new Intl.DateTimeFormat(getLocale(), { day: "numeric", month: "long", hour: "2-digit", minute: "2-digit" }).format(date) });
 }
-
-
 
 export default function App() {
   const language = useLanguage();
@@ -103,11 +99,6 @@ function TrainerApp({ account, onAccountChange, onSignOut }: { account: CurrentU
   const [voiceState, setVoiceState] = useState<VoiceState>("idle");
   const unexpectedScriptStreakRef = useRef(0);
   const [transcriptionBreakRecommended, setTranscriptionBreakRecommended] = useState(false);
-  const [wordHints, setWordHints] = useState<Record<string, WordHint>>({});
-  const [activeHint, setActiveHint] = useState<string>();
-  const wordHintsRef = useRef<Record<string, WordHint>>({});
-  const savedHintsRef = useRef(new Set<string>());
-  const hintRequestsRef = useRef(new Map<string, AbortController>());
   const voiceRef = useRef<VoiceRecorder | undefined>(undefined);
   const voiceTimingRef = useRef<AttemptTimings | undefined>(undefined);
   const nextExerciseRef = useRef<{ sessionId: string; requestId: string; promise: Promise<Exercise>; controller: AbortController } | undefined>(undefined);
@@ -119,7 +110,6 @@ function TrainerApp({ account, onAccountChange, onSignOut }: { account: CurrentU
   const voiceEpochRef = useRef(0);
   const answerEditEpochRef = useRef(0);
   const voiceStartEditEpochRef = useRef(0);
-  const hintEpochRef = useRef(0);
   const flowControllerRef = useRef<AbortController | undefined>(undefined);
   const voiceControllerRef = useRef<AbortController | undefined>(undefined);
   const catalogEpochRef = useRef(0);
@@ -132,6 +122,9 @@ function TrainerApp({ account, onAccountChange, onSignOut }: { account: CurrentU
   const [androidPanel, setAndroidPanel] = useState(() => Capacitor.isNativePlatform() ? 0 : 1);
   const [statisticsPage, setStatisticsPage] = useState<"activity" | "phrases">("activity");
   const androidBackHandlerRef = useRef<() => void>(() => undefined);
+  const hints = useWordHints({ exercise, checkingRef, flowEpochRef,
+    onClearError: () => setError(undefined), onClearDiagnostic: () => setErrorDiagnosticId(undefined), onError: setError });
+  const { abortAll: abortHints } = hints;
   const voiceSupported = supportsVoiceRecording();
   const isNative = Capacitor.isNativePlatform();
   const { compact, shell: mobileShellRef } = useMobileLayout(startupState !== "loading" && !isNative);
@@ -172,11 +165,10 @@ function TrainerApp({ account, onAccountChange, onSignOut }: { account: CurrentU
   function invalidateFlow() {
     flowEpochRef.current += 1;
     initialExerciseTimingPendingRef.current = false;
-    hintEpochRef.current += 1;
+    hints.invalidate();
     flowControllerRef.current?.abort();
     flowControllerRef.current = undefined;
-    savedHintsRef.current.clear();
-    wordHintsRef.current = {};
+    hints.forget();
     nextExerciseRef.current?.controller.abort();
     nextExerciseRef.current = undefined;
     nextRequestIdRef.current = undefined;
@@ -310,15 +302,13 @@ function TrainerApp({ account, onAccountChange, onSignOut }: { account: CurrentU
     reviewSummaryEpochRef.current += 1;
     accountRefreshEpochRef.current += 1;
     voiceEpochRef.current += 1;
-    hintEpochRef.current += 1;
+    abortHints();
     flowControllerRef.current?.abort();
     voiceControllerRef.current?.abort();
-    for (const request of hintRequestsRef.current.values()) request.abort();
-    hintRequestsRef.current.clear();
     nextExerciseRef.current?.controller.abort();
     catalogControllerRef.current?.abort();
     voiceRef.current?.stop();
-  }, []);
+  }, [abortHints]); // stable: runs on unmount only
   useEffect(() => {
     const refreshWhenVisible = () => {
       if (startupState === "ready" && document.visibilityState === "visible") refreshReadyCatalog();
@@ -501,7 +491,7 @@ function TrainerApp({ account, onAccountChange, onSignOut }: { account: CurrentU
   async function startTraining(topicId: string) {
     startUiTiming("first_phrase");
     invalidateFlow();
-    stopVoice(); setAnswer(""); setAssistanceDraft(undefined); setHasTranscript(false); setAttempt(undefined); setWordHints({}); setActiveHint(undefined);
+    stopVoice(); setAnswer(""); setAssistanceDraft(undefined); setHasTranscript(false); setAttempt(undefined); hints.resetView();
     setSession(undefined); setExercise(undefined); setCompletedCount(0); setSessionComplete(false); setTopicExhausted(false);
     setPreparingPhrase(true); setError(undefined); setErrorDiagnosticId(undefined);
     const epoch = flowEpochRef.current;
@@ -540,7 +530,7 @@ function TrainerApp({ account, onAccountChange, onSignOut }: { account: CurrentU
       const started = await startTrainingSession({ review_mode: true }, controller.signal);
       if (flowEpochRef.current !== epoch) return;
       setSession(started.session); setExercise(started.exercise);
-      setAnswer(""); setAssistanceDraft(undefined); setHasTranscript(false); setAttempt(undefined); setWordHints({}); setActiveHint(undefined);
+      setAnswer(""); setAssistanceDraft(undefined); setHasTranscript(false); setAttempt(undefined); hints.resetView();
       setStartupState("ready");
     } catch (requestError) {
       if (flowEpochRef.current !== epoch) return;
@@ -557,7 +547,7 @@ function TrainerApp({ account, onAccountChange, onSignOut }: { account: CurrentU
     if (!isReviewMode && completedCount >= session.requested_length) { setSessionComplete(true); return; }
     startUiTiming("next_phrase");
     advancingRef.current = true;
-    hintEpochRef.current += 1;
+    hints.invalidate();
     stopVoice(); setAdvancing(true); setError(undefined); setErrorDiagnosticId(undefined);
     const epoch = flowEpochRef.current;
     const request = nextExerciseRef.current?.sessionId === session.id ? nextExerciseRef.current : undefined;
@@ -570,8 +560,8 @@ function TrainerApp({ account, onAccountChange, onSignOut }: { account: CurrentU
       if (flowEpochRef.current !== epoch) return;
       nextExerciseRef.current = undefined; nextRequestIdRef.current = undefined;
       setExercise(next);
-      wordHintsRef.current = {}; savedHintsRef.current.clear();
-      setAnswer(""); setAssistanceDraft(undefined); setHasTranscript(false); setAttempt(undefined); setWordHints({}); setActiveHint(undefined);
+      hints.forget();
+      setAnswer(""); setAssistanceDraft(undefined); setHasTranscript(false); setAttempt(undefined); hints.resetView();
     }
     catch (requestError) {
       if (flowEpochRef.current !== epoch) return;
@@ -583,7 +573,7 @@ function TrainerApp({ account, onAccountChange, onSignOut }: { account: CurrentU
       } else if (isReviewMode && requestError instanceof BackendError && (requestError.code === "review_queue_empty" || requestError.status === 409)) {
         reviewSummaryEpochRef.current += 1;
         setSession(undefined); setExercise(undefined); setReviewPhraseCount(0);
-        setAnswer(""); setAssistanceDraft(undefined); setHasTranscript(false); setAttempt(undefined); setWordHints({}); setActiveHint(undefined);
+        setAnswer(""); setAssistanceDraft(undefined); setHasTranscript(false); setAttempt(undefined); hints.resetView();
         setError("app.youHaveMasteredAll");
       } else setError("app.couldNotLoadNext");
     }
@@ -606,13 +596,13 @@ function TrainerApp({ account, onAccountChange, onSignOut }: { account: CurrentU
     // C-18: send what the learner typed; the backend repairs look-alike letters only for grading.
     const transcript = answer.trim();
     const timing = voiceTimingRef.current;
-    const hintedWords = Object.keys(wordHintsRef.current).sort();
+    const hintedWords = hints.hintedWords();
     const assistance = assistanceDraft?.response.transcription_id ? { transcription_id: assistanceDraft.response.transcription_id, accepted_transcription_changes: assistanceDraft.selected.filter(i => assistanceDraft.response.changes![i].action === "suggested") } : undefined;
     const payload = JSON.stringify({ exerciseId: exercise.id, transcript, timing, hintedWords, assistance });
     const id = pendingAttemptRef.current?.payload === payload ? pendingAttemptRef.current.id : requestId();
     pendingAttemptRef.current = { payload, id };
     checkingRef.current = true;
-    setChecking(true); setError(undefined); setErrorDiagnosticId(undefined); setActiveHint(undefined);
+    setChecking(true); setError(undefined); setErrorDiagnosticId(undefined); hints.dismiss();
     const epoch = flowEpochRef.current;
     const controller = new AbortController();
     flowControllerRef.current = controller;
@@ -622,7 +612,7 @@ function TrainerApp({ account, onAccountChange, onSignOut }: { account: CurrentU
       pendingAttemptRef.current = undefined;
       setAttempt(completed);
       celebrate(completed);
-      hintEpochRef.current += 1;
+      hints.invalidate();
       const count = completedCount + 1;
       setCompletedCount(count);
       const accountEpoch = ++accountRefreshEpochRef.current;
@@ -668,7 +658,7 @@ function TrainerApp({ account, onAccountChange, onSignOut }: { account: CurrentU
   function resetTraining() {
     invalidateFlow();
     stopVoice(); setView("practice"); setSession(undefined); setExercise(undefined);
-    setAnswer(""); setAssistanceDraft(undefined); setHasTranscript(false); setAttempt(undefined); setError(undefined); setErrorDiagnosticId(undefined); setWordHints({}); setActiveHint(undefined); setCompletedCount(0); setSessionComplete(false); setTopicExhausted(false);
+    setAnswer(""); setAssistanceDraft(undefined); setHasTranscript(false); setAttempt(undefined); setError(undefined); setErrorDiagnosticId(undefined); hints.resetView(); setCompletedCount(0); setSessionComplete(false); setTopicExhausted(false);
   }
 
   function returnToTopics() {
@@ -685,41 +675,6 @@ function TrainerApp({ account, onAccountChange, onSignOut }: { account: CurrentU
     setSelectedTopic(topicId); setCustomTopic("");
     setSession(undefined); setExercise(undefined);
     if (topics.find((topic) => topic.id === topicId)?.phrase_count) void startTraining(topicId);
-  }
-
-  async function showWordHint(word: string, localHint?: Pick<WordHint, "word_ru" | "translation_tr">) {
-    if (!exercise || checkingRef.current) return;
-    const normalized = word.toLocaleLowerCase("ru-RU");
-    setActiveHint(current => current === normalized ? undefined : normalized);
-    const requestKey = `${hintEpochRef.current}:${normalized}`;
-    if (hintRequestsRef.current.has(requestKey) || savedHintsRef.current.has(normalized)) return;
-    const prepared = localHint ?? exercise.word_hints?.find((hint) => hint.word_ru.toLocaleLowerCase("ru-RU") === normalized);
-    const epoch = flowEpochRef.current;
-    const hintEpoch = hintEpochRef.current;
-    if (prepared && !wordHintsRef.current[normalized]) {
-      const opened = { ...prepared, is_learning: true };
-      wordHintsRef.current = { ...wordHintsRef.current, [normalized]: opened };
-      setWordHints(wordHintsRef.current);
-    }
-    if (wordHintsRef.current[normalized]) setError(undefined); setErrorDiagnosticId(undefined);
-    const controller = new AbortController();
-    hintRequestsRef.current.set(requestKey, controller);
-    try {
-      const hint = await revealWordHint(exercise.id, word, controller.signal);
-      if (flowEpochRef.current === epoch && hintEpochRef.current === hintEpoch) {
-        savedHintsRef.current.add(normalized);
-        wordHintsRef.current = { ...wordHintsRef.current, [normalized]: hint };
-        setWordHints(wordHintsRef.current);
-      }
-    } catch {
-      if (flowEpochRef.current === epoch && hintEpochRef.current === hintEpoch) setError(
-        wordHintsRef.current[normalized]
-          ? t("app.hintNotSaved", { word })
-          : t("app.hintUnavailable", { word }),
-      );
-    } finally {
-      if (hintRequestsRef.current.get(requestKey) === controller) hintRequestsRef.current.delete(requestKey);
-    }
   }
 
   function refreshCustomContent() {
@@ -747,9 +702,9 @@ function TrainerApp({ account, onAccountChange, onSignOut }: { account: CurrentU
       <p className="error m-0 text-sm text-danger" role="alert">{t("app.phraseUnavailableSelectedLanguage")}</p>
       <button type="button" className="justify-self-start min-h-11 cursor-pointer rounded-control border border-line bg-surface-raised px-4 text-sm font-semibold text-ink hover:border-line-strong" onClick={() => window.location.reload()}>{t("app.retryLoading")}</button>
     </div>;
-    const phrase = <InteractivePhrase exercise={exercise} wordHints={wordHints} activeHint={activeHint}
+    const phrase = <InteractivePhrase exercise={exercise} wordHints={hints.wordHints} activeHint={hints.activeHint}
       hintsVisible={mobileLayout ? visiblePanel === 1 : view === "practice"} disabled={checking || Boolean(attempt)}
-      onDismissHint={() => setActiveHint(undefined)} onRevealHint={(word, localHint) => void showWordHint(word, localHint)} />;
+      onDismissHint={hints.dismiss} onRevealHint={(word, localHint) => void hints.reveal(word, localHint)} />;
     const localized = exercise ? exerciseSource(exercise) : undefined;
     return <PracticeCard compact={compact} native={isNative} phrase={phrase} topicTitle={phraseTopicTitle} attempt={attempt}
       hasHints={Object.keys(localized?.hints ?? {}).length > 0} source={localized?.source}
