@@ -13,7 +13,7 @@ variable "vercel_team_id" {
 variable "frontend_project_name" {
   description = "Vercel project for the web app and landing page (frontend/)."
   type        = string
-  default     = "turktalk"
+  default     = "turktalk-app"
 }
 
 variable "backend_project_name" {

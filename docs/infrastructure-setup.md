@@ -18,7 +18,7 @@ What the owner does once so that CI can manage and deploy TurkTalk (Phase 5, ADR
 
 ## 2. Vercel projects and tokens
 
-1. Create two empty Vercel projects **without connecting git** (for example `turktalk` and `turktalk-api`; any names). If they already exist and are connected to git, Terraform will disconnect them. Delete any environment variables set on them by hand: Terraform creates every variable and fails on duplicates.
+1. Create two empty Vercel projects **without connecting git** (this deployment: `turktalk-app` and `turktalk-api`). If they already exist and are connected to git, Terraform will disconnect them. Delete any environment variables set on them by hand: Terraform creates every variable and fails on duplicates.
 2. For each project note its **id** (Project → Settings → General, `prj_…`) and its **production domain** (Project → Settings → Domains, e.g. `turktalk-abc.vercel.app`). Do not assume `<name>.vercel.app`: `turktalk.vercel.app` already belongs to someone else.
 3. Team Settings → General → **Team ID** (`team_…`).
 4. Account Settings → Tokens: a token scoped to that team → `VERCEL_API_TOKEN`.
@@ -50,7 +50,7 @@ What the owner does once so that CI can manage and deploy TurkTalk (Phase 5, ADR
 |---|---|
 | `VERCEL_TEAM_ID` | `team_…` |
 | `EXISTING_FRONTEND_PROJECT_ID`, `EXISTING_BACKEND_PROJECT_ID` | The two `prj_…` ids |
-| `FRONTEND_PROJECT_NAME`, `BACKEND_PROJECT_NAME` | The projects' current names (defaults `turktalk`, `turktalk-api`; a different value renames the project) |
+| `FRONTEND_PROJECT_NAME`, `BACKEND_PROJECT_NAME` | The projects' current names (defaults `turktalk-app`, `turktalk-api`; a different value renames the project) |
 | `FRONTEND_HOST`, `API_HOST` | The production domains from step 2.2, host only (no `https://`). A custom frontend domain is attached by Terraform; DNS is set at the registrar |
 | `SUPABASE_PROJECT_REF`, `SUPABASE_PUBLISHABLE_KEY` | From the Supabase project |
 | `GOOGLE_CLIENT_ID` | Google OAuth client id |
