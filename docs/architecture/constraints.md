@@ -43,7 +43,7 @@ The **Enforced by** column says how a violation is caught. "Check" means an auto
 |---|---|---|
 | C-17 | The target language is standard (Istanbul) Turkish at level A2, written in the Turkish Latin alphabet. Text comparison and casing use Turkish rules (`İ/i`, `I/ı`). | Unit tests (Phase 3) |
 | C-18 | A learner's original speech and transcript are kept verbatim. Normalised text is never presented as what the learner said. | Review |
-| C-19 | Every interface string exists in Russian and English and is added or changed in both in the same change. | Check: `frontend/src/tests/localeParity.test.ts` (every Cyrillic string literal in application code translates in English; landing, legal pages and catalogue data excluded and listed in the test) |
+| C-19 | Every interface string exists in Russian and English and is added or changed in both in the same change. | Check: `frontend/src/tests/localeParity.test.ts` (every Cyrillic string literal in application code translates in English; the ru and en stable-key catalogues have the same keys and plural forms; every key used in code exists; landing, legal pages and catalogue data excluded and listed in the test) |
 
 ### Frontend
 

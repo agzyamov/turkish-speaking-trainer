@@ -56,6 +56,48 @@ it("has an English translation for every Russian interface string", () => {
       if (!(key in allowed) && t(key) === key) missing.push(`${name}: ${key}`);
     }
   }
-  expect(checked).toBeGreaterThan(400);
+  expect(checked).toBeGreaterThan(250);
   expect(missing).toEqual([]);
+});
+
+function flatKeys(tree: object, prefix = ""): string[] {
+  return Object.entries(tree).flatMap(([key, value]) => typeof value === "object" && value !== null ? flatKeys(value, `${prefix}${key}.`) : [`${prefix}${key}`]);
+}
+const pluralSuffix = /_(zero|one|two|few|many|other)$/;
+
+it("keeps the Russian and English stable-key catalogues in step", async () => {
+  const ru = flatKeys((await import("../locales/ru/ui.json")).default);
+  const en = flatKeys((await import("../locales/en/ui.json")).default);
+  const base = (keys: string[]) => [...new Set(keys.map(key => key.replace(pluralSuffix, "")))].sort();
+  expect(base(en)).toEqual(base(ru));
+  // Every plural key has the forms each language needs.
+  for (const key of base(ru).filter(key => ru.includes(`${key}_one`))) {
+    for (const form of ["one", "few", "many", "other"]) expect(ru).toContain(`${key}_${form}`);
+    for (const form of ["one", "other"]) expect(en).toContain(`${key}_${form}`);
+  }
+});
+
+it("uses only keys that exist in the catalogue", async () => {
+  const ru = new Set(flatKeys((await import("../locales/ru/ui.json")).default).map(key => key.replace(pluralSuffix, "")));
+  const areas = new Set([...ru].map(key => key.split(".")[0]));
+  const unknown: string[] = [];
+  for (const file of sourceFiles(root)) {
+    for (const match of readFileSync(file, "utf8").matchAll(/"([a-z][A-Za-z0-9]*(?:\.[A-Za-z0-9]+)+)"/g)) {
+      const key = match[1];
+      if (areas.has(key.split(".")[0]) && !ru.has(key) && ![...ru].some(known => known.startsWith(`${key}.`))) unknown.push(`${relative(root, file)}: ${key}`);
+    }
+  }
+  expect(unknown).toEqual([]);
+});
+
+it("renders keys with English text and plural forms in both languages", () => {
+  setLanguage("en");
+  expect(t("practice.progress", { completed: 1, count: 1 })).toBe("1 of 1 phrase");
+  expect(t("statistics.calendar.dayLabel", { day: t("common.weekdays.mon"), date: 5, count: 21 })).toBe("Mon 5: 21 attempts");
+  expect(t("shell.topics.reviewNeeded", { count: 1 })).toBe("1 needs practice");
+  expect(t("practice.pause")).toBe("practice.pause");
+  setLanguage("ru");
+  expect(t("practice.progress", { completed: 3, count: 21 })).toBe("3 из 21 фразы");
+  expect(t("statistics.calendar.dayLabel", { day: t("common.weekdays.mon"), date: 5, count: 3 })).toBe("Пн 5: 3 попытки");
+  expect(t("shell.topics.reviewNeeded", { count: 21 })).toBe("21 требует практики");
 });

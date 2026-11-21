@@ -1,0 +1,197 @@
+{
+  "practice": {
+    "mic": {
+      "finishRecording": "Finish recording",
+      "stopRecording": "Stop recording",
+      "recordAgain": "Record again",
+      "answerAloud": "Answer aloud"
+    },
+    "check": {
+      "checking": "Checking…",
+      "short": "Check",
+      "full": "Check answer"
+    },
+    "retry": {
+      "finish": "Finish",
+      "stop": "Stop",
+      "again": "Again"
+    },
+    "verdict": {
+      "correct": "Correct",
+      "mostlyCorrect": "Almost correct",
+      "needsWork": "Needs improvement"
+    },
+    "feedback": {
+      "hintPenalty": "Hints: −",
+      "review": "Feedback"
+    },
+    "phrase": {
+      "preparing": "Preparing phrase…",
+      "loadingHint": "Loading…",
+      "loading": "Preparing phrase"
+    },
+    "pause": {
+      "dailyTitle": "AI checking is done for today",
+      "monthlyTitle": "AI checking is paused until next month",
+      "tomorrow": "Available again tomorrow.",
+      "monthlyReason": "This month's shared budget is used up.",
+      "exactAnswers": "You can still type an answer that exactly matches the reference; it is checked without AI.",
+      "details": "Details",
+      "monthlyMessage": "AI checking is paused until the start of next month because the shared budget is used up. You can still type an answer that exactly matches the reference; it is checked without AI.",
+      "dailyMessage": "You have used today's AI checking allowance. Practice continues tomorrow. You can still type an answer that exactly matches the reference; it is checked without AI.",
+      "resumesAt": "Available again {{time}}."
+    },
+    "transcriptionBreak": "The external model is having problems. Take a break and return to practice later.",
+    "voice": {
+      "unavailable": "Microphone unavailable. Allow access in your browser or device settings.",
+      "connecting": "Connecting microphone…",
+      "recording": "Recording. Audio is not saved",
+      "transcribing": "Transcribing phrase…",
+      "failed": "Could not recognise your answer. Record again.",
+      "editTranscript": "Enter your answer or edit the transcript.",
+      "tapMic": "Tap the microphone to answer."
+    },
+    "hintLegend": "Tap an underlined word to see its translation. A hint lowers your score.",
+    "answer": {
+      "label": "Your answer",
+      "placeholder": "Enter your answer in Turkish",
+      "foreignLetters": "The transcript contains letters outside the Turkish alphabet. Edit it before checking or record your answer again.",
+      "typeManually": "Type your answer"
+    },
+    "next": {
+      "preparing": "Preparing…",
+      "finish": "Finish practice",
+      "short": "Next",
+      "full": "Next phrase"
+    },
+    "progress_one": "{{completed}} of {{count}} phrase",
+    "progress_few": "{{completed}} of {{count}} phrases",
+    "progress_many": "{{completed}} of {{count}} phrases",
+    "progress_other": "{{completed}} of {{count}} phrases"
+  },
+  "common": {
+    "diagnosticCode": "Diagnostic ID",
+    "weekdays": {
+      "mon": "Mon",
+      "tue": "Tue",
+      "wed": "Wed",
+      "thu": "Thu",
+      "fri": "Fri",
+      "sat": "Sat",
+      "sun": "Sun"
+    }
+  },
+  "shell": {
+    "homeLabel": "SerboTalk — back to practice",
+    "tagline": "Speak. Understand. Connect.",
+    "mainNavigation": "Main navigation",
+    "appPanels": "Application panels",
+    "nav": {
+      "practice": "Practice",
+      "statistics": "Statistics",
+      "premium": "Premium",
+      "settings": "Settings",
+      "users": "Users",
+      "topics": "Topics",
+      "training": "Practice"
+    },
+    "backend": {
+      "online": "Backend ready",
+      "offline": "Backend unavailable",
+      "checking": "Connecting",
+      "retryTopics": "Reload topics"
+    },
+    "stage": {
+      "selectedSituation": "Selected situation",
+      "chooseTopic": "Choose topic",
+      "retry": "Retry loading",
+      "chooseNewTopic": "Choose a new topic",
+      "steps": {
+        "get": "Get a phrase",
+        "answer": "Answer aloud",
+        "review": "Read the feedback"
+      }
+    },
+    "topics": {
+      "label": "Practice topics",
+      "review": "Review",
+      "reviewToDo": "to review",
+      "reviewPhrases": "Review phrases",
+      "reviewEmpty": "The list is empty",
+      "personal": "Personal topics",
+      "unlearned": "unlearned",
+      "reviewNeeded_one": "{{count}} needs practice",
+      "reviewNeeded_other": "{{count}} need practice"
+    }
+  },
+  "statistics": {
+    "empty": "Phrases will appear after your first checked answer.",
+    "phrasesByTopicLink": "Phrases by topic →",
+    "phrasesByTopic": "Phrases by topic",
+    "back": "← Back to statistics",
+    "dailyChart": {
+      "title": "Phrases by day",
+      "kicker": "Practice volume",
+      "legend": "Chart legend",
+      "correct": "correct ≥95%",
+      "incorrect": "incorrect",
+      "mastered": "mastered",
+      "total": "Total: {{count}}",
+      "label": "Phrases by day for {{range}}",
+      "dayTitle": "{{date}}: total {{total}}, correct {{correct}}, incorrect {{incorrect}}, mastered {{mastered}}"
+    },
+    "calendar": {
+      "title": "Practice calendar",
+      "kicker": "Consistency",
+      "legend": {
+        "active": "1 or more attempts",
+        "intensive": "10 or more attempts",
+        "star": "20 or more attempts"
+      },
+      "dayLabel_one": "{{day}} {{date}}: {{count}} attempt",
+      "dayLabel_few": "{{day}} {{date}}: {{count}} attempts",
+      "dayLabel_many": "{{day}} {{date}}: {{count}} attempts",
+      "dayLabel_other": "{{day}} {{date}}: {{count}} attempts"
+    },
+    "summary": {
+      "label": "Weekly summary",
+      "days": "Days",
+      "reviews": "Reviews",
+      "mastered": "Mastered"
+    },
+    "week": {
+      "label": "Choose week",
+      "previous": "Previous week",
+      "next": "Next week",
+      "title": "Week · {{range}}"
+    },
+    "loading": "Loading statistics…",
+    "reload": "Reload statistics",
+    "phrases": {
+      "title": "Phrases",
+      "kicker": "Spaced repetition",
+      "loading": "Loading phrases…",
+      "reload": "Reload phrases",
+      "perPage": "Per page",
+      "pagination": "Phrase pagination",
+      "previous": "Back",
+      "next": "Next",
+      "source": "Source phrase",
+      "target": "Turkish phrase",
+      "attempts": "Attempts",
+      "status": "Status",
+      "nextReview": "Next review",
+      "mastered": "mastered",
+      "learning": "learning",
+      "failed": "Could not load phrases.",
+      "page": "Page {{page}} of {{total}}"
+    },
+    "topics": {
+      "label": "Topic",
+      "loading": "Loading topics…",
+      "reload": "Reload topics",
+      "failed": "Could not load topics."
+    },
+    "failed": "Could not load statistics."
+  }
+}

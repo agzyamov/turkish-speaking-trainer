@@ -20,7 +20,7 @@ export function ExerciseFeedback({ attempt, native, source, celebrate = false }:
   const animations = useRewardPreference("animations");
   const scorePercent = Math.round(attempt.overall_score * 100);
   const verdict = attempt.analysis.verdict;
-  const verdictLabel = t(verdict === "correct" ? "Верно" : verdict === "mostly_correct" ? "Почти верно" : "Нужно доработать");
+  const verdictLabel = t(verdict === "correct" ? "practice.verdict.correct" : verdict === "mostly_correct" ? "practice.verdict.mostlyCorrect" : "practice.verdict.needsWork");
   return <div className={cn("feedback grid gap-5", native && "android-feedback", `feedback--${verdict}`)}>
     {source && <p className="m-0 text-sm text-ink-muted">{source}</p>}
     <div className="feedback__score flex flex-wrap items-baseline gap-x-3 gap-y-1" role="status">
@@ -32,12 +32,12 @@ export function ExerciseFeedback({ attempt, native, source, celebrate = false }:
       </span>
       <strong className="text-lg font-semibold text-ink">{verdictLabel}</strong>
       {attempt.hint_penalty > 0 && <span className="hint-penalty inline-flex items-center gap-1.5 text-sm text-ink-muted">
-        <Icon name="bulb" size={16} />{t("Подсказки: −")}{Math.round(attempt.hint_penalty * 100)}%
+        <Icon name="bulb" size={16} />{t("practice.feedback.hintPenalty")}{Math.round(attempt.hint_penalty * 100)}%
       </span>}
     </div>
     <AnswerResult answer={attempt.transcript_tr} attempt={attempt} />
     {scorePercent < 100 && <section className="grid gap-3" aria-labelledby="feedback-review-title">
-      <h3 id="feedback-review-title" className="m-0 text-sm font-semibold text-ink-soft">{t("Разбор")}</h3>
+      <h3 id="feedback-review-title" className="m-0 text-sm font-semibold text-ink-soft">{t("practice.feedback.review")}</h3>
       {attempt.analysis.issues.length > 0 && <ul className="m-0 grid list-none gap-3 p-0">
         {attempt.analysis.issues.map((issue, index) => <li className="issue grid gap-1" key={`${issue.skill_key}-${issue.type}-${index}`}>
           <span className="text-answer" lang="tr">

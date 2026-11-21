@@ -30,28 +30,28 @@ export function TopicGrid({ compact, topics, personalStart, selectedTopic, revie
   onSelect: (topicId: string) => void;
 }) {
   const isPersonal = (topic: TopicListItem) => personalStart !== undefined && topic.is_custom;
-  return <div className={cn("grid grid-cols-2 content-start gap-2", compact ? "android-topic-list" : "topics desktop-topic-grid")} aria-label={t("Темы тренировки")}>
+  return <div className={cn("grid grid-cols-2 content-start gap-2", compact ? "android-topic-list" : "topics desktop-topic-grid")} aria-label={t("shell.topics.label")}>
     {compact
       ? <button className={cn("android-topic min-h-[clamp(70px,9.5dvh,90px)]", card, reviewSelected && selected)} type="button" disabled={reviewCount === 0} onClick={onReview}>
         <span className={cn(tile, "bg-info/12 text-info")}><Icon name="repeat" /></span>
-        <strong className={title}>{t("Повторение")}</strong>
-        <small className={count}>{reviewCount}<span className={countLabel}>{t("к повторению")}</span></small>
+        <strong className={title}>{t("shell.topics.review")}</strong>
+        <small className={count}>{reviewCount}<span className={countLabel}>{t("shell.topics.reviewToDo")}</span></small>
       </button>
       : <button className={cn("review-topic desktop-topic-card min-h-[88px]", card, reviewSelected && selected)} type="button" onClick={onReview}>
         <span className={cn(tile, "bg-info/12 text-info")}><Icon name="repeat" /></span>
-        <span className="topic__copy w-full"><strong className={cn(title, "block")}>{t("Фразы для повторения")}</strong><small className="sr-only">{t(reviewCount ? `${reviewCount} требуют практики` : "Список пока пуст")}</small></span>
+        <span className="topic__copy w-full"><strong className={cn(title, "block")}>{t("shell.topics.reviewPhrases")}</strong><small className="sr-only">{reviewCount ? t("shell.topics.reviewNeeded", { count: reviewCount }) : t("shell.topics.reviewEmpty")}</small></span>
         <span className={cn("review-topic__count", count)}>{reviewCount}</span>
       </button>}
     {topics.map((topic, index) => <Fragment key={topic.id}>
-      {isPersonal(topic) && index === personalStart && <hr className="topics-divider col-span-full my-1.5 h-px w-full border-0 bg-line" aria-label={t("Личные темы")} />}
+      {isPersonal(topic) && index === personalStart && <hr className="topics-divider col-span-full my-1.5 h-px w-full border-0 bg-line" aria-label={t("shell.topics.personal")} />}
       <button className={cn(compact ? "android-topic min-h-[clamp(70px,9.5dvh,90px)]" : "topic desktop-topic-card min-h-[88px]", card, selectedTopic === topic.id && selected, isPersonal(topic) && personal)}
         type="button" onClick={() => onSelect(topic.id)}>
         <span className={cn(tile, `topic__icon--${topicIconName(topic.id)}`, "bg-accent/12 text-accent")}><Icon name={topicIconName(topic.id)} /></span>
         {compact
           ? <><strong className={title}>{topicText(topic.id, topic.title_ru, topic.title_en)}</strong>
-            <small className={count}>{topic.phrase_count}<span className={countLabel}>{t(" неизученных")}</span></small></>
+            <small className={count}>{topic.phrase_count}<span className={countLabel}>{" "}{t("shell.topics.unlearned")}</span></small></>
           : <><span className="topic__copy w-full"><strong className={cn(title, "block")}>{topicText(topic.id, topic.title_ru, topic.title_en)}</strong></span>
-            <span className={cn("topic__unlearned", count)}><strong>{topic.phrase_count}</strong><small className={countLabel}>{t("неизученных")}</small></span></>}
+            <span className={cn("topic__unlearned", count)}><strong>{topic.phrase_count}</strong><small className={countLabel}>{t("shell.topics.unlearned")}</small></span></>}
       </button>
     </Fragment>)}
   </div>;

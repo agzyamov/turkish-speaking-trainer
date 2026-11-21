@@ -15,8 +15,8 @@ const pauses: Record<string, BudgetPause> = {
 };
 
 export const budgetPauseMessages: Record<BudgetPause, string> = {
-  monthly: "Проверка с помощью ИИ приостановлена до начала следующего месяца: исчерпан общий бюджет. Ответ, который точно совпадает с эталоном, можно ввести вручную — он проверяется без ИИ.",
-  daily: "Ваш дневной лимит проверки с помощью ИИ исчерпан. Практика продолжится завтра. Ответ, который точно совпадает с эталоном, можно ввести вручную — он проверяется без ИИ.",
+  monthly: "practice.pause.monthlyMessage",
+  daily: "practice.pause.dailyMessage",
 };
 
 export function budgetPauseOf(error: unknown): BudgetPause | undefined {

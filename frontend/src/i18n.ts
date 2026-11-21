@@ -1,5 +1,8 @@
 import { useSyncExternalStore } from "react";
+import i18next from "i18next";
 import messages from "./locales/en.json";
+import ruUi from "./locales/ru/ui.json";
+import enUi from "./locales/en/ui.json";
 import phraseData from "./locales/phrases.en.json";
 type Phrase = { id: string; source_ru: string; source_en: string; canonical_tr: string; word_hints: Record<string, { translation_tr: string; note?: string } | undefined> };
 const phrases: Phrase[] = phraseData;
@@ -53,8 +56,29 @@ const templates = Object.entries(dictionary).filter(([key]) => key.includes("{0}
     return { pattern: new RegExp(`^${escaped.replace(/\\\{\d+\\\}/g, "(.*?)")}$`, "s"), value };
   });
 
-/** Translate presentation text only. IDs, stored phrases and Serbian answers stay unchanged. */
-export function t<T>(value: T): T {
+// Stable-key catalogue (Phase 4). Interface strings move here from Russian-as-key one module at a
+// time; keys are "<area>.<name>", and Russian plural forms use i18next's _one/_few/_many/_other.
+void i18next.init({
+  resources: { ru: { ui: ruUi }, en: { ui: enUi } },
+  lng: "ru", fallbackLng: "ru", defaultNS: "ui", ns: ["ui"],
+  initAsync: false, interpolation: { escapeValue: false }, returnNull: false,
+});
+
+export type TranslationOptions = Record<string, string | number | undefined>;
+
+/** True for a stable key (for example practice.check.full) that exists in the catalogue. */
+function isKey(value: string, options?: TranslationOptions): boolean {
+  return /^[a-z][A-Za-z0-9]*\.[A-Za-z0-9_.]+$/.test(value) && i18next.exists(value, { lng: "ru", ...options } as Record<string, unknown>)
+    && typeof i18next.getResource("ru", "ui", value) !== "object"; // a branch such as "practice.pause" is not a key
+}
+
+/**
+ * Translate presentation text. A stable key is looked up in the catalogue (with interpolation and
+ * plurals from `options`); legacy Russian text is translated through the old dictionary until its
+ * module migrates. IDs, stored phrases and Turkish answers stay unchanged.
+ */
+export function t<T>(value: T, options?: TranslationOptions): T {
+  if (typeof value === "string" && isKey(value, options)) return String(i18next.t(value as string, { ...options, lng: getLanguage() } as Record<string, unknown>)) as T;
   if (getLanguage() !== "en" || typeof value !== "string") return value;
   const trimmed = value.trim();
   let translated = (Object.hasOwn(dictionary, trimmed) ? dictionary[trimmed] : undefined) ?? phraseTranslations.get(trimmed);

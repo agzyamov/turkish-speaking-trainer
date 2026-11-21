@@ -1854,7 +1854,7 @@ describe("App", () => {
     );
     vi.stubGlobal("fetch", fetchMock);
     render(<App />);
-    await screen.findByText("1 требуют практики");
+    await screen.findByText("1 требует практики");
     fireEvent.click(screen.getByRole("button", { name: /В банке/ }));
     await recordAnswer();
     summaryCount = 0;
@@ -1877,7 +1877,7 @@ describe("App", () => {
     vi.stubGlobal("fetch", fetchMock);
     render(<App />);
 
-    await screen.findByText("1 требуют практики");
+    await screen.findByText("1 требует практики");
     fireEvent.click(await screen.findByRole("button", { name: /Фразы для повторения/ }));
 
     expect(await screen.findByRole("heading", { name: "Я хочу открыть счёт." })).toBeInTheDocument();
@@ -1909,7 +1909,7 @@ describe("App", () => {
     vi.stubGlobal("fetch", fetchMock);
     render(<App />);
 
-    await screen.findByText("1 требуют практики");
+    await screen.findByText("1 требует практики");
     fireEvent.click(await screen.findByRole("button", { name: /Фразы для повторения/ }));
     expect(await screen.findByRole("button", { name: /Ответить голосом|Записать заново/ })).toBeInTheDocument();
     expect(nextExerciseCalls).toBe(0);

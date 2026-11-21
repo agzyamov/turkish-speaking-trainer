@@ -1,3 +1,4 @@
+import { t } from "../i18n";
 import { expect, it } from "vitest";
 import { BackendError } from "../api/training";
 import { budgetPauseOf } from "../budgetPause";
@@ -24,7 +25,7 @@ it("ignores other failures", () => {
 it("explains a spent budget on custom topic creation instead of the generic translation error (ADR-0008)", () => {
   const error = new BackendError(503, { code: "topic_translation_unavailable", retryable: false, failure: failure("budget_exhausted") });
   expect(budgetPauseOf(error)).toBe("monthly");
-  expect(customContentError(error, "fallback")).toContain("до начала следующего месяца");
+  expect(t(customContentError(error, "fallback"))).toContain("до начала следующего месяца");
   // Without a budget failure the released message stays.
   expect(customContentError(new BackendError(503, { code: "topic_translation_unavailable" }), "fallback")).toContain("Не удалось перевести название темы");
 });

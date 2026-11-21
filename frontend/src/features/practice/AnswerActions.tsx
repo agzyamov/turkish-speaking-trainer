@@ -17,26 +17,26 @@ export function AnswerActions({ answer, loading, native, voiceState, voiceSuppor
 }) {
   const busy = voiceState === "connecting" || voiceState === "recording" || voiceState === "transcribing";
   const hasAnswer = Boolean(answer.trim());
-  const micLabel = t(busy ? voiceState === "recording" ? "Завершить запись" : "Остановить запись" : hasAnswer ? "Записать заново" : "Ответить голосом");
+  const micLabel = t(busy ? voiceState === "recording" ? "practice.mic.finishRecording" : "practice.mic.stopRecording" : hasAnswer ? "practice.mic.recordAgain" : "practice.mic.answerAloud");
   const onMic = busy ? voiceState === "recording" ? finishVoice : stopVoice : startVoice;
   const micDisabled = loading || !voiceSupported || voiceState === "transcribing";
 
   if (hasAnswer) {
     // While re-recording over an existing answer, check stays visible and disabled; the
     // secondary button becomes "finish recording" so the draft is never lost.
-    const checkLabel = t(loading ? "Проверяем…" : native ? "Проверить" : "Проверить ответ");
+    const checkLabel = t(loading ? "practice.check.checking" : native ? "practice.check.short" : "practice.check.full");
     const recordingOver = voiceState === "recording";
     return <div className="answer-actions flex w-full items-stretch gap-3">
       <button key="check" className={cn("answer-check-button inline-flex min-h-13 flex-1 cursor-pointer items-center justify-center gap-2 rounded-control border-0 bg-accent px-5 text-base font-semibold text-accent-ink shadow-lift transition-colors duration-(--duration-quick) hover:bg-accent-bright disabled:cursor-default disabled:opacity-55", focusRing)}
         type="submit" form="practice-answer-form" aria-label={checkLabel} disabled={loading || busy || hasUnexpectedLetterScript(answer)}>
-        <Icon name="tick" size={22} /><span>{t(loading ? "Проверяем…" : "Проверить")}</span>
+        <Icon name="tick" size={22} /><span>{t(loading ? "practice.check.checking" : "practice.check.short")}</span>
       </button>
       <button key="retry" className={cn("mic-button mic-button--retry inline-flex min-h-13 cursor-pointer items-center justify-center gap-2 rounded-control border px-4 text-sm font-semibold transition-colors duration-(--duration-quick) disabled:cursor-not-allowed disabled:opacity-55",
         busy ? "is-active border-danger bg-danger/15 text-ink" : "border-line bg-surface-raised text-ink-soft hover:border-line-strong hover:text-ink", focusRing)}
         type="button" aria-label={micLabel} disabled={micDisabled} onClick={onMic}>
         {busy ? <Icon name="mic" size={20} /> : <span className="mic-retry-ring inline-flex"><Icon name="retry" size={20} /></span>}
         {/* The visible word is part of the accessible name (WCAG 2.5.3 label in name). */}
-        <span>{t(recordingOver ? "Завершить" : busy ? "Остановить" : "Заново")}</span>
+        <span>{t(recordingOver ? "practice.retry.finish" : busy ? "practice.retry.stop" : "practice.retry.again")}</span>
       </button>
     </div>;
   }

@@ -33,27 +33,27 @@ export function AppHeader({ view, premiumActive, showAdmin, backendState, onHome
   onHome: () => void; onShow: (view: AppView) => void; onRetry: () => void;
 }) {
   return <header className="topbar relative z-5 grid min-h-16 grid-cols-[minmax(14rem,1fr)_auto_minmax(14rem,1fr)] items-stretch border-b border-line bg-surface px-[clamp(1rem,2.6vw,3rem)] pt-[env(safe-area-inset-top)]">
-    <button className={cn("brand flex w-max cursor-pointer items-center gap-3 self-center rounded-control border-0 bg-transparent p-0 text-left", focusRing)} type="button" onClick={onHome} aria-label={t("SerboTalk — к практике")}>
+    <button className={cn("brand flex w-max cursor-pointer items-center gap-3 self-center rounded-control border-0 bg-transparent p-0 text-left", focusRing)} type="button" onClick={onHome} aria-label={t("shell.homeLabel")}>
       <span className="grid size-10 place-items-center rounded-control border border-line-strong text-accent"><Icon name="message" size={24} /></span>
       <span className="grid">
         <Wordmark className="text-2xl leading-none" />
-        <small className="mt-1 text-xs text-ink-muted">{t("Говори. Понимай. Будь ближе.")}</small>
+        <small className="mt-1 text-xs text-ink-muted">{t("shell.tagline")}</small>
       </span>
     </button>
-    <nav className="main-nav flex items-stretch gap-4" aria-label={t("Основная навигация")}>
-      <NavButton active={view === "practice"} onClick={() => onShow("practice")}><Icon name="home" />{t("Практика")}</NavButton>
-      <NavButton active={view === "statistics"} onClick={() => onShow("statistics")}><Icon name="chart" />{t("Статистика")}</NavButton>
-      <NavButton active={view === "premium"} premium premiumActive={premiumActive} label={t("Премиум")} onClick={() => onShow("premium")}><PremiumBadge />{t("Премиум")}</NavButton>
-      <NavButton active={view === "settings"} onClick={() => onShow("settings")}><Icon name="settings" />{t("Настройки")}</NavButton>
-      {showAdmin && <NavButton active={view === "admin"} onClick={() => onShow("admin")}><Icon name="settings" />{t("Пользователи")}</NavButton>}
+    <nav className="main-nav flex items-stretch gap-4" aria-label={t("shell.mainNavigation")}>
+      <NavButton active={view === "practice"} onClick={() => onShow("practice")}><Icon name="home" />{t("shell.nav.practice")}</NavButton>
+      <NavButton active={view === "statistics"} onClick={() => onShow("statistics")}><Icon name="chart" />{t("shell.nav.statistics")}</NavButton>
+      <NavButton active={view === "premium"} premium premiumActive={premiumActive} label={t("shell.nav.premium")} onClick={() => onShow("premium")}><PremiumBadge />{t("shell.nav.premium")}</NavButton>
+      <NavButton active={view === "settings"} onClick={() => onShow("settings")}><Icon name="settings" />{t("shell.nav.settings")}</NavButton>
+      {showAdmin && <NavButton active={view === "admin"} onClick={() => onShow("admin")}><Icon name="settings" />{t("shell.nav.users")}</NavButton>}
     </nav>
     <div className="profile flex items-center justify-self-end gap-3">
       <div className={`connection connection--${backendState} grid size-5 place-items-center`} role="status"
-        aria-label={t(backendState === "online" ? "Backend готов" : backendState === "offline" ? "Backend недоступен" : "Подключение")}>
+        aria-label={t(backendState === "online" ? "shell.backend.online" : backendState === "offline" ? "shell.backend.offline" : "shell.backend.checking")}>
         <span className={cn("size-2 rounded-full", backendState === "online" ? "bg-success" : backendState === "offline" ? "bg-danger" : "bg-reward")} />
       </div>
       {backendState === "offline" && <button className={cn("connection-settings-button grid size-9 cursor-pointer place-items-center rounded-control border border-line bg-surface-raised p-0 text-ink-soft hover:border-line-strong hover:text-ink", focusRing)}
-        type="button" aria-label={t("Повторить загрузку тем")} onClick={onRetry}><Icon name="repeat" /></button>}
+        type="button" aria-label={t("shell.backend.retryTopics")} onClick={onRetry}><Icon name="repeat" /></button>}
     </div>
   </header>;
 }
@@ -69,12 +69,12 @@ export function MobileHeader({ panel, premiumActive, webShell, onShow }: {
   return <header className={cn("android-header relative z-5 flex items-center justify-between border-b border-line bg-surface max-[360px]:pl-2 max-[360px]:pr-1",
     webShell ? "h-phone-header pl-4 pr-2" : "h-[calc(var(--spacing-phone-header)+env(safe-area-inset-top))] px-4 pt-[env(safe-area-inset-top)]")}>
     <Wordmark className="text-lg" />
-    <nav className={cn("flex", webShell ? "gap-0" : "gap-1 max-[360px]:gap-0")} aria-label={t("Панели приложения")}>
-      {item(0, "Темы", <Icon name="home" />)}
-      {item(1, "Тренировка", <Icon name="mic" />)}
-      {item(2, "Статистика", <Icon name="chart" />)}
-      {item(3, "Премиум", <PremiumBadge />, cn("premium-nav [&_.premium-badge]:text-current", premiumActive && "premium-nav--active text-reward/70", premiumActive && panel === 3 && "text-reward"))}
-      {item(4, "Настройки", <Icon name="settings" />)}
+    <nav className={cn("flex", webShell ? "gap-0" : "gap-1 max-[360px]:gap-0")} aria-label={t("shell.appPanels")}>
+      {item(0, "shell.nav.topics", <Icon name="home" />)}
+      {item(1, "shell.nav.training", <Icon name="mic" />)}
+      {item(2, "shell.nav.statistics", <Icon name="chart" />)}
+      {item(3, "shell.nav.premium", <PremiumBadge />, cn("premium-nav [&_.premium-badge]:text-current", premiumActive && "premium-nav--active text-reward/70", premiumActive && panel === 3 && "text-reward"))}
+      {item(4, "shell.nav.settings", <Icon name="settings" />)}
     </nav>
   </header>;
 }

@@ -176,7 +176,7 @@ it('adds a gold star from exactly twenty attempts while preserving the intensive
     render(<StatisticsView />);
     const below = await screen.findByLabelText('Пн 5: 19 попыток');
     const threshold = screen.getByLabelText('Вт 6: 20 попыток');
-    const above = screen.getByLabelText('Ср 7: 21 попыток');
+    const above = screen.getByLabelText('Ср 7: 21 попытка');
     expect(below.querySelector('.calendar-day__star')).not.toBeInTheDocument();
     expect(threshold.querySelector('.calendar-day__star')).toBeInTheDocument();
     expect(above.querySelector('.calendar-day__star')).toBeInTheDocument();
