@@ -18,6 +18,7 @@ jobs:
     outputs:
       backend: ${{ steps.filter.outputs.backend }}
       frontend: ${{ steps.filter.outputs.frontend }}
+      vercel: ${{ steps.filter.outputs.vercel }}
     steps:
       - uses: actions/checkout@v4
       - uses: dorny/paths-filter@v3
@@ -32,6 +33,12 @@ jobs:
             frontend:
               - 'frontend/**'
               - 'justfile'
+              - '.github/workflows/ci.yml'
+            vercel:
+              - 'backend/**'
+              - 'frontend/**'
+              - 'infra/main.tf'
+              - 'scripts/vercel-build-check.sh'
               - '.github/workflows/ci.yml'
 
   secrets:
@@ -115,11 +122,32 @@ jobs:
         env:
           E2E_BROWSER_CHANNEL: chromium
 
+  # The Vercel build of each project as production runs it (preset and root from infra/main.tf), offline:
+  # no token, nothing deployed, the backend skips its database release outside production.
+  vercel-build:
+    name: Vercel build (${{ matrix.project }})
+    needs: changes
+    if: needs.changes.outputs.vercel == 'true'
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        project: [backend, frontend]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: scripts/vercel-build-check.sh ${{ matrix.project }}
+
   # Single required status for branch protection: passes when every job that ran passed.
   required:
     name: Required checks
     if: always()
-    needs: [secrets, backend, frontend, e2e]
+    needs: [secrets, backend, frontend, e2e, vercel-build]
     runs-on: ubuntu-latest
     steps:
       - name: Fail if any needed job failed or was cancelled
