@@ -1,0 +1,144 @@
+name: Deploy
+
+# Infrastructure and production deployment (ADR-0010).
+# - Pull request touching infra/: format and validate only. No secrets reach pull request code.
+# - CI green on a push to main (or a manual run): the "production" environment waits for the owner's approval.
+#   Every secret is a secret of that environment, so nothing can read them before the approval. The job then
+#   plans, applies that plan, deploys the backend (its production build runs migrations and the catalogue seed),
+#   checks it, and deploys the frontend.
+# Public repository: Actions logs are public. Secrets are masked GitHub secrets and sensitive Terraform
+# variables; never echo values, never upload plans or state, never add --logs to the Vercel CLI.
+
+on:
+  pull_request:
+    paths:
+      - "infra/**"
+      - ".github/workflows/deploy.yml"
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-${{ github.event_name == 'pull_request' && github.ref || 'production' }}
+  cancel-in-progress: false
+
+jobs:
+  validate:
+    name: Terraform validate
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: infra
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.15.8
+          terraform_wrapper: false
+      - run: terraform fmt -check -recursive
+      - run: terraform init -backend=false -input=false
+      - run: terraform validate
+
+  production:
+    name: Production
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'workflow_run' &&
+       github.event.workflow_run.conclusion == 'success' &&
+       github.event.workflow_run.event == 'push' &&
+       github.event.workflow_run.head_repository.full_name == github.repository)
+    runs-on: ubuntu-latest
+    # Required reviewer and "main only" are set on this environment; its secrets exist nowhere else.
+    environment:
+      name: production
+      url: ${{ steps.urls.outputs.frontend }}
+    env:
+      TF_IN_AUTOMATION: "true"
+      TF_INPUT: "false"
+      TF_CLOUD_ORGANIZATION: ${{ vars.TF_CLOUD_ORGANIZATION }}
+      TF_WORKSPACE: ${{ vars.TF_WORKSPACE }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.15.8
+          terraform_wrapper: false
+          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+
+      - name: Terraform plan and apply
+        working-directory: infra
+        env:
+          VERCEL_API_TOKEN: ${{ secrets.VERCEL_API_TOKEN }}
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          TF_VAR_vercel_team_id: ${{ vars.VERCEL_TEAM_ID }}
+          TF_VAR_frontend_project_name: ${{ vars.FRONTEND_PROJECT_NAME || 'turktalk' }}
+          TF_VAR_backend_project_name: ${{ vars.BACKEND_PROJECT_NAME || 'turktalk-api' }}
+          TF_VAR_existing_frontend_project_id: ${{ vars.EXISTING_FRONTEND_PROJECT_ID }}
+          TF_VAR_existing_backend_project_id: ${{ vars.EXISTING_BACKEND_PROJECT_ID }}
+          TF_VAR_frontend_host: ${{ vars.FRONTEND_HOST }}
+          TF_VAR_api_host: ${{ vars.API_HOST }}
+          TF_VAR_supabase_project_ref: ${{ vars.SUPABASE_PROJECT_REF }}
+          TF_VAR_supabase_publishable_key: ${{ vars.SUPABASE_PUBLISHABLE_KEY }}
+          TF_VAR_google_client_id: ${{ vars.GOOGLE_CLIENT_ID }}
+          TF_VAR_support_email: ${{ vars.SUPPORT_EMAIL }}
+          TF_VAR_telegram_chat_id: ${{ vars.TELEGRAM_CHAT_ID }}
+          TF_VAR_database_url: ${{ secrets.DATABASE_URL }}
+          TF_VAR_anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          TF_VAR_elevenlabs_api_key: ${{ secrets.ELEVENLABS_API_KEY }}
+          TF_VAR_google_client_secret: ${{ secrets.GOOGLE_CLIENT_SECRET }}
+          TF_VAR_admin_emails: ${{ secrets.ADMIN_EMAILS }}
+          TF_VAR_telegram_bot_token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+        # The plan is printed (secrets show as "(sensitive)") and exactly that plan is applied.
+        run: |
+          terraform init
+          terraform plan -no-color -out=tfplan
+          terraform apply -no-color tfplan
+          rm -f tfplan
+
+      - name: Read deployment targets
+        id: urls
+        working-directory: infra
+        run: |
+          {
+            echo "frontend_project=$(terraform output -raw frontend_project_id)"
+            echo "backend_project=$(terraform output -raw backend_project_id)"
+            echo "frontend=$(terraform output -raw frontend_url)"
+            echo "api=$(terraform output -raw api_url)"
+          } >> "$GITHUB_OUTPUT"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      # Run from the repository root: each project's root directory (backend/, frontend/) is set by Terraform.
+      - name: Deploy backend (its production build runs migrations and the seed)
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_API_TOKEN }}
+          VERCEL_ORG_ID: ${{ vars.VERCEL_TEAM_ID }}
+          VERCEL_PROJECT_ID: ${{ steps.urls.outputs.backend_project }}
+        run: npx --yes vercel@66.6.0 deploy --prod --yes --token "$VERCEL_TOKEN"
+
+      - name: Check backend health
+        env:
+          API_URL: ${{ steps.urls.outputs.api }}
+        run: curl --fail --silent --show-error --retry 5 --retry-delay 5 --retry-all-errors "$API_URL/api/health" > /dev/null
+
+      - name: Deploy frontend
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_API_TOKEN }}
+          VERCEL_ORG_ID: ${{ vars.VERCEL_TEAM_ID }}
+          VERCEL_PROJECT_ID: ${{ steps.urls.outputs.frontend_project }}
+        run: npx --yes vercel@66.6.0 deploy --prod --yes --token "$VERCEL_TOKEN"
+
+      - name: Check frontend
+        env:
+          FRONTEND_URL: ${{ steps.urls.outputs.frontend }}
+        run: curl --fail --silent --show-error --retry 5 --retry-delay 5 --retry-all-errors "$FRONTEND_URL/app" > /dev/null

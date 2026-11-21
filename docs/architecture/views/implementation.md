@@ -12,6 +12,8 @@ Shows where modules live in the repository and how they are built and checked.
 ├── .githooks/, .gitleaks.toml  secret scanning before every commit
 ├── justfile                    one entry point for every check
 ├── .github/workflows/ci.yml    continuous integration
+├── .github/workflows/deploy.yml  Terraform plan/apply and production deploy after owner approval (ADR-0010)
+├── infra/                      Terraform: Vercel projects and variables, Supabase Auth settings
 ├── backend/
 │   ├── app/                    api, services, repositories, models, db, schemas, prompts
 │   ├── alembic/                migrations
@@ -38,6 +40,7 @@ Shows where modules live in the repository and how they are built and checked.
 | Backend types | Pyright (`just backend-types`) | Existing, not yet blocking: 111 inherited errors to clear as modules are rewritten |
 | Backend formatting | Ruff format | Planned: applied module by module as each is rewritten, to avoid one repository-wide reformat |
 | Backend tests | pytest, in-memory SQLite, fake providers | Existing |
+| Hosted configuration | Terraform in `infra/` (`just infra`: fmt and validate, no credentials); state in HCP Terraform | Existing (ADR-0010) |
 | Layer enforcement | import-linter (`just backend-arch`), contracts in `backend/pyproject.toml` | Existing |
 | Frontend language and build | TypeScript strict, Vite, pnpm | Existing |
 | Frontend lint and format | Biome formats (`frontend/biome.json`, `pnpm format`; `pnpm lint` fails on unformatted code); ESLint lints, because the React hooks rules (including set-state-in-effect) and the C-20 `fetch` rule have no full Biome equivalent | Done (Phase 1) |

@@ -1,49 +1,88 @@
 # Setting up TurkTalk on the owner's own infrastructure
 
-What the owner does to run the app on their own accounts (Phase 5). The agent cannot do these steps: they need the owner's accounts, keys and deploy rights (AGENTS.md section 3). Values never go into the repository or a chat; only variable names appear here. Read `docs/architecture/views/deployment.md` for the shape of the deployment.
+What the owner does once so that CI can manage and deploy TurkTalk (Phase 5, ADR-0010). Values never go into the repository or a chat; only names appear here. The shape of the deployment is in `docs/architecture/views/deployment.md`.
 
-Recommended split: **Supabase** for the database and sign-in, **two Vercel projects** for the frontend and the FastAPI backend. Supabase cannot run the Python backend (its functions are Deno/TypeScript) or host the single-page app with rewrites; Vercel does both.
+- **Supabase**: database and sign-in. The project is made by hand; Terraform manages its Auth settings.
+- **Vercel**: two projects, the frontend (`frontend/`) and the FastAPI backend (`backend/`). Terraform creates or adopts them and sets every variable.
+- **HCP Terraform**: stores the Terraform state (it contains keys, so it never goes into git).
+- **GitHub Actions**: validates Terraform on pull requests; after CI passes on `main` and the owner approves, it plans, applies and deploys.
 
-## 1. Accounts and keys
+## 1. Accounts (done)
 
-| Service | What to create | Where its value goes |
-|---|---|---|
-| Supabase | A project (region close to the learners). Enable Google and email (OTP) sign-in. | Backend `DATABASE_URL` (transaction pooler URL), `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY`; frontend `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY` |
-| Google Cloud | An OAuth client (web). Authorised redirect: the Supabase callback URL shown in Supabase → Auth → Providers → Google. | Entered in Supabase, not in this repo |
-| Supabase → Auth → URL configuration | Site URL: the frontend address. Redirect URLs: `https://<frontend>/`, `https://<frontend>/app`, and for Android `com.turktalk.trainer://auth/callback`. Email-code template: `docs/email-code.html`. | Supabase dashboard |
-| Anthropic | An API key in a dedicated workspace. **Set a $25 monthly spend limit on that workspace** (second safety net after the app's own cap, ADR-0002). | Backend `ANTHROPIC_API_KEY` |
-| ElevenLabs | An API key. **Set a usage limit** on the account. | Backend `ELEVENLABS_API_KEY` |
-| Resend (optional) | SMTP for Supabase email codes, if email sign-in is wanted. | Entered in Supabase; then frontend `VITE_EMAIL_OTP_ENABLED=true` |
-| Telegram (optional) | A bot and a chat for admin notifications. | Backend `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID` |
+| Service | What exists |
+|---|---|
+| Supabase | A project. Note its **reference** (the subdomain of its URL), its **publishable key** and the **transaction pooler URL**. |
+| Google Cloud | An OAuth web client. Authorised redirect URI: the Supabase callback URL shown in Supabase → Auth → Providers → Google. Note the **client id** and **client secret**. |
+| Anthropic | An API key in a dedicated workspace with a **$25 monthly spend limit** (backstop to the app's cap, ADR-0002). |
+| ElevenLabs | An API key with a **usage limit**. Note the current Scribe model id. |
 
-## 2. Backend Vercel project (`backend/`)
+## 2. HCP Terraform
 
-Set every variable listed in the root `.env.example`. The ones that must be chosen by the owner:
+1. Create an organization and a workspace (for example `turktalk-production`), workflow "CLI-driven".
+2. Workspace → Settings → General → **Execution mode: Local**. Runs happen in GitHub Actions; HCP Terraform only keeps and locks the state.
+3. Account settings → Tokens → create an API token. It becomes the GitHub secret `TF_API_TOKEN`.
 
-- `APP_ENV=production`
-- `DATABASE_URL`, `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY`
-- `ANTHROPIC_API_KEY`, `ELEVENLABS_API_KEY` (model ids, prices and budget have working defaults in `.env.example`; keep `AI_MONTHLY_BUDGET_USD` at 25 or lower)
-- `CORS_ALLOWED_ORIGIN_REGEX`: a pattern matching the frontend's production and preview origins. The default only matches a Vercel project named `turktalk` (`turktalk.vercel.app`, `turktalk-*.vercel.app`); add a custom domain to the pattern
-- `ADMIN_EMAILS`: the owner's sign-in address
-- `BRAND_NAME` (default TurkTalk), `PUBLIC_APP_URL` (the frontend address, once there is a domain)
-- `REVIEW_LOGIN_USERNAME`, `REVIEW_LOGIN_EMAIL`: only if a store review account is needed
-- `MANUAL_PAYMENTS`: only if manual Premium payments are offered (see `docs/manual-premium-payments-2026-10-26.md`)
+## 3. Vercel projects and tokens
 
-Then run the migrations against the new database once, from a machine with `DATABASE_URL` set: `cd backend && uv run alembic upgrade head`, and seed the catalogue: `uv run python -m app.db.cli seed`.
+1. Create two empty Vercel projects **without connecting git** (for example `turktalk` and `turktalk-api`; any names). If they already exist and are connected to git, Terraform will disconnect them. Delete any environment variables set on them by hand: Terraform creates every variable and fails on duplicates.
+2. For each project note its **id** (Project → Settings → General, `prj_…`) and its **production domain** (Project → Settings → Domains, e.g. `turktalk-abc.vercel.app`). Do not assume `<name>.vercel.app`: `turktalk.vercel.app` already belongs to someone else.
+3. Team Settings → General → **Team ID** (`team_…`).
+4. Account Settings → Tokens: a token scoped to that team → `VERCEL_API_TOKEN`.
+5. Supabase → Account → Access Tokens: a personal access token → `SUPABASE_ACCESS_TOKEN`.
 
-## 3. Frontend Vercel project (`frontend/`)
+## 4. GitHub repository settings
 
-- `VITE_API_BASE_URL`: the backend project's URL (required: there is no `/api` proxy, and a Vercel build fails without an HTTPS value)
-- `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`
-- `VITE_PUBLIC_APP_URL`: the public address for "Share app" (set it in Production only, so previews do not share preview links)
-- `VITE_SUPPORT_EMAIL`: the mailbox on the account-deletion page (required before launch; the page shows a placeholder without it)
-- `VITE_EMAIL_OTP_ENABLED`: `true` only after email sign-in is configured in Supabase
+**Environment.** Settings → Environments → New environment `production`:
+- Required reviewers: the owner. Every production deploy waits for "Approve".
+- Deployment branches and tags: `main` only.
 
-`frontend/vercel.json` serves the landing page at `/`, the app at `/app` and the legal pages; it has no API proxy, so the backend's `CORS_ALLOWED_ORIGIN_REGEX` must match the frontend's origins. Section URLs use hash history (ADR-0009), so no further routes are needed.
+**Secrets: only as secrets of the `production` environment** (Settings → Environments → production → Environment secrets). Never as repository secrets: those are readable by any branch's workflow without an approval.
 
-## 4. Before going public
+| Secret | Value |
+|---|---|
+| `TF_API_TOKEN` | HCP Terraform token |
+| `VERCEL_API_TOKEN` | Vercel token |
+| `SUPABASE_ACCESS_TOKEN` | Supabase access token |
+| `DATABASE_URL` | Supabase transaction pooler URL |
+| `ANTHROPIC_API_KEY` | Anthropic key |
+| `ELEVENLABS_API_KEY` | ElevenLabs key |
+| `GOOGLE_CLIENT_SECRET` | Google OAuth client secret |
+| `ADMIN_EMAILS` | The owner's sign-in email (comma-separated if several) |
+| `TELEGRAM_BOT_TOKEN` | Optional, admin notifications |
+
+**Variables** (Settings → Secrets and variables → Actions → Variables; not secret, visible in public logs):
+
+| Variable | Value |
+|---|---|
+| `TF_CLOUD_ORGANIZATION`, `TF_WORKSPACE` | HCP Terraform organization and workspace names |
+| `VERCEL_TEAM_ID` | `team_…` |
+| `EXISTING_FRONTEND_PROJECT_ID`, `EXISTING_BACKEND_PROJECT_ID` | The two `prj_…` ids |
+| `FRONTEND_PROJECT_NAME`, `BACKEND_PROJECT_NAME` | The projects' current names (defaults `turktalk`, `turktalk-api`; a different value renames the project) |
+| `FRONTEND_HOST`, `API_HOST` | The production domains from step 3.2, host only (no `https://`). A custom frontend domain is attached by Terraform; DNS is set at the registrar |
+| `SUPABASE_PROJECT_REF`, `SUPABASE_PUBLISHABLE_KEY` | From the Supabase project |
+| `GOOGLE_CLIENT_ID` | Google OAuth client id |
+| `SUPPORT_EMAIL` | Mailbox shown on the account-deletion page |
+| `TELEGRAM_CHAT_ID` | Optional |
+
+With the GitHub CLI, from the owner's own terminal (it asks for each value without echoing it): `gh secret set ANTHROPIC_API_KEY --env production`, `gh variable set SUPABASE_PROJECT_REF`, and so on.
+
+**Settings in the repository.** In `infra/settings.auto.tfvars` set `elevenlabs_stt_model` to the current Scribe model id and add its `audio_per_minute` price to `ai_price_table`; the plan fails while it is empty. The same file holds the models, prices, the monthly budget (at most 25 USD) and other backend settings (`extra_backend_env`, names as in `.env.example`).
+
+## 5. Deployments
+
+1. Pull requests touching `infra/` get **Deploy → Terraform validate** (format and validation, no secrets).
+2. After a merge, when CI passes on `main`, **Deploy → Production** waits: Actions → the run → Review deployments → Approve (or Reject to skip this push).
+3. The job prints the Terraform plan and applies exactly it, deploys the backend (its production build runs the migrations and the catalogue seed), checks `/api/health`, deploys the frontend and checks `/app`. The environment link on the run opens the site. Read the first plan carefully: adopting hand-made projects may change their settings (for example the framework preset of the backend).
+
+To deploy without a code change: Actions → Deploy → Run workflow (still waits for approval).
+
+Terraform owns both Vercel projects and all their variables, the custom domain, and Supabase Auth: site URL, redirect URLs (`https://<frontend>/`, `https://<frontend>/app`, `com.turktalk.trainer://auth/callback`) and the Google provider. Change these in `infra/`, not in dashboards: the next apply puts the declared values back. CORS admits only the production web origin.
+
+Still by hand in Supabase: the email-code template (`docs/email-code.html`) and SMTP, if email sign-in is wanted.
+
+## 6. Before going public
 
 - Review the privacy, terms and account-deletion pages (`frontend/src/LegalPage.tsx`): they name the operator's processors and promises and are a draft.
-- Check the name TurkTalk for availability and trademarks (ADR-0005), then change it in `frontend/src/shared/brand.ts` and `BRAND_NAME` if needed.
-- Android: the package and deep-link scheme are `com.turktalk.trainer`. Before a build: fill `frontend/.env.android` with the public backend and Supabase values, add `com.turktalk.trainer://auth/callback` to Supabase → Auth → URL configuration → Redirect URLs, run `pnpm android:sync` (it builds in Android mode and refuses empty or local URLs; plain `npx cap sync` would copy a web build pointing at `10.0.2.2`), and create a new upload key (the old product's key and scripts are named `serbotalk-upload`). Icons and the store listing are still the previous product's. Builds happen only on the owner's instruction (C-24).
-- Run the live smoke test from the plan with the app budget set to $1: speak an answer, see the transcript and grade, check the spend ledger and the admin usage view, then force the paused state.
+- Check the name TurkTalk for availability and trademarks (ADR-0005), then change it in `frontend/src/shared/brand.ts` and `BRAND_NAME` (in `infra/main.tf`) if needed.
+- Android: the package and deep-link scheme are `com.turktalk.trainer` (its redirect URL is already in Terraform). Before a build: fill `frontend/.env.android` with the public backend and Supabase values, run `pnpm android:sync` (it builds in Android mode and refuses empty or local URLs; plain `npx cap sync` would copy a web build pointing at `10.0.2.2`), and create a new upload key (the old product's key and scripts are named `serbotalk-upload`). Icons and the store listing are still the previous product's. Builds happen only on the owner's instruction (C-24).
+- Live smoke test: set `ai_monthly_budget_usd = 1` in `infra/settings.auto.tfvars`, deploy, speak an answer, see the transcript and grade, check the spend ledger and the admin usage view, force the paused state, then set it back to 25.

@@ -10,7 +10,7 @@ default:
     @just --list
 
 # Everything that must pass before a pull request
-check: secrets backend frontend
+check: secrets backend frontend infra
 
 # --- secrets -----------------------------------------------------------------
 
@@ -55,6 +55,10 @@ frontend-test:
 
 frontend-build:
     cd frontend && pnpm build
+
+# Terraform format and validation; no credentials, no state (ADR-0010)
+infra:
+    cd infra && terraform fmt -check -recursive && terraform init -backend=false -input=false > /dev/null && terraform validate
 
 # Mocked end-to-end tests (needs Chrome)
 e2e:

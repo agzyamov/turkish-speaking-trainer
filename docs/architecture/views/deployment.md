@@ -37,9 +37,13 @@ Provider and budget settings on the backend (Planned, Phase 2):
 
 All production infrastructure belongs to the product owner's accounts. Agents do not hold credentials for any of it; deployment is done or explicitly triggered by the owner (C-25).
 
+## How configuration reaches the hosts
+
+Everything in the tables above except the Supabase project itself is declared in Terraform (`infra/`, ADR-0010): both Vercel projects, their variables, the optional custom domain and Supabase Auth settings. Secrets are secrets of the GitHub `production` environment, passed as sensitive `TF_VAR_*`; AI models, prices and the budget are in `infra/settings.auto.tfvars`. State is in HCP Terraform. The `production` job of `.github/workflows/deploy.yml` applies Terraform and deploys backend then frontend with the Vercel CLI, after CI passes on `main` and the owner approves the run. Vercel projects have no git connection.
+
 ## Variability guide
 
-- Model ids, prices and the budget change by environment variable with no code change.
+- Model ids, prices and the budget change in `infra/settings.auto.tfvars` with no application code change; the next approved deploy applies them.
 - A second, independent limit should be set in each provider's own console (Anthropic workspace spend limit, ElevenLabs usage limit) as a backstop to the application cap.
 
 ## Rationale

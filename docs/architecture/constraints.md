@@ -59,7 +59,7 @@ The **Enforced by** column says how a violation is caught. "Check" means an auto
 |---|---|---|
 | C-23 | No new runtime infrastructure (containers, queues, caches, additional services or databases) and no new AI provider without an owner decision. | Review |
 | C-24 | No Android sync, build, version change or store submission without an explicit owner instruction. | Review |
-| C-25 | No production deployment without an explicit owner instruction. | Review |
+| C-25 | No production deployment without an explicit owner instruction. Production deploys only through the `production` job of `.github/workflows/deploy.yml`, which waits for the owner's approval (ADR-0010); Vercel projects are not connected to git. | GitHub environment protection; review |
 
 ### Secrets and agent workspace
 
