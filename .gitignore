@@ -51,3 +51,6 @@ inst_user_settings.tmp
 # Impeccable design skill: installed per machine with `npx impeccable install --providers=claude --scope=project`
 .claude/skills/impeccable/
 .claude/agents/impeccable-*.md
+
+# Supabase CLI local cache
+supabase/.temp/
