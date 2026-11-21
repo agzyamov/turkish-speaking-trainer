@@ -49,12 +49,15 @@ for (const language of ['ru', 'en']) for (const layout of ['desktop', 'mobile', 
     const premium = page.locator('.premium-page');
     await expect(premium.locator('.premium-topic strong')).toHaveText(expected);
     await expect(premium.locator('.premium-catalog-grid')).toHaveCSS('grid-template-columns', /\d/);
-    const card1 = await premium.locator('.premium-catalog-grid .custom-content-item').nth(0).boundingBox();
-    const card2 = await premium.locator('.premium-catalog-grid .custom-content-item').nth(1).boundingBox();
-    expect(Math.abs(card1.y - card2.y)).toBeLessThan(2);
+    const cards = premium.locator('.premium-catalog-grid .custom-content-item');
+    // Phrase counts arrive after the catalogue renders; wait for the two cards to share a row.
+    await expect.poll(async () => Math.abs((await cards.nth(0).boundingBox()).y - (await cards.nth(1).boundingBox()).y)).toBeLessThan(2);
+    const card1 = await cards.nth(0).boundingBox();
+    const card2 = await cards.nth(1).boundingBox();
     expect(card2.x).toBeGreaterThan(card1.x);
     const remove = await premium.locator('.premium-catalog-grid .custom-content-item').first().getByRole('button', { name: ru ? 'Удалить тему' : 'Delete topic', exact: true }).boundingBox();
     expect(remove.width).toBeLessThan(card1.width);
+    expect(remove.height).toBeGreaterThanOrEqual(44);
     await premium.locator('.premium-topic').first().click();
     await expect(premium.locator('.premium-phrase-grid .custom-content-item')).toHaveCount(2);
     await premium.screenshot({ path: `${artifacts}/premium-${language}-${layout}.png` });

@@ -4,6 +4,7 @@ import { PremiumView } from "../PremiumView";
 import { fetchCustomPhrases, deleteCustomPhrase } from "../api/training";
 import { setLanguage } from "../i18n";
 vi.mock("../api/training", () => ({ fetchCustomPhrases: vi.fn(), deleteCustomPhrase: vi.fn(), deleteCustomTopic: vi.fn() }));
+vi.mock("../api/payments", () => ({ paymentRequest: vi.fn(() => new Promise(() => undefined)) }));
 const topics = [1, 2].map(id => ({ id: `custom-${id}`, title_ru: `Личная тема ${id}`, is_custom: true, description_ru: "", phrase_count: 0, custom_phrase_count: 1, likely_intents: [], suggested_vocabulary: [] }));
 const phrases = topics.map((topic, i) => ({ id: `p${i}`, topic_id: topic.id, topic_title: topic.title_ru, source_ru: `Мой оригинал ${i}`, canonical_tr: `Moj prevod ${i}`, best_score: 0, attempts: 0, perfect_streak: 0, status: "new", created_at: "2026-10-24" }));
 const props = { topics, onTopicCreated: vi.fn(), onChanged: vi.fn(), onDeleted: vi.fn() };
@@ -63,4 +64,14 @@ it("retries a failed private catalog load", async () => {
   await screen.findByText("Выберите тему, чтобы увидеть фразы.");
   fireEvent.click(screen.getByRole("button", { name: /Личная тема 1/ }));
   expect(screen.getByText(phrases[0].source_ru)).toBeInTheDocument();
+});
+
+it("returns focus to the buy button when the payment form closes", () => {
+  render(<PremiumView {...props} active={false} />);
+  const buy = screen.getByRole("button", { name: "КУПИТЬ" });
+  fireEvent.click(buy);
+  expect(buy).toHaveAttribute("aria-expanded", "true");
+  fireEvent.click(screen.getByRole("button", { name: "Закрыть" }));
+  expect(buy).toHaveAttribute("aria-expanded", "false");
+  expect(buy).toHaveFocus();
 });

@@ -4,6 +4,10 @@ import { t, topicText } from "./i18n";
 import type { PreparedReviewPhrase, TopicListItem } from "./types/training";
 import { customContentError, phraseLimitMessage, topicLimitMessage } from "./customContentErrors";
 import { sortedPersonalTopics } from "./personalTopics";
+import { Button } from "./shared/ui/button";
+import { Field, Input, Select } from "./shared/ui/input";
+
+import { contentCard } from "./customContentStyles";
 
 export function CustomContentForm({ mode, topics, selectedTopic, onTopicCreated, onPhraseSaved, onClose, onManage, onCreateTopic }: {
   mode: "topic" | "phrase"; topics: TopicListItem[]; selectedTopic?: string;
@@ -43,33 +47,33 @@ export function CustomContentForm({ mode, topics, selectedTopic, onTopicCreated,
     } finally { setBusy(false); }
   }
 
-  return <form className="custom-content-form" aria-label={t(mode === "topic" ? "Добавить тему" : "Добавить фразу")} onSubmit={event => { event.preventDefault(); void submit(); }}>
-    <label>{t(mode === "topic" ? "Название темы" : "Фраза на русском языке")}
-      <input value={text} minLength={mode === "topic" ? 2 : 3} maxLength={mode === "topic" ? 160 : 240} required disabled={busy} onChange={event => { setText(event.target.value); setPrepared(undefined); setSaved(false); setError(""); }} />
-    </label>
+  return <form className={contentCard} aria-label={t(mode === "topic" ? "Добавить тему" : "Добавить фразу")} onSubmit={event => { event.preventDefault(); void submit(); }}>
+    <Field>{t(mode === "topic" ? "Название темы" : "Фраза на русском языке")}
+      <Input value={text} minLength={mode === "topic" ? 2 : 3} maxLength={mode === "topic" ? 160 : 240} required disabled={busy} onChange={event => { setText(event.target.value); setPrepared(undefined); setSaved(false); setError(""); }} />
+    </Field>
     {mode === "topic" ? <><p>{t("Тема пока пустая. Добавьте в неё фразы — автоматической генерации не будет.")}</p><p>{t("Название автоматически переводится на русский и английский.")}</p><p>{t("Свои темы: ")}{ownTopics.length} / 5</p></> : <>
       <p>{t("Слов: ")}{words} / 15</p>
       {words > 15 && <p role="alert">{t("Фраза должна содержать не более 15 слов.")}</p>}
       <p>{t("Канонический перевод формирует модель. Редактирование перевода недоступно.")}</p>
       <p>{t("Повторное добавление той же фразы не меняет её перевод и прогресс.")}</p>
-      {ownTopics.length === 0 ? <p role="status">{t("Сначала создайте свою тему для фраз.")}</p> : <label>{t("Тема для фразы")}<select value={topicId} required disabled={busy} onChange={event => setTopicId(event.target.value)}>
+      {ownTopics.length === 0 ? <p role="status">{t("Сначала создайте свою тему для фраз.")}</p> : <Field>{t("Тема для фразы")}<Select value={topicId} required disabled={busy} onChange={event => setTopicId(event.target.value)}>
         {ownTopics.map(topic => <option key={topic.id} value={topic.id}>{topicText(topic.id, topic.title_ru, topic.title_en)}</option>)}
-      </select><span>{t("Своих фраз в теме: ")}{selected?.custom_phrase_count ?? 0} / 30</span></label>}
+      </Select><span className="text-caption text-ink-muted">{t("Своих фраз в теме: ")}{selected?.custom_phrase_count ?? 0} / 30</span></Field>}
       {prepared && <>
-        {prepared.source_versions && <div className="custom-content-translation">
+        {prepared.source_versions && <div className="custom-content-translation grid gap-1 rounded-control border border-line bg-surface-raised p-3 [&_p]:text-ink!">
           <p lang="ru"><strong>{t("Русская версия")}: </strong>{prepared.source_versions.ru}</p>
           <p lang="en"><strong>{t("Английская версия")}: </strong>{prepared.source_versions.en}</p>
         </div>}
-        <p className="custom-content-translation" role="status">{prepared.canonical_tr}</p>
-        <button type="button" disabled={busy} onClick={() => { setPrepared(undefined); setError(""); }}>{t("Подготовить перевод заново")}</button>
+        <p className="custom-content-translation text-answer! text-ink!" lang="tr" role="status">{prepared.canonical_tr}</p>
+        <Button className="justify-self-start" disabled={busy} onClick={() => { setPrepared(undefined); setError(""); }}>{t("Подготовить перевод заново")}</Button>
       </>}
     </>}
     {limitMessage && <p role="alert">{t(limitMessage)}</p>}
     {error && <p role="alert">{t(error)}</p>}
     {saved && <p role="status">{t(mode === "topic" ? "Тема сохранена." : "Фраза сохранена.")}</p>}
-    <button type="submit" disabled={busy || blocked || clean.length < (mode === "topic" ? 2 : 3)}>{t(busy ? mode === "topic" ? "Переводим название…" : (mode === "phrase" && !prepared ? "Готовим перевод…" : "Сохраняем…") : mode === "topic" ? "Сохранить тему" : prepared ? "Сохранить фразу" : "Подготовить перевод")}</button>
-    {mode === "phrase" && ownTopics.length === 0 && onCreateTopic && <button type="button" disabled={busy} onClick={onCreateTopic}>{t("Создать свою тему")}</button>}
-    {onManage && <button type="button" disabled={busy} onClick={onManage}>{t("Удалить свои фразы или темы")}</button>}
-    <button type="button" disabled={busy} onClick={onClose}>{t("Закрыть")}</button>
+    <Button variant="primary" className="justify-self-start" type="submit" disabled={busy || blocked || clean.length < (mode === "topic" ? 2 : 3)}>{t(busy ? mode === "topic" ? "Переводим название…" : (mode === "phrase" && !prepared ? "Готовим перевод…" : "Сохраняем…") : mode === "topic" ? "Сохранить тему" : prepared ? "Сохранить фразу" : "Подготовить перевод")}</Button>
+    {mode === "phrase" && ownTopics.length === 0 && onCreateTopic && <Button className="justify-self-start" disabled={busy} onClick={onCreateTopic}>{t("Создать свою тему")}</Button>}
+    {onManage && <Button className="justify-self-start" disabled={busy} onClick={onManage}>{t("Удалить свои фразы или темы")}</Button>}
+    <Button className="justify-self-start" disabled={busy} onClick={onClose}>{t("Закрыть")}</Button>
   </form>;
 }

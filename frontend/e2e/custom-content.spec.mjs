@@ -53,7 +53,8 @@ for (const language of ['ru', 'en']) for (const layout of ['desktop', 'mobile', 
     await expect(page.getByText(prepared.canonical_tr, { exact: true })).toBeVisible();
     await page.getByRole('combobox').selectOption('custom-test');
     const form = page.getByRole('form', { name: language === 'ru' ? 'Добавить фразу' : 'Add phrase' });
-    for (const control of await form.locator('input, select, button').all()) {
+    // Fields and secondary buttons use ink; the primary action is accent-ink on amber.
+    for (const control of await form.locator('input, select, button:not([type=submit])').all()) {
       await expect(control).toHaveCSS('color', await tokenColor(page, '--color-ink'));
       expect(await control.evaluate(element => getComputedStyle(element).backgroundColor)).not.toBe('rgb(255, 255, 255)');
     }
