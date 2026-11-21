@@ -1,10 +1,12 @@
 terraform {
   required_version = ">= 1.10"
 
-  # State lives in HCP Terraform, never in git: it holds the provider keys (ADR-0010).
-  # Organization and workspace come from TF_CLOUD_ORGANIZATION and TF_WORKSPACE. The workspace uses the
-  # "Local" execution mode: plans and applies run in GitHub Actions, HCP Terraform only stores and locks state.
-  cloud {}
+  # State lives in the project's own Supabase Postgres, schema terraform_state, never in git: it holds the
+  # provider keys (ADR-0010). The connection string comes from PG_CONN_STR (session pooler, port 5432: the
+  # backend locks state with a session-level advisory lock, which the transaction pooler cannot hold).
+  backend "pg" {
+    schema_name = "terraform_state"
+  }
 
   required_providers {
     vercel = {

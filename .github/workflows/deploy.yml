@@ -61,8 +61,6 @@ jobs:
     env:
       TF_IN_AUTOMATION: "true"
       TF_INPUT: "false"
-      TF_CLOUD_ORGANIZATION: ${{ vars.TF_CLOUD_ORGANIZATION }}
-      TF_WORKSPACE: ${{ vars.TF_WORKSPACE }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -71,11 +69,11 @@ jobs:
         with:
           terraform_version: 1.15.8
           terraform_wrapper: false
-          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
 
       - name: Terraform plan and apply
         working-directory: infra
         env:
+          PG_CONN_STR: ${{ secrets.TERRAFORM_STATE_DATABASE_URL }}
           VERCEL_API_TOKEN: ${{ secrets.VERCEL_API_TOKEN }}
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
           TF_VAR_vercel_team_id: ${{ vars.VERCEL_TEAM_ID }}
@@ -106,6 +104,8 @@ jobs:
       - name: Read deployment targets
         id: urls
         working-directory: infra
+        env:
+          PG_CONN_STR: ${{ secrets.TERRAFORM_STATE_DATABASE_URL }}
         run: |
           {
             echo "frontend_project=$(terraform output -raw frontend_project_id)"

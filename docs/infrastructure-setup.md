@@ -4,25 +4,19 @@ What the owner does once so that CI can manage and deploy TurkTalk (Phase 5, ADR
 
 - **Supabase**: database and sign-in. The project is made by hand; Terraform manages its Auth settings.
 - **Vercel**: two projects, the frontend (`frontend/`) and the FastAPI backend (`backend/`). Terraform creates or adopts them and sets every variable.
-- **HCP Terraform**: stores the Terraform state (it contains keys, so it never goes into git).
+- **Terraform state** lives in the same Supabase Postgres, schema `terraform_state` (it contains keys, so it never goes into git). No extra service.
 - **GitHub Actions**: validates Terraform on pull requests; after CI passes on `main` and the owner approves, it plans, applies and deploys.
 
 ## 1. Accounts (done)
 
 | Service | What exists |
 |---|---|
-| Supabase | A project. Note its **reference** (the subdomain of its URL), its **publishable key** and the **transaction pooler URL**. |
+| Supabase | A project. Note its **reference** (the subdomain of its URL), its **publishable key**, the **transaction pooler URL** (for the backend) and the **session pooler URL** (for the Terraform state). |
 | Google Cloud | An OAuth web client. Authorised redirect URI: the Supabase callback URL shown in Supabase → Auth → Providers → Google. Note the **client id** and **client secret**. |
 | Anthropic | An API key in a dedicated workspace with a **$25 monthly spend limit** (backstop to the app's cap, ADR-0002). |
 | ElevenLabs | An API key with a **usage limit**. Note the current Scribe model id. |
 
-## 2. HCP Terraform
-
-1. Create an organization and a workspace (for example `turktalk-production`), workflow "CLI-driven".
-2. Workspace → Settings → General → **Execution mode: Local**. Runs happen in GitHub Actions; HCP Terraform only keeps and locks the state.
-3. Account settings → Tokens → create an API token. It becomes the GitHub secret `TF_API_TOKEN`.
-
-## 3. Vercel projects and tokens
+## 2. Vercel projects and tokens
 
 1. Create two empty Vercel projects **without connecting git** (for example `turktalk` and `turktalk-api`; any names). If they already exist and are connected to git, Terraform will disconnect them. Delete any environment variables set on them by hand: Terraform creates every variable and fails on duplicates.
 2. For each project note its **id** (Project → Settings → General, `prj_…`) and its **production domain** (Project → Settings → Domains, e.g. `turktalk-abc.vercel.app`). Do not assume `<name>.vercel.app`: `turktalk.vercel.app` already belongs to someone else.
@@ -30,7 +24,7 @@ What the owner does once so that CI can manage and deploy TurkTalk (Phase 5, ADR
 4. Account Settings → Tokens: a token scoped to that team → `VERCEL_API_TOKEN`.
 5. Supabase → Account → Access Tokens: a personal access token → `SUPABASE_ACCESS_TOKEN`.
 
-## 4. GitHub repository settings
+## 3. GitHub repository settings
 
 **Environment.** Settings → Environments → New environment `production`:
 - Required reviewers: the owner. Every production deploy waits for "Approve".
@@ -40,7 +34,7 @@ What the owner does once so that CI can manage and deploy TurkTalk (Phase 5, ADR
 
 | Secret | Value |
 |---|---|
-| `TF_API_TOKEN` | HCP Terraform token |
+| `TERRAFORM_STATE_DATABASE_URL` | Supabase **session pooler** URL (Connect → Session pooler, port 5432) with `?sslmode=require`. Terraform creates the `terraform_state` schema on first run |
 | `VERCEL_API_TOKEN` | Vercel token |
 | `SUPABASE_ACCESS_TOKEN` | Supabase access token |
 | `DATABASE_URL` | Supabase transaction pooler URL |
@@ -54,11 +48,10 @@ What the owner does once so that CI can manage and deploy TurkTalk (Phase 5, ADR
 
 | Variable | Value |
 |---|---|
-| `TF_CLOUD_ORGANIZATION`, `TF_WORKSPACE` | HCP Terraform organization and workspace names |
 | `VERCEL_TEAM_ID` | `team_…` |
 | `EXISTING_FRONTEND_PROJECT_ID`, `EXISTING_BACKEND_PROJECT_ID` | The two `prj_…` ids |
 | `FRONTEND_PROJECT_NAME`, `BACKEND_PROJECT_NAME` | The projects' current names (defaults `turktalk`, `turktalk-api`; a different value renames the project) |
-| `FRONTEND_HOST`, `API_HOST` | The production domains from step 3.2, host only (no `https://`). A custom frontend domain is attached by Terraform; DNS is set at the registrar |
+| `FRONTEND_HOST`, `API_HOST` | The production domains from step 2.2, host only (no `https://`). A custom frontend domain is attached by Terraform; DNS is set at the registrar |
 | `SUPABASE_PROJECT_REF`, `SUPABASE_PUBLISHABLE_KEY` | From the Supabase project |
 | `GOOGLE_CLIENT_ID` | Google OAuth client id |
 | `SUPPORT_EMAIL` | Mailbox shown on the account-deletion page |
@@ -68,7 +61,7 @@ With the GitHub CLI, from the owner's own terminal (it asks for each value witho
 
 **Settings in the repository.** In `infra/settings.auto.tfvars` set `elevenlabs_stt_model` to the current Scribe model id and add its `audio_per_minute` price to `ai_price_table`; the plan fails while it is empty. The same file holds the models, prices, the monthly budget (at most 25 USD) and other backend settings (`extra_backend_env`, names as in `.env.example`).
 
-## 5. Deployments
+## 4. Deployments
 
 1. Pull requests touching `infra/` get **Deploy → Terraform validate** (format and validation, no secrets).
 2. After a merge, when CI passes on `main`, **Deploy → Production** waits: Actions → the run → Review deployments → Approve (or Reject to skip this push).
@@ -80,7 +73,7 @@ Terraform owns both Vercel projects and all their variables, the custom domain, 
 
 Still by hand in Supabase: the email-code template (`docs/email-code.html`) and SMTP, if email sign-in is wanted.
 
-## 6. Before going public
+## 5. Before going public
 
 - Review the privacy, terms and account-deletion pages (`frontend/src/LegalPage.tsx`): they name the operator's processors and promises and are a draft.
 - Check the name TurkTalk for availability and trademarks (ADR-0005), then change it in `frontend/src/shared/brand.ts` and `BRAND_NAME` (in `infra/main.tf`) if needed.
