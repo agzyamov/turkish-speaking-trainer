@@ -2,6 +2,7 @@ import { act, cleanup, fireEvent, render, screen, within } from "@testing-librar
 import { afterEach, expect, it, vi } from "vitest";
 import { PremiumView } from "../PremiumView";
 import { fetchCustomPhrases, deleteCustomPhrase } from "../api/training";
+import { paymentRequest } from "../api/payments";
 import { setLanguage } from "../i18n";
 import { QueryProvider } from "../shared/lib/QueryProvider";
 vi.mock("../api/training", () => ({ fetchCustomPhrases: vi.fn(), deleteCustomPhrase: vi.fn(), deleteCustomTopic: vi.fn() }));
@@ -120,4 +121,25 @@ it("shows loading, not the error, while a failed private catalog load is retried
   expect(screen.queryByRole("alert")).not.toBeInTheDocument();
   await act(async () => finish(phrases));
   expect(await screen.findByText("Выберите тему, чтобы увидеть фразы.")).toBeInTheDocument();
+});
+
+it.each(["ru", "en"] as const)("offers no purchase while no payment method is configured (%s)", async language => {
+  setLanguage(language);
+  const options = (available: boolean) => ({ activation: null, countries: { russia: ["sbp"], turkey: ["paypal"], other: ["paypal"] }, methods: { sbp: { available: false }, paypal: { available } } });
+  vi.mocked(paymentRequest).mockResolvedValue(options(false));
+  render(
+    <QueryProvider>
+      <PremiumView active={false} {...props} />
+    </QueryProvider>,
+  );
+  expect(await screen.findByText(language === "ru" ? "Покупка Premium пока недоступна." : "Premium is not on sale yet.")).toBeInTheDocument();
+  expect(screen.queryByRole("button", { name: language === "ru" ? "КУПИТЬ" : "BUY" })).not.toBeInTheDocument();
+  cleanup();
+  vi.mocked(paymentRequest).mockResolvedValue(options(true));
+  render(
+    <QueryProvider>
+      <PremiumView active={false} {...props} />
+    </QueryProvider>,
+  );
+  expect(await screen.findByRole("button", { name: language === "ru" ? "КУПИТЬ" : "BUY" })).toBeInTheDocument();
 });

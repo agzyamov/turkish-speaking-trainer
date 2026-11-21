@@ -48,6 +48,9 @@ for (const language of ["ru", "en"])
               daily_usage: { used: 0, limit: accessTier === "free" ? 20 : 100, remaining: accessTier === "free" ? 20 : 100 },
             };
           else if (path === "/api/auth/me/preferences") body = { assistance_enabled: false };
+          // The offer asks whether anything is on sale; PayPal is configured here.
+          else if (path === "/api/payments/options")
+            body = { activation: null, countries: { russia: ["sbp"], turkey: ["paypal"], other: ["paypal"] }, methods: { sbp: { available: false }, paypal: { available: true } } };
           else if (path === "/api/topics" && request.method() === "POST") {
             body = { ...topics[0], id: "custom-test", title_ru: request.postDataJSON().title_ru, phrase_count: 0, custom_phrase_count: 0, is_custom: true };
             topics.push(body);

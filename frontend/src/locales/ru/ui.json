@@ -322,7 +322,8 @@
       "topicPhrases": "Своих фраз в теме: {{count}} / 30",
       "phrases": "Фраз: {{count}}"
     },
-    "badgeLabel": "Премиум"
+    "badgeLabel": "Премиум",
+    "notOnSale": "Покупка Premium пока недоступна."
   },
   "settings": {
     "title": "Настройки",

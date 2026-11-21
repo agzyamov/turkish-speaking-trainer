@@ -1,5 +1,5 @@
 import { useState, type Dispatch, type SetStateAction } from "react";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { CustomContentForm } from "./CustomContentForm";
 import { CustomContentManager } from "./CustomContentManager";
 import { t } from "./i18n";
@@ -7,6 +7,7 @@ import type { TopicListItem } from "./types/training";
 import { PremiumBadge } from "./PremiumBadge";
 import twoCoffees from "./assets/premium/two-coffees.webp";
 import { PaymentForm } from "./PaymentForm";
+import { paymentRequest, type PaymentOptions } from "./api/payments";
 import { Capacitor } from "@capacitor/core";
 import { Button } from "./shared/ui/button";
 import { cn } from "./shared/lib/utils";
@@ -38,6 +39,15 @@ export function PremiumView({
   const setPaymentReported = (reported: boolean) => setUi(state => ({ ...state, paymentReported: reported }));
   const [catalogVersion, setCatalogVersion] = useState(0);
   const queryClient = useQueryClient();
+  const offerShown = !active && Capacitor.getPlatform() !== "android";
+  // With no payment details configured on the backend (MANUAL_PAYMENTS empty) nothing can be bought: say so
+  // instead of offering a form whose every method is disabled. While loading or on error, keep the button.
+  const paymentOptions = useQuery({
+    queryKey: ["payment-options"],
+    queryFn: ({ signal }) => paymentRequest<PaymentOptions>("/payments/options", "GET", undefined, signal),
+    enabled: offerShown,
+  });
+  const onSale = !paymentOptions.data?.methods || Object.values(paymentOptions.data.methods).some(method => method?.available);
   const perk = "relative pl-6 [overflow-wrap:anywhere] before:absolute before:left-0 before:text-reward before:content-['✓']";
   return (
     <section className="premium-page mx-auto grid w-full max-w-[680px] gap-4 p-5 text-ink in-[.android-page]:p-0" aria-label={t("premium.title")}>
@@ -57,10 +67,16 @@ export function PremiumView({
               <li className={perk}>{t("premium.perks.topics")}</li>
               <li className={perk}>{t("premium.perks.phrases")}</li>
             </ul>
-            <Button variant="primary" className="w-max max-w-full px-8 tracking-wide" onClick={() => setPaymentOpen(true)} aria-expanded={paymentOpen}>
-              {t("premium.buy")}
-            </Button>
-            {paymentOpen && (
+            {onSale ? (
+              <Button variant="primary" className="w-max max-w-full px-8 tracking-wide" onClick={() => setPaymentOpen(true)} aria-expanded={paymentOpen}>
+                {t("premium.buy")}
+              </Button>
+            ) : (
+              <p className="m-0 font-semibold text-ink-soft" role="status">
+                {t("premium.notOnSale")}
+              </p>
+            )}
+            {onSale && paymentOpen && (
               <PaymentForm
                 onGranted={async () => {
                   setPaymentReported(true);
@@ -72,7 +88,7 @@ export function PremiumView({
                 }}
               />
             )}
-            <p className="mb-1 mt-4 text-ink">{t("premium.oneTimePayment5")}</p>
+            {onSale && <p className="mb-1 mt-4 text-ink">{t("premium.oneTimePayment5")}</p>}
             <img className="mx-auto mb-5 mt-1 block h-auto w-[min(260px,100%)]" src={twoCoffees} alt={t("premium.twoCupsCoffee")} width="768" height="512" />
             <footer className="max-w-[380px] text-caption leading-normal text-ink-muted">
               <h2 className="m-0 mb-1 text-[length:inherit] font-semibold text-ink-muted">{t("premium.whyPaid")}</h2>

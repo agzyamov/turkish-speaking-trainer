@@ -320,7 +320,8 @@
       "topicPhrases": "Custom phrases in this topic: {{count}} / 30",
       "phrases": "Phrases: {{count}}"
     },
-    "badgeLabel": "Premium"
+    "badgeLabel": "Premium",
+    "notOnSale": "Premium is not on sale yet."
   },
   "settings": {
     "title": "Settings",
