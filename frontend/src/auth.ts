@@ -76,15 +76,25 @@ export async function signInReviewAccount(username: string, password: string): P
     return;
   }
   const response = await fetch(apiUrl("/api/auth/review-login"), {
-    method: "POST", headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ username, password }), cache: "no-store",
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ username, password }),
+    cache: "no-store",
     signal: AbortSignal.timeout(15000),
   });
   if (!response.ok) throw new Error("Review sign-in failed");
   const tokens: unknown = await response.json();
-  if (!tokens || typeof tokens !== "object" || !("access_token" in tokens) || !("refresh_token" in tokens)
-    || typeof tokens.access_token !== "string" || !tokens.access_token
-    || typeof tokens.refresh_token !== "string" || !tokens.refresh_token) throw new Error("Review sign-in failed");
+  if (
+    !tokens ||
+    typeof tokens !== "object" ||
+    !("access_token" in tokens) ||
+    !("refresh_token" in tokens) ||
+    typeof tokens.access_token !== "string" ||
+    !tokens.access_token ||
+    typeof tokens.refresh_token !== "string" ||
+    !tokens.refresh_token
+  )
+    throw new Error("Review sign-in failed");
   const { error } = await getSupabase().auth.setSession({ access_token: tokens.access_token, refresh_token: tokens.refresh_token });
   if (error) throw new Error("Review sign-in failed");
 }
@@ -99,12 +109,14 @@ export async function authenticatedFetch(input: RequestInfo | URL, init: Request
   const response = await fetch(input, { ...init, headers });
   if (new URLSearchParams(window.location.search).has("perf")) {
     const path = new URL(input.toString(), window.location.origin).pathname;
-    console.info(`SerboTalk timing ${JSON.stringify({
-      path,
-      session_ms: Math.round(sessionMs),
-      request_ms: Math.round(performance.now() - startedAt - sessionMs),
-      server_timing: response.headers.get("Server-Timing"),
-    })}`);
+    console.info(
+      `SerboTalk timing ${JSON.stringify({
+        path,
+        session_ms: Math.round(sessionMs),
+        request_ms: Math.round(performance.now() - startedAt - sessionMs),
+        server_timing: response.headers.get("Server-Timing"),
+      })}`,
+    );
   }
   return response;
 }

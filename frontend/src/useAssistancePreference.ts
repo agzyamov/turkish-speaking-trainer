@@ -16,9 +16,7 @@ export function useAssistancePreference(initial: boolean) {
     const timeout = window.setTimeout(() => controller.abort(), 10_000);
     requests.current.set(controller, timeout);
     try {
-      const result = value === undefined
-        ? await fetchPreferences(controller.signal)
-        : await updatePreferences(value, controller.signal);
+      const result = value === undefined ? await fetchPreferences(controller.signal) : await updatePreferences(value, controller.signal);
       if (typeof result.assistance_enabled !== "boolean") throw new Error("Invalid preference");
       return result.assistance_enabled;
     } finally {
@@ -34,32 +32,40 @@ export function useAssistancePreference(initial: boolean) {
     try {
       const value = await request();
       if (active.current && version === generation.current) setEnabled(value);
-    } catch { /* Keep the last confirmed setting and retry on the next refresh. */ }
-    finally { reading.current = false; }
-  }, [request]);
-
-  const change = useCallback(async (value: boolean) => {
-    if (writing.current) return;
-    writing.current = true;
-    generation.current += 1;
-    setSaving(true);
-    setError(undefined);
-    try {
-      const confirmed = await request(value);
-      if (active.current) setEnabled(confirmed);
     } catch {
-      if (active.current) setError("settings.couldNotSavePreference");
+      /* Keep the last confirmed setting and retry on the next refresh. */
     } finally {
-      writing.current = false;
-      if (active.current) setSaving(false);
+      reading.current = false;
     }
   }, [request]);
+
+  const change = useCallback(
+    async (value: boolean) => {
+      if (writing.current) return;
+      writing.current = true;
+      generation.current += 1;
+      setSaving(true);
+      setError(undefined);
+      try {
+        const confirmed = await request(value);
+        if (active.current) setEnabled(confirmed);
+      } catch {
+        if (active.current) setError("settings.couldNotSavePreference");
+      } finally {
+        writing.current = false;
+        if (active.current) setSaving(false);
+      }
+    },
+    [request],
+  );
 
   useEffect(() => {
     active.current = true;
     const pendingRequests = requests.current;
     void Promise.resolve().then(refresh);
-    const onRefresh = () => { void refresh(); };
+    const onRefresh = () => {
+      void refresh();
+    };
     const interval = window.setInterval(onRefresh, 15_000);
     window.addEventListener("focus", onRefresh);
     document.addEventListener("visibilitychange", onRefresh);

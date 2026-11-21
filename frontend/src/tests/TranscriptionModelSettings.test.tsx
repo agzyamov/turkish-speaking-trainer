@@ -6,8 +6,14 @@ import { setLanguage } from "../i18n";
 
 vi.mock("../api/users", () => ({ fetchTranscriptionModels: vi.fn(), updateTranscriptionModel: vi.fn() }));
 const defaults = { selected_model: null, effective_model: "env-default", default_model: "env-default", options: ["env-default", "env-alternative"] };
-beforeEach(() => { vi.resetAllMocks(); vi.mocked(fetchTranscriptionModels).mockResolvedValue(defaults); });
-afterEach(() => { cleanup(); setLanguage("ru"); });
+beforeEach(() => {
+  vi.resetAllMocks();
+  vi.mocked(fetchTranscriptionModels).mockResolvedValue(defaults);
+});
+afterEach(() => {
+  cleanup();
+  setLanguage("ru");
+});
 
 it.each(["ru", "en"] as const)("loads, saves, resets and retains confirmed choice after failed save in %s", async language => {
   setLanguage(language);

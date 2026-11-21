@@ -8,7 +8,12 @@ describe("DeferredPanel", () => {
 
   it("shows an accessible loading state until a slow module is ready", async () => {
     let resolveModule!: (module: { default: () => React.ReactNode }) => void;
-    const load = vi.fn(() => new Promise<{ default: () => React.ReactNode }>((resolve) => { resolveModule = resolve; }));
+    const load = vi.fn(
+      () =>
+        new Promise<{ default: () => React.ReactNode }>(resolve => {
+          resolveModule = resolve;
+        }),
+    );
     render(<DeferredPanel load={load} panelProps={{}} label="статистику" />);
 
     expect(screen.getByRole("status")).toHaveTextContent("Загружаем статистику…");
@@ -19,7 +24,8 @@ describe("DeferredPanel", () => {
 
   it("calls the loader again after a failed module request", async () => {
     vi.spyOn(console, "error").mockImplementation(() => undefined);
-    const load = vi.fn()
+    const load = vi
+      .fn()
       .mockRejectedValueOnce(new Error("chunk failed"))
       .mockResolvedValueOnce({ default: () => <h1>Пользователи</h1> });
     render(<DeferredPanel load={load} panelProps={{}} label="пользователей" />);

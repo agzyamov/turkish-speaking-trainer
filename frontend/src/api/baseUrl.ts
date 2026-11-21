@@ -14,7 +14,7 @@ export function getDefaultApiBaseUrl(): string {
 }
 
 export function getApiBaseUrl(): string {
-  const stored = typeof window === "undefined" ? "" : window.localStorage.getItem(STORAGE_KEY) ?? "";
+  const stored = typeof window === "undefined" ? "" : (window.localStorage.getItem(STORAGE_KEY) ?? "");
   return normalizeBaseUrl(stored) || getDefaultApiBaseUrl();
 }
 

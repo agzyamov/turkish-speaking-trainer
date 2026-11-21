@@ -10,23 +10,23 @@ export default defineConfig(({ mode }) => {
   const input: Record<string, string> = { main: resolve("index.html") };
   if (mode === "testlab") input.testlab = resolve("testlab.html");
   else if (mode !== "android") input.landing = resolve("landing.html");
-  return ({
-  plugins: [react(), tailwindcss()],
-  build: {
-    copyPublicDir: mode !== "android",
-    rollupOptions: {
-      input,
+  return {
+    plugins: [react(), tailwindcss()],
+    build: {
+      copyPublicDir: mode !== "android",
+      rollupOptions: {
+        input,
+      },
     },
-  },
-  server: {
-    proxy: {
-      "/api": "http://127.0.0.1:8000",
+    server: {
+      proxy: {
+        "/api": "http://127.0.0.1:8000",
+      },
     },
-  },
-  test: {
-    include: ["src/**/*.{test,spec}.{ts,tsx}"],
-    environment: "jsdom",
-    setupFiles: "./src/tests/setup.ts",
-  },
-});
+    test: {
+      include: ["src/**/*.{test,spec}.{ts,tsx}"],
+      environment: "jsdom",
+      setupFiles: "./src/tests/setup.ts",
+    },
+  };
 });

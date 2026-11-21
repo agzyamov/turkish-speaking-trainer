@@ -35,9 +35,7 @@ export function ShareAppSettings() {
       }
     } catch (error) {
       // Capacitor Android uses this message; browsers use AbortError.
-      const cancelled = typeof error === "object" && error !== null && (
-        ("name" in error && error.name === "AbortError") || ("message" in error && error.message === "Share canceled")
-      );
+      const cancelled = typeof error === "object" && error !== null && (("name" in error && error.name === "AbortError") || ("message" in error && error.message === "Share canceled"));
       setState(cancelled ? "idle" : "error");
     } finally {
       pending.current = false;
@@ -45,16 +43,34 @@ export function ShareAppSettings() {
   }
 
   const busy = state === "sharing" || state === "copying";
-  return <section className={cn("share-app-settings", settingsSection)} aria-labelledby="share-app-title">
-    <h2 id="share-app-title" className={settingsHeading}>{t("settings.shareApp")}</h2>
-    <p>{t("settings.inviteFriendsPractiseTurkish")}</p>
-    <div className="share-app-settings__actions grid min-w-0 grid-cols-3 gap-3.5 max-[640px]:grid-cols-2 max-[640px]:gap-2.5">
-      <button className={cn(settingsCard, settingsAction, "max-[640px]:flex-col max-[640px]:items-start")} type="button" disabled={busy} onClick={() => void perform()}><SettingsIcon name="share" /><strong>{t("settings.share")}</strong></button>
-      <button className={cn(settingsCard, settingsAction, "max-[640px]:flex-col max-[640px]:items-start")} type="button" disabled={busy} onClick={() => void perform(true)}><SettingsIcon name="link" /><strong>{t("settings.copyLink")}</strong></button>
-      <div className={cn(settingsCard, "settings-url items-center max-[640px]:col-span-full [&_.settings-icon]:size-8 [&_.settings-icon>svg]:size-5.5")}><SettingsIcon name="link" /><div className={settingsCopy}><label htmlFor="share-app-url" className="text-sm text-ink-soft">{t("settings.appLink")}</label><Input className="py-2" id="share-app-url" type="url" readOnly value={publicAppUrl} onFocus={event => event.currentTarget.select()} /></div></div>
-    </div>
-    {busy && <p role="status">{t(state === "sharing" ? "settings.openingShareMenu" : "settings.copyingLink")}</p>}
-    {state === "copied" && <p role="status">{t("settings.linkCopied")}</p>}
-    {state === "error" && <p role="alert">{t("settings.couldNotShareCopy")}</p>}
-  </section>;
+  return (
+    <section className={cn("share-app-settings", settingsSection)} aria-labelledby="share-app-title">
+      <h2 id="share-app-title" className={settingsHeading}>
+        {t("settings.shareApp")}
+      </h2>
+      <p>{t("settings.inviteFriendsPractiseTurkish")}</p>
+      <div className="share-app-settings__actions grid min-w-0 grid-cols-3 gap-3.5 max-[640px]:grid-cols-2 max-[640px]:gap-2.5">
+        <button className={cn(settingsCard, settingsAction, "max-[640px]:flex-col max-[640px]:items-start")} type="button" disabled={busy} onClick={() => void perform()}>
+          <SettingsIcon name="share" />
+          <strong>{t("settings.share")}</strong>
+        </button>
+        <button className={cn(settingsCard, settingsAction, "max-[640px]:flex-col max-[640px]:items-start")} type="button" disabled={busy} onClick={() => void perform(true)}>
+          <SettingsIcon name="link" />
+          <strong>{t("settings.copyLink")}</strong>
+        </button>
+        <div className={cn(settingsCard, "settings-url items-center max-[640px]:col-span-full [&_.settings-icon]:size-8 [&_.settings-icon>svg]:size-5.5")}>
+          <SettingsIcon name="link" />
+          <div className={settingsCopy}>
+            <label htmlFor="share-app-url" className="text-sm text-ink-soft">
+              {t("settings.appLink")}
+            </label>
+            <Input className="py-2" id="share-app-url" type="url" readOnly value={publicAppUrl} onFocus={event => event.currentTarget.select()} />
+          </div>
+        </div>
+      </div>
+      {busy && <p role="status">{t(state === "sharing" ? "settings.openingShareMenu" : "settings.copyingLink")}</p>}
+      {state === "copied" && <p role="status">{t("settings.linkCopied")}</p>}
+      {state === "error" && <p role="alert">{t("settings.couldNotShareCopy")}</p>}
+    </section>
+  );
 }

@@ -19,15 +19,28 @@ export function ModelDebugSettings() {
     const controller = new AbortController();
     pending.current = controller;
     const timeout = window.setTimeout(() => controller.abort(), 10_000);
-    void fetchModelDebug(controller.signal).then(result => {
-      if (!controller.signal.aborted) { setEnabled(result.enabled); setLoaded(true); }
-    }).catch(() => {
-      if (pending.current === controller) setError("settings.couldNotLoadDebug");
-    }).finally(() => {
+    void fetchModelDebug(controller.signal)
+      .then(result => {
+        if (!controller.signal.aborted) {
+          setEnabled(result.enabled);
+          setLoaded(true);
+        }
+      })
+      .catch(() => {
+        if (pending.current === controller) setError("settings.couldNotLoadDebug");
+      })
+      .finally(() => {
+        window.clearTimeout(timeout);
+        if (pending.current === controller) {
+          pending.current = null;
+          setBusy(false);
+        }
+      });
+    return () => {
+      pending.current?.abort();
+      pending.current = null;
       window.clearTimeout(timeout);
-      if (pending.current === controller) { pending.current = null; setBusy(false); }
-    });
-    return () => { pending.current?.abort(); pending.current = null; window.clearTimeout(timeout); };
+    };
   }, [reload]);
 
   async function change(value: boolean) {
@@ -44,19 +57,38 @@ export function ModelDebugSettings() {
       if (pending.current === controller) setError("settings.couldNotChangeDebug");
     } finally {
       window.clearTimeout(timeout);
-      if (pending.current === controller) { pending.current = null; setBusy(false); }
+      if (pending.current === controller) {
+        pending.current = null;
+        setBusy(false);
+      }
     }
   }
 
-  return <section className={cn("assistance-settings settings-section", settingsCard, "[&_[role=alert]]:text-danger [&_[role=status]]:text-ink-soft")} aria-label={t("settings.debugMode")}>
-    <SettingsIcon name="debug" />
-    <div className={settingsCopy}>
-    <label htmlFor={switchId} className="settings-toggle flex min-h-11 cursor-pointer items-center justify-between gap-3"><strong>{t("settings.debugMode")}</strong><Switch id={switchId} checked={enabled} disabled={busy || !loaded} onCheckedChange={checked => void change(checked)} /></label>
-    <p>{t("settings.saveModelRequestsResponses")}</p>
-    <small>{t("settings.last20AudioRecordings")}</small>
-    {busy && <p role="status">{t("settings.savingLoadingDebugMode")}</p>}
-    {error && <p role="alert">{t(error)}</p>}
-    {!busy && !loaded && <Button className="debug-retry-button justify-self-start" onClick={() => { setBusy(true); setError(undefined); setReload(value => value + 1); }}>{t("premium.retryLoading")}</Button>}
-    </div>
-  </section>;
+  return (
+    <section className={cn("assistance-settings settings-section", settingsCard, "[&_[role=alert]]:text-danger [&_[role=status]]:text-ink-soft")} aria-label={t("settings.debugMode")}>
+      <SettingsIcon name="debug" />
+      <div className={settingsCopy}>
+        <label htmlFor={switchId} className="settings-toggle flex min-h-11 cursor-pointer items-center justify-between gap-3">
+          <strong>{t("settings.debugMode")}</strong>
+          <Switch id={switchId} checked={enabled} disabled={busy || !loaded} onCheckedChange={checked => void change(checked)} />
+        </label>
+        <p>{t("settings.saveModelRequestsResponses")}</p>
+        <small>{t("settings.last20AudioRecordings")}</small>
+        {busy && <p role="status">{t("settings.savingLoadingDebugMode")}</p>}
+        {error && <p role="alert">{t(error)}</p>}
+        {!busy && !loaded && (
+          <Button
+            className="debug-retry-button justify-self-start"
+            onClick={() => {
+              setBusy(true);
+              setError(undefined);
+              setReload(value => value + 1);
+            }}
+          >
+            {t("premium.retryLoading")}
+          </Button>
+        )}
+      </div>
+    </section>
+  );
 }

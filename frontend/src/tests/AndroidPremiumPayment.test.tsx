@@ -4,9 +4,12 @@ import { Capacitor } from "@capacitor/core";
 import { PremiumView } from "../PremiumView";
 import { setLanguage } from "../i18n";
 
-const props = { topics: [],
-  onTopicCreated: vi.fn(), onChanged: vi.fn(), onDeleted: vi.fn() };
-afterEach(() => { cleanup(); vi.restoreAllMocks(); setLanguage("ru"); });
+const props = { topics: [], onTopicCreated: vi.fn(), onChanged: vi.fn(), onDeleted: vi.fn() };
+afterEach(() => {
+  cleanup();
+  vi.restoreAllMocks();
+  setLanguage("ru");
+});
 
 it.each(["ru", "en"] as const)("never offers payment on Android, including recovery (%s)", language => {
   vi.spyOn(Capacitor, "getPlatform").mockReturnValue("android");

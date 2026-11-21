@@ -44,9 +44,12 @@ describe("VoiceRecorder", () => {
     Object.defineProperty(navigator, "mediaDevices", {
       configurable: true,
       value: {
-        getUserMedia: vi.fn(async () => ({
-          getTracks: () => [{ stop: stopTrack }],
-        } as unknown as MediaStream)),
+        getUserMedia: vi.fn(
+          async () =>
+            ({
+              getTracks: () => [{ stop: stopTrack }],
+            }) as unknown as MediaStream,
+        ),
       },
     });
     vi.stubGlobal("MediaRecorder", FakeMediaRecorder);
@@ -70,7 +73,9 @@ describe("VoiceRecorder", () => {
   it("stops a microphone stream that resolves after cancellation", async () => {
     let resolveStream!: (stream: MediaStream) => void;
     const stopTrack = vi.fn();
-    const pendingStream = new Promise<MediaStream>((resolve) => { resolveStream = resolve; });
+    const pendingStream = new Promise<MediaStream>(resolve => {
+      resolveStream = resolve;
+    });
     Object.defineProperty(navigator, "mediaDevices", {
       configurable: true,
       value: { getUserMedia: vi.fn(() => pendingStream) },
@@ -92,7 +97,14 @@ describe("VoiceRecorder", () => {
     const stopTrack = vi.fn();
     Object.defineProperty(navigator, "mediaDevices", {
       configurable: true,
-      value: { getUserMedia: vi.fn(() => new Promise<MediaStream>((resolve) => { resolveStream = resolve; })) },
+      value: {
+        getUserMedia: vi.fn(
+          () =>
+            new Promise<MediaStream>(resolve => {
+              resolveStream = resolve;
+            }),
+        ),
+      },
     });
     vi.stubGlobal("MediaRecorder", FakeMediaRecorder);
     const recorder = new VoiceRecorder();
@@ -112,10 +124,12 @@ describe("VoiceRecorder", () => {
     const stopTrack = vi.fn();
     Object.defineProperty(navigator, "mediaDevices", {
       configurable: true,
-      value: { getUserMedia: vi.fn(async () => ({ getTracks: () => [{ stop: stopTrack }] } as unknown as MediaStream)) },
+      value: { getUserMedia: vi.fn(async () => ({ getTracks: () => [{ stop: stopTrack }] }) as unknown as MediaStream) },
     });
     class NoStopEventRecorder extends FakeMediaRecorder {
-      stop() { this.state = "inactive"; }
+      stop() {
+        this.state = "inactive";
+      }
     }
     vi.stubGlobal("MediaRecorder", NoStopEventRecorder);
     const recorder = new VoiceRecorder();
@@ -134,10 +148,12 @@ describe("VoiceRecorder", () => {
     const stopTrack = vi.fn();
     Object.defineProperty(navigator, "mediaDevices", {
       configurable: true,
-      value: { getUserMedia: vi.fn(async () => ({ getTracks: () => [{ stop: stopTrack }] } as unknown as MediaStream)) },
+      value: { getUserMedia: vi.fn(async () => ({ getTracks: () => [{ stop: stopTrack }] }) as unknown as MediaStream) },
     });
     class ThrowingStopRecorder extends FakeMediaRecorder {
-      stop(): void { throw new Error("Recorder stopped unexpectedly"); }
+      stop(): void {
+        throw new Error("Recorder stopped unexpectedly");
+      }
     }
     vi.stubGlobal("MediaRecorder", ThrowingStopRecorder);
     const recorder = new VoiceRecorder();

@@ -2,7 +2,10 @@ import { act, cleanup, render, screen } from "@testing-library/react";
 import { afterEach, expect, it, vi } from "vitest";
 import { useMobileLayout } from "../useMobileLayout";
 
-afterEach(() => { cleanup(); vi.unstubAllGlobals(); });
+afterEach(() => {
+  cleanup();
+  vi.unstubAllGlobals();
+});
 
 it("tracks the visible browser viewport after loading and removes its listeners", () => {
   const viewport = new EventTarget();
@@ -17,7 +20,10 @@ it("tracks the visible browser viewport after loading and removes its listeners"
   const rendered = render(<Harness ready={false} />);
   rendered.rerender(<Harness ready />);
   expect(screen.getByTestId("shell").style.getPropertyValue("--mobile-height")).toBe("700px");
-  act(() => { Object.assign(viewport, { height: 340, offsetTop: 10 }); viewport.dispatchEvent(new Event("resize")); });
+  act(() => {
+    Object.assign(viewport, { height: 340, offsetTop: 10 });
+    viewport.dispatchEvent(new Event("resize"));
+  });
   expect(screen.getByTestId("shell").style.getPropertyValue("--mobile-height")).toBe("340px");
   expect(screen.getByTestId("shell").style.getPropertyValue("--mobile-top")).toBe("10px");
   expect(screen.getByTestId("shell")).toHaveClass("mobile-web-shell--short");

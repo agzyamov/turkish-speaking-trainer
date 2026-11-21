@@ -6,7 +6,12 @@ import messages from "../locales/en.json";
 import { sourceWords, splitHintFragments } from "../sourceWords";
 import { SettingsView } from "../SettingsView";
 
-afterEach(() => { cleanup(); vi.restoreAllMocks(); setLanguage("ru"); localStorage.clear(); });
+afterEach(() => {
+  cleanup();
+  vi.restoreAllMocks();
+  setLanguage("ru");
+  localStorage.clear();
+});
 
 it("places language first and switches settings immediately", () => {
   const view = render(<SettingsView />);
@@ -73,12 +78,13 @@ it("keeps a complete English catalog of all 210 canonical Turkish phrases with i
 });
 
 it("keeps the choice active if browser storage is blocked", () => {
-  vi.spyOn(Storage.prototype, "setItem").mockImplementation(() => { throw new Error("blocked"); });
+  vi.spyOn(Storage.prototype, "setItem").mockImplementation(() => {
+    throw new Error("blocked");
+  });
   setLanguage("en");
   expect(getLanguage()).toBe("en");
   expect(t("Настройки")).toBe("Settings");
 });
-
 
 it("keeps compound words intact and corrects the reported lexical hints", () => {
   setLanguage("en");
@@ -103,7 +109,6 @@ it("keeps compound words intact and corrects the reported lexical hints", () => 
   expect(localizedPhrase(journey.source_ru).hints.take?.translation_tr).toBe("sürüyor");
   expect(sourceWords("Нью-Йорка и two-room")).toEqual(["Нью-Йорка", "и", "two-room"]);
 });
-
 
 it("selects saved bilingual custom titles and preserves legacy fallback", () => {
   setLanguage("en");

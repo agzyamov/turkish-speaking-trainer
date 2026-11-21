@@ -10,7 +10,7 @@ const root = join(__dirname, "..");
 
 // Literals that are deliberately not translated, with the reason.
 const allowed: Record<string, string> = {
-  "Русский": "the Russian language option is shown in Russian in both interfaces",
+  Русский: "the Russian language option is shown in Russian in both interfaces",
 };
 // Files whose Cyrillic text is data or test tooling, not interface copy.
 const skippedFiles = [/^db\//, /^testlab-entry\.ts$/, /^LandingPage\.tsx$/, /^LegalPage\.tsx$/];
@@ -62,7 +62,7 @@ it("has an English translation for every Russian interface string", () => {
 });
 
 function flatKeys(tree: object, prefix = ""): string[] {
-  return Object.entries(tree).flatMap(([key, value]) => typeof value === "object" && value !== null ? flatKeys(value, `${prefix}${key}.`) : [`${prefix}${key}`]);
+  return Object.entries(tree).flatMap(([key, value]) => (typeof value === "object" && value !== null ? flatKeys(value, `${prefix}${key}.`) : [`${prefix}${key}`]));
 }
 const pluralSuffix = /_(zero|one|two|few|many|other)$/;
 

@@ -16,7 +16,7 @@ test("lost attempt response is replayed without adding a duplicate saved transla
   let replayedAttemptId;
   let committedUsage;
   let replayedUsage;
-  await page.route("**/api/attempts", async (route) => {
+  await page.route("**/api/attempts", async route => {
     const request = route.request();
     requestIds.push(request.postDataJSON().client_request_id);
     attemptRequests += 1;
@@ -40,7 +40,7 @@ test("lost attempt response is replayed without adding a duplicate saved transla
   await runPracticeFlow(page, {
     topic: /Собеседование/,
     transcript: "Radim kao računovođa u maloj firmi.",
-    activateButton: async (name) => {
+    activateButton: async name => {
       await page.getByRole("button", { name }).click();
       if (name === "Проверить ответ") {
         await expect(page.getByRole("alert")).toContainText("Не удалось проверить ответ");
@@ -62,7 +62,7 @@ test("lost attempt response is replayed without adding a duplicate saved transla
 
 async function monthlyTranslationCount(page) {
   return page.evaluate(async () => {
-    const tokenEntry = Object.keys(localStorage).find((key) => key.startsWith("sb-") && key.endsWith("-auth-token"));
+    const tokenEntry = Object.keys(localStorage).find(key => key.startsWith("sb-") && key.endsWith("-auth-token"));
     if (!tokenEntry) throw new Error("Local testlab session is unavailable");
     const token = JSON.parse(localStorage.getItem(tokenEntry) ?? "{}").access_token;
     if (typeof token !== "string") throw new Error("Local testlab access token is unavailable");

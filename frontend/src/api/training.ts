@@ -12,7 +12,13 @@ async function requestJson<T>(url: string, init?: RequestInit): Promise<T> {
   init?.signal?.addEventListener("abort", onAbort, { once: true });
   if (init?.signal?.aborted) controller.abort();
   let timedOut = false;
-  const timeout = window.setTimeout(() => { timedOut = true; controller.abort(); }, (url === "/api/transcriptions" || url === "/api/feedback/transcribe") ? 45_000 : 30_000);
+  const timeout = window.setTimeout(
+    () => {
+      timedOut = true;
+      controller.abort();
+    },
+    url === "/api/transcriptions" || url === "/api/feedback/transcribe" ? 45_000 : 30_000,
+  );
   try {
     const headers = new Headers(init?.headers);
     headers.set("X-Interface-Language", getLanguage());
@@ -22,12 +28,16 @@ async function requestJson<T>(url: string, init?: RequestInit): Promise<T> {
     if (responseId && /^[0-9a-f-]{36}$/i.test(responseId)) diagnosticId = responseId as ReturnType<typeof crypto.randomUUID>;
     if (!response.ok) {
       let detail: unknown;
-      try { detail = (await response.json()).detail; } catch { /* Invalid error body. */ }
+      try {
+        detail = (await response.json()).detail;
+      } catch {
+        /* Invalid error body. */
+      }
       throw new BackendError(response.status, detail);
     }
     if (response.status === 204) return undefined as T;
     readingBody = true;
-    return await response.json() as T;
+    return (await response.json()) as T;
   } catch (error) {
     if (init?.signal?.aborted) throw error;
     if (error instanceof BackendError) {
@@ -47,7 +57,10 @@ export class BackendError extends Error {
   readonly code?: string;
   readonly retryable?: boolean;
   readonly failure?: FailureDiagnostic;
-  constructor(public readonly status: number, public readonly detail?: unknown) {
+  constructor(
+    public readonly status: number,
+    public readonly detail?: unknown,
+  ) {
     super(typeof detail === "object" && detail !== null && "message" in detail && typeof detail.message === "string" ? detail.message : `Backend returned ${status}`);
     if (typeof detail === "object" && detail !== null) {
       if ("failure" in detail) this.failure = parseFailure(detail.failure);
@@ -107,8 +120,10 @@ function audioFilename(contentType: string): string {
 
 export function sendFeedback(content: string, signal?: AbortSignal): Promise<{ id: string; created_at: string }> {
   return requestJson("/api/feedback", {
-    method: "POST", headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ content }), signal,
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ content }),
+    signal,
   });
 }
 

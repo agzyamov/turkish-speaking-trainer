@@ -8,23 +8,40 @@ import { readRewardPreference, setRewardPreference } from "../rewardPreferences"
 import type { Attempt } from "../types/training";
 
 const audio = vi.hoisted(() => ({ prepare: vi.fn(), play: vi.fn(), stop: vi.fn(), dispose: vi.fn() }));
-vi.mock("../rewardAudio", () => ({ RewardAudio: class {
-  prepare = audio.prepare; play = audio.play; stop = audio.stop; dispose = audio.dispose;
-} }));
+vi.mock("../rewardAudio", () => ({
+  RewardAudio: class {
+    prepare = audio.prepare;
+    play = audio.play;
+    stop = audio.stop;
+    dispose = audio.dispose;
+  },
+}));
 const attempt = (score: number, used: number, id = "attempt-1") => ({ id, overall_score: score, daily_usage: { used } }) as Attempt;
-afterEach(() => { cleanup(); localStorage.clear(); setLanguage("ru"); vi.useRealTimers(); vi.clearAllMocks(); });
+afterEach(() => {
+  cleanup();
+  localStorage.clear();
+  setLanguage("ru");
+  vi.useRealTimers();
+  vi.clearAllMocks();
+});
 
 it("rings only for exact 100%, deduplicates results and removes the reward after 2 seconds", () => {
   vi.useFakeTimers();
   const { result, unmount } = renderHook(useRewards);
-  act(() => { result.current.prepareReward(); result.current.celebrate(attempt(.999, 19, "a0")); });
+  act(() => {
+    result.current.prepareReward();
+    result.current.celebrate(attempt(0.999, 19, "a0"));
+  });
   expect(audio.prepare).toHaveBeenCalledOnce();
   expect(audio.play).not.toHaveBeenCalled();
   expect(result.current.reward).toBeUndefined();
   act(() => result.current.celebrate(attempt(1, 19)));
   expect(audio.play).toHaveBeenCalledOnce();
   expect(result.current.reward?.kind).toBe("perfect");
-  act(() => { result.current.celebrate(attempt(1, 19)); vi.advanceTimersByTime(1999); });
+  act(() => {
+    result.current.celebrate(attempt(1, 19));
+    vi.advanceTimersByTime(1999);
+  });
   expect(audio.play).toHaveBeenCalledOnce();
   expect(result.current.reward).toBeDefined();
   act(() => vi.advanceTimersByTime(1));
@@ -36,10 +53,10 @@ it("rings only for exact 100%, deduplicates results and removes the reward after
 it("celebrates the daily twentieth check regardless of score and cleans up on unmount", () => {
   vi.useFakeTimers();
   const { result, unmount } = renderHook(useRewards);
-  act(() => result.current.celebrate(attempt(.7, 20)));
+  act(() => result.current.celebrate(attempt(0.7, 20)));
   expect(result.current.reward?.kind).toBe("twenty");
   expect(audio.play).not.toHaveBeenCalled();
-  act(() => result.current.celebrate(attempt(.7, 21, "a2")));
+  act(() => result.current.celebrate(attempt(0.7, 21, "a2")));
   expect(result.current.reward?.id).toBe("attempt-1");
   unmount();
   expect(vi.getTimerCount()).toBe(0);
@@ -48,7 +65,10 @@ it("celebrates the daily twentieth check regardless of score and cleans up on un
 it.each(["sounds", "animations"] as const)("disables %s independently", preference => {
   setRewardPreference(preference, false);
   const { result } = renderHook(useRewards);
-  act(() => { result.current.prepareReward(); result.current.celebrate(attempt(1, 20)); });
+  act(() => {
+    result.current.prepareReward();
+    result.current.celebrate(attempt(1, 20));
+  });
   expect(audio.play.mock.calls.length).toBe(preference === "sounds" ? 0 : 1);
   expect(Boolean(result.current.reward)).toBe(preference === "sounds");
 });
@@ -56,7 +76,12 @@ it.each(["sounds", "animations"] as const)("disables %s independently", preferen
 it.each(["ru", "en"] as const)("renders localized rewards and persists independent switches in %s", language => {
   setLanguage(language);
   const en = language === "en";
-  const view = render(<><SettingsView /><RewardOverlay reward={{ id: "a1", kind: "twenty" }} /></>);
+  const view = render(
+    <>
+      <SettingsView />
+      <RewardOverlay reward={{ id: "a1", kind: "twenty" }} />
+    </>,
+  );
   expect(screen.getByRole("status")).toHaveTextContent(en ? "20 repetitions today!" : "20 повторений за день!");
   expect(document.querySelectorAll(".reward-confetti i")).toHaveLength(32);
   fireEvent.click(screen.getByRole("switch", { name: en ? "Success animations" : "Анимации успеха" }));
@@ -71,9 +96,17 @@ it.each(["ru", "en"] as const)("renders localized rewards and persists independe
 });
 
 it("keeps perfect feedback inside its practice panel and the daily milestone on the screen", () => {
-  const view = render(<section data-testid="practice"><RewardOverlay reward={{ id: "a1", kind: "perfect" }} /></section>);
+  const view = render(
+    <section data-testid="practice">
+      <RewardOverlay reward={{ id: "a1", kind: "perfect" }} />
+    </section>,
+  );
   expect(screen.getByTestId("practice").querySelector(".reward-overlay--perfect")).toBeInTheDocument();
-  view.rerender(<section data-testid="practice"><RewardOverlay reward={{ id: "a2", kind: "twenty" }} /></section>);
+  view.rerender(
+    <section data-testid="practice">
+      <RewardOverlay reward={{ id: "a2", kind: "twenty" }} />
+    </section>,
+  );
   expect(screen.getByTestId("practice").querySelector(".reward-overlay")).toBeNull();
   expect(document.body.querySelector(".reward-overlay--twenty")).toBeInTheDocument();
 });
@@ -81,7 +114,10 @@ it("keeps perfect feedback inside its practice panel and the daily milestone on 
 it("uses the server's daily-first flag and queues a simultaneous twentieth check with one sound", () => {
   vi.useFakeTimers();
   const { result } = renderHook(useRewards);
-  act(() => { result.current.prepareReward(); result.current.celebrate({ ...attempt(1, 20), first_success_today: true }); });
+  act(() => {
+    result.current.prepareReward();
+    result.current.celebrate({ ...attempt(1, 20), first_success_today: true });
+  });
   expect(result.current.reward?.kind).toBe("start");
   expect(audio.play).toHaveBeenCalledOnce();
   act(() => vi.advanceTimersByTime(2000));

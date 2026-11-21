@@ -3,10 +3,16 @@ import { setLanguage } from "../i18n";
 import { exerciseSource } from "../exerciseSource";
 import type { Exercise } from "../types/training";
 
-const exercise: Exercise = { id: "p", session_id: "s", source_ru: "Я живу рядом с парком.", source_en: null,
-  expected_level: "A2", targeted_skills: [], difficulty: .5,
-  source_versions: { ru: "Я живу рядом с парком.", en: "I live near the park.",
-    hints_ru: [{ word_ru: "парком", translation_tr: "parka" }], hints_en: [{ word_ru: "park", translation_tr: "parka" }] } };
+const exercise: Exercise = {
+  id: "p",
+  session_id: "s",
+  source_ru: "Я живу рядом с парком.",
+  source_en: null,
+  expected_level: "A2",
+  targeted_skills: [],
+  difficulty: 0.5,
+  source_versions: { ru: "Я живу рядом с парком.", en: "I live near the park.", hints_ru: [{ word_ru: "парком", translation_tr: "parka" }], hints_en: [{ word_ru: "park", translation_tr: "parka" }] },
+};
 afterEach(() => setLanguage("ru"));
 
 it("uses independent personal sources and hints while switching RU/EN on the same prefetched exercise", () => {

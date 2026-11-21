@@ -28,38 +28,109 @@ export function EmailLogin({ onSignedIn }: { onSignedIn?: () => void } = {}) {
 
   async function sendCode() {
     if (pending.current || Date.now() < retryAt) return;
-    pending.current = true; setBusy(true); setError(undefined);
+    pending.current = true;
+    setBusy(true);
+    setError(undefined);
     // Also pace failed requests: retries must never send a burst of emails.
-    setRetryAt(Date.now() + 60_000); setRemaining(60);
-    try { await requestEmailCode(email); setSent(true); setCode(""); }
-    catch { setError("auth.couldNotSendCode"); }
-    finally { pending.current = false; setBusy(false); }
+    setRetryAt(Date.now() + 60_000);
+    setRemaining(60);
+    try {
+      await requestEmailCode(email);
+      setSent(true);
+      setCode("");
+    } catch {
+      setError("auth.couldNotSendCode");
+    } finally {
+      pending.current = false;
+      setBusy(false);
+    }
   }
 
   async function verify() {
     if (pending.current) return;
-    pending.current = true; setBusy(true); setError(undefined);
-    try { await verifyEmailCode(email, code); setCode(""); onSignedIn?.(); }
-    catch { setCode(""); setError("auth.codeInvalidHasExpired"); }
-    finally { pending.current = false; setBusy(false); }
+    pending.current = true;
+    setBusy(true);
+    setError(undefined);
+    try {
+      await verifyEmailCode(email, code);
+      setCode("");
+      onSignedIn?.();
+    } catch {
+      setCode("");
+      setError("auth.codeInvalidHasExpired");
+    } finally {
+      pending.current = false;
+      setBusy(false);
+    }
   }
 
-  return <details className={cn("email-login", authDetails)}>
-    <summary>{t("auth.signEmail")}</summary>
-    <form aria-label={t("auth.signEmailCode")} onSubmit={event => { event.preventDefault(); void (sent ? verify() : sendCode()); }}>
-      <p>{t("auth.weWillEmailYou")}</p>
-      <label>{t("Email")}<Input type="email" required autoComplete="email" autoCapitalize="none" spellCheck={false} maxLength={254} value={email} disabled={busy || sent} onChange={event => setEmail(event.target.value)} /></label>
-      {sent && <>
-        <p role="status">{t("auth.codeSentCheckInbox")}</p>
-        <label>{t("auth.emailCode")}<Input type="text" inputMode="numeric" autoComplete="one-time-code" required pattern="[0-9]{6,10}" maxLength={10} value={code} disabled={busy} onChange={event => setCode(event.target.value.replace(/\D/g, ""))} /></label>
-      </>}
-      <Button variant="primary" type="submit" disabled={busy || (!sent && remaining > 0)}>{t(busy ? sent ? "auth.signing" : "auth.sendingCode" : sent ? "auth.sign" : "auth.getCode")}</Button>
-      {remaining > 0 && <p>{t("auth.resendIn", { seconds: remaining })}</p>}
-      {sent && <>
-        <Button disabled={busy || remaining > 0} onClick={() => void sendCode()}>{t("auth.resendCode")}</Button>
-        <Button disabled={busy} onClick={() => { setSent(false); setCode(""); setError(undefined); }}>{t("auth.changeEmail")}</Button>
-      </>}
-      {error && <p role="alert">{t(error)}</p>}
-    </form>
-  </details>;
+  return (
+    <details className={cn("email-login", authDetails)}>
+      <summary>{t("auth.signEmail")}</summary>
+      <form
+        aria-label={t("auth.signEmailCode")}
+        onSubmit={event => {
+          event.preventDefault();
+          void (sent ? verify() : sendCode());
+        }}
+      >
+        <p>{t("auth.weWillEmailYou")}</p>
+        <label>
+          {t("Email")}
+          <Input
+            type="email"
+            required
+            autoComplete="email"
+            autoCapitalize="none"
+            spellCheck={false}
+            maxLength={254}
+            value={email}
+            disabled={busy || sent}
+            onChange={event => setEmail(event.target.value)}
+          />
+        </label>
+        {sent && (
+          <>
+            <p role="status">{t("auth.codeSentCheckInbox")}</p>
+            <label>
+              {t("auth.emailCode")}
+              <Input
+                type="text"
+                inputMode="numeric"
+                autoComplete="one-time-code"
+                required
+                pattern="[0-9]{6,10}"
+                maxLength={10}
+                value={code}
+                disabled={busy}
+                onChange={event => setCode(event.target.value.replace(/\D/g, ""))}
+              />
+            </label>
+          </>
+        )}
+        <Button variant="primary" type="submit" disabled={busy || (!sent && remaining > 0)}>
+          {t(busy ? (sent ? "auth.signing" : "auth.sendingCode") : sent ? "auth.sign" : "auth.getCode")}
+        </Button>
+        {remaining > 0 && <p>{t("auth.resendIn", { seconds: remaining })}</p>}
+        {sent && (
+          <>
+            <Button disabled={busy || remaining > 0} onClick={() => void sendCode()}>
+              {t("auth.resendCode")}
+            </Button>
+            <Button
+              disabled={busy}
+              onClick={() => {
+                setSent(false);
+                setCode("");
+                setError(undefined);
+              }}
+            >
+              {t("auth.changeEmail")}
+            </Button>
+          </>
+        )}
+        {error && <p role="alert">{t(error)}</p>}
+      </form>
+    </details>
+  );
 }

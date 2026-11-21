@@ -4,10 +4,11 @@ import { transcribeAudio } from "../api/training";
 const requests = vi.hoisted(() => [] as RequestInit[]);
 
 vi.mock("../auth", () => ({
-  authenticatedFetch: (_url: string, init: RequestInit) => new Promise((_resolve, reject) => {
-    requests.push(init);
-    init.signal?.addEventListener("abort", () => reject(new DOMException("aborted", "AbortError")), { once: true });
-  }),
+  authenticatedFetch: (_url: string, init: RequestInit) =>
+    new Promise((_resolve, reject) => {
+      requests.push(init);
+      init.signal?.addEventListener("abort", () => reject(new DOMException("aborted", "AbortError")), { once: true });
+    }),
 }));
 
 afterEach(() => vi.useRealTimers());

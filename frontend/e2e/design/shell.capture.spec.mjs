@@ -11,8 +11,17 @@ const topics = [
   { id: "doctor", title_ru: "У врача", title_en: "At the doctor", description_ru: "Симптомы и запись", likely_intents: [], suggested_vocabulary: [], is_custom: false, phrase_count: 24 },
   { id: "transport", title_ru: "Транспорт", title_en: "Transport", description_ru: "Билеты и маршруты", likely_intents: [], suggested_vocabulary: [], is_custom: false, phrase_count: 22 },
 ];
-const account = { id: "u-1", email: "learner@example.invalid", display_name: "Анна", avatar_url: null, role: "user", access_tier: "free",
-  registered_at: "2026-09-01T10:00:00Z", last_active_at: "2026-11-20T10:00:00Z", daily_usage: { used: 7, limit: 20, remaining: 13, resets_at: "2026-11-21T00:00:00Z" } };
+const account = {
+  id: "u-1",
+  email: "learner@example.invalid",
+  display_name: "Анна",
+  avatar_url: null,
+  role: "user",
+  access_tier: "free",
+  registered_at: "2026-09-01T10:00:00Z",
+  last_active_at: "2026-11-20T10:00:00Z",
+  daily_usage: { used: 7, limit: 20, remaining: 13, resets_at: "2026-11-21T00:00:00Z" },
+};
 
 async function mock(page) {
   await page.route("**/api/**", async route => {
@@ -23,12 +32,26 @@ async function mock(page) {
     else if (path === "/api/auth/me/preferences") body = { assistance_enabled: true };
     else if (path === "/api/topics") body = topics;
     else if (path === "/api/review-phrases/summary") body = { phrase_count: 4 };
-    else if (path === "/api/sessions/start") { await route.abort(); return; }
+    else if (path === "/api/sessions/start") {
+      await route.abort();
+      return;
+    }
     await route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(body) });
   });
   await page.goto("/privacy");
-  await page.evaluate(() => localStorage.setItem("sb-e2e-auth-auth-token", JSON.stringify({ access_token: "e2e-local-only", refresh_token: "e2e-local-only",
-    token_type: "bearer", expires_in: 31536000, expires_at: 4102444800, user: { id: "u-1", aud: "authenticated", role: "authenticated", email: "learner@example.invalid", app_metadata: {}, user_metadata: {}, created_at: "2026-09-01T10:00:00Z" } })));
+  await page.evaluate(() =>
+    localStorage.setItem(
+      "sb-e2e-auth-auth-token",
+      JSON.stringify({
+        access_token: "e2e-local-only",
+        refresh_token: "e2e-local-only",
+        token_type: "bearer",
+        expires_in: 31536000,
+        expires_at: 4102444800,
+        user: { id: "u-1", aud: "authenticated", role: "authenticated", email: "learner@example.invalid", app_metadata: {}, user_metadata: {}, created_at: "2026-09-01T10:00:00Z" },
+      }),
+    ),
+  );
 }
 
 for (const width of [1280, 390]) {

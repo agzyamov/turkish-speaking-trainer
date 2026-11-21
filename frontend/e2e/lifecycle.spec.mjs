@@ -2,18 +2,33 @@ import { expect, test } from "@playwright/test";
 import { installAccountRoutes } from "./accountRoutes.mjs";
 
 const topic = {
-  id: "bank", title_ru: "В банке", description_ru: "Счёт и платежи",
-  likely_intents: ["открыть счёт"], suggested_vocabulary: ["račun"], is_custom: false, phrase_count: 20,
+  id: "bank",
+  title_ru: "В банке",
+  description_ru: "Счёт и платежи",
+  likely_intents: ["открыть счёт"],
+  suggested_vocabulary: ["račun"],
+  is_custom: false,
+  phrase_count: 20,
 };
 const session = {
-  id: "session-lifecycle", status: "active", level: "A2", started_at: "2026-09-29T10:00:00Z",
-  requested_length: 10, completed_count: 0,
+  id: "session-lifecycle",
+  status: "active",
+  level: "A2",
+  started_at: "2026-09-29T10:00:00Z",
+  requested_length: 10,
+  completed_count: 0,
   topic: { ...topic, source: "preset", target_level: "A2", excluded_domains: [], normalized_prompt_context: "Разговор в банке" },
 };
 const exercise = { id: "exercise-lifecycle", session_id: session.id, source_ru: "Я хочу открыть счёт.", targeted_skills: [], expected_level: "A2", difficulty: 1, word_hints: [] };
 const account = {
-  id: "user-lifecycle", email: "learner@example.invalid", display_name: "Ученик", avatar_url: null,
-  role: "user", access_tier: "free", registered_at: "2026-09-01T10:00:00Z", last_active_at: "2026-09-29T10:00:00Z",
+  id: "user-lifecycle",
+  email: "learner@example.invalid",
+  display_name: "Ученик",
+  avatar_url: null,
+  role: "user",
+  access_tier: "free",
+  registered_at: "2026-09-01T10:00:00Z",
+  last_active_at: "2026-09-29T10:00:00Z",
   daily_usage: { used: 0, limit: 10, remaining: 10, resets_at: "2026-09-30T00:00:00Z" },
 };
 
@@ -29,17 +44,31 @@ async function installLifecycleApp(page, { onTranscription } = {}) {
     window.__lifecycleCounts = { recorderStartCount: 0, recorderStopCount: 0, trackStopCount: 0 };
     Object.defineProperty(navigator, "mediaDevices", {
       configurable: true,
-      value: { getUserMedia: async () => {
-        let stopped = false;
-        const track = { stop() { if (!stopped) { stopped = true; window.__lifecycleCounts.trackStopCount += 1; } } };
-        return { getTracks: () => [track] };
-      } },
+      value: {
+        getUserMedia: async () => {
+          let stopped = false;
+          const track = {
+            stop() {
+              if (!stopped) {
+                stopped = true;
+                window.__lifecycleCounts.trackStopCount += 1;
+              }
+            },
+          };
+          return { getTracks: () => [track] };
+        },
+      },
     });
     class LifecycleRecorder extends EventTarget {
-      static isTypeSupported() { return true; }
+      static isTypeSupported() {
+        return true;
+      }
       state = "inactive";
       mimeType = "audio/webm";
-      start() { this.state = "recording"; window.__lifecycleCounts.recorderStartCount += 1; }
+      start() {
+        this.state = "recording";
+        window.__lifecycleCounts.recorderStartCount += 1;
+      }
       stop() {
         if (this.state === "inactive") return;
         this.state = "inactive";
@@ -54,7 +83,7 @@ async function installLifecycleApp(page, { onTranscription } = {}) {
     Object.defineProperty(document, "visibilityState", { configurable: true, get: () => window.__lifecycleVisibility });
   });
 
-  await page.route("**/api/**", async (route) => {
+  await page.route("**/api/**", async route => {
     const request = route.request();
     const path = new URL(request.url()).pathname;
     const method = request.method();
@@ -73,15 +102,27 @@ async function installLifecycleApp(page, { onTranscription } = {}) {
     throw new Error(`Unexpected mocked API request: ${method} ${path}`);
   });
 
-  await installAccountRoutes(page, { preferences: true }); await page.goto("/privacy");
-  await page.evaluate(() => localStorage.setItem("sb-e2e-auth-auth-token", JSON.stringify({
-    access_token: "e2e-lifecycle-only", refresh_token: "e2e-lifecycle-only", token_type: "bearer",
-    expires_in: 60 * 60 * 24 * 365, expires_at: 4102444800,
-    user: { id: "user-lifecycle", aud: "authenticated", role: "authenticated", email: "learner@example.invalid",
-      app_metadata: {}, user_metadata: {}, created_at: "2026-09-01T10:00:00Z" },
-  })));
-  await installAccountRoutes(page, { preferences: true }); await page.goto("/?perf=1");
-  await page.getByRole("button", { name: /В банке/ }).first().click();
+  await installAccountRoutes(page, { preferences: true });
+  await page.goto("/privacy");
+  await page.evaluate(() =>
+    localStorage.setItem(
+      "sb-e2e-auth-auth-token",
+      JSON.stringify({
+        access_token: "e2e-lifecycle-only",
+        refresh_token: "e2e-lifecycle-only",
+        token_type: "bearer",
+        expires_in: 60 * 60 * 24 * 365,
+        expires_at: 4102444800,
+        user: { id: "user-lifecycle", aud: "authenticated", role: "authenticated", email: "learner@example.invalid", app_metadata: {}, user_metadata: {}, created_at: "2026-09-01T10:00:00Z" },
+      }),
+    ),
+  );
+  await installAccountRoutes(page, { preferences: true });
+  await page.goto("/?perf=1");
+  await page
+    .getByRole("button", { name: /В банке/ })
+    .first()
+    .click();
   await expect(page.locator(".practice-stage .interactive-phrase")).toBeVisible();
 }
 
@@ -92,7 +133,7 @@ async function transcribe(page) {
 }
 
 async function setVisibility(page, state) {
-  await page.evaluate((nextState) => {
+  await page.evaluate(nextState => {
     window.__lifecycleVisibility = nextState;
     document.dispatchEvent(new Event("visibilitychange"));
   }, state);
@@ -100,7 +141,12 @@ async function setVisibility(page, state) {
 
 test("background during recording releases media once, preserves draft, and resumes safely", async ({ page }) => {
   let transcriptionCount = 0;
-  await installLifecycleApp(page, { onTranscription: async (route) => { transcriptionCount += 1; await json(route, { text: "Želim da otvorim račun." }); } });
+  await installLifecycleApp(page, {
+    onTranscription: async route => {
+      transcriptionCount += 1;
+      await json(route, { text: "Želim da otvorim račun." });
+    },
+  });
   await transcribe(page);
   const draft = "Sačuvaj ovaj odgovor.";
   await page.getByLabel("Ваш ответ").fill(draft);
@@ -127,16 +173,26 @@ test("late transcription after background cannot replace the existing draft", as
   let transcriptionCount = 0;
   let releaseLateResponse;
   let settleLateRoute;
-  const lateResponse = new Promise((resolve) => { releaseLateResponse = resolve; });
-  const lateRouteSettled = new Promise((resolve) => { settleLateRoute = resolve; });
-  await installLifecycleApp(page, { onTranscription: async (route) => {
-    transcriptionCount += 1;
-    if (transcriptionCount === 1) return json(route, { text: "Želim da otvorim račun." });
-    await lateResponse;
-    try { await json(route, { text: "СТАРЫЙ РЕЗУЛЬТАТ НЕ ДОЛЖЕН ПОЯВИТЬСЯ" }); }
-    catch { /* The app may cancel the request when it backgrounds. */ }
-    finally { settleLateRoute(); }
-  } });
+  const lateResponse = new Promise(resolve => {
+    releaseLateResponse = resolve;
+  });
+  const lateRouteSettled = new Promise(resolve => {
+    settleLateRoute = resolve;
+  });
+  await installLifecycleApp(page, {
+    onTranscription: async route => {
+      transcriptionCount += 1;
+      if (transcriptionCount === 1) return json(route, { text: "Želim da otvorim račun." });
+      await lateResponse;
+      try {
+        await json(route, { text: "СТАРЫЙ РЕЗУЛЬТАТ НЕ ДОЛЖЕН ПОЯВИТЬСЯ" });
+      } catch {
+        /* The app may cancel the request when it backgrounds. */
+      } finally {
+        settleLateRoute();
+      }
+    },
+  });
   await transcribe(page);
   const draft = "Sačuvaj ovaj odgovor.";
   await page.getByLabel("Ваш ответ").fill(draft);

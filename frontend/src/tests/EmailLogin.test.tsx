@@ -5,8 +5,17 @@ import { setLanguage } from "../i18n";
 
 const auth = vi.hoisted(() => ({ isEmailOtpEnabled: vi.fn(), requestEmailCode: vi.fn(), verifyEmailCode: vi.fn() }));
 vi.mock("../emailAuth", () => auth);
-beforeEach(() => { auth.isEmailOtpEnabled.mockReturnValue(true); auth.requestEmailCode.mockResolvedValue(undefined); auth.verifyEmailCode.mockResolvedValue(undefined); });
-afterEach(() => { cleanup(); vi.resetAllMocks(); vi.useRealTimers(); setLanguage("ru"); });
+beforeEach(() => {
+  auth.isEmailOtpEnabled.mockReturnValue(true);
+  auth.requestEmailCode.mockResolvedValue(undefined);
+  auth.verifyEmailCode.mockResolvedValue(undefined);
+});
+afterEach(() => {
+  cleanup();
+  vi.resetAllMocks();
+  vi.useRealTimers();
+  setLanguage("ru");
+});
 
 function open(language: "ru" | "en", onSignedIn = vi.fn()) {
   setLanguage(language);
@@ -35,16 +44,25 @@ it.each(["ru", "en"] as const)("requests and verifies a code in %s", async langu
 it.each(["ru", "en"] as const)("hides send errors and blocks duplicate sends and resend bursts in %s", async language => {
   vi.useFakeTimers();
   let reject!: (error: Error) => void;
-  auth.requestEmailCode.mockReturnValueOnce(new Promise((_, fail) => { reject = fail; }));
+  auth.requestEmailCode.mockReturnValueOnce(
+    new Promise((_, fail) => {
+      reject = fail;
+    }),
+  );
   const form = open(language);
-  fireEvent.submit(form); fireEvent.submit(form);
+  fireEvent.submit(form);
+  fireEvent.submit(form);
   expect(auth.requestEmailCode).toHaveBeenCalledOnce();
-  await act(async () => { reject(new Error("private smtp details")); });
+  await act(async () => {
+    reject(new Error("private smtp details"));
+  });
   expect(screen.getByRole("alert")).not.toHaveTextContent("private smtp details");
   expect(screen.getByRole("alert")).toHaveTextContent(language === "ru" ? "Не удалось отправить" : "Could not send");
   fireEvent.submit(form);
   expect(auth.requestEmailCode).toHaveBeenCalledOnce();
-  await act(async () => { vi.advanceTimersByTime(60_000); });
+  await act(async () => {
+    vi.advanceTimersByTime(60_000);
+  });
   fireEvent.submit(form);
   await act(async () => {});
   expect(auth.requestEmailCode).toHaveBeenCalledTimes(2);

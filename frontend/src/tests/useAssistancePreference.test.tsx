@@ -8,18 +8,32 @@ vi.mock("../api/users", () => ({ fetchPreferences: vi.fn(), updatePreferences: v
 
 function Client() {
   const preference = useAssistancePreference(false);
-  return <SettingsView
-    assistanceEnabled={preference.enabled} assistanceSaving={preference.saving}
-    assistanceError={preference.error} onAssistanceChange={value => { void preference.change(value); }} />;
+  return (
+    <SettingsView
+      assistanceEnabled={preference.enabled}
+      assistanceSaving={preference.saving}
+      assistanceError={preference.error}
+      onAssistanceChange={value => {
+        void preference.change(value);
+      }}
+    />
+  );
 }
 
-afterEach(() => { cleanup(); vi.resetAllMocks(); vi.useRealTimers(); });
+afterEach(() => {
+  cleanup();
+  vi.resetAllMocks();
+  vi.useRealTimers();
+});
 
 describe("shared assistance preference", () => {
   it.each([true, false])("restores saved %s after a client restart without writing a default", async enabled => {
     let server = !enabled;
     vi.mocked(fetchPreferences).mockImplementation(async () => ({ assistance_enabled: server }));
-    vi.mocked(updatePreferences).mockImplementation(async value => { server = value; return { assistance_enabled: server }; });
+    vi.mocked(updatePreferences).mockImplementation(async value => {
+      server = value;
+      return { assistance_enabled: server };
+    });
     const firstClient = render(<Client />);
     await waitFor(() => expect(fetchPreferences).toHaveBeenCalledTimes(1));
     await waitFor(() => expect(screen.getByRole("switch", { name: "Мягкие подсказки при распознавании" })).toHaveAttribute("aria-checked", String(!enabled)));
@@ -53,8 +67,16 @@ describe("shared assistance preference", () => {
   it("syncs two open clients in both directions on focus", async () => {
     let server = false;
     vi.mocked(fetchPreferences).mockImplementation(async () => ({ assistance_enabled: server }));
-    vi.mocked(updatePreferences).mockImplementation(async value => { server = value; return { assistance_enabled: server }; });
-    render(<><Client /><Client /></>);
+    vi.mocked(updatePreferences).mockImplementation(async value => {
+      server = value;
+      return { assistance_enabled: server };
+    });
+    render(
+      <>
+        <Client />
+        <Client />
+      </>,
+    );
     await waitFor(() => expect(fetchPreferences).toHaveBeenCalledTimes(2));
     const [web, android] = screen.getAllByRole("switch", { name: "Мягкие подсказки при распознавании" });
     fireEvent.click(android);
@@ -79,7 +101,11 @@ describe("shared assistance preference", () => {
 
   it("ignores a refresh started before a confirmed change", async () => {
     let finish!: (value: { assistance_enabled: boolean }) => void;
-    vi.mocked(fetchPreferences).mockReturnValue(new Promise(resolve => { finish = resolve; }));
+    vi.mocked(fetchPreferences).mockReturnValue(
+      new Promise(resolve => {
+        finish = resolve;
+      }),
+    );
     vi.mocked(updatePreferences).mockResolvedValue({ assistance_enabled: true });
     render(<Client />);
     fireEvent.click(screen.getByRole("switch", { name: "Мягкие подсказки при распознавании" }));
@@ -94,10 +120,14 @@ describe("shared assistance preference", () => {
     const rendered = render(<Client />);
     await act(async () => undefined);
     vi.mocked(fetchPreferences).mockResolvedValue({ assistance_enabled: true });
-    await act(async () => { vi.advanceTimersByTime(15_000); });
+    await act(async () => {
+      vi.advanceTimersByTime(15_000);
+    });
     expect(screen.getByRole("switch", { name: "Мягкие подсказки при распознавании" })).toBeChecked();
     vi.mocked(fetchPreferences).mockReturnValue(new Promise(() => undefined));
-    await act(async () => { vi.advanceTimersByTime(15_000); });
+    await act(async () => {
+      vi.advanceTimersByTime(15_000);
+    });
     const signal = vi.mocked(fetchPreferences).mock.calls.at(-1)![0];
     rendered.unmount();
     expect(signal.aborted).toBe(true);

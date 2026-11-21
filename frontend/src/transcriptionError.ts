@@ -17,15 +17,20 @@ const reasons: Record<string, string> = {
 export function transcriptionErrorMessage(error: unknown): string {
   let reason = "practice.causeCouldNotDetermined";
   if (error instanceof BackendError) {
-    reason = (error.code && reasons[error.code]) || ({
-      401: "practice.sessionExpiredSignAgain",
-      403: "practice.noAccessTranscription",
-      404: "practice.exerciseNoLongerAvailable",
-      413: "practice.recordingTooLargeRecord",
-      415: "practice.recordingEmptyItsFormat",
-      422: "practice.serverRejectedRequestData",
-      429: "practice.tooManyRequestsWait",
-    } as Record<number, string>)[error.status] || t("practice.transcription.httpError", { status: error.status });
+    reason =
+      (error.code && reasons[error.code]) ||
+      (
+        {
+          401: "practice.sessionExpiredSignAgain",
+          403: "practice.noAccessTranscription",
+          404: "practice.exerciseNoLongerAvailable",
+          413: "practice.recordingTooLargeRecord",
+          415: "practice.recordingEmptyItsFormat",
+          422: "practice.serverRejectedRequestData",
+          429: "practice.tooManyRequestsWait",
+        } as Record<number, string>
+      )[error.status] ||
+      t("practice.transcription.httpError", { status: error.status });
   } else if ((error instanceof Error || error instanceof DOMException) && error.name === "TimeoutError") {
     reason = "practice.serverDidNotRespond";
   } else if (error instanceof TypeError) {

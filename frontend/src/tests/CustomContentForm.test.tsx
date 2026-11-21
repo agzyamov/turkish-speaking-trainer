@@ -4,10 +4,21 @@ import { CustomContentForm } from "../CustomContentForm";
 import { setLanguage } from "../i18n";
 import { BackendError, addReviewPhrase, createTopic, prepareReviewPhrase } from "../api/training";
 
-vi.mock("../api/training", async importOriginal => ({ ...await importOriginal<typeof import("../api/training")>(), addReviewPhrase: vi.fn(), createTopic: vi.fn(), prepareReviewPhrase: vi.fn() }));
+vi.mock("../api/training", async importOriginal => ({ ...(await importOriginal<typeof import("../api/training")>()), addReviewPhrase: vi.fn(), createTopic: vi.fn(), prepareReviewPhrase: vi.fn() }));
 const topic = { id: "custom-1", title_ru: "Своя тема", description_ru: "", likely_intents: [], suggested_vocabulary: [], is_custom: true, phrase_count: 0 };
-const prepared = { preparation_id: "receipt-1", source_ru: "Мне нужно позвонить хозяину.", canonical_tr: "Moram da pozovem vlasnika.", intended_tr_variants: ["Moram da pozovem vlasnika."], word_hints: [], source_versions: { ru: "Мне нужно позвонить хозяину.", en: "I need to call the landlord.", hints_ru: [], hints_en: [] } };
-afterEach(() => { cleanup(); vi.resetAllMocks(); setLanguage("ru"); });
+const prepared = {
+  preparation_id: "receipt-1",
+  source_ru: "Мне нужно позвонить хозяину.",
+  canonical_tr: "Moram da pozovem vlasnika.",
+  intended_tr_variants: ["Moram da pozovem vlasnika."],
+  word_hints: [],
+  source_versions: { ru: "Мне нужно позвонить хозяину.", en: "I need to call the landlord.", hints_ru: [], hints_en: [] },
+};
+afterEach(() => {
+  cleanup();
+  vi.resetAllMocks();
+  setLanguage("ru");
+});
 
 describe("administrator custom content", () => {
   it.each(["ru", "en"] as const)("prepares, previews and saves into the chosen topic (%s)", async language => {
@@ -43,7 +54,9 @@ describe("administrator custom content", () => {
 
   it("retains the translation and topic when saving fails and allows retry", async () => {
     vi.mocked(prepareReviewPhrase).mockResolvedValue(prepared);
-    vi.mocked(addReviewPhrase).mockRejectedValueOnce(new Error("offline")).mockResolvedValueOnce({} as never);
+    vi.mocked(addReviewPhrase)
+      .mockRejectedValueOnce(new Error("offline"))
+      .mockResolvedValueOnce({} as never);
     render(<CustomContentForm mode="phrase" topics={[topic]} onTopicCreated={vi.fn()} onPhraseSaved={vi.fn()} onClose={vi.fn()} />);
     fireEvent.change(screen.getByRole("textbox"), { target: { value: prepared.source_ru } });
     fireEvent.click(screen.getByText("Подготовить перевод"));
@@ -59,7 +72,12 @@ describe("administrator custom content", () => {
 
   it("blocks whitespace and duplicate submissions while saving a topic", async () => {
     let finish!: (value: typeof topic) => void;
-    vi.mocked(createTopic).mockImplementation(() => new Promise(resolve => { finish = resolve; }));
+    vi.mocked(createTopic).mockImplementation(
+      () =>
+        new Promise(resolve => {
+          finish = resolve;
+        }),
+    );
     const created = vi.fn();
     render(<CustomContentForm mode="topic" topics={[]} onTopicCreated={created} onPhraseSaved={vi.fn()} onClose={vi.fn()} />);
     fireEvent.change(screen.getByRole("textbox"), { target: { value: "   " } });
@@ -82,14 +100,21 @@ describe("administrator custom content", () => {
     expect(prepareReviewPhrase).not.toHaveBeenCalled();
   });
 
-  it.each([["topic", "ru"], ["phrase", "ru"], ["topic", "en"], ["phrase", "en"]] as const)("offers deletion when the %s limit is reached (%s)", (mode, language) => {
+  it.each([
+    ["topic", "ru"],
+    ["phrase", "ru"],
+    ["topic", "en"],
+    ["phrase", "en"],
+  ] as const)("offers deletion when the %s limit is reached (%s)", (mode, language) => {
     setLanguage(language);
     const manage = vi.fn();
     const topics = Array.from({ length: 5 }, (_, index) => ({ ...topic, id: `topic-${index}`, custom_phrase_count: 30 }));
     render(<CustomContentForm mode={mode} topics={topics} onTopicCreated={vi.fn()} onPhraseSaved={vi.fn()} onClose={vi.fn()} onManage={manage} />);
-    expect(screen.getByRole("alert")).toHaveTextContent(language === "ru" ? mode === "topic" ? "5 пользовательских тем" : "30 фраз в теме" : mode === "topic" ? "5 custom topics" : "30 phrases");
+    expect(screen.getByRole("alert")).toHaveTextContent(language === "ru" ? (mode === "topic" ? "5 пользовательских тем" : "30 фраз в теме") : mode === "topic" ? "5 custom topics" : "30 phrases");
     fireEvent.change(screen.getByRole("textbox"), { target: { value: "Новый текст" } });
-    expect(screen.getByRole("button", { name: language === "ru" ? mode === "topic" ? "Сохранить тему" : "Подготовить перевод" : mode === "topic" ? "Save topic" : "Prepare translation" })).toBeDisabled();
+    expect(
+      screen.getByRole("button", { name: language === "ru" ? (mode === "topic" ? "Сохранить тему" : "Подготовить перевод") : mode === "topic" ? "Save topic" : "Prepare translation" }),
+    ).toBeDisabled();
     fireEvent.click(screen.getByText(language === "ru" ? "Удалить свои фразы или темы" : "Delete your phrases or topics"));
     expect(manage).toHaveBeenCalledOnce();
   });
@@ -100,21 +125,23 @@ describe("administrator custom content", () => {
     expect(screen.getByText("Подготовить перевод")).toBeDisabled();
     expect(screen.getByText("Создать свою тему")).toBeInTheDocument();
   });
-
 });
-
 
 it.each(["ru", "en"] as const)("keeps the topic draft after translation failure and retries (%s)", async language => {
   setLanguage(language);
   const created = vi.fn();
-  vi.mocked(createTopic).mockRejectedValueOnce(new BackendError(503, {code: "topic_translation_unavailable"})).mockResolvedValueOnce({...topic, title_en: "My topic"});
+  vi.mocked(createTopic)
+    .mockRejectedValueOnce(new BackendError(503, { code: "topic_translation_unavailable" }))
+    .mockResolvedValueOnce({ ...topic, title_en: "My topic" });
   render(<CustomContentForm mode="topic" topics={[]} onTopicCreated={created} onPhraseSaved={vi.fn()} onClose={vi.fn()} />);
-  fireEvent.change(screen.getByRole("textbox"), {target:{value:"Своя тема"}});
-  fireEvent.click(screen.getByRole("button", {name:language === "ru" ? "Сохранить тему" : "Save topic"}));
-  expect(await screen.findByRole("alert")).toHaveTextContent(language === "ru" ? "Не удалось перевести название темы. Тема не сохранена." : "Could not translate the topic title. The topic was not saved.");
+  fireEvent.change(screen.getByRole("textbox"), { target: { value: "Своя тема" } });
+  fireEvent.click(screen.getByRole("button", { name: language === "ru" ? "Сохранить тему" : "Save topic" }));
+  expect(await screen.findByRole("alert")).toHaveTextContent(
+    language === "ru" ? "Не удалось перевести название темы. Тема не сохранена." : "Could not translate the topic title. The topic was not saved.",
+  );
   expect(screen.getByRole("textbox")).toHaveValue("Своя тема");
   expect(created).not.toHaveBeenCalled();
-  fireEvent.click(screen.getByRole("button", {name:language === "ru" ? "Сохранить тему" : "Save topic"}));
+  fireEvent.click(screen.getByRole("button", { name: language === "ru" ? "Сохранить тему" : "Save topic" }));
   await screen.findByText(language === "ru" ? "Тема сохранена." : "Topic saved.");
-  expect(created).toHaveBeenCalledWith(expect.objectContaining({title_en:"My topic"}));
+  expect(created).toHaveBeenCalledWith(expect.objectContaining({ title_en: "My topic" }));
 });

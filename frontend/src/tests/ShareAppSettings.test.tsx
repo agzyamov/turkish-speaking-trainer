@@ -9,8 +9,12 @@ vi.mock("@capacitor/share", () => ({ Share: { share: mocks.share } }));
 const copy = vi.fn();
 const webShare = vi.fn();
 afterEach(() => {
-  cleanup(); setLanguage("ru"); vi.restoreAllMocks(); vi.clearAllMocks();
-  mocks.native = false; mocks.available = false;
+  cleanup();
+  setLanguage("ru");
+  vi.restoreAllMocks();
+  vi.clearAllMocks();
+  mocks.native = false;
+  mocks.available = false;
 });
 function setup(language: "ru" | "en" = "ru", share = false) {
   setLanguage(language);
@@ -32,13 +36,18 @@ it.each(["ru", "en"] as const)("copies the public URL when sharing is unsupporte
 it.each(["ru", "en"] as const)("shares only public data in the selected language (%s)", async language => {
   setup(language, true);
   fireEvent.click(screen.getByRole("button", { name: language === "en" ? "Share" : "Поделиться" }));
-  expect(webShare).toHaveBeenCalledWith({ title: "SerboTalk", url: publicAppUrl, text: language === "en" ? "Practise speaking Turkish with SerboTalk." : "Практикуйте разговорный турецкий с SerboTalk." });
+  expect(webShare).toHaveBeenCalledWith({
+    title: "SerboTalk",
+    url: publicAppUrl,
+    text: language === "en" ? "Practise speaking Turkish with SerboTalk." : "Практикуйте разговорный турецкий с SerboTalk.",
+  });
   await act(async () => {});
   expect(copy).not.toHaveBeenCalled();
 });
 
 it("uses the native plugin and handles its cancellation without copying", async () => {
-  mocks.native = true; mocks.available = true;
+  mocks.native = true;
+  mocks.available = true;
   setup();
   mocks.share.mockRejectedValue(new Error("Share canceled"));
   fireEvent.click(screen.getByRole("button", { name: "Поделиться" }));
@@ -78,7 +87,8 @@ it.each(["ru", "en"] as const)("allows manual copy after a share error and retri
 });
 
 it("retains the selectable URL when clipboard access is denied", async () => {
-  setup(); copy.mockRejectedValue(new Error("Denied"));
+  setup();
+  copy.mockRejectedValue(new Error("Denied"));
   fireEvent.click(screen.getByRole("button", { name: "Скопировать ссылку" }));
   await screen.findByRole("alert");
   expect(screen.getByRole("textbox")).toHaveValue(publicAppUrl);
@@ -87,9 +97,15 @@ it("retains the selectable URL when clipboard access is denied", async () => {
 it("disables both buttons while pending and prevents duplicate share requests", async () => {
   setup("en", true);
   let finish!: () => void;
-  webShare.mockImplementation(() => new Promise<void>(resolve => { finish = resolve; }));
+  webShare.mockImplementation(
+    () =>
+      new Promise<void>(resolve => {
+        finish = resolve;
+      }),
+  );
   const share = screen.getByRole("button", { name: "Share" });
-  fireEvent.click(share); fireEvent.click(share);
+  fireEvent.click(share);
+  fireEvent.click(share);
   expect(share).toBeDisabled();
   expect(screen.getByRole("button", { name: "Copy link" })).toBeDisabled();
   expect(screen.getByRole("status")).toHaveTextContent("Opening share menu…");

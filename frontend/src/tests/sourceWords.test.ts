@@ -10,6 +10,5 @@ it.each(["Мне не с кем поговорить.", "мне не с кем �
 it("does not match inside words or across punctuation; preserves contractions and repeated fragments", () => {
   expect(splitHintFragments("Some nobody", ["me", "body"])).toEqual(["Some", " ", "nobody"]);
   expect(splitHintFragments("У, нас дети", ["у нас"])).toEqual(["У", ", ", "нас", " ", "дети"]);
-  expect(splitHintFragments("I don't have time; I don't have money.", ["i don't have", "time", "money"])).toEqual([
-    "I don't have", " ", "time", "; ", "I don't have", " ", "money", "."]);
+  expect(splitHintFragments("I don't have time; I don't have money.", ["i don't have", "time", "money"])).toEqual(["I don't have", " ", "time", "; ", "I don't have", " ", "money", "."]);
 });

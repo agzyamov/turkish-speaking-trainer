@@ -12,11 +12,14 @@ async function getJson<T>(path: string, signal?: AbortSignal): Promise<T> {
 export async function fetchCurrentUser(signal?: AbortSignal): Promise<CurrentUser> {
   if (Capacitor.getPlatform() !== "android") return getJson<CurrentUser>("/api/auth/me", signal);
   const response = await authenticatedFetch(apiUrl("/api/auth/me/android-premium"), {
-    method: "POST", signal: signal ?? AbortSignal.timeout(15000), cache: "no-store",
-    headers: { "Content-Type": "application/json" }, body: JSON.stringify({ platform: "android" }),
+    method: "POST",
+    signal: signal ?? AbortSignal.timeout(15000),
+    cache: "no-store",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ platform: "android" }),
   });
   if (!response.ok) throw new Error(`Backend returned ${response.status}`);
-  const account = await response.json() as CurrentUser;
+  const account = (await response.json()) as CurrentUser;
   if (account.access_tier !== "premium") throw new Error("Android Premium activation failed");
   return account;
 }
@@ -31,7 +34,9 @@ export function fetchModelDebug(signal: AbortSignal): Promise<{ enabled: boolean
 
 export async function updateModelDebug(enabled: boolean, signal: AbortSignal): Promise<{ enabled: boolean }> {
   const response = await authenticatedFetch(apiUrl("/api/admin/model-debug"), {
-    method: "PATCH", signal, headers: { "Content-Type": "application/json" },
+    method: "PATCH",
+    signal,
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ enabled }),
   });
   if (!response.ok) throw new Error(`Backend returned ${response.status}`);
@@ -51,7 +56,10 @@ export function fetchTranscriptionModels(signal: AbortSignal): Promise<Transcrip
 
 export async function updateTranscriptionModel(model: string | null, signal: AbortSignal): Promise<TranscriptionModelSettings> {
   const response = await authenticatedFetch(apiUrl("/api/admin/model-debug/transcription"), {
-    method: "PATCH", signal, headers: { "Content-Type": "application/json" }, body: JSON.stringify({ model }),
+    method: "PATCH",
+    signal,
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ model }),
   });
   if (!response.ok) throw new Error(`Backend returned ${response.status}`);
   return response.json();
@@ -63,7 +71,9 @@ export async function fetchPreferences(signal: AbortSignal): Promise<import("../
 
 export async function updatePreferences(enabled: boolean, signal: AbortSignal): Promise<import("../types/auth").UserPreferences> {
   const response = await authenticatedFetch(apiUrl("/api/auth/me/preferences"), {
-    method: "PATCH", signal, headers: { "Content-Type": "application/json" },
+    method: "PATCH",
+    signal,
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ assistance_enabled: enabled }),
   });
   if (!response.ok) throw new Error(`Backend returned ${response.status}`);

@@ -13,12 +13,7 @@ export async function fetchMonthlyStatistics(month: string, signal?: AbortSignal
   return response.json() as Promise<MonthlyStatistics>;
 }
 
-export async function fetchPhraseStatistics(
-  page: number,
-  pageSize: "10" | "20" | "50" | "all",
-  signal?: AbortSignal,
-  topicId?: string,
-): Promise<PhraseStatistics> {
+export async function fetchPhraseStatistics(page: number, pageSize: "10" | "20" | "50" | "all", signal?: AbortSignal, topicId?: string): Promise<PhraseStatistics> {
   const query = new URLSearchParams({ page: String(page), page_size: pageSize });
   if (topicId) query.set("topic_id", topicId);
   const response = await authenticatedFetch(apiUrl(`/api/statistics/phrases?${query}`), { signal });

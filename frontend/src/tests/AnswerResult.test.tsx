@@ -5,58 +5,79 @@ import type { Attempt } from "../types/training";
 import { setLanguage } from "../i18n";
 
 const attempt: Attempt = {
-  id: "attempt-1", exercise_id: "exercise-1", transcript_tr: "Račun želim otovrim.",
-  overall_score: .5, base_score: .5, hint_penalty: 0,
+  id: "attempt-1",
+  exercise_id: "exercise-1",
+  transcript_tr: "Račun želim otovrim.",
+  overall_score: 0.5,
+  base_score: 0.5,
+  hint_penalty: 0,
   analysis: {
-    verdict: "needs_work", semantic_score: .5, grammar_score: .5, lexical_score: .5,
-    naturalness_score: .5, pronunciation_score: null, fluency_score: 1,
-    corrected_tr: "Želim otvorim račun.", short_feedback_ru: "Исправьте ответ.",
-    detailed_feedback_ru: "Исправьте порядок и написание.", accepted_alternatives: [],
-    issues: [{ type: "vocabulary", skill_key: "vocabulary", severity: 0.8, confidence: 0.9,
-      evidence: "otovrim", correction: "otvorim" }], demonstrated_skills: [],
+    verdict: "needs_work",
+    semantic_score: 0.5,
+    grammar_score: 0.5,
+    lexical_score: 0.5,
+    naturalness_score: 0.5,
+    pronunciation_score: null,
+    fluency_score: 1,
+    corrected_tr: "Želim otvorim račun.",
+    short_feedback_ru: "Исправьте ответ.",
+    detailed_feedback_ru: "Исправьте порядок и написание.",
+    accepted_alternatives: [],
+    issues: [{ type: "vocabulary", skill_key: "vocabulary", severity: 0.8, confidence: 0.9, evidence: "otovrim", correction: "otvorim" }],
+    demonstrated_skills: [],
   },
 };
 
 describe("AnswerResult", () => {
-  afterEach(() => { cleanup(); setLanguage("ru"); });
+  afterEach(() => {
+    cleanup();
+    setLanguage("ru");
+  });
   for (const language of ["ru", "en"] as const) {
-      it(`marks errors without a curriculum skill (${language})`, () => {
-        setLanguage(language);
-        const issue = { ...attempt.analysis.issues[0], skill_key: null, evidence: "otovrim", correction: "otvorim" };
-        render(<AnswerResult answer={attempt.transcript_tr}
-          attempt={{ ...attempt, analysis: { ...attempt.analysis, issues: [issue], demonstrated_skills: [] } }} />);
-        const marks = document.querySelectorAll("mark");
-        expect(marks).toHaveLength(1);
-        expect(marks[0]).toHaveTextContent("otovrim");
-        expect(marks[0]).toHaveAttribute("title", "otvorim");
-        expect(document.querySelector(".result-phrase__text")).toHaveTextContent(attempt.transcript_tr);
-      });
+    it(`marks errors without a curriculum skill (${language})`, () => {
+      setLanguage(language);
+      const issue = { ...attempt.analysis.issues[0], skill_key: null, evidence: "otovrim", correction: "otvorim" };
+      render(<AnswerResult answer={attempt.transcript_tr} attempt={{ ...attempt, analysis: { ...attempt.analysis, issues: [issue], demonstrated_skills: [] } }} />);
+      const marks = document.querySelectorAll("mark");
+      expect(marks).toHaveLength(1);
+      expect(marks[0]).toHaveTextContent("otovrim");
+      expect(marks[0]).toHaveAttribute("title", "otvorim");
+      expect(document.querySelector(".result-phrase__text")).toHaveTextContent(attempt.transcript_tr);
+    });
 
-      it(`preserves unreported Da and marks the reported word order (${language})`, () => {
-        setLanguage(language);
-        const answer = "Sednemo Napolju. Da, naravno. Baš lepo je vreme.";
-        const issues = [
-          { ...attempt.analysis.issues[0], evidence: "Sednemo", correction: "Da sednemo" },
-          { ...attempt.analysis.issues[0], evidence: "Baš lepo je", correction: "baš je lepo" },
-        ];
-        render(<AnswerResult answer={answer} attempt={{ ...attempt, analysis: {
-          ...attempt.analysis, corrected_tr: "Da sednemo napolju? — Može, naravno, baš je lepo vreme.", issues,
-        } }} />);
-        expect(Array.from(document.querySelectorAll("mark"), mark => mark.textContent))
-          .toEqual(["lepo", "je"]);
-        expect(document.querySelector(".result-phrase__text")).toHaveTextContent(answer);
-      });
+    it(`preserves unreported Da and marks the reported word order (${language})`, () => {
+      setLanguage(language);
+      const answer = "Sednemo Napolju. Da, naravno. Baš lepo je vreme.";
+      const issues = [
+        { ...attempt.analysis.issues[0], evidence: "Sednemo", correction: "Da sednemo" },
+        { ...attempt.analysis.issues[0], evidence: "Baš lepo je", correction: "baš je lepo" },
+      ];
+      render(
+        <AnswerResult
+          answer={answer}
+          attempt={{
+            ...attempt,
+            analysis: {
+              ...attempt.analysis,
+              corrected_tr: "Da sednemo napolju? — Može, naravno, baš je lepo vreme.",
+              issues,
+            },
+          }}
+        />,
+      );
+      expect(Array.from(document.querySelectorAll("mark"), mark => mark.textContent)).toEqual(["lepo", "je"]);
+      expect(document.querySelector(".result-phrase__text")).toHaveTextContent(answer);
+    });
 
-      it(`marks Da when analysis explicitly reports Da → Može (${language})`, () => {
-        setLanguage(language);
-        const issues = [{ ...attempt.analysis.issues[0], evidence: "Da", correction: "Može" }];
-        render(<AnswerResult answer="Sednemo Napolju. Da, naravno. Baš lepo je vreme."
-          attempt={{ ...attempt, analysis: { ...attempt.analysis, issues } }} />);
-        const marks = document.querySelectorAll("mark");
-        expect(marks).toHaveLength(1);
-        expect(marks[0]).toHaveTextContent("Da");
-        expect(marks[0]).toHaveAttribute("title", "Može");
-      });
+    it(`marks Da when analysis explicitly reports Da → Može (${language})`, () => {
+      setLanguage(language);
+      const issues = [{ ...attempt.analysis.issues[0], evidence: "Da", correction: "Može" }];
+      render(<AnswerResult answer="Sednemo Napolju. Da, naravno. Baš lepo je vreme." attempt={{ ...attempt, analysis: { ...attempt.analysis, issues } }} />);
+      const marks = document.querySelectorAll("mark");
+      expect(marks).toHaveLength(1);
+      expect(marks[0]).toHaveTextContent("Da");
+      expect(marks[0]).toHaveAttribute("title", "Može");
+    });
   }
   it("finds evidence with Turkish dotted and dotless capitals", () => {
     const issues = [{ ...attempt.analysis.issues[0], evidence: "istanbul'a", correction: "İzmir'e" }];
@@ -103,7 +124,7 @@ describe("AnswerResult", () => {
       { ...attempt.analysis.issues[0], evidence: "želim kući", correction: "želim da idem kući" },
     ];
     render(<AnswerResult answer="račun otvorim, baš da idem; želim kući." attempt={{ ...attempt, analysis: { ...attempt.analysis, issues } }} />);
-    expect(Array.from(document.querySelectorAll("mark"), (mark) => mark.textContent)).toEqual(["račun", "otvorim", "baš"]);
+    expect(Array.from(document.querySelectorAll("mark"), mark => mark.textContent)).toEqual(["račun", "otvorim", "baš"]);
   });
 
   it("leaves repeated words unmarked when their alignment is ambiguous", () => {

@@ -8,7 +8,7 @@ test("real local backend with testlab auth and mocked AI", async ({ page }) => {
     throw new Error("TESTLAB_BASE_URL must be the isolated local preview on port 5178");
   }
   const statuses = [];
-  page.on("response", (response) => {
+  page.on("response", response => {
     const path = new URL(response.url()).pathname;
     if (path === "/api/transcriptions" || path === "/api/attempts") statuses.push(`${path}:${response.status()}`);
   });
@@ -30,9 +30,11 @@ test("pending hint save does not block real backend scoring or duplicate the pen
   await installSyntheticMicrophone(page);
   await loginTestlab(page);
   let release;
-  const pending = new Promise((resolve) => { release = resolve; });
+  const pending = new Promise(resolve => {
+    release = resolve;
+  });
   let hintRequests = 0;
-  await page.route("**/api/exercises/*/word-hints", async (route) => {
+  await page.route("**/api/exercises/*/word-hints", async route => {
     hintRequests += 1;
     await pending;
     await route.fulfill({ status: 503, contentType: "application/json", body: '{"detail":"Synthetic delayed save failure"}' });

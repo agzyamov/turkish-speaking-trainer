@@ -12,14 +12,22 @@ const storageKey = "serbotalk.interface-language";
 const listeners = new Set<() => void>();
 export function getLanguage(): InterfaceLanguage {
   if (sessionOnly) return memoryLanguage;
-  try { return localStorage.getItem(storageKey) === "en" ? "en" : "ru"; }
-  catch { return memoryLanguage; }
+  try {
+    return localStorage.getItem(storageKey) === "en" ? "en" : "ru";
+  } catch {
+    return memoryLanguage;
+  }
 }
 let memoryLanguage: InterfaceLanguage = "ru";
 let sessionOnly = false;
 export function setLanguage(language: InterfaceLanguage): void {
   memoryLanguage = language;
-  try { localStorage.setItem(storageKey, language); sessionOnly = false; } catch { sessionOnly = true; }
+  try {
+    localStorage.setItem(storageKey, language);
+    sessionOnly = false;
+  } catch {
+    sessionOnly = true;
+  }
   document.documentElement.lang = language;
   listeners.forEach(listener => listener());
 }
@@ -32,12 +40,17 @@ function subscribe(listener: () => void): () => void {
     }
   };
   window.addEventListener("storage", onStorage);
-  return () => { listeners.delete(listener); window.removeEventListener("storage", onStorage); };
+  return () => {
+    listeners.delete(listener);
+    window.removeEventListener("storage", onStorage);
+  };
 }
 export function useLanguage(): InterfaceLanguage {
   return useSyncExternalStore(subscribe, getLanguage, () => "ru");
 }
-export function getLocale(): string { return getLanguage() === "en" ? "en-GB" : "ru-RU"; }
+export function getLocale(): string {
+  return getLanguage() === "en" ? "en-GB" : "ru-RU";
+}
 const dictionary: Record<string, string> = messages;
 const phraseTranslations = new Map(phrases.map(phrase => [phrase.source_ru, phrase.source_en]));
 const presetTopicIds = new Set(["misc", "general", "review-phrases", ...phrases.map(phrase => phrase.id.slice(0, -3))]);
@@ -49,7 +62,8 @@ export function localizedPhrase(source: string, allowPresetTranslation = true): 
   const phrase = allowPresetTranslation && getLanguage() === "en" ? phrases.find(item => item.source_ru === source) : undefined;
   return { source: phrase?.source_en ?? source, hints: phrase?.word_hints ?? {} };
 }
-const templates = Object.entries(dictionary).filter(([key]) => key.includes("{0}"))
+const templates = Object.entries(dictionary)
+  .filter(([key]) => key.includes("{0}"))
   .sort(([left], [right]) => right.replace(/\{\d+\}/g, "").length - left.replace(/\{\d+\}/g, "").length)
   .map(([key, value]) => {
     const escaped = key.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -60,16 +74,20 @@ const templates = Object.entries(dictionary).filter(([key]) => key.includes("{0}
 // time; keys are "<area>.<name>", and Russian plural forms use i18next's _one/_few/_many/_other.
 void i18next.init({
   resources: { ru: { ui: ruUi }, en: { ui: enUi } },
-  lng: "ru", fallbackLng: "ru", defaultNS: "ui", ns: ["ui"],
-  initAsync: false, interpolation: { escapeValue: false }, returnNull: false,
+  lng: "ru",
+  fallbackLng: "ru",
+  defaultNS: "ui",
+  ns: ["ui"],
+  initAsync: false,
+  interpolation: { escapeValue: false },
+  returnNull: false,
 });
 
 export type TranslationOptions = Record<string, string | number | undefined>;
 
 /** True for a stable key (for example practice.check.full) that exists in the catalogue. */
 function isKey(value: string, options?: TranslationOptions): boolean {
-  return /^[a-z][A-Za-z0-9]*\.[A-Za-z0-9_.]+$/.test(value) && i18next.exists(value, { lng: "ru", ...options } as Record<string, unknown>)
-    && typeof i18next.getResource("ru", "ui", value) !== "object"; // a branch such as "practice.pause" is not a key
+  return /^[a-z][A-Za-z0-9]*\.[A-Za-z0-9_.]+$/.test(value) && i18next.exists(value, { lng: "ru", ...options } as Record<string, unknown>) && typeof i18next.getResource("ru", "ui", value) !== "object"; // a branch such as "practice.pause" is not a key
 }
 
 /** A stable key in a fixed language (for text rendered in both languages at once, like the login copy). */

@@ -3,7 +3,11 @@ import { afterEach, expect, it } from "vitest";
 import { LandingPage } from "../LandingPage";
 import { setLanguage } from "../i18n";
 
-afterEach(() => { cleanup(); setLanguage("ru"); localStorage.clear(); });
+afterEach(() => {
+  cleanup();
+  setLanguage("ru");
+  localStorage.clear();
+});
 
 it("presents the creator story, web sign-in and live Google Play testing links", () => {
   render(<LandingPage />);

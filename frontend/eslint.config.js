@@ -21,11 +21,8 @@ export default tseslint.config(
       ...reactHooks.configs.recommended.rules,
       "react-refresh/only-export-components": ["warn", { allowConstantExport: true }],
       // C-20: the client reaches the backend only through the API client modules.
-      "no-restricted-globals": ["error",
-        { name: "fetch", message: "Call the backend through src/api/* (C-20)." },
-        { name: "XMLHttpRequest", message: "Call the backend through src/api/* (C-20)." }],
-      "no-restricted-properties": ["error",
-        ...["window", "globalThis", "self"].map(object => ({ object, property: "fetch", message: "Call the backend through src/api/* (C-20)." }))],
+      "no-restricted-globals": ["error", { name: "fetch", message: "Call the backend through src/api/* (C-20)." }, { name: "XMLHttpRequest", message: "Call the backend through src/api/* (C-20)." }],
+      "no-restricted-properties": ["error", ...["window", "globalThis", "self"].map(object => ({ object, property: "fetch", message: "Call the backend through src/api/* (C-20)." }))],
     },
   },
   {

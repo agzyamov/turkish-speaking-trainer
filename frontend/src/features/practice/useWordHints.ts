@@ -9,7 +9,14 @@ import type { Exercise, WordHint } from "../../types/training";
  * by the caller) and the hint epoch are unchanged since it started, so a late answer never leaks into
  * the next phrase or attempt.
  */
-export function useWordHints({ exercise, checkingRef, flowEpochRef, onClearError, onClearDiagnostic, onError }: {
+export function useWordHints({
+  exercise,
+  checkingRef,
+  flowEpochRef,
+  onClearError,
+  onClearDiagnostic,
+  onError,
+}: {
   exercise?: Exercise;
   checkingRef: RefObject<boolean>;
   flowEpochRef: RefObject<number>;
@@ -26,11 +33,19 @@ export function useWordHints({ exercise, checkingRef, flowEpochRef, onClearError
   const hintEpochRef = useRef(0);
 
   /** Requests started before this point no longer apply. */
-  const invalidate = useCallback(() => { hintEpochRef.current += 1; }, []);
+  const invalidate = useCallback(() => {
+    hintEpochRef.current += 1;
+  }, []);
   /** Forget revealed and saved hints without re-rendering (the next phrase starts clean). */
-  const forget = useCallback(() => { savedHintsRef.current.clear(); wordHintsRef.current = {}; }, []);
+  const forget = useCallback(() => {
+    savedHintsRef.current.clear();
+    wordHintsRef.current = {};
+  }, []);
   /** Clear what the phrase shows: no revealed hints, no open popover. */
-  const resetView = useCallback(() => { setWordHints({}); setActiveHint(undefined); }, []);
+  const resetView = useCallback(() => {
+    setWordHints({});
+    setActiveHint(undefined);
+  }, []);
   const dismiss = useCallback(() => setActiveHint(undefined), []);
   /** Stop every request in flight (unmount, sign-out). */
   const abortAll = useCallback(() => {
@@ -44,10 +59,10 @@ export function useWordHints({ exercise, checkingRef, flowEpochRef, onClearError
   async function reveal(word: string, localHint?: Pick<WordHint, "word_ru" | "translation_tr">) {
     if (!exercise || checkingRef.current) return;
     const normalized = word.toLocaleLowerCase("ru-RU");
-    setActiveHint(current => current === normalized ? undefined : normalized);
+    setActiveHint(current => (current === normalized ? undefined : normalized));
     const requestKey = `${hintEpochRef.current}:${normalized}`;
     if (hintRequestsRef.current.has(requestKey) || savedHintsRef.current.has(normalized)) return;
-    const prepared = localHint ?? exercise.word_hints?.find((hint) => hint.word_ru.toLocaleLowerCase("ru-RU") === normalized);
+    const prepared = localHint ?? exercise.word_hints?.find(hint => hint.word_ru.toLocaleLowerCase("ru-RU") === normalized);
     const epoch = flowEpochRef.current;
     const hintEpoch = hintEpochRef.current;
     if (prepared && !wordHintsRef.current[normalized]) {
@@ -67,11 +82,7 @@ export function useWordHints({ exercise, checkingRef, flowEpochRef, onClearError
         setWordHints(wordHintsRef.current);
       }
     } catch {
-      if (flowEpochRef.current === epoch && hintEpochRef.current === hintEpoch) onError(
-        wordHintsRef.current[normalized]
-          ? t("app.hintNotSaved", { word })
-          : t("app.hintUnavailable", { word }),
-      );
+      if (flowEpochRef.current === epoch && hintEpochRef.current === hintEpoch) onError(wordHintsRef.current[normalized] ? t("app.hintNotSaved", { word }) : t("app.hintUnavailable", { word }));
     } finally {
       if (hintRequestsRef.current.get(requestKey) === controller) hintRequestsRef.current.delete(requestKey);
     }

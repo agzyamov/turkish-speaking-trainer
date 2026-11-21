@@ -6,9 +6,17 @@ vi.mock("@capacitor/browser", () => ({ Browser: { open: state.open } }));
 vi.stubEnv("VITE_SUPABASE_URL", "https://synthetic.supabase.co");
 vi.stubEnv("VITE_SUPABASE_PUBLISHABLE_KEY", "synthetic-public-key");
 const { signInWithGoogle } = await import("../auth");
-afterEach(() => { state.native = false; vi.clearAllMocks(); window.history.replaceState(null, "", "/"); });
+afterEach(() => {
+  state.native = false;
+  vi.clearAllMocks();
+  window.history.replaceState(null, "", "/");
+});
 
-it.each([{ page: "/", path: "/app", expected: "/app" }, { page: "/app", path: "/", expected: "/app" }, { page: "/", path: "/", expected: "/" }])("preserves the requested web callback: $page → $expected", async ({ page, path, expected }) => {
+it.each([
+  { page: "/", path: "/app", expected: "/app" },
+  { page: "/app", path: "/", expected: "/app" },
+  { page: "/", path: "/", expected: "/" },
+])("preserves the requested web callback: $page → $expected", async ({ page, path, expected }) => {
   window.history.replaceState(null, "", page);
   state.signInWithOAuth.mockResolvedValue({ data: {}, error: null });
   await signInWithGoogle(path as "/" | "/app");
