@@ -31,6 +31,7 @@ export default defineConfig({
           VITE_API_BASE_URL: "",
           VITE_SUPABASE_URL: "https://e2e-auth.supabase.co",
           VITE_SUPABASE_PUBLISHABLE_KEY: "e2e-public-key",
+          VITE_PUBLIC_APP_URL: "https://turktalk.example/",
         },
       },
 });

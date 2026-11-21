@@ -1,6 +1,7 @@
 import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, expect, it, vi } from "vitest";
-import { ShareAppSettings, publicAppUrl } from "../ShareAppSettings";
+import { ShareAppSettings } from "../ShareAppSettings";
+import { publicAppUrl } from "../shared/brand";
 import { setLanguage } from "../i18n";
 
 const mocks = vi.hoisted(() => ({ native: false, available: false, share: vi.fn() }));
@@ -30,16 +31,16 @@ it.each(["ru", "en"] as const)("copies the public URL when sharing is unsupporte
   fireEvent.click(screen.getByRole("button", { name: language === "en" ? "Share" : "Поделиться" }));
   await waitFor(() => expect(screen.getByRole("status")).toHaveTextContent(language === "en" ? "Link copied." : "Ссылка скопирована."));
   expect(copy).toHaveBeenCalledWith(publicAppUrl);
-  expect(screen.getByRole("textbox")).toHaveValue("https://serbotalk.app/");
+  expect(screen.getByRole("textbox")).toHaveValue("https://turktalk.example/");
 });
 
 it.each(["ru", "en"] as const)("shares only public data in the selected language (%s)", async language => {
   setup(language, true);
   fireEvent.click(screen.getByRole("button", { name: language === "en" ? "Share" : "Поделиться" }));
   expect(webShare).toHaveBeenCalledWith({
-    title: "SerboTalk",
+    title: "TurkTalk",
     url: publicAppUrl,
-    text: language === "en" ? "Practise speaking Turkish with SerboTalk." : "Практикуйте разговорный турецкий с SerboTalk.",
+    text: language === "en" ? "Practise speaking Turkish with TurkTalk." : "Практикуйте разговорный турецкий с TurkTalk.",
   });
   await act(async () => {});
   expect(copy).not.toHaveBeenCalled();

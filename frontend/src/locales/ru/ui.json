@@ -127,7 +127,7 @@
     "testEnvironmentLocalData": "Тестовая среда — локальные данные и имитация AI/STT"
   },
   "shell": {
-    "homeLabel": "SerboTalk — к практике",
+    "homeLabel": "{{app}} — к практике",
     "tagline": "Говори. Понимай. Будь ближе.",
     "mainNavigation": "Основная навигация",
     "appPanels": "Панели приложения",
@@ -353,9 +353,8 @@
     "transcribingFeedback": "Расшифровываем отзыв…",
     "voiceInputUnavailablePlease": "Голосовой ввод недоступен. Напишите отзыв текстом.",
     "actionFailedTextStill": "Не удалось выполнить действие. Текст сохранён в форме. Попробуйте ещё раз.",
-    "practiseSpeakingTurkishSerbotalk": "Практикуйте разговорный турецкий с SerboTalk.",
     "shareApp": "Поделиться приложением",
-    "inviteFriendsPractiseTurkish": "Пригласите друзей практиковать турецкий. Ссылка открывает SerboTalk в браузере.",
+    "inviteFriendsPractiseTurkish": "Пригласите друзей практиковать турецкий. Ссылка открывает {{app}} в браузере.",
     "share": "Поделиться",
     "copyLink": "Скопировать ссылку",
     "appLink": "Ссылка на приложение",
@@ -387,7 +386,8 @@
       "remaining_many": "{{remaining}} из {{count}} фраз осталось",
       "remaining_other": "{{remaining}} из {{count}} фраз осталось"
     },
-    "couldNotSavePreference": "Не удалось сохранить настройку. Проверьте подключение и повторите изменение."
+    "couldNotSavePreference": "Не удалось сохранить настройку. Проверьте подключение и повторите изменение.",
+    "shareText": "Практикуйте разговорный турецкий с {{app}}."
   },
   "admin": {
     "administratorsOnly": "Только для администратора",
@@ -451,7 +451,6 @@
     "signFailedCheckCredentials": "Не удалось войти. Проверьте данные и подключение и попробуйте снова.",
     "couldNotRestoreSession": "Не удалось восстановить вход.",
     "couldNotOpenGoogle": "Не удалось открыть вход через Google.",
-    "welcomeSerbotalk": "Добро пожаловать в SerboTalk",
     "signRegisterSaveProgress": "Войдите или зарегистрируйтесь, чтобы сохранять свой прогресс на всех устройствах.",
     "signingLoading": "Авторизация и загрузка...",
     "continuePractising": "Продолжить тренировку",
@@ -462,7 +461,8 @@
     "privacy": "Конфиденциальность",
     "terms": "Условия",
     "accountDeletion": "Удаление аккаунта",
-    "resendIn": "Повторная отправка через {{seconds}} с."
+    "resendIn": "Повторная отправка через {{seconds}} с.",
+    "welcome": "Добро пожаловать в {{app}}"
   },
   "payment": {
     "transferByPhoneNumber": "Перевод по номеру телефона",
@@ -525,7 +525,6 @@
     "signSetupRequired": "Нужна настройка входа",
     "addViteSupabaseUrl": "Добавьте VITE_SUPABASE_URL и VITE_SUPABASE_PUBLISHABLE_KEY в окружение frontend.",
     "retryLoadingProfile": "Повторить загрузку профиля",
-    "welcomeSerbotalk": "Добро пожаловать в SerboTalk",
     "signRegisterSaveProgress": "Войдите или зарегистрируйтесь, чтобы сохранять свой прогресс на всех устройствах.",
     "signGoogle": "Войти через Google",
     "legalInformation": "Правовая информация",
@@ -590,6 +589,7 @@
     "sessionDone_one": "{{completed}} из {{count}} фразы проверено.",
     "sessionDone_few": "{{completed}} из {{count}} фраз проверено.",
     "sessionDone_many": "{{completed}} из {{count}} фраз проверено.",
-    "sessionDone_other": "{{completed}} из {{count}} фраз проверено."
+    "sessionDone_other": "{{completed}} из {{count}} фраз проверено.",
+    "welcome": "Добро пожаловать в {{app}}"
   }
 }

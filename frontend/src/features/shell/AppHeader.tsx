@@ -6,6 +6,7 @@ import { cn } from "../../shared/lib/utils";
 
 export type AppView = "practice" | "statistics" | "premium" | "settings" | "admin";
 import type { BackendState } from "../../types/app";
+import { brand } from "../../shared/brand";
 
 export type { BackendState };
 
@@ -15,7 +16,8 @@ const focusRing = "outline-none focus-visible:ring-2 focus-visible:ring-focus fo
 export function Wordmark({ className }: { className?: string }) {
   return (
     <strong className={cn("font-display font-bold tracking-tight text-ink", className)}>
-      Serbo<span className="text-accent">Talk</span>
+      {brand.wordmark[0]}
+      <span className="text-accent">{brand.wordmark[1]}</span>
     </strong>
   );
 }
@@ -81,7 +83,7 @@ export function AppHeader({
         className={cn("brand flex w-max cursor-pointer items-center gap-3 self-center rounded-control border-0 bg-transparent p-0 text-left", focusRing)}
         type="button"
         onClick={onHome}
-        aria-label={t("shell.homeLabel")}
+        aria-label={t("shell.homeLabel", { app: brand.name })}
       >
         <span className="grid size-10 place-items-center rounded-control border border-line-strong text-accent">
           <Icon name="message" size={24} />

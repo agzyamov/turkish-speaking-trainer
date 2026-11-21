@@ -9,7 +9,7 @@ for (const layout of ["web", "android"])
         await page.addInitScript(
           ({ layout, language, storageKey }) => {
             if (layout === "android") window.CapacitorCustomPlatform = { name: "android" };
-            localStorage.setItem("serbotalk.interface-language", language);
+            localStorage.setItem("turktalk.interface-language", language);
             localStorage.setItem(
               storageKey,
               JSON.stringify({

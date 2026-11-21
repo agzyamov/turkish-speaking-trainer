@@ -110,7 +110,7 @@ export async function authenticatedFetch(input: RequestInfo | URL, init: Request
   if (new URLSearchParams(window.location.search).has("perf")) {
     const path = new URL(input.toString(), window.location.origin).pathname;
     console.info(
-      `SerboTalk timing ${JSON.stringify({
+      `UI timing ${JSON.stringify({
         path,
         session_ms: Math.round(sessionMs),
         request_ms: Math.round(performance.now() - startedAt - sessionMs),

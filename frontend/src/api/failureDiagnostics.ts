@@ -30,6 +30,6 @@ export function failureOf(error: unknown): FailureDiagnostic | undefined {
 export function withClientFailure(error: unknown, stage: string, reason: string, diagnosticId: string): Error {
   const failure: FailureDiagnostic = { kind: "response_return", stage, reason, diagnostic_id: diagnosticId, retryable: true };
   // Log metadata only: never request bodies, transcript, audio, credentials or arbitrary error messages.
-  console.warn("SerboTalk request failure", failure);
+  console.warn("Request failure", failure);
   return Object.assign(error instanceof Error || error instanceof DOMException ? error : new Error("Request failed"), { failure });
 }

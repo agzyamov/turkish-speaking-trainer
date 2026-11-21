@@ -16,7 +16,7 @@ for (const language of ["ru", "en"])
                 window.__premiumOpenedUrl = String(url);
                 return null;
               };
-            localStorage.setItem("serbotalk.interface-language", language);
+            localStorage.setItem("turktalk.interface-language", language);
             localStorage.setItem(
               storageKey,
               JSON.stringify({
@@ -98,11 +98,11 @@ for (const language of ["ru", "en"])
         );
         if (accessTier === "free" && layout === "android") {
           await expect(content.getByText(ru ? "Оплатить премиум вы можете на сайте" : "You can pay for Premium on the website")).toBeVisible();
-          await expect(content.getByRole("button", { name: "https://serbotalk.app/", exact: true })).toBeVisible();
+          await expect(content.getByRole("button", { name: "https://turktalk.example/", exact: true })).toBeVisible();
           await expect(content.getByRole("button")).toHaveCount(1);
           await expect(content.locator(".payment-form, .premium-offer, img, ul")).toHaveCount(0);
-          await content.getByRole("button", { name: "https://serbotalk.app/", exact: true }).click();
-          await expect.poll(() => page.evaluate(() => window.__premiumOpenedUrl)).toBe("https://serbotalk.app/");
+          await content.getByRole("button", { name: "https://turktalk.example/", exact: true }).click();
+          await expect.poll(() => page.evaluate(() => window.__premiumOpenedUrl)).toBe("https://turktalk.example/");
           expect(privateLoads).toBe(0);
         } else if (accessTier === "free") {
           await expect(content.getByRole("button", { name: ru ? "КУПИТЬ" : "BUY" })).toBeEnabled();

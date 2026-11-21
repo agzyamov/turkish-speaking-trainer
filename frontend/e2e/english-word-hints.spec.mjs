@@ -13,7 +13,7 @@ for (const language of ["ru", "en"])
           window.CapacitorCustomPlatform = { name: "android" };
         });
       await page.addInitScript(lang => {
-        localStorage.setItem("serbotalk.interface-language", lang);
+        localStorage.setItem("turktalk.interface-language", lang);
         localStorage.setItem(
           "sb-e2e-auth-auth-token",
           JSON.stringify({

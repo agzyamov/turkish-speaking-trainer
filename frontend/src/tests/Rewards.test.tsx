@@ -88,7 +88,7 @@ it.each(["ru", "en"] as const)("renders localized rewards and persists independe
   expect(screen.queryByRole("status")).not.toBeInTheDocument();
   expect(readRewardPreference("sounds")).toBe(true);
   fireEvent.click(screen.getByRole("switch", { name: en ? "Success sounds" : "Звуки успеха" }));
-  expect(localStorage.getItem("serbotalk.rewards.sounds")).toBe("false");
+  expect(localStorage.getItem("turktalk.rewards.sounds")).toBe("false");
   view.unmount();
   render(<SettingsView />);
   expect(screen.getByRole("switch", { name: en ? "Success animations" : "Анимации успеха" })).not.toBeChecked();

@@ -14,7 +14,7 @@ for (const language of ["ru", "en"])
         });
       await page.addInitScript(
         ({ language, storageKey }) => {
-          localStorage.setItem("serbotalk.interface-language", language);
+          localStorage.setItem("turktalk.interface-language", language);
           localStorage.setItem(
             storageKey,
             JSON.stringify({

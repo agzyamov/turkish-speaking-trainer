@@ -47,8 +47,8 @@ export function captureMetrics(page, platform = "web") {
     const ui = await page.evaluate(() =>
       performance
         .getEntriesByType("measure")
-        .filter(entry => entry.name.startsWith("serbotalk:ui:"))
-        .map(entry => ({ name: entry.name.slice("serbotalk:ui:".length), ms: Math.round(entry.duration) })),
+        .filter(entry => entry.name.startsWith("turktalk:ui:"))
+        .map(entry => ({ name: entry.name.slice("turktalk:ui:".length), ms: Math.round(entry.duration) })),
     );
     const documentLoad = await page.evaluate(() => {
       const nav = performance.getEntriesByType("navigation")[0];

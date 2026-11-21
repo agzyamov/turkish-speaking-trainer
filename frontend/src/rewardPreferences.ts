@@ -1,9 +1,10 @@
 import { useSyncExternalStore } from "react";
+import { brand } from "./shared/brand";
 
 export type RewardPreference = "sounds" | "animations";
 const listeners = new Set<() => void>();
 const memory = new Map<string, boolean>();
-const key = (preference: RewardPreference) => `serbotalk.rewards.${preference}`;
+const key = (preference: RewardPreference) => `${brand.storagePrefix}.rewards.${preference}`;
 
 export function readRewardPreference(preference: RewardPreference): boolean {
   if (memory.has(preference)) return memory.get(preference)!;

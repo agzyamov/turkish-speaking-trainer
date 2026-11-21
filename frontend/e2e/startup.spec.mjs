@@ -109,7 +109,7 @@ test("Android layout waits for the default review exercise before showing topics
   await expect(page.getByRole("button", { name: "Темы" })).toHaveAttribute("aria-current", "page");
   await expect(page.getByRole("button", { name: /Повторение/ })).toHaveClass(/is-selected/);
   await expect(page.getByRole("button", { name: /В банке/ })).not.toHaveClass(/is-selected/);
-  expect(await page.evaluate(() => performance.getEntriesByName("serbotalk:ui:first_phrase:start", "mark").length)).toBe(0);
+  expect(await page.evaluate(() => performance.getEntriesByName("turktalk:ui:first_phrase:start", "mark").length)).toBe(0);
   await page.locator(".android-pager").evaluate(pager => {
     pager.scrollLeft = pager.clientWidth;
     pager.dispatchEvent(new Event("scroll", { bubbles: true }));
@@ -117,6 +117,6 @@ test("Android layout waits for the default review exercise before showing topics
   await expect(page.getByRole("button", { name: "Тренировка" })).toHaveAttribute("aria-current", "page");
   await expect(page.locator(".android-training-page .interactive-phrase")).toHaveAttribute("aria-label", "Я хочу открыть счёт.");
   await expect(page.getByRole("button", { name: "Ответить голосом" })).toBeEnabled();
-  await expect.poll(() => page.evaluate(() => performance.getEntriesByName("serbotalk:ui:first_phrase", "measure").length)).toBe(1);
+  await expect.poll(() => page.evaluate(() => performance.getEntriesByName("turktalk:ui:first_phrase", "measure").length)).toBe(1);
   expect(starts).toHaveLength(1);
 });

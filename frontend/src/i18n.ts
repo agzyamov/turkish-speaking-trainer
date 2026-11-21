@@ -4,11 +4,12 @@ import messages from "./locales/en.json";
 import ruUi from "./locales/ru/ui.json";
 import enUi from "./locales/en/ui.json";
 import phraseData from "./locales/phrases.en.json";
+import { brand } from "./shared/brand";
 type Phrase = { id: string; source_ru: string; source_en: string; canonical_tr: string; word_hints: Record<string, { translation_tr: string; note?: string } | undefined> };
 const phrases: Phrase[] = phraseData;
 
 export type InterfaceLanguage = "ru" | "en";
-const storageKey = "serbotalk.interface-language";
+const storageKey = `${brand.storagePrefix}.interface-language`;
 const listeners = new Set<() => void>();
 export function getLanguage(): InterfaceLanguage {
   if (sessionOnly) return memoryLanguage;
@@ -91,8 +92,8 @@ function isKey(value: string, options?: TranslationOptions): boolean {
 }
 
 /** A stable key in a fixed language (for text rendered in both languages at once, like the login copy). */
-export function translateIn(language: InterfaceLanguage, key: string): string {
-  return String(i18next.t(key, { lng: language }));
+export function translateIn(language: InterfaceLanguage, key: string, options?: TranslationOptions): string {
+  return String(i18next.t(key, { ...options, lng: language } as Record<string, unknown>));
 }
 
 /**

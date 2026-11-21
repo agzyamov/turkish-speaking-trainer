@@ -1,7 +1,8 @@
+import { brand } from "./shared/brand";
 /** Optional, content-free UI timings. Enable per run with ?perf=1. */
 export type UiTiming = "topics" | "first_phrase" | "transcription" | "check" | "next_phrase";
 
-const prefix = "serbotalk:ui:";
+const prefix = `${brand.storagePrefix}:ui:`;
 const enabled = typeof window !== "undefined" && new URLSearchParams(window.location.search).has("perf");
 
 export function startUiTiming(name: UiTiming): void {

@@ -4,6 +4,7 @@ import { EmailLogin } from "./EmailLogin";
 import { ReviewLogin } from "./ReviewLogin";
 import { t } from "./i18n";
 import { authLegal, googleButton } from "./features/auth/authStyles";
+import { brand } from "./shared/brand";
 
 export function LandingLogin() {
   const [status, setStatus] = useState<"loading" | "signed-out" | "signed-in">("loading");
@@ -44,7 +45,7 @@ export function LandingLogin() {
 
   return (
     <section id="sign-in" className="landing-login" aria-labelledby="landing-login-title">
-      <h3 id="landing-login-title">{t("auth.welcomeSerbotalk")}</h3>
+      <h3 id="landing-login-title">{t("auth.welcome", { app: brand.name })}</h3>
       <p>{t("auth.signRegisterSaveProgress")}</p>
       {status === "loading" ? (
         <p role="status">{t("auth.signingLoading")}</p>

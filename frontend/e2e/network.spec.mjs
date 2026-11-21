@@ -228,7 +228,7 @@ test("late next-phrase response after leaving the session is ignored", async ({ 
   await submit(page);
   await expect(page.locator(".practice-stage .feedback")).toBeVisible();
   await expect.poll(() => state.next.length).toBe(1);
-  await page.getByRole("button", { name: "SerboTalk — к практике" }).click();
+  await page.getByRole("button", { name: "TurkTalk — к практике" }).click();
   releaseNext();
   await expect(page.locator(".practice-stage .interactive-phrase")).toHaveCount(0);
   await expect(page.getByRole("button", { name: /В банке/ }).first()).toBeVisible();

@@ -1,6 +1,6 @@
 import { useEffect, useState, type ReactNode } from "react";
 import type { Session } from "@supabase/supabase-js";
-import { t, translateIn, useLanguage, setLanguage } from "../../i18n";
+import { t, translateIn, useLanguage, setLanguage, type TranslationOptions } from "../../i18n";
 import { fetchCurrentUser } from "../../api/users";
 import { initializeAuth, isAuthConfigured, onAuthStateChange, signInWithGoogle, signOut } from "../../auth";
 import type { CurrentUser } from "../../types/auth";
@@ -10,6 +10,7 @@ import appLogo from "../../assets/app-logo.png?inline";
 import { cn } from "../../shared/lib/utils";
 import { Button } from "../../shared/ui/button";
 import { authCard, authLegal, authPage, googleButton } from "./authStyles";
+import { brand } from "../../shared/brand";
 
 function LoginLanguageButton() {
   const language = useLanguage();
@@ -48,13 +49,13 @@ function LoginLanguageButton() {
 }
 
 // Both translations participate in layout so switching languages never moves the form.
-function LoginCopy({ as: Tag, text, href }: { as: "h1" | "p" | "a"; text: string; href?: string }) {
+function LoginCopy({ as: Tag, text, href, options }: { as: "h1" | "p" | "a"; text: string; href?: string; options?: TranslationOptions }) {
   const language = useLanguage();
   return (
     <Tag className="login-copy grid [&>span]:col-start-1 [&>span]:row-start-1 [&>span]:self-center" href={href}>
       {(["ru", "en"] as const).map(locale => (
         <span key={locale} lang={locale} aria-hidden={language !== locale} className={language !== locale ? "login-copy__sizing pointer-events-none invisible" : undefined}>
-          {translateIn(locale, text)}
+          {translateIn(locale, text, options)}
         </span>
       ))}
     </Tag>
@@ -128,7 +129,7 @@ export function AuthGate({ children }: { children: (account: CurrentUser, onAcco
       <main className={cn(authPage, "auth-page--loading")}>
         <div className="auth-loading" role="status" aria-label={t("app.signingLoading")}>
           <span className="auth-loading__ring">
-            <img src={appLogo} alt="SerboTalk" />
+            <img src={appLogo} alt={brand.name} />
           </span>
           <p>{t("app.signingLoadingDots")}</p>
         </div>
@@ -167,7 +168,7 @@ export function AuthGate({ children }: { children: (account: CurrentUser, onAcco
       <main className={authPage}>
         <div className={authCard}>
           <LoginLanguageButton />
-          <LoginCopy as="h1" text="app.welcomeSerbotalk" />
+          <LoginCopy as="h1" text="app.welcome" options={{ app: brand.name }} />
           <LoginCopy as="p" text="app.signRegisterSaveProgress" />
           <button className={googleButton} type="button" onClick={() => void login()}>
             {t("app.signGoogle")}

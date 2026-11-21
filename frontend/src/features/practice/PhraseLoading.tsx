@@ -1,12 +1,13 @@
 import { t } from "../../i18n";
 import appLogo from "../../assets/app-logo.png?inline";
+import { brand } from "../../shared/brand";
 
 /** Full-area loading state while the next phrase is prepared. */
 export function PhraseLoading() {
   return (
     <div className="phrase-loading auth-loading" role="status" aria-label={t("practice.phrase.loading")}>
       <span className="auth-loading__ring">
-        <img src={appLogo} alt="SerboTalk" />
+        <img src={appLogo} alt={brand.name} />
       </span>
       <p>{t("practice.phrase.loading")}</p>
     </div>

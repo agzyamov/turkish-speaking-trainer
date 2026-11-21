@@ -6,9 +6,7 @@ import { t, useLanguage } from "./i18n";
 import { cn } from "./shared/lib/utils";
 import { Input } from "./shared/ui/input";
 import { settingsAction, settingsCard, settingsCopy, settingsHeading, settingsSection } from "./settingsStyles";
-
-// Public web entry point: recipients do not need access to the closed Play test.
-export const publicAppUrl = "https://serbotalk.app/";
+import { brand, publicAppUrl } from "./shared/brand";
 
 export function ShareAppSettings() {
   useLanguage();
@@ -27,7 +25,7 @@ export function ShareAppSettings() {
         await navigator.clipboard.writeText(publicAppUrl);
         setState("copied");
       } else {
-        const data = { title: "SerboTalk", text: t("settings.practiseSpeakingTurkishSerbotalk"), url: publicAppUrl };
+        const data = { title: brand.name, text: t("settings.shareText", { app: brand.name }), url: publicAppUrl };
         // Call directly from the click, before any await, to preserve user activation.
         if (nativeShare) await Share.share({ ...data, dialogTitle: t("settings.shareApp") });
         else await navigator.share(data);
@@ -43,12 +41,14 @@ export function ShareAppSettings() {
   }
 
   const busy = state === "sharing" || state === "copying";
+  // No public address configured (Android build without VITE_PUBLIC_APP_URL): nothing to share.
+  if (!publicAppUrl) return null;
   return (
     <section className={cn("share-app-settings", settingsSection)} aria-labelledby="share-app-title">
       <h2 id="share-app-title" className={settingsHeading}>
         {t("settings.shareApp")}
       </h2>
-      <p>{t("settings.inviteFriendsPractiseTurkish")}</p>
+      <p>{t("settings.inviteFriendsPractiseTurkish", { app: brand.name })}</p>
       <div className="share-app-settings__actions grid min-w-0 grid-cols-3 gap-3.5 max-[640px]:grid-cols-2 max-[640px]:gap-2.5">
         <button className={cn(settingsCard, settingsAction, "max-[640px]:flex-col max-[640px]:items-start")} type="button" disabled={busy} onClick={() => void perform()}>
           <SettingsIcon name="share" />

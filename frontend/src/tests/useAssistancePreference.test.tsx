@@ -42,12 +42,12 @@ describe("shared assistance preference", () => {
     firstClient.unmount();
     vi.mocked(updatePreferences).mockClear();
     // Old device storage (or a client's default) cannot reset the confirmed DB value.
-    localStorage.setItem("serbotalk.soft-assistance.persisted-user", String(!enabled));
+    localStorage.setItem("turktalk.soft-assistance.persisted-user", String(!enabled));
     render(<Client />);
     await waitFor(() => expect(fetchPreferences).toHaveBeenCalledTimes(2));
     await waitFor(() => expect(screen.getByRole("switch", { name: "Мягкие подсказки при распознавании" })).toHaveAttribute("aria-checked", String(enabled)));
     expect(updatePreferences).not.toHaveBeenCalled();
-    localStorage.removeItem("serbotalk.soft-assistance.persisted-user");
+    localStorage.removeItem("turktalk.soft-assistance.persisted-user");
   });
 
   it("loads the server choice and confirms both on and off writes", async () => {

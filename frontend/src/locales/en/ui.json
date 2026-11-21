@@ -127,7 +127,7 @@
     "testEnvironmentLocalData": "Test environment — local data and simulated AI/STT"
   },
   "shell": {
-    "homeLabel": "SerboTalk — back to practice",
+    "homeLabel": "{{app}} — back to practice",
     "tagline": "Speak. Understand. Connect.",
     "mainNavigation": "Main navigation",
     "appPanels": "Application panels",
@@ -351,9 +351,8 @@
     "transcribingFeedback": "Transcribing feedback…",
     "voiceInputUnavailablePlease": "Voice input is unavailable. Please write your feedback.",
     "actionFailedTextStill": "The action failed. Your text is still in the form. Please try again.",
-    "practiseSpeakingTurkishSerbotalk": "Practise speaking Turkish with SerboTalk.",
     "shareApp": "Share app",
-    "inviteFriendsPractiseTurkish": "Invite friends to practise Turkish. The link opens SerboTalk in a browser.",
+    "inviteFriendsPractiseTurkish": "Invite friends to practise Turkish. The link opens {{app}} in a browser.",
     "share": "Share",
     "copyLink": "Copy link",
     "appLink": "App link",
@@ -385,7 +384,8 @@
       "remaining_many": "{{remaining}} of {{count}} phrases remaining",
       "remaining_other": "{{remaining}} of {{count}} phrases remaining"
     },
-    "couldNotSavePreference": "Could not save your preference. Check your connection and try again."
+    "couldNotSavePreference": "Could not save your preference. Check your connection and try again.",
+    "shareText": "Practise speaking Turkish with {{app}}."
   },
   "admin": {
     "administratorsOnly": "Administrators only",
@@ -449,7 +449,6 @@
     "signFailedCheckCredentials": "Sign-in failed. Check your credentials and connection, then try again.",
     "couldNotRestoreSession": "Could not restore your session.",
     "couldNotOpenGoogle": "Could not open Google sign-in.",
-    "welcomeSerbotalk": "Welcome to SerboTalk",
     "signRegisterSaveProgress": "Sign in or register to save your progress across devices.",
     "signingLoading": "Signing in and loading...",
     "continuePractising": "Continue practising",
@@ -460,7 +459,8 @@
     "privacy": "Privacy",
     "terms": "Terms",
     "accountDeletion": "Account deletion",
-    "resendIn": "Resend available in {{seconds}} s."
+    "resendIn": "Resend available in {{seconds}} s.",
+    "welcome": "Welcome to {{app}}"
   },
   "payment": {
     "transferByPhoneNumber": "Transfer by phone number",
@@ -523,7 +523,6 @@
     "signSetupRequired": "Sign-in setup required",
     "addViteSupabaseUrl": "Add VITE_SUPABASE_URL and VITE_SUPABASE_PUBLISHABLE_KEY to the frontend environment.",
     "retryLoadingProfile": "Retry loading profile",
-    "welcomeSerbotalk": "Welcome to SerboTalk",
     "signRegisterSaveProgress": "Sign in or register to save your progress across devices.",
     "signGoogle": "Sign in with Google",
     "legalInformation": "Legal information",
@@ -588,6 +587,7 @@
     "sessionDone_one": "{{completed}} of {{count}} phrase checked.",
     "sessionDone_few": "{{completed}} of {{count}} phrases checked.",
     "sessionDone_many": "{{completed}} of {{count}} phrases checked.",
-    "sessionDone_other": "{{completed}} of {{count}} phrases checked."
+    "sessionDone_other": "{{completed}} of {{count}} phrases checked.",
+    "welcome": "Welcome to {{app}}"
   }
 }

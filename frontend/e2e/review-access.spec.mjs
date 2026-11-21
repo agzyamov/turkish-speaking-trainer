@@ -8,7 +8,7 @@ for (const language of ["ru", "en"])
       await page.setViewportSize({ width: native ? 393 : 1366, height: 900 });
       await page.addInitScript(
         ({ language, native }) => {
-          localStorage.setItem("serbotalk.interface-language", language);
+          localStorage.setItem("turktalk.interface-language", language);
           if (native) window.CapacitorCustomPlatform = { name: "android" };
         },
         { language, native },
@@ -31,7 +31,7 @@ for (const language of ["ru", "en"])
         let body,
           status = 200;
         if (path === "/api/auth/review-login") {
-          expect(req.postDataJSON()).toEqual({ username: "serbotalkreview", password: "synthetic-password" });
+          expect(req.postDataJSON()).toEqual({ username: "turktalkreview", password: "synthetic-password" });
           signIns++;
           if (signIns === 1) {
             status = 401;
@@ -67,12 +67,12 @@ for (const language of ["ru", "en"])
       await page.getByText(ru ? "Вход для проверки" : "Review access", { exact: true }).click();
       const username = page.getByLabel(ru ? "Имя пользователя или email" : "Username or email");
       const password = page.getByLabel(ru ? "Пароль" : "Password", { exact: true });
-      await username.fill("serbotalkreview");
+      await username.fill("turktalkreview");
       await password.fill("synthetic-password");
       await page.getByRole("button", { name: ru ? "Войти" : "Sign in", exact: true }).click();
       await expect(page.getByRole("alert")).not.toContainText("private-provider-details");
       await expect(password).toHaveValue("");
-      await expect(username).toHaveValue("serbotalkreview");
+      await expect(username).toHaveValue("turktalkreview");
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
       await mkdir("../artifacts/android-1.45-review", { recursive: true });
       await page.screenshot({ path: `../artifacts/android-1.45-review/${language}-${native ? "android" : "web"}-error.png` });

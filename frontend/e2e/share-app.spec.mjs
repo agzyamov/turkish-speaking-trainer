@@ -10,7 +10,7 @@ for (const language of ["ru", "en"])
       await page.addInitScript(
         ({ language, native, storageKey }) => {
           if (native) window.CapacitorCustomPlatform = { name: "android" };
-          localStorage.setItem("serbotalk.interface-language", language);
+          localStorage.setItem("turktalk.interface-language", language);
           localStorage.setItem(
             storageKey,
             JSON.stringify({
@@ -72,7 +72,7 @@ for (const language of ["ru", "en"])
       const share = panel.getByRole("button", { name: en ? "Share" : "Поделиться", exact: true });
       const copy = panel.getByRole("button", { name: en ? "Copy link" : "Скопировать ссылку" });
       await expect(share).toHaveCSS("color", await tokenColor(page, "--color-ink"));
-      await expect(panel.locator("input")).toHaveValue("https://serbotalk.app/");
+      await expect(panel.locator("input")).toHaveValue("https://turktalk.example/");
       expect(await panel.evaluate(el => el.scrollWidth <= el.clientWidth)).toBe(true);
       await share.click();
       await expect(share).toBeDisabled();
@@ -82,7 +82,7 @@ for (const language of ["ru", "en"])
       await page.evaluate(() => window.shareTest.finish());
       await expect(share).toBeEnabled();
       expect(await page.evaluate(() => window.shareTest.calls)).toEqual([
-        { title: "SerboTalk", text: en ? "Practise speaking Turkish with SerboTalk." : "Практикуйте разговорный турецкий с SerboTalk.", url: "https://serbotalk.app/" },
+        { title: "TurkTalk", text: en ? "Practise speaking Turkish with TurkTalk." : "Практикуйте разговорный турецкий с TurkTalk.", url: "https://turktalk.example/" },
       ]);
       await page.evaluate(() => {
         window.shareTest.mode = "cancel";
@@ -99,14 +99,14 @@ for (const language of ["ru", "en"])
       await panel.screenshot({ path: `test-results/share-${language}-${layout}-error.png` });
       await copy.click();
       await expect(panel.getByRole("status")).toHaveText(en ? "Link copied." : "Ссылка скопирована.");
-      expect(await page.evaluate(() => window.shareTest.copied)).toEqual(["https://serbotalk.app/"]);
+      expect(await page.evaluate(() => window.shareTest.copied)).toEqual(["https://turktalk.example/"]);
       await page.evaluate(() => {
         window.shareTest.mode = "copy-error";
       });
       await copy.click();
       await expect(panel.getByRole("alert")).toBeVisible();
       await panel.locator("input").focus();
-      expect(await panel.locator("input").evaluate(el => el.selectionEnd - el.selectionStart)).toBe("https://serbotalk.app/".length);
+      expect(await panel.locator("input").evaluate(el => el.selectionEnd - el.selectionStart)).toBe("https://turktalk.example/".length);
       await page.evaluate(() => {
         window.shareTest.mode = "ok";
         Object.defineProperty(navigator, "share", { configurable: true, value: undefined });

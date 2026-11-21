@@ -95,7 +95,7 @@ for (const layout of ["desktop", "mobile", "android"])
         await page.goto("/privacy");
         await page.evaluate(
           ({ language, storageKey }) => {
-            localStorage.setItem("serbotalk.interface-language", language);
+            localStorage.setItem("turktalk.interface-language", language);
             localStorage.setItem(
               storageKey,
               JSON.stringify({

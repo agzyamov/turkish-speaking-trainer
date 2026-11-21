@@ -9,7 +9,7 @@ for (const language of ["ru", "en"])
       await page.setViewportSize({ width: layout === "desktop" ? 1440 : layout === "narrow" ? 320 : 393, height: 900 });
       await page.addInitScript(
         ({ language, layout }) => {
-          if (!localStorage.getItem("serbotalk.interface-language")) localStorage.setItem("serbotalk.interface-language", language);
+          if (!localStorage.getItem("turktalk.interface-language")) localStorage.setItem("turktalk.interface-language", language);
           if (layout === "android") window.CapacitorCustomPlatform = { name: "android" };
         },
         { language, layout },

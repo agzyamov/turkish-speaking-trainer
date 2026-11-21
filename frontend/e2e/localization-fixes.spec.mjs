@@ -14,7 +14,7 @@ for (const language of ["ru", "en"])
         });
       await installSyntheticMicrophone(page);
       await page.addInitScript(lang => {
-        localStorage.setItem("serbotalk.interface-language", lang);
+        localStorage.setItem("turktalk.interface-language", lang);
         localStorage.setItem(
           "sb-e2e-auth-auth-token",
           JSON.stringify({
@@ -109,15 +109,15 @@ for (const layout of ["desktop", "mobile", "android"]) {
       });
     await installAccountRoutes(page);
     await page.goto("/");
-    await expect(page.getByRole("heading", { name: "Добро пожаловать в SerboTalk" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Добро пожаловать в TurkTalk" })).toBeVisible();
     await page.getByRole("button", { name: "Выбрать английский язык" }).click();
-    await expect(page.getByRole("heading", { name: "Welcome to SerboTalk" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Welcome to TurkTalk" })).toBeVisible();
     await page.getByText("Review access", { exact: true }).click();
     await expect(page.getByLabel("Username or email", { exact: true })).toBeVisible();
     await expect(page.getByLabel("Password", { exact: true })).toBeVisible();
     await page.screenshot({ path: `../artifacts/localization-fixes/en-${layout}-login.png` });
     await page.reload();
-    await expect(page.getByRole("heading", { name: "Welcome to SerboTalk" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Welcome to TurkTalk" })).toBeVisible();
     await page.getByRole("button", { name: "Select Russian" }).click();
     await page.getByText("Вход для проверки", { exact: true }).click();
     await expect(page.getByLabel("Пароль", { exact: true })).toBeVisible();

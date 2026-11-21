@@ -19,7 +19,7 @@ it("places language first and switches settings immediately", () => {
   fireEvent.click(screen.getByRole("radio", { name: "English" }));
   expect(screen.getByRole("heading", { name: "Settings" })).toBeInTheDocument();
   expect(document.documentElement.lang).toBe("en");
-  expect(localStorage.getItem("serbotalk.interface-language")).toBe("en");
+  expect(localStorage.getItem("turktalk.interface-language")).toBe("en");
   cleanup();
   render(<SettingsView />);
   expect(screen.getByRole("radio", { name: "English" })).toBeChecked();

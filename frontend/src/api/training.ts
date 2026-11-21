@@ -41,7 +41,7 @@ async function requestJson<T>(url: string, init?: RequestInit): Promise<T> {
   } catch (error) {
     if (init?.signal?.aborted) throw error;
     if (error instanceof BackendError) {
-      if (error.failure) console.warn("SerboTalk request failure", error.failure);
+      if (error.failure) console.warn("Request failure", error.failure);
       throw error;
     }
     if (timedOut) throw withClientFailure(new DOMException("Request timed out", "TimeoutError"), "client_timeout", "timeout", diagnosticId);

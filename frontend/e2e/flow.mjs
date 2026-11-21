@@ -68,7 +68,7 @@ export async function runPracticeFlow(
   await expect(phrase).toBeVisible();
   await expect(phrase).not.toHaveAttribute("aria-label", previousPhrase);
   await expect(phrase).toBeInViewport();
-  await page.waitForFunction(() => performance.getEntriesByName("serbotalk:ui:next_phrase", "measure").length > 0);
+  await page.waitForFunction(() => performance.getEntriesByName("turktalk:ui:next_phrase", "measure").length > 0);
 }
 
 export async function loginTestlab(page, loginUrl = "/testlab.html") {

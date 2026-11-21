@@ -38,7 +38,7 @@ for (const language of ["ru", "en"])
         window.__practiceStorageKey = storageKey;
       }, process.env.PRACTICE_AUTH_STORAGE_KEY);
       await page.addInitScript(lang => {
-        localStorage.setItem("serbotalk.interface-language", lang);
+        localStorage.setItem("turktalk.interface-language", lang);
         localStorage.setItem(
           window.__practiceStorageKey || "sb-e2e-auth-auth-token",
           JSON.stringify({

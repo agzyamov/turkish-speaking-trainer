@@ -95,7 +95,7 @@ describe("App", () => {
   });
 
   it.each(["ru", "en"] as const)("shows classified checker failure and diagnostic ID without losing the draft (%s)", async language => {
-    localStorage.setItem("serbotalk.interface-language", language);
+    localStorage.setItem("turktalk.interface-language", language);
     voiceMock.available = true;
     const original = mockApi();
     const id = "49d2c9b9-5978-402b-90d6-3822f88d1ae2";
@@ -145,14 +145,14 @@ describe("App", () => {
     vi.spyOn(auth, "initializeAuth").mockResolvedValue(null);
     vi.stubGlobal("fetch", mockApi());
     render(<App />);
-    expect(await screen.findByRole("heading", { name: "Добро пожаловать в SerboTalk" })).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: "Добро пожаловать в TurkTalk" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Выбрать русский язык" })).toHaveAttribute("aria-pressed", "true");
     fireEvent.click(screen.getByRole("button", { name: "Выбрать английский язык" }));
     expect(screen.getByRole("button", { name: "Select English" })).toHaveAttribute("aria-pressed", "true");
     expect(screen.getByRole("button", { name: "Select Russian" })).toHaveAttribute("aria-pressed", "false");
-    expect(screen.getByRole("heading", { name: "Welcome to SerboTalk" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Welcome to TurkTalk" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Sign in with Google" })).toBeInTheDocument();
-    expect(localStorage.getItem("serbotalk.interface-language")).toBe("en");
+    expect(localStorage.getItem("turktalk.interface-language")).toBe("en");
     await act(async () => {
       authEvents.notify?.({ access_token: "test-token" });
     });
@@ -259,11 +259,11 @@ describe("App", () => {
     });
     expect(await screen.findByRole("button", { name: "Создать тему" })).toBeInTheDocument();
     await waitFor(() => expect(claims).toBe(2));
-    expect(screen.queryByRole("button", { name: "https://serbotalk.app/" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "https://turktalk.example/" })).not.toBeInTheDocument();
   });
 
   it.each(["ru", "en"])("recovers a failed Android grant without offering payment (%s)", async language => {
-    localStorage.setItem("serbotalk.interface-language", language);
+    localStorage.setItem("turktalk.interface-language", language);
     vi.spyOn(Capacitor, "isNativePlatform").mockReturnValue(true);
     vi.spyOn(Capacitor, "getPlatform").mockReturnValue("android");
     const baseFetch = mockApi();
@@ -284,7 +284,7 @@ describe("App", () => {
     fireEvent.click(await screen.findByRole("button", { name: language === "ru" ? "Премиум" : "Premium" }));
     expect(await screen.findByRole("button", { name: language === "ru" ? "Создать тему" : "Create topic" })).toBeInTheDocument();
     expect(claims).toBe(2);
-    expect(screen.queryByRole("button", { name: "https://serbotalk.app/" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "https://turktalk.example/" })).not.toBeInTheDocument();
   });
 
   afterEach(() => {
@@ -308,7 +308,7 @@ describe("App", () => {
   });
 
   it.each(["ru", "en"])("blocks an untranslated foreign-language exercise instead of asking for an answer (%s)", async language => {
-    localStorage.setItem("serbotalk.interface-language", language);
+    localStorage.setItem("turktalk.interface-language", language);
     const baseFetch = mockApi();
     vi.stubGlobal(
       "fetch",
@@ -701,7 +701,7 @@ describe("App", () => {
   for (const language of ["ru", "en"] as const)
     for (const layout of ["desktop", "mobile", "android"] as const) {
       it(`groups personal topics below presets in visible-language order (${language}, ${layout})`, async () => {
-        localStorage.setItem("serbotalk.interface-language", language);
+        localStorage.setItem("turktalk.interface-language", language);
         vi.spyOn(Capacitor, "isNativePlatform").mockReturnValue(layout === "android");
         if (layout === "mobile")
           vi.stubGlobal(
@@ -1184,7 +1184,7 @@ describe("App", () => {
 
     render(<App />);
     expect(screen.getByRole("status", { name: "Авторизация и загрузка" })).toHaveTextContent("Авторизация и загрузка...");
-    expect(screen.getByRole("img", { name: "SerboTalk" })).toHaveAttribute("src", expect.stringMatching(/^data:image\/png;base64,/));
+    expect(screen.getByRole("img", { name: "TurkTalk" })).toHaveAttribute("src", expect.stringMatching(/^data:image\/png;base64,/));
 
     const topicsPage = await screen.findByRole("region", { name: "Выбор темы" });
     expect(topicsPage.querySelector("h1")).toBeNull();
@@ -1951,7 +1951,7 @@ describe("App", () => {
 
   it.each([false, true])("keeps the perfect score visible with animations disabled (native=%s)", async native => {
     vi.spyOn(Capacitor, "isNativePlatform").mockReturnValue(native);
-    localStorage.setItem("serbotalk.rewards.animations", "false");
+    localStorage.setItem("turktalk.rewards.animations", "false");
     voiceMock.available = true;
     const base = mockApi();
     vi.stubGlobal("fetch", async (input: RequestInfo | URL, init?: RequestInit) => {
@@ -2046,7 +2046,7 @@ describe("App", () => {
   });
 
   it.each(["ru", "en"] as const)("never shows a raw translation key on the main screens (%s)", async language => {
-    localStorage.setItem("serbotalk.interface-language", language);
+    localStorage.setItem("turktalk.interface-language", language);
     vi.stubGlobal("fetch", mockApi());
     const { container } = render(<App />);
     const keyShaped = /\b(app|common|practice|shell|statistics|premium|settings|admin|auth|payment)\.[a-z][A-Za-z0-9.]+/;
@@ -2630,7 +2630,7 @@ describe("App", () => {
     fireEvent.click(screen.getByRole("button", { name: "Проверить ответ" }));
     await screen.findByText("Верно");
     fireEvent.click(screen.getByRole("button", { name: /Следующая фраза/ }));
-    fireEvent.click(screen.getByRole("button", { name: "SerboTalk — к практике" }));
+    fireEvent.click(screen.getByRole("button", { name: "TurkTalk — к практике" }));
     fireEvent.click(screen.getByRole("button", { name: /В банке/ }));
     expect(await screen.findByRole("heading", { name: "Я хочу открыть счёт." })).toBeInTheDocument();
     await act(async () => {
@@ -2706,7 +2706,7 @@ describe("App", () => {
     await recordAnswer();
     fireEvent.click(screen.getByRole("button", { name: "Проверить ответ" }));
     await waitFor(() => expect(fetchMock.mock.calls.some(([url]) => url.toString() === "/api/attempts")).toBe(true));
-    fireEvent.click(screen.getByRole("button", { name: "SerboTalk — к практике" }));
+    fireEvent.click(screen.getByRole("button", { name: "TurkTalk — к практике" }));
     fireEvent.click(screen.getByRole("button", { name: /В банке/ }));
     expect(await screen.findByRole("button", { name: /Ответить голосом|Записать заново/ })).toBeInTheDocument();
     const response =
@@ -2733,7 +2733,7 @@ describe("App", () => {
     fireEvent.click(await screen.findByRole("button", { name: /Ответить голосом|Записать заново/ }));
     fireEvent.click(await screen.findByRole("button", { name: "Завершить запись" }));
     await waitFor(() => expect(fetchMock.mock.calls.some(([url]) => url.toString() === "/api/transcriptions")).toBe(true));
-    fireEvent.click(screen.getByRole("button", { name: "SerboTalk — к практике" }));
+    fireEvent.click(screen.getByRole("button", { name: "TurkTalk — к практике" }));
     fireEvent.click(screen.getByRole("button", { name: /В банке/ }));
     finishTranscription({ ok: true, status: 200, json: async () => ({ text: "Stari odgovor" }) });
     await screen.findByRole("heading", { name: "Я хочу открыть счёт." });

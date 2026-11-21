@@ -41,7 +41,7 @@ export function ReviewLogin({ onSignedIn }: { onSignedIn?: () => void } = {}) {
             autoComplete="username"
             autoCapitalize="none"
             spellCheck={false}
-            placeholder="serbotalkreview"
+            placeholder="review"
             value={email}
             disabled={busy}
             onChange={event => setEmail(event.target.value)}

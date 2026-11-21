@@ -27,6 +27,8 @@ export default defineConfig(({ mode }) => {
       include: ["src/**/*.{test,spec}.{ts,tsx}"],
       environment: "jsdom",
       setupFiles: "./src/tests/setup.ts",
+      // A reserved example domain, so the share settings render in tests.
+      env: { VITE_PUBLIC_APP_URL: "https://turktalk.example/" },
     },
   };
 });

@@ -8,7 +8,7 @@ for (const language of ["ru", "en"])
         await page.setViewportSize({ width: 393, height: 852 });
         await page.addInitScript(
           ({ language, native }) => {
-            localStorage.setItem("serbotalk.interface-language", language);
+            localStorage.setItem("turktalk.interface-language", language);
             if (native) window.CapacitorCustomPlatform = { name: "android" };
           },
           { language, native },
