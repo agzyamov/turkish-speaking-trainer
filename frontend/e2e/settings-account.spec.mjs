@@ -77,7 +77,7 @@ for (const language of ['ru', 'en']) for (const layout of ['desktop', 'mobile', 
     const account = page.getByRole('region', { name: en ? 'Account' : 'Аккаунт', exact: true });
     await expect(account.getByText('Maksim Sumin')).toBeVisible();
     await expect(account.getByText('maxim.sumin.long.address@example.invalid')).toBeVisible();
-    await expect(account.getByText(en ? '4 phrases · unlimited' : '4 фраз · без лимита')).toBeVisible();
+    await expect(account.getByText(en ? '4 phrases · unlimited' : '4 фразы · без лимита', { exact: true })).toBeVisible();
     const experiment = page.getByRole('region', { name: en ? 'Experiment: speech recognition' : 'Эксперимент: распознавание речи' });
     const modelSelect = experiment.getByRole('combobox', { name: en ? 'Transcription model' : 'Модель распознавания' });
     await expect(modelSelect).toBeEnabled();

@@ -22,7 +22,7 @@ export function ModelDebugSettings() {
     void fetchModelDebug(controller.signal).then(result => {
       if (!controller.signal.aborted) { setEnabled(result.enabled); setLoaded(true); }
     }).catch(() => {
-      if (pending.current === controller) setError("Не удалось загрузить режим отладки. Откройте настройки повторно.");
+      if (pending.current === controller) setError("settings.couldNotLoadDebug");
     }).finally(() => {
       window.clearTimeout(timeout);
       if (pending.current === controller) { pending.current = null; setBusy(false); }
@@ -41,22 +41,22 @@ export function ModelDebugSettings() {
       const result = await updateModelDebug(value, controller.signal);
       if (pending.current === controller) setEnabled(result.enabled);
     } catch {
-      if (pending.current === controller) setError("Не удалось изменить режим отладки. Проверьте подключение и повторите.");
+      if (pending.current === controller) setError("settings.couldNotChangeDebug");
     } finally {
       window.clearTimeout(timeout);
       if (pending.current === controller) { pending.current = null; setBusy(false); }
     }
   }
 
-  return <section className={cn("assistance-settings settings-section", settingsCard, "[&_[role=alert]]:text-danger [&_[role=status]]:text-ink-soft")} aria-label={t("Режим отладки")}>
+  return <section className={cn("assistance-settings settings-section", settingsCard, "[&_[role=alert]]:text-danger [&_[role=status]]:text-ink-soft")} aria-label={t("settings.debugMode")}>
     <SettingsIcon name="debug" />
     <div className={settingsCopy}>
-    <label htmlFor={switchId} className="settings-toggle flex min-h-11 cursor-pointer items-center justify-between gap-3"><strong>{t("Режим отладки")}</strong><Switch id={switchId} checked={enabled} disabled={busy || !loaded} onCheckedChange={checked => void change(checked)} /></label>
-    <p>{t("Сохранять в БД запросы и ответы моделей вашего аккаунта, точное время, длительность и аудио для диагностики распознавания.")}</p>
-    <small>{t("Временно хранятся последние 20 аудиозаписей. При выключении все логи и аудио удаляются из БД.")}</small>
-    {busy && <p role="status">{t("Сохраняем или загружаем режим отладки…")}</p>}
+    <label htmlFor={switchId} className="settings-toggle flex min-h-11 cursor-pointer items-center justify-between gap-3"><strong>{t("settings.debugMode")}</strong><Switch id={switchId} checked={enabled} disabled={busy || !loaded} onCheckedChange={checked => void change(checked)} /></label>
+    <p>{t("settings.saveModelRequestsResponses")}</p>
+    <small>{t("settings.last20AudioRecordings")}</small>
+    {busy && <p role="status">{t("settings.savingLoadingDebugMode")}</p>}
     {error && <p role="alert">{t(error)}</p>}
-    {!busy && !loaded && <Button className="debug-retry-button justify-self-start" onClick={() => { setBusy(true); setError(undefined); setReload(value => value + 1); }}>{t("Повторить загрузку")}</Button>}
+    {!busy && !loaded && <Button className="debug-retry-button justify-self-start" onClick={() => { setBusy(true); setError(undefined); setReload(value => value + 1); }}>{t("premium.retryLoading")}</Button>}
     </div>
   </section>;
 }

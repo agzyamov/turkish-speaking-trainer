@@ -1718,6 +1718,22 @@ describe("App", () => {
     expect(page.className).not.toContain("*2/3");
   });
 
+  it.each(["ru", "en"] as const)("never shows a raw translation key on the main screens (%s)", async language => {
+    localStorage.setItem("serbotalk.interface-language", language);
+    vi.stubGlobal("fetch", mockApi());
+    const { container } = render(<App />);
+    const keyShaped = /\b(app|common|practice|shell|statistics|premium|settings|admin|auth|payment)\.[a-z][A-Za-z0-9.]+/;
+    const visibleText = () => [container.textContent ?? "", ...Array.from(container.querySelectorAll("[aria-label],[title],[placeholder]"), element =>
+      ["aria-label", "title", "placeholder"].map(name => element.getAttribute(name) ?? "").join(" "))].join(" ");
+    await screen.findByRole("button", { name: /В банке|At the bank/ });
+    expect(visibleText()).not.toMatch(keyShaped);
+    for (const section of language === "ru" ? ["Статистика", "Премиум", "Настройки"] : ["Statistics", "Premium", "Settings"]) {
+      fireEvent.click(screen.getByRole("button", { name: section }));
+      await waitFor(() => expect(container.querySelector(".deferred-panel")).toBeNull());
+      expect(visibleText()).not.toMatch(keyShaped);
+    }
+  });
+
   it("shows only the current week and separates attempts from mastered phrases", async () => {
     vi.stubGlobal("fetch", mockApi());
     render(<App />);
@@ -2143,7 +2159,7 @@ describe("App", () => {
     expect(await screen.findByText("Верно")).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: /Следующая фраза/ }));
     expect(await screen.findByRole("heading", { name: "Все фразы темы пройдены" })).toBeInTheDocument();
-    expect(screen.getByText("1 фраз проверено. В этой теме пока нет следующих фраз.")).toBeInTheDocument();
+    expect(screen.getByText("1 фраза проверена. В этой теме пока нет следующих фраз.")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Выбрать новую тему" })).toBeEnabled();
   });
 

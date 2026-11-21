@@ -58,32 +58,32 @@ export function SettingsView({ account, onSignOut, assistanceEnabled = false, as
   const deletionTitleId = useId();
   return <main className="settings-page mx-auto grid w-full max-w-settings gap-4 px-4 py-8 text-ink in-[.android-settings-page]:px-0 in-[.android-settings-page]:py-1 [&>.settings-admin-grid]:m-0 [&>.settings-section]:m-0">
     <header data-slot="settings-heading" className="flex items-center justify-between gap-4">
-      <h1 className="m-0 text-title in-[.android-settings-page]:text-title-compact">{t("Настройки")}</h1>
-      <span data-slot="settings-version" className="whitespace-nowrap text-caption text-ink-muted" aria-label={t("Версия приложения")}>v.{t(version.split(".").slice(0, 2).join("."))}</span>
+      <h1 className="m-0 text-title in-[.android-settings-page]:text-title-compact">{t("settings.title")}</h1>
+      <span data-slot="settings-version" className="whitespace-nowrap text-caption text-ink-muted" aria-label={t("settings.appVersion")}>v.{t(version.split(".").slice(0, 2).join("."))}</span>
     </header>
 
     <fieldset className={`language-settings ${groupClass}`}>
-      <legend id={languageLegendId} className={legendClass}>{t("Язык интерфейса и исходных фраз")}</legend>
+      <legend id={languageLegendId} className={legendClass}>{t("settings.interfaceSourceLanguage")}</legend>
       <RadioGroup className="grid-cols-2" value={language} onValueChange={value => setLanguage(value as InterfaceLanguage)} aria-labelledby={languageLegendId}>
         <LanguageOption value="ru" icon="ru" label="Русский" />
         <LanguageOption value="en" icon="en" label="English" />
       </RadioGroup>
     </fieldset>
 
-    <Card aria-label={t("Мягкие подсказки при распознавании")}>
-      <SwitchRow icon="hints" label={t("Мягкие подсказки при распознавании")} checked={assistanceEnabled} disabled={assistanceSaving} onChange={checked => onAssistanceChange?.(checked)}>
-        <p className="m-0 text-sm leading-normal text-ink-muted">{t("Сравнивать каждую расшифровку с эталоном и допустимыми переводами, предлагая близкие варианты возможных искажений распознавания. Все изменения применяются только после вашего подтверждения.")}</p>
-        {assistanceSaving && <p className="m-0 text-ink-soft" role="status">{t("Сохраняем настройку…")}</p>}
+    <Card aria-label={t("settings.gentleTranscriptionHints")}>
+      <SwitchRow icon="hints" label={t("settings.gentleTranscriptionHints")} checked={assistanceEnabled} disabled={assistanceSaving} onChange={checked => onAssistanceChange?.(checked)}>
+        <p className="m-0 text-sm leading-normal text-ink-muted">{t("settings.compareEachTranscriptReference")}</p>
+        {assistanceSaving && <p className="m-0 text-ink-soft" role="status">{t("settings.savingPreference")}</p>}
         {assistanceError && <p className="m-0 text-danger" role="alert">{t(assistanceError)}</p>}
       </SwitchRow>
     </Card>
 
     <fieldset className={groupClass}>
-      <legend className={legendClass}>{t("Награды за успехи")}</legend>
-      <p className="m-0 text-caption text-ink-muted">{t("Звоночек за 100% и золотая награда за 20 повторений за день. Настройки сохраняются на этом устройстве.")}</p>
+      <legend className={legendClass}>{t("settings.successRewards")}</legend>
+      <p className="m-0 text-caption text-ink-muted">{t("settings.bell100GoldenReward")}</p>
       <div className="grid gap-3 sm:grid-cols-2">
-        <div className="rounded-control border border-line p-3"><SwitchRow icon="bell" label={t("Звуки успеха")} checked={sounds} onChange={checked => setRewardPreference("sounds", checked)} /></div>
-        <div className="rounded-control border border-line p-3"><SwitchRow icon="celebrate" label={t("Анимации успеха")} checked={animations} onChange={checked => setRewardPreference("animations", checked)} /></div>
+        <div className="rounded-control border border-line p-3"><SwitchRow icon="bell" label={t("settings.successSounds")} checked={sounds} onChange={checked => setRewardPreference("sounds", checked)} /></div>
+        <div className="rounded-control border border-line p-3"><SwitchRow icon="celebrate" label={t("settings.successAnimations")} checked={animations} onChange={checked => setRewardPreference("animations", checked)} /></div>
       </div>
     </fieldset>
 
@@ -93,22 +93,22 @@ export function SettingsView({ account, onSignOut, assistanceEnabled = false, as
 
     {account && <>
       <Card aria-labelledby={accountTitleId}>
-        <CardTitle id={accountTitleId}>{t("Аккаунт")}</CardTitle>
+        <CardTitle id={accountTitleId}>{t("settings.account")}</CardTitle>
         <div className="grid items-center gap-4 sm:grid-cols-[minmax(0,1fr)_auto]">
           <div data-slot="account-profile" className="flex min-w-0 items-center gap-3">
             <span className="avatar grid size-10 shrink-0 place-items-center rounded-full border border-line-strong bg-selected font-semibold text-accent">{account.display_name?.slice(0, 1).toLocaleUpperCase() || "A"}</span>
             <span className="grid min-w-0 gap-1 [overflow-wrap:anywhere]">
               <strong>{account.display_name || account.email}</strong>
               {account.display_name && <span className="text-caption text-ink-muted">{account.email}</span>}
-              <small className="text-caption text-ink-muted">{t(account.daily_usage.limit === null ? `${account.daily_usage.used} фраз · без лимита` : `${account.daily_usage.remaining} из ${account.daily_usage.limit} фраз осталось`)}</small>
+              <small className="text-caption text-ink-muted">{account.daily_usage.limit === null ? t("settings.usage.unlimited", { count: account.daily_usage.used }) : t("settings.usage.remaining", { remaining: account.daily_usage.remaining ?? 0, count: account.daily_usage.limit ?? 0 })}</small>
             </span>
           </div>
-          <Button className="w-full sm:w-auto" onClick={onSignOut}>{t("Выйти")}</Button>
+          <Button className="w-full sm:w-auto" onClick={onSignOut}>{t("settings.signOut")}</Button>
         </div>
       </Card>
       <Card aria-labelledby={deletionTitleId}>
-        <CardTitle id={deletionTitleId}>{t("Удаление аккаунта")}</CardTitle>
-        <CardDescription><a className="text-accent-bright underline-offset-4 hover:underline focus-visible:rounded-sm focus-visible:outline-2 focus-visible:outline-focus [overflow-wrap:anywhere]" href="/delete-account">{t("Запросить удаление аккаунта и данных")}</a></CardDescription>
+        <CardTitle id={deletionTitleId}>{t("settings.accountDeletion")}</CardTitle>
+        <CardDescription><a className="text-accent-bright underline-offset-4 hover:underline focus-visible:rounded-sm focus-visible:outline-2 focus-visible:outline-focus [overflow-wrap:anywhere]" href="/delete-account">{t("settings.requestAccountDataDeletion")}</a></CardDescription>
       </Card>
     </>}
   </main>;

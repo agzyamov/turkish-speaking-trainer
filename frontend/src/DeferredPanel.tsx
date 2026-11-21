@@ -17,8 +17,8 @@ class PanelErrorBoundary extends Component<{ children: ReactNode; onRetry: (erro
   render() {
     if (this.state.failed) {
       return <div className={panel} role="alert">
-        <p className="m-0">{t("Не удалось открыть раздел. Проверьте соединение и попробуйте снова.")}</p>
-        <button className={cn("cursor-pointer rounded-control border border-line bg-surface-raised px-4 py-2.5 font-semibold text-ink hover:border-line-strong", "outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-surface")} type="button" onClick={() => this.props.onRetry(this.state.error)}>{t("Повторить загрузку")}</button>
+        <p className="m-0">{t("common.couldNotOpenSection")}</p>
+        <button className={cn("cursor-pointer rounded-control border border-line bg-surface-raised px-4 py-2.5 font-semibold text-ink hover:border-line-strong", "outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-surface")} type="button" onClick={() => this.props.onRetry(this.state.error)}>{t("premium.retryLoading")}</button>
       </div>;
     }
     return this.props.children;
@@ -50,7 +50,7 @@ export function DeferredPanel<Props extends object>({ load, panelProps, label }:
   }
 
   return <PanelErrorBoundary key={retry} onRetry={retryLoad}>
-    <Suspense fallback={<div className={panel} role="status" aria-live="polite">{t(`Загружаем ${label}…`)}</div>}>
+    <Suspense fallback={<div className={panel} role="status" aria-live="polite">{t("common.loadingSection", { section: t(label) })}</div>}>
       <Panel {...panelProps} />
     </Suspense>
   </PanelErrorBoundary>;

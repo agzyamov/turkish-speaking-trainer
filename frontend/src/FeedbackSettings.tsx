@@ -91,21 +91,21 @@ export function FeedbackSettings() {
 
   const busy = state !== "idle";
   return <section className={cn("feedback-settings", settingsSection)} aria-labelledby="feedback-settings-title">
-    <h2 id="feedback-settings-title" className={settingsHeading}>{t("Оставить обратную связь")}</h2>
-    {!open && <button className={cn(settingsCard, settingsAction)} type="button" onClick={() => { setOpen(true); setSent(false); setError(false); }}><SettingsIcon name="feedback" /><strong>{t("Написать или записать отзыв")}</strong></button>}
-    {sent && <p className="m-0 text-sm" role="status">{t("Спасибо! Обратная связь отправлена.")}</p>}
+    <h2 id="feedback-settings-title" className={settingsHeading}>{t("settings.leaveFeedback")}</h2>
+    {!open && <button className={cn(settingsCard, settingsAction)} type="button" onClick={() => { setOpen(true); setSent(false); setError(false); }}><SettingsIcon name="feedback" /><strong>{t("settings.writeRecordFeedback")}</strong></button>}
+    {sent && <p className="m-0 text-sm" role="status">{t("settings.thankYouFeedbackHas")}</p>}
     {open && <form className="grid gap-3 rounded-card border border-line bg-surface p-4 [&>p]:m-0 [&>p]:text-sm [&>p]:leading-normal [&>p]:text-ink-muted" onSubmit={event => { event.preventDefault(); void submit(); }}>
-      <label htmlFor="feedback-content" className="text-sm text-ink-soft">{t("Ваша обратная связь")}</label>
+      <label htmlFor="feedback-content" className="text-sm text-ink-soft">{t("settings.feedbackLabel")}</label>
       <Textarea id="feedback-content" maxLength={5000} rows={5} value={content} disabled={busy} onChange={event => setContent(event.target.value)} />
-      <p>{t("Напишите отзыв или запишите голосом до 60 секунд. Расшифровку можно исправить перед отправкой. Аудио не сохраняется.")}</p>
+      <p>{t("settings.writeFeedbackRecordUp")}</p>
       <div className="feedback-settings__actions flex flex-wrap gap-2">
-        <Button disabled={!supportsVoiceRecording() || (busy && state !== "recording")} onClick={() => void (state === "recording" ? finishRecording() : startRecording())}>{t(state === "recording" ? "Завершить запись" : "Записать голосом")}</Button>
-        <Button variant="primary" type="submit" disabled={busy || !content.trim()}>{t(state === "sending" ? "Отправляем…" : "Отправить обратную связь")}</Button>
-        <Button onClick={() => { stop(); setState("idle"); setOpen(false); setError(false); }}>{t("Закрыть")}</Button>
+        <Button disabled={!supportsVoiceRecording() || (busy && state !== "recording")} onClick={() => void (state === "recording" ? finishRecording() : startRecording())}>{t(state === "recording" ? "settings.finishRecording" : "settings.recordFeedback")}</Button>
+        <Button variant="primary" type="submit" disabled={busy || !content.trim()}>{t(state === "sending" ? "settings.sending" : "settings.sendFeedback")}</Button>
+        <Button onClick={() => { stop(); setState("idle"); setOpen(false); setError(false); }}>{t("premium.close")}</Button>
       </div>
-      {state !== "idle" && <p role="status">{t(state === "connecting" ? "Подключаем микрофон…" : state === "recording" ? "Идёт запись. Аудио не сохраняется" : state === "transcribing" ? "Расшифровываем отзыв…" : "Отправляем…")}</p>}
-      {!supportsVoiceRecording() && <p>{t("Голосовой ввод недоступен. Напишите отзыв текстом.")}</p>}
-      {error && <p role="alert">{t("Не удалось выполнить действие. Текст сохранён в форме. Попробуйте ещё раз.")}</p>}
+      {state !== "idle" && <p role="status">{t(state === "connecting" ? "settings.connectingMicrophone" : state === "recording" ? "settings.recordingAudioNotSaved" : state === "transcribing" ? "settings.transcribingFeedback" : "settings.sending")}</p>}
+      {!supportsVoiceRecording() && <p>{t("settings.voiceInputUnavailablePlease")}</p>}
+      {error && <p role="alert">{t("settings.actionFailedTextStill")}</p>}
     </form>}
   </section>;
 }

@@ -27,9 +27,9 @@ export function ShareAppSettings() {
         await navigator.clipboard.writeText(publicAppUrl);
         setState("copied");
       } else {
-        const data = { title: "SerboTalk", text: t("Практикуйте разговорный турецкий с SerboTalk."), url: publicAppUrl };
+        const data = { title: "SerboTalk", text: t("settings.practiseSpeakingTurkishSerbotalk"), url: publicAppUrl };
         // Call directly from the click, before any await, to preserve user activation.
-        if (nativeShare) await Share.share({ ...data, dialogTitle: t("Поделиться приложением") });
+        if (nativeShare) await Share.share({ ...data, dialogTitle: t("settings.shareApp") });
         else await navigator.share(data);
         setState("idle");
       }
@@ -46,15 +46,15 @@ export function ShareAppSettings() {
 
   const busy = state === "sharing" || state === "copying";
   return <section className={cn("share-app-settings", settingsSection)} aria-labelledby="share-app-title">
-    <h2 id="share-app-title" className={settingsHeading}>{t("Поделиться приложением")}</h2>
-    <p>{t("Пригласите друзей практиковать турецкий. Ссылка открывает SerboTalk в браузере.")}</p>
+    <h2 id="share-app-title" className={settingsHeading}>{t("settings.shareApp")}</h2>
+    <p>{t("settings.inviteFriendsPractiseTurkish")}</p>
     <div className="share-app-settings__actions grid min-w-0 grid-cols-3 gap-3.5 max-[640px]:grid-cols-2 max-[640px]:gap-2.5">
-      <button className={cn(settingsCard, settingsAction, "max-[640px]:flex-col max-[640px]:items-start")} type="button" disabled={busy} onClick={() => void perform()}><SettingsIcon name="share" /><strong>{t("Поделиться")}</strong></button>
-      <button className={cn(settingsCard, settingsAction, "max-[640px]:flex-col max-[640px]:items-start")} type="button" disabled={busy} onClick={() => void perform(true)}><SettingsIcon name="link" /><strong>{t("Скопировать ссылку")}</strong></button>
-      <div className={cn(settingsCard, "settings-url items-center max-[640px]:col-span-full [&_.settings-icon]:size-8 [&_.settings-icon>svg]:size-5.5")}><SettingsIcon name="link" /><div className={settingsCopy}><label htmlFor="share-app-url" className="text-sm text-ink-soft">{t("Ссылка на приложение")}</label><Input className="py-2" id="share-app-url" type="url" readOnly value={publicAppUrl} onFocus={event => event.currentTarget.select()} /></div></div>
+      <button className={cn(settingsCard, settingsAction, "max-[640px]:flex-col max-[640px]:items-start")} type="button" disabled={busy} onClick={() => void perform()}><SettingsIcon name="share" /><strong>{t("settings.share")}</strong></button>
+      <button className={cn(settingsCard, settingsAction, "max-[640px]:flex-col max-[640px]:items-start")} type="button" disabled={busy} onClick={() => void perform(true)}><SettingsIcon name="link" /><strong>{t("settings.copyLink")}</strong></button>
+      <div className={cn(settingsCard, "settings-url items-center max-[640px]:col-span-full [&_.settings-icon]:size-8 [&_.settings-icon>svg]:size-5.5")}><SettingsIcon name="link" /><div className={settingsCopy}><label htmlFor="share-app-url" className="text-sm text-ink-soft">{t("settings.appLink")}</label><Input className="py-2" id="share-app-url" type="url" readOnly value={publicAppUrl} onFocus={event => event.currentTarget.select()} /></div></div>
     </div>
-    {busy && <p role="status">{t(state === "sharing" ? "Открываем меню отправки…" : "Копируем ссылку…")}</p>}
-    {state === "copied" && <p role="status">{t("Ссылка скопирована.")}</p>}
-    {state === "error" && <p role="alert">{t("Не удалось поделиться или скопировать ссылку. Вы можете скопировать её вручную из поля выше.")}</p>}
+    {busy && <p role="status">{t(state === "sharing" ? "settings.openingShareMenu" : "settings.copyingLink")}</p>}
+    {state === "copied" && <p role="status">{t("settings.linkCopied")}</p>}
+    {state === "error" && <p role="alert">{t("settings.couldNotShareCopy")}</p>}
   </section>;
 }

@@ -55,7 +55,7 @@ for (const language of ['ru', 'en']) for (const layout of ['desktop', 'mobile'])
     await expect(form.getByText('500.00 RUB', { exact: true })).toBeVisible();
     await expect(form.getByText('7K4M92', { exact: true })).toBeVisible();
     await mkdir('../artifacts/short-payment-codes', { recursive: true });
-    await page.screenshot({ path: `../artifacts/short-payment-codes/${language}-${layout}.png`, fullPage: true });
+    await page.screenshot({ path: `../artifacts/short-payment-codes/${language}-${layout}.png` });
     await expect(form.getByText('+70000000000')).toBeVisible();
     await form.getByRole('button', { name: ru ? 'Копировать: Телефон получателя' : 'Copy: Recipient phone number' }).click();
     // Browser clipboard may require user permission: manual fallback must remain readable.
@@ -81,8 +81,9 @@ for (const language of ['ru', 'en']) for (const layout of ['desktop', 'mobile'])
     expect(inputStyle.bg).not.toBe('rgb(255, 255, 255)');
     expect(await form.evaluate(el => el.scrollWidth <= el.clientWidth)).toBe(true);
     await mkdir('../artifacts/manual-payments', { recursive: true });
-    await page.screenshot({ path: `../artifacts/manual-payments/${language}-${layout}.png`, fullPage: true });
-    await page.screenshot({ path: `../artifacts/manual-payments/${language}-${layout}-methods.png`, fullPage: true });
+    // Viewport shots only: a full-page capture resizes the window, which flips the desktop layout to the
+    // phone layout and back and remounts the Premium panel (closing the open form).
+    await page.screenshot({ path: `../artifacts/manual-payments/${language}-${layout}.png` });
     await form.getByRole('button', { name: ru ? 'Я оплатил' : 'I have paid', exact: true }).click();
     await expect(page.getByText(/Администратор проверит|The administrator will verify/)).toBeVisible();
     await expect(form).toHaveCount(0);

@@ -32,7 +32,7 @@ export function EmailLogin({ onSignedIn }: { onSignedIn?: () => void } = {}) {
     // Also pace failed requests: retries must never send a burst of emails.
     setRetryAt(Date.now() + 60_000); setRemaining(60);
     try { await requestEmailCode(email); setSent(true); setCode(""); }
-    catch { setError("Не удалось отправить код. Проверьте email и попробуйте позже."); }
+    catch { setError("auth.couldNotSendCode"); }
     finally { pending.current = false; setBusy(false); }
   }
 
@@ -40,24 +40,24 @@ export function EmailLogin({ onSignedIn }: { onSignedIn?: () => void } = {}) {
     if (pending.current) return;
     pending.current = true; setBusy(true); setError(undefined);
     try { await verifyEmailCode(email, code); setCode(""); onSignedIn?.(); }
-    catch { setCode(""); setError("Код недействителен или истёк. Попробуйте ещё раз или запросите новый."); }
+    catch { setCode(""); setError("auth.codeInvalidHasExpired"); }
     finally { pending.current = false; setBusy(false); }
   }
 
   return <details className={cn("email-login", authDetails)}>
-    <summary>{t("Войти по email")}</summary>
-    <form aria-label={t("Вход по коду из письма")} onSubmit={event => { event.preventDefault(); void (sent ? verify() : sendCode()); }}>
-      <p>{t("Отправим одноразовый код на вашу почту. Пароль не нужен.")}</p>
+    <summary>{t("auth.signEmail")}</summary>
+    <form aria-label={t("auth.signEmailCode")} onSubmit={event => { event.preventDefault(); void (sent ? verify() : sendCode()); }}>
+      <p>{t("auth.weWillEmailYou")}</p>
       <label>{t("Email")}<Input type="email" required autoComplete="email" autoCapitalize="none" spellCheck={false} maxLength={254} value={email} disabled={busy || sent} onChange={event => setEmail(event.target.value)} /></label>
       {sent && <>
-        <p role="status">{t("Код отправлен. Проверьте входящие и папку «Спам».")}</p>
-        <label>{t("Код из письма")}<Input type="text" inputMode="numeric" autoComplete="one-time-code" required pattern="[0-9]{6,10}" maxLength={10} value={code} disabled={busy} onChange={event => setCode(event.target.value.replace(/\D/g, ""))} /></label>
+        <p role="status">{t("auth.codeSentCheckInbox")}</p>
+        <label>{t("auth.emailCode")}<Input type="text" inputMode="numeric" autoComplete="one-time-code" required pattern="[0-9]{6,10}" maxLength={10} value={code} disabled={busy} onChange={event => setCode(event.target.value.replace(/\D/g, ""))} /></label>
       </>}
-      <Button variant="primary" type="submit" disabled={busy || (!sent && remaining > 0)}>{t(busy ? sent ? "Входим…" : "Отправляем код…" : sent ? "Войти" : "Получить код")}</Button>
-      {remaining > 0 && <p>{t(`Повторная отправка через ${remaining} с.`)}</p>}
+      <Button variant="primary" type="submit" disabled={busy || (!sent && remaining > 0)}>{t(busy ? sent ? "auth.signing" : "auth.sendingCode" : sent ? "auth.sign" : "auth.getCode")}</Button>
+      {remaining > 0 && <p>{t("auth.resendIn", { seconds: remaining })}</p>}
       {sent && <>
-        <Button disabled={busy || remaining > 0} onClick={() => void sendCode()}>{t("Отправить код ещё раз")}</Button>
-        <Button disabled={busy} onClick={() => { setSent(false); setCode(""); setError(undefined); }}>{t("Изменить email")}</Button>
+        <Button disabled={busy || remaining > 0} onClick={() => void sendCode()}>{t("auth.resendCode")}</Button>
+        <Button disabled={busy} onClick={() => { setSent(false); setCode(""); setError(undefined); }}>{t("auth.changeEmail")}</Button>
       </>}
       {error && <p role="alert">{t(error)}</p>}
     </form>

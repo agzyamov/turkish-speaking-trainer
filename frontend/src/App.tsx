@@ -1,6 +1,6 @@
 import { failureOf } from "./api/failureDiagnostics";
 import { budgetPauseMessage } from "./budgetPause";
-import { t, useLanguage, setLanguage, getLocale, topicText } from "./i18n";
+import { t, translateIn, useLanguage, setLanguage, getLocale, topicText } from "./i18n";
 import { exerciseSource } from "./exerciseSource";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { App as CapacitorApp } from "@capacitor/app";
@@ -30,7 +30,6 @@ import { RewardOverlay } from "./RewardOverlay";
 import { useRewards } from "./useRewards";
 import { finishUiTimingWhenVisible, startUiTiming } from "./performance";
 import appLogo from "./assets/app-logo.png?inline";
-import messages from "./locales/en.json";
 import "./index.css";
 import { Icon } from "./shared/ui/icon";
 import type { VoiceState } from "./features/practice/AnswerActions";
@@ -67,8 +66,8 @@ function requestId(): string {
 
 function resetTimeLabel(iso: string): string {
   const date = new Date(iso);
-  if (Number.isNaN(date.getTime())) return "после обновления лимита";
-  return `после ${new Intl.DateTimeFormat(getLocale(), { day: "numeric", month: "long", hour: "2-digit", minute: "2-digit" }).format(date)}`;
+  if (Number.isNaN(date.getTime())) return t("app.afterLimitResets");
+  return t("app.resetsAfter", { time: new Intl.DateTimeFormat(getLocale(), { day: "numeric", month: "long", hour: "2-digit", minute: "2-digit" }).format(date) });
 }
 
 
@@ -84,8 +83,8 @@ export default function App() {
 
 function LoginLanguageButton() {
   const language = useLanguage();
-  return <div className="login-languages mb-4.5 flex justify-center gap-3" role="group" aria-label={t("Язык интерфейса")}>
-    {(["ru", "en"] as const).map(locale => <button key={locale} className="login-language grid size-11.5 cursor-pointer place-items-center rounded-sm border border-line bg-surface-raised p-1 hover:bg-selected aria-pressed:border-reward outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-surface [&_svg]:block" type="button" aria-label={t(locale === "ru" ? "Выбрать русский язык" : "Выбрать английский язык")} aria-pressed={language === locale} onClick={() => setLanguage(locale)}>
+  return <div className="login-languages mb-4.5 flex justify-center gap-3" role="group" aria-label={t("app.interfaceLanguage")}>
+    {(["ru", "en"] as const).map(locale => <button key={locale} className="login-language grid size-11.5 cursor-pointer place-items-center rounded-sm border border-line bg-surface-raised p-1 hover:bg-selected aria-pressed:border-reward outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-surface [&_svg]:block" type="button" aria-label={t(locale === "ru" ? "app.selectRussian" : "app.selectEnglish")} aria-pressed={language === locale} onClick={() => setLanguage(locale)}>
       <svg aria-hidden="true" viewBox="0 0 60 60" width="36" height="36">
         {locale === "ru" ? <><path fill="#fff" d="M0 0h60v20H0z"/><path fill="#0039a6" d="M0 20h60v20H0z"/><path fill="#d52b1e" d="M0 40h60v20H0z"/></> : <>
           <path fill="#012169" d="M0 0h60v60H0z"/><path stroke="#fff" strokeWidth="12" d="m0 0 60 60M60 0 0 60"/><path stroke="#c8102e" strokeWidth="4" d="m0 0 60 60M60 0 0 60"/><path stroke="#fff" strokeWidth="20" d="M30 0v60M0 30h60"/><path stroke="#c8102e" strokeWidth="12" d="M30 0v60M0 30h60"/>
@@ -96,9 +95,9 @@ function LoginLanguageButton() {
 }
 
 // Both translations participate in layout so switching languages never moves the form.
-function LoginCopy({ as: Tag, text, href }: { as: "h1" | "p" | "a"; text: keyof typeof messages; href?: string }) {
+function LoginCopy({ as: Tag, text, href }: { as: "h1" | "p" | "a"; text: string; href?: string }) {
   const language = useLanguage();
-  return <Tag className="login-copy grid [&>span]:col-start-1 [&>span]:row-start-1 [&>span]:self-center" href={href}>{(["ru", "en"] as const).map(locale => <span key={locale} lang={locale} aria-hidden={language !== locale} className={language !== locale ? "login-copy__sizing pointer-events-none invisible" : undefined}>{locale === "ru" ? text : messages[text]}</span>)}</Tag>;
+  return <Tag className="login-copy grid [&>span]:col-start-1 [&>span]:row-start-1 [&>span]:self-center" href={href}>{(["ru", "en"] as const).map(locale => <span key={locale} lang={locale} aria-hidden={language !== locale} className={language !== locale ? "login-copy__sizing pointer-events-none invisible" : undefined}>{translateIn(locale, text)}</span>)}</Tag>;
 }
 
 function AuthenticatedApp() {
@@ -122,13 +121,13 @@ function AuthenticatedApp() {
         const user = await fetchCurrentUser();
         if (active && lastToken === token) { setAccount(user); setAuthError(undefined); }
       } catch {
-        if (active && lastToken === token) setAuthError("Не удалось загрузить профиль. Проверьте подключение к интернету и повторите вход.");
+        if (active && lastToken === token) setAuthError("app.couldNotLoadProfile");
       } finally {
         if (active && lastToken === token) setAuthReady(true);
       }
     };
     initializeAuth().then(syncAccount).catch(() => {
-      if (active) { setAuthError("Не удалось восстановить вход."); setAuthReady(true); }
+      if (active) { setAuthError("app.couldNotRestoreSession"); setAuthReady(true); }
     });
     const unsubscribe = onAuthStateChange((session) => {
       window.setTimeout(() => { void syncAccount(session); }, 0);
@@ -139,19 +138,19 @@ function AuthenticatedApp() {
   async function login() {
     setAuthError(undefined);
     try { await signInWithGoogle(); }
-    catch { setAuthError("Не удалось открыть вход через Google."); }
+    catch { setAuthError("app.couldNotOpenGoogle"); }
   }
 
-  if (!authReady) return <main className={cn(authPage, "auth-page--loading")}><div className="auth-loading" role="status" aria-label={t("Авторизация и загрузка")}>
+  if (!authReady) return <main className={cn(authPage, "auth-page--loading")}><div className="auth-loading" role="status" aria-label={t("app.signingLoading")}>
     <span className="auth-loading__ring"><img src={appLogo} alt="SerboTalk" /></span>
-    <p>{t("Авторизация и загрузка...")}</p>
+    <p>{t("app.signingLoadingDots")}</p>
   </div></main>;
-  if (!isAuthConfigured()) return <main className={authPage}><div className={authCard}><LoginLanguageButton /><h1>{t("Нужна настройка входа")}</h1><p>{t("Добавьте VITE_SUPABASE_URL и VITE_SUPABASE_PUBLISHABLE_KEY в окружение frontend.")}</p></div></main>;
+  if (!isAuthConfigured()) return <main className={authPage}><div className={authCard}><LoginLanguageButton /><h1>{t("app.signSetupRequired")}</h1><p>{t("app.addViteSupabaseUrl")}</p></div></main>;
   if (hasSession && !account && authError) return <main className={authPage}><div className={authCard}><LoginLanguageButton />
     <p role="alert">{t(authError)}</p>
-    <Button className="mt-4" onClick={() => { setAuthReady(false); setAuthAttempt(value => value + 1); }}>{t("Повторить загрузку профиля")}</Button>
+    <Button className="mt-4" onClick={() => { setAuthReady(false); setAuthAttempt(value => value + 1); }}>{t("app.retryLoadingProfile")}</Button>
   </div></main>;
-  if (!hasSession || !account) return <main className={authPage}><div className={authCard}><LoginLanguageButton /><LoginCopy as="h1" text="Добро пожаловать в SerboTalk" /><LoginCopy as="p" text="Войдите или зарегистрируйтесь, чтобы сохранять свой прогресс на всех устройствах." /><button className={googleButton} type="button" onClick={() => void login()}>{t("Войти через Google")}</button><EmailLogin /><ReviewLogin />{authError && <p role="alert">{t(authError)}</p>}<nav className={authLegal} aria-label={t("Правовая информация")}><LoginCopy as="a" href="/privacy" text="Конфиденциальность" /><LoginCopy as="a" href="/terms" text="Условия" /><LoginCopy as="a" href="/delete-account" text="Удаление аккаунта" /></nav></div></main>;
+  if (!hasSession || !account) return <main className={authPage}><div className={authCard}><LoginLanguageButton /><LoginCopy as="h1" text="app.welcomeSerbotalk" /><LoginCopy as="p" text="app.signRegisterSaveProgress" /><button className={googleButton} type="button" onClick={() => void login()}>{t("app.signGoogle")}</button><EmailLogin /><ReviewLogin />{authError && <p role="alert">{t(authError)}</p>}<nav className={authLegal} aria-label={t("app.legalInformation")}><LoginCopy as="a" href="/privacy" text="app.privacy" /><LoginCopy as="a" href="/terms" text="app.terms" /><LoginCopy as="a" href="/delete-account" text="app.accountDeletion" /></nav></div></main>;
   return <TrainerApp key={account.id} account={account} onAccountChange={setAccount} onSignOut={() => void signOut()} />;
 }
 
@@ -287,7 +286,7 @@ function TrainerApp({ account, onAccountChange, onSignOut }: { account: CurrentU
       if (controller.signal.aborted || catalogEpochRef.current !== epoch) return;
       if (topicsResult.status === "rejected") {
         setBackendState("offline");
-        setError("Не удалось загрузить темы. Проверьте соединение и попробуйте снова.");
+        setError("app.couldNotLoadTopics");
         setStartupState("fallback");
         return;
       }
@@ -297,7 +296,7 @@ function TrainerApp({ account, onAccountChange, onSignOut }: { account: CurrentU
       setSelectedTopic(firstTopic?.id);
       setBackendState("online");
       if (summaryResult.status === "rejected") {
-        setError("Не удалось загрузить фразы для повторения. Выберите тему или повторите загрузку.");
+        setError("app.couldNotLoadReview");
         setStartupState("fallback");
         return;
       }
@@ -305,7 +304,7 @@ function TrainerApp({ account, onAccountChange, onSignOut }: { account: CurrentU
       if (reviewSummaryEpochRef.current === summaryEpoch) setReviewPhraseCount(reviewCount);
       setSelectedTopic(reviewCount > 0 ? undefined : firstTopic?.id);
       if (reviewCount === 0 && !firstTopic) {
-        setError("Пока нет фраз для тренировки. Добавьте фразу или создайте тему.");
+        setError("app.noPhrasesPractiseYet");
         setStartupState("fallback");
         return;
       }
@@ -320,7 +319,7 @@ function TrainerApp({ account, onAccountChange, onSignOut }: { account: CurrentU
             if (!(requestError instanceof BackendError && requestError.code === "review_queue_empty")) throw requestError;
             if (reviewSummaryEpochRef.current === summaryEpoch) setReviewPhraseCount(0);
             if (!firstTopic) {
-              setError("Пока нет фраз для тренировки. Добавьте фразу или создайте тему.");
+              setError("app.noPhrasesPractiseYet");
               setStartupState("fallback");
               return;
             }
@@ -337,7 +336,7 @@ function TrainerApp({ account, onAccountChange, onSignOut }: { account: CurrentU
         setStartupState("ready");
       } catch {
         if (controller.signal.aborted || catalogEpochRef.current !== epoch) return;
-        setError("Не удалось подготовить первую фразу. Выберите тему или повторите загрузку.");
+        setError("app.couldNotPrepareFirst");
         setStartupState("fallback");
       } finally {
         if (catalogEpochRef.current === epoch) flowControllerRef.current = undefined;
@@ -400,7 +399,7 @@ function TrainerApp({ account, onAccountChange, onSignOut }: { account: CurrentU
   const currentTopic = session?.topic ?? selectedTopicData;
   const isReviewMode = session?.topic.id === "review-phrases";
   const phraseTopicTitle = isReviewMode
-    ? `${t("Фразы для повторения")}${exercise?.topic_title_ru ? ` / ${topicText(exercise.topic_id, exercise.topic_title_ru, topics.find(topic => topic.id === exercise.topic_id)?.title_en)}` : ""}`
+    ? `${t("app.reviewPhrases")}${exercise?.topic_title_ru ? ` / ${topicText(exercise.topic_id, exercise.topic_title_ru, topics.find(topic => topic.id === exercise.topic_id)?.title_en)}` : ""}`
     : currentTopic ? topicText(currentTopic.id, currentTopic.title_ru, currentTopic.title_en) : "";
   const voiceBusy = voiceState === "connecting" || voiceState === "recording" || voiceState === "transcribing";
 
@@ -417,7 +416,7 @@ function TrainerApp({ account, onAccountChange, onSignOut }: { account: CurrentU
     if (!voiceRef.current && !voiceControllerRef.current) return;
     stopVoice();
     setVoiceState("error");
-    setError("Запись прервана. Текущая фраза и текст ответа сохранены. Запишите ответ снова или введите его вручную.");
+    setError("app.recordingInterruptedPhraseAnswer");
   }, [stopVoice]);
 
   function showAndroidPanel(panel: number) {
@@ -558,7 +557,7 @@ function TrainerApp({ account, onAccountChange, onSignOut }: { account: CurrentU
     const epoch = voiceEpochRef.current;
     const recorder = new VoiceRecorder(); voiceRef.current = recorder;
     try { await recorder.start(); if (voiceEpochRef.current === epoch && voiceRef.current === recorder) setVoiceState("recording"); }
-    catch { recorder.stop(); if (voiceEpochRef.current !== epoch) return; if (voiceRef.current === recorder) voiceRef.current = undefined; setVoiceState("error"); setError("Не удалось получить доступ к микрофону. Проверьте разрешение браузера."); }
+    catch { recorder.stop(); if (voiceEpochRef.current !== epoch) return; if (voiceRef.current === recorder) voiceRef.current = undefined; setVoiceState("error"); setError("app.couldNotAccessMicrophone"); }
   }
 
   function enterAnswerManually() {
@@ -586,8 +585,8 @@ function TrainerApp({ account, onAccountChange, onSignOut }: { account: CurrentU
     } catch (requestError) {
       if (flowEpochRef.current !== epoch) return;
       setError(requestError instanceof BackendError && (requestError.code === "topic_empty" || requestError.status === 409)
-        ? "В этой теме сейчас нет фраз для тренировки. Добавьте новую или дождитесь повторения."
-        : "Не удалось начать тренировку. Проверьте, что backend запущен.");
+        ? "app.topicHasNoPhrases"
+        : "app.couldNotStartPractice");
     }
     finally { if (flowEpochRef.current === epoch) { flowControllerRef.current = undefined; setPreparingPhrase(false); } }
   }
@@ -599,7 +598,7 @@ function TrainerApp({ account, onAccountChange, onSignOut }: { account: CurrentU
     setSession(undefined); setExercise(undefined); setCompletedCount(0); setSessionComplete(false); setTopicExhausted(false);
     setSelectedTopic(undefined); setCustomTopic(""); setError(undefined); setErrorDiagnosticId(undefined);
     if (!reviewPhraseCount) {
-      setError("Пока нет фраз для повторения. Добавьте фразу ниже или выполните обычную тренировку.");
+      setError("app.noPhrasesReviewYet");
       return;
     }
     setPreparingPhrase(true);
@@ -618,7 +617,7 @@ function TrainerApp({ account, onAccountChange, onSignOut }: { account: CurrentU
         reviewSummaryEpochRef.current += 1;
         setReviewPhraseCount(0);
       }
-      setError(requestError instanceof BackendError && requestError.code === "review_queue_empty" ? "Все фразы из карусели освоены. Отличная работа!" : "Не удалось запустить повторение фраз.");
+      setError(requestError instanceof BackendError && requestError.code === "review_queue_empty" ? "app.youHaveMasteredAll" : "app.couldNotStartPhrase");
     } finally { if (flowEpochRef.current === epoch) { flowControllerRef.current = undefined; setPreparingPhrase(false); } }
   }
 
@@ -654,8 +653,8 @@ function TrainerApp({ account, onAccountChange, onSignOut }: { account: CurrentU
         reviewSummaryEpochRef.current += 1;
         setSession(undefined); setExercise(undefined); setReviewPhraseCount(0);
         setAnswer(""); setAssistanceDraft(undefined); setHasTranscript(false); setAttempt(undefined); setWordHints({}); setActiveHint(undefined);
-        setError("Все фразы из карусели освоены. Отличная работа!");
-      } else setError("Не удалось получить следующую фразу.");
+        setError("app.youHaveMasteredAll");
+      } else setError("app.couldNotLoadNext");
     }
     finally { if (flowEpochRef.current === epoch) { advancingRef.current = false; flowControllerRef.current = undefined; setAdvancing(false); } }
   }
@@ -721,16 +720,16 @@ function TrainerApp({ account, onAccountChange, onSignOut }: { account: CurrentU
       setErrorDiagnosticId(failure?.diagnostic_id);
       if (budgetPause) setError(budgetPause);
       else if (failure) setError({
-        external_model: "Внешний сервис проверки не ответил успешно. Ответ сохранён.",
-        response_parse: "Не удалось обработать ответ сервиса проверки. Ваш ответ сохранён.",
-        response_return: "Не удалось получить результат проверки. Ваш ответ сохранён — повторите отправку.",
+        external_model: "app.externalCheckingServiceCould",
+        response_parse: "app.checkingServiceResponseCould",
+        response_return: "app.checkingResultCouldNot",
       }[failure.kind]);
-      else if (requestError instanceof BackendError && requestError.status === 429) setError(`Дневной лимит фраз исчерпан. Новые фразы будут доступны ${resetTimeLabel(account.daily_usage.resets_at)}.`);
-      else if (requestError instanceof BackendError && requestError.code === "transcript_unexpected_script") setError("В расшифровке есть буквы не из турецкого алфавита. Исправьте текст перед проверкой или запишите ответ заново.");
-      else if (requestError instanceof BackendError && requestError.code === "analysis_unavailable") setError("Сервис проверки временно недоступен. Ответ сохранён на экране — попробуйте проверить ещё раз.");
-      else if (requestError instanceof BackendError && requestError.code === "attempt_in_progress") setError("Проверка ещё выполняется. Ответ сохранён — попробуйте ещё раз через несколько секунд.");
-      else if (requestError instanceof BackendError && requestError.code === "attempt_request_conflict") { pendingAttemptRef.current = undefined; setError("Ответ изменился во время проверки. Повторите отправку."); }
-      else setError("Не удалось проверить ответ. Попробуйте ещё раз.");
+      else if (requestError instanceof BackendError && requestError.status === 429) setError(t("app.dailyLimitReached", { time: resetTimeLabel(account.daily_usage.resets_at) }));
+      else if (requestError instanceof BackendError && requestError.code === "transcript_unexpected_script") setError("app.transcriptContainsLettersOutside");
+      else if (requestError instanceof BackendError && requestError.code === "analysis_unavailable") setError("app.checkingServiceTemporarilyUnavailable");
+      else if (requestError instanceof BackendError && requestError.code === "attempt_in_progress") setError("app.answerStillBeingChecked");
+      else if (requestError instanceof BackendError && requestError.code === "attempt_request_conflict") { pendingAttemptRef.current = undefined; setError("app.answerChangedWhileWas"); }
+      else setError("app.couldNotCheckAnswer");
     }
     finally { if (flowEpochRef.current === epoch) { checkingRef.current = false; flowControllerRef.current = undefined; setChecking(false); } }
   }
@@ -747,7 +746,7 @@ function TrainerApp({ account, onAccountChange, onSignOut }: { account: CurrentU
     if (mobileLayout) showAndroidPanel(0);
   }
 
-  const reviewFinished = error === "Все фразы из карусели освоены. Отличная работа!";
+  const reviewFinished = error === "app.youHaveMasteredAll";
 
   function selectTopic(topicId: string) {
     if (session?.topic.id === topicId && exercise && !sessionComplete) return;
@@ -784,8 +783,8 @@ function TrainerApp({ account, onAccountChange, onSignOut }: { account: CurrentU
     } catch {
       if (flowEpochRef.current === epoch && hintEpochRef.current === hintEpoch) setError(
         wordHintsRef.current[normalized]
-          ? `Подсказка для «${word}» показана, но сохранение не удалось. Нажмите ещё раз, чтобы повторить.`
-          : `Подсказка для «${word}» пока недоступна. Нажмите ещё раз, чтобы повторить.`,
+          ? t("app.hintNotSaved", { word })
+          : t("app.hintUnavailable", { word }),
       );
     } finally {
       if (hintRequestsRef.current.get(requestKey) === controller) hintRequestsRef.current.delete(requestKey);
@@ -794,7 +793,7 @@ function TrainerApp({ account, onAccountChange, onSignOut }: { account: CurrentU
 
   function refreshCustomContent() {
     void Promise.allSettled([fetchTopics().then(setTopics), refreshReviewSummary()]).then(results => {
-      if (results.some(result => result.status === "rejected")) setError("Не удалось обновить каталог. Повторите загрузку тем.");
+      if (results.some(result => result.status === "rejected")) setError("app.couldNotRefreshCatalog");
     });
   }
 
@@ -814,8 +813,8 @@ function TrainerApp({ account, onAccountChange, onSignOut }: { account: CurrentU
 
   function renderPractice(compact: boolean) {
     if (exercise && !exerciseSource(exercise)) return <div className="practice-card grid content-start gap-4 rounded-card border border-line bg-surface p-6 text-ink">
-      <p className="error m-0 text-sm text-danger" role="alert">{t("Фраза на выбранном языке недоступна. Повторите загрузку или выберите другую тему.")}</p>
-      <button type="button" className="justify-self-start min-h-11 cursor-pointer rounded-control border border-line bg-surface-raised px-4 text-sm font-semibold text-ink hover:border-line-strong" onClick={() => window.location.reload()}>{t("Повторить загрузку")}</button>
+      <p className="error m-0 text-sm text-danger" role="alert">{t("app.phraseUnavailableSelectedLanguage")}</p>
+      <button type="button" className="justify-self-start min-h-11 cursor-pointer rounded-control border border-line bg-surface-raised px-4 text-sm font-semibold text-ink hover:border-line-strong" onClick={() => window.location.reload()}>{t("app.retryLoading")}</button>
     </div>;
     const phrase = <InteractivePhrase exercise={exercise} wordHints={wordHints} activeHint={activeHint}
       hintsVisible={mobileLayout ? visiblePanel === 1 : view === "practice"} disabled={checking || Boolean(attempt)}
@@ -839,14 +838,14 @@ function TrainerApp({ account, onAccountChange, onSignOut }: { account: CurrentU
     selectedTopic={customTopic ? undefined : selectedTopic} reviewSelected={isReviewMode} reviewCount={reviewPhraseCount}
     onReview={() => { if (compact) showAndroidPanel(1); void startReviewTraining(); }}
     onSelect={topicId => { selectTopic(topicId); if (compact) showAndroidPanel(1); }} />;
-  const doneTitle = topicExhausted ? "Все фразы темы пройдены" : "Тренировка завершена";
-  const doneSummary = topicExhausted ? `${completedCount} фраз проверено. В этой теме пока нет следующих фраз.` : `${completedCount} из ${session?.requested_length ?? 10} фраз проверено.`;
-  const stageTitle = customTopic.trim() || (currentTopic ? topicText(currentTopic.id, currentTopic.title_ru, currentTopic.title_en) : t("Выберите тему"));
+  const doneTitle = topicExhausted ? "app.allTopicPhrasesCompleted" : "app.practiceComplete";
+  const doneSummary = topicExhausted ? t("app.topicExhausted", { count: completedCount }) : t("app.sessionDone", { completed: completedCount, count: session?.requested_length ?? 10 });
+  const stageTitle = customTopic.trim() || (currentTopic ? topicText(currentTopic.id, currentTopic.title_ru, currentTopic.title_en) : t("app.chooseTopic"));
   const stage = (compact: boolean) => preparingPhrase && !session ? <PhraseLoading /> : sessionComplete
     ? <PracticeDone compact={compact} title={doneTitle} summary={doneSummary} onRestart={() => { resetTraining(); if (mobileLayout) showAndroidPanel(0); }} />
     : !session && reviewFinished ? <ReviewComplete compact={compact} message={t(error)} onHome={returnToTopics} />
     : !session ? <WelcomeCard compact={compact} icon={topicIconName(currentTopic?.id)} title={stageTitle}
-      description={selectedTopicData?.phrase_count === 0 ? "Тема пока пустая. Добавьте в неё фразы — автоматической генерации не будет." : currentTopic?.description_ru || "Темы загрузятся после подключения к backend."}
+      description={selectedTopicData?.phrase_count === 0 ? "app.topicEmptyAddPhrases" : currentTopic?.description_ru || "app.topicsWillLoadOnce"}
       onChooseTopic={compact && !isNative ? returnToTopics : undefined}
       retry={!compact && (startupState === "fallback" || backendState === "offline") ? retryCatalog : undefined} error={error} />
     : renderPractice(compact);
@@ -865,7 +864,7 @@ function TrainerApp({ account, onAccountChange, onSignOut }: { account: CurrentU
 
         <div
           className={cn("android-pager w-full", isNative ? "flex h-[calc(100dvh-var(--spacing-phone-header)-env(safe-area-inset-top))] snap-x snap-mandatory overflow-x-auto overflow-y-hidden overscroll-x-contain [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" : "block h-[calc(100%-var(--spacing-phone-header))] overflow-hidden")}
-          aria-label={t("Содержимое панели")}
+          aria-label={t("app.panelContent")}
           ref={androidPagerRef}
           onScroll={(event) => {
             if (!isNative) return;
@@ -881,25 +880,25 @@ function TrainerApp({ account, onAccountChange, onSignOut }: { account: CurrentU
             }
           }}
         >
-          <section className={cn(page, "android-topics-page", isNative ? "pt-3" : "flex flex-col gap-2 [&>.android-topic-list]:min-h-0 [&>.android-topic-list]:flex-1 [&>.android-topic-list]:overflow-y-auto [&>.android-topic-list]:p-px [&_.android-topic]:min-h-23")} hidden={!isNative && visiblePanel !== 0} aria-label={t("Выбор темы")}>
+          <section className={cn(page, "android-topics-page", isNative ? "pt-3" : "flex flex-col gap-2 [&>.android-topic-list]:min-h-0 [&>.android-topic-list]:flex-1 [&>.android-topic-list]:overflow-y-auto [&>.android-topic-list]:p-px [&_.android-topic]:min-h-23")} hidden={!isNative && visiblePanel !== 0} aria-label={t("app.chooseTopicRegion")}>
             {topicGrid(true)}
-            {(startupState === "fallback" || backendState === "offline") && <div className="android-error mt-3 text-center text-sm text-danger" role="alert">{t(startupState === "fallback" ? error : "Нет подключения к сервису.")} <button className="ml-1 cursor-pointer rounded-control border border-line bg-surface-raised px-3 py-1.5 text-ink hover:border-line-strong" type="button" onClick={retryCatalog}>{t("Повторить загрузку")}</button></div>}
+            {(startupState === "fallback" || backendState === "offline") && <div className="android-error mt-3 text-center text-sm text-danger" role="alert">{t(startupState === "fallback" ? error : "app.noConnectionService")} <button className="ml-1 cursor-pointer rounded-control border border-line bg-surface-raised px-3 py-1.5 text-ink hover:border-line-strong" type="button" onClick={retryCatalog}>{t("app.retryLoading")}</button></div>}
           </section>
 
-          <section className={cn(page, "android-training-page grid")} hidden={!isNative && visiblePanel !== 1} aria-label={t("Тренировка")}>
+          <section className={cn(page, "android-training-page grid")} hidden={!isNative && visiblePanel !== 1} aria-label={t("app.nav.training")}>
             {stage(true)}
           </section>
 
-          <section className={cn(page, "android-statistics-page", isNative && "pt-1.5")} hidden={!isNative && visiblePanel !== 2} aria-label={t("Статистика")}>
-            {visiblePanel === 2 && <DeferredPanel load={loadStatistics} panelProps={{ page: statisticsPage, onPageChange: setStatisticsPage, compact: true }} label={t("статистику")} />}
+          <section className={cn(page, "android-statistics-page", isNative && "pt-1.5")} hidden={!isNative && visiblePanel !== 2} aria-label={t("app.nav.statistics")}>
+            {visiblePanel === 2 && <DeferredPanel load={loadStatistics} panelProps={{ page: statisticsPage, onPageChange: setStatisticsPage, compact: true }} label={t("app.sections.statistics")} />}
           </section>
           <section className={cn(page, "android-premium-page")} hidden={!isNative && visiblePanel !== 3}>
             {visiblePanel === 3 && premiumPanel}
           </section>
-          <section className={cn(page, "android-settings-page")} hidden={!isNative && visiblePanel !== 4} aria-label={t("Настройки приложения")}>
-            {!isNative && view === "admin" ? <><button className={secondaryButton} type="button" onClick={() => showAndroidPanel(4)}>{t("← Настройки")}</button><DeferredPanel load={loadAdminUsers} panelProps={{}} label={t("пользователей")} /></> : <>
+          <section className={cn(page, "android-settings-page")} hidden={!isNative && visiblePanel !== 4} aria-label={t("app.nav.appSettings")}>
+            {!isNative && view === "admin" ? <><button className={secondaryButton} type="button" onClick={() => showAndroidPanel(4)}>{t("app.backToSettings")}</button><DeferredPanel load={loadAdminUsers} panelProps={{}} label={t("app.sections.users")} /></> : <>
             {settings}
-            {!isNative && account.role === "admin" && <button className={secondaryButton} type="button" onClick={() => setView("admin")}>{t("Пользователи")}</button>}
+            {!isNative && account.role === "admin" && <button className={secondaryButton} type="button" onClick={() => setView("admin")}>{t("app.nav.users")}</button>}
             </>}
           </section>
         </div>
@@ -913,18 +912,18 @@ function TrainerApp({ account, onAccountChange, onSignOut }: { account: CurrentU
       <AppHeader view={view} premiumActive={premiumActive} showAdmin={account.role === "admin" && !Capacitor.isNativePlatform()} backendState={backendState}
         onHome={resetTraining} onShow={showView} onRetry={retryCatalog} />
 
-      {view === "admin" ? <DeferredPanel key="admin" load={loadAdminUsers} panelProps={{}} label={t("пользователей")} /> : view === "statistics" ? <DeferredPanel key="statistics" load={loadStatistics} panelProps={{ page: statisticsPage, onPageChange: setStatisticsPage }} label={t("статистику")} /> : view === "premium" ? premiumPanel : view === "settings" ? settings : (
+      {view === "admin" ? <DeferredPanel key="admin" load={loadAdminUsers} panelProps={{}} label={t("app.sections.users")} /> : view === "statistics" ? <DeferredPanel key="statistics" load={loadStatistics} panelProps={{ page: statisticsPage, onPageChange: setStatisticsPage }} label={t("app.sections.statistics")} /> : view === "premium" ? premiumPanel : view === "settings" ? settings : (
         <main className="workspace mx-auto grid min-h-[calc(100vh-4rem)] max-w-workspace grid-cols-[minmax(0,1fr)_minmax(0,2fr)] gap-workspace-gap px-gutter pb-6 pt-4">
           <aside className="topics-panel flex min-h-0 flex-col gap-4 rounded-card border border-line bg-surface p-4">
             <div className="panel-heading grid gap-1.5 px-0.5">
-              <h2 className="m-0 font-display text-xl font-bold text-ink">{t("Темы для практики")}</h2>
-              <p className="m-0 text-sm leading-normal text-ink-muted">{t("Выберите ситуацию и начните разговор на турецком языке")}</p>
+              <h2 className="m-0 font-display text-xl font-bold text-ink">{t("app.practiceTopics")}</h2>
+              <p className="m-0 text-sm leading-normal text-ink-muted">{t("app.chooseSituationStartSpeaking")}</p>
             </div>
             {topicGrid(false)}
-            <div className="topics-panel__note mt-auto flex items-center gap-3 border-t border-line px-1 pt-4 text-caption text-ink-muted"><span className="text-accent"><Icon name="message" /></span><span>{t("Каждый короткий разговор делает речь увереннее.")}</span></div>
+            <div className="topics-panel__note mt-auto flex items-center gap-3 border-t border-line px-1 pt-4 text-caption text-ink-muted"><span className="text-accent"><Icon name="message" /></span><span>{t("app.everyShortConversationBuilds")}</span></div>
           </aside>
 
-          <section className={cn("practice-stage grid min-w-0 content-start gap-4", preparingPhrase && !session && "is-preparing content-stretch [&>.phrase-loading]:min-h-full [&>.phrase-loading]:w-full")} aria-label={t("Практика")}>
+          <section className={cn("practice-stage grid min-w-0 content-start gap-4", preparingPhrase && !session && "is-preparing content-stretch [&>.phrase-loading]:min-h-full [&>.phrase-loading]:w-full")} aria-label={t("app.nav.practice")}>
             {stage(false)}
           </section>
         </main>

@@ -32,7 +32,7 @@ export function CustomContentManager({ topics, onDeleted, onClose, browseTopics 
   useEffect(() => {
     const controller = new AbortController();
     fetchCustomPhrases(controller.signal).then(result => { if (!controller.signal.aborted) setPhrases(result); })
-      .catch(() => { if (!controller.signal.aborted) setError("Не удалось загрузить свои фразы."); })
+      .catch(() => { if (!controller.signal.aborted) setError("premium.couldNotLoadCustom"); })
       .finally(() => { if (!controller.signal.aborted) setLoading(false); });
     return () => controller.abort();
   }, [retry]);
@@ -50,44 +50,44 @@ export function CustomContentManager({ topics, onDeleted, onClose, browseTopics 
         setPhrases(current => current.filter(phrase => phrase.id !== confirmation.id));
         onDeleted();
       }
-      setMessage(confirmation.kind === "topic" ? "Тема и все её фразы удалены." : "Фраза удалена.");
+      setMessage(confirmation.kind === "topic" ? "premium.topicAllItsPhrases" : "premium.phraseDeleted");
       setConfirmation(undefined);
     } catch {
-      setError("Не удалось удалить. Повторите попытку.");
+      setError("premium.couldNotDeletePlease");
     } finally { setBusy(false); }
   }
 
-  return <section className={cn(contentCard, "custom-content-manager")} aria-label={t("Свои темы и фразы")}>
-    <h3 className="m-0 text-base font-semibold text-ink">{t("Свои темы и фразы")}</h3>
-    {!browseTopics && <Button className="justify-self-start" disabled={busy} onClick={onClose}>{t("Закрыть")}</Button>}
-    <p>{t("До 5 своих тем, до 30 фраз в каждой. Всего до 150 фраз.")}</p>
-    <p>{t("Удаление темы удалит все её фразы из обучения и повторения. История выполненных попыток останется в статистике.")}</p>
-    {loading && <p role="status">{t("Загружаем свои фразы…")}</p>}
-    {error && <div role="alert" className="border-l-2 border-danger pl-3 [&>p]:text-danger!"><p>{t(error)}</p>{!confirmation && <Button className="mt-2" disabled={busy} onClick={() => { setLoading(true); setError(""); setRetry(value => value + 1); }}>{t("Повторить загрузку")}</Button>}</div>}
+  return <section className={cn(contentCard, "custom-content-manager")} aria-label={t("premium.customTopicsPhrases")}>
+    <h3 className="m-0 text-base font-semibold text-ink">{t("premium.customTopicsPhrases")}</h3>
+    {!browseTopics && <Button className="justify-self-start" disabled={busy} onClick={onClose}>{t("premium.close")}</Button>}
+    <p>{t("premium.up5CustomTopics")}</p>
+    <p>{t("premium.deletingTopicRemovesAll")}</p>
+    {loading && <p role="status">{t("premium.loadingCustomPhrases")}</p>}
+    {error && <div role="alert" className="border-l-2 border-danger pl-3 [&>p]:text-danger!"><p>{t(error)}</p>{!confirmation && <Button className="mt-2" disabled={busy} onClick={() => { setLoading(true); setError(""); setRetry(value => value + 1); }}>{t("premium.retryLoading")}</Button>}</div>}
     {message && <p role="status">{t(message)}</p>}
-    {confirmation && <div ref={confirmationRef} tabIndex={-1} className="custom-content-confirmation flex flex-wrap items-center gap-2 rounded-control border border-danger/60 bg-surface-raised p-3 outline-none focus-visible:ring-2 focus-visible:ring-focus [&>p]:basis-full [&>strong]:basis-full [&>strong]:[overflow-wrap:anywhere]" role="group" aria-label={t("Подтверждение удаления")}>
-      <p>{t(confirmation.kind === "topic" ? "Удалить тему и все её фразы?" : "Удалить свою фразу?")}</p>
+    {confirmation && <div ref={confirmationRef} tabIndex={-1} className="custom-content-confirmation flex flex-wrap items-center gap-2 rounded-control border border-danger/60 bg-surface-raised p-3 outline-none focus-visible:ring-2 focus-visible:ring-focus [&>p]:basis-full [&>strong]:basis-full [&>strong]:[overflow-wrap:anywhere]" role="group" aria-label={t("premium.confirmationLabel")}>
+      <p>{t(confirmation.kind === "topic" ? "premium.deleteTopicAllIts" : "premium.deleteOwnPhraseQuestion")}</p>
       <strong>{confirmation.title}</strong>
-      <Button variant="danger" disabled={busy} onClick={() => void remove()}>{t(busy ? "Удаляем…" : "Подтвердить удаление")}</Button>
-      <Button disabled={busy} onClick={() => { setConfirmation(undefined); setError(""); }}>{t("Отмена")}</Button>
+      <Button variant="danger" disabled={busy} onClick={() => void remove()}>{t(busy ? "premium.deleting" : "premium.confirmDeletion")}</Button>
+      <Button disabled={busy} onClick={() => { setConfirmation(undefined); setError(""); }}>{t("premium.cancel")}</Button>
     </div>}
     <div className={cn("grid min-w-0 gap-3", browseTopics && "premium-catalog-grid grid-cols-2")}>
     {sortedPersonalTopics(topics).map(topic => <div className={cn(contentItem, browseTopics && "border-reward/70 has-[[aria-pressed=true]]:border-accent has-[[aria-pressed=true]]:bg-selected")} key={topic.id}>
       {browseTopics ? <button className="premium-topic flex min-h-20 w-full flex-1 cursor-pointer flex-col items-start justify-between gap-2 rounded-control border-0 bg-transparent p-0 text-left text-ink outline-none focus-visible:ring-2 focus-visible:ring-focus disabled:cursor-default disabled:opacity-60" type="button" aria-pressed={selectedTopic === topic.id} disabled={busy || Boolean(confirmation)} onClick={() => { setSelectedTopic(topic.id); setMessage(""); }}>
         <strong className="w-full text-sm leading-snug hyphens-auto [overflow-wrap:anywhere]">{topicText(topic.id, topic.title_ru, topic.title_en)}</strong>
-        <span className="shrink-0 text-caption text-ink-muted">{t("Фраз: ")}{loading ? topic.custom_phrase_count ?? 0 : phrases.filter(phrase => phrase.topic_id === topic.id).length}</span>
+        <span className="shrink-0 text-caption text-ink-muted">{t("premium.counts.phrases", { count: loading ? topic.custom_phrase_count ?? 0 : phrases.filter(phrase => phrase.topic_id === topic.id).length })}</span>
       </button> : <><strong className="text-sm">{topicText(topic.id, topic.title_ru, topic.title_en)}</strong><span className="text-caption text-ink-muted">{topic.custom_phrase_count ?? phrases.filter(phrase => phrase.topic_id === topic.id).length} / 30</span></>}
-      <Button className="mt-auto self-start px-3 text-sm" disabled={busy || Boolean(confirmation)} onClick={() => setConfirmation({ kind: "topic", id: topic.id, title: topicText(topic.id, topic.title_ru, topic.title_en) })}>{t("Удалить тему")}</Button>
+      <Button className="mt-auto self-start px-3 text-sm" disabled={busy || Boolean(confirmation)} onClick={() => setConfirmation({ kind: "topic", id: topic.id, title: topicText(topic.id, topic.title_ru, topic.title_en) })}>{t("premium.deleteTopic")}</Button>
     </div>)}
     </div>
-    {!loading && phrases.length === 0 && <p>{t("Своих фраз пока нет.")}</p>}
-    {browseTopics && !selectedTopic && phrases.length > 0 && <p>{t("Выберите тему, чтобы увидеть фразы.")}</p>}
-    {browseTopics && selectedTopic && !loading && !phrases.some(phrase => phrase.topic_id === selectedTopic) && <p>{t("В этой теме пока нет своих фраз.")}</p>}
+    {!loading && phrases.length === 0 && <p>{t("premium.noCustomPhrasesYet")}</p>}
+    {browseTopics && !selectedTopic && phrases.length > 0 && <p>{t("premium.selectTopicSeeIts")}</p>}
+    {browseTopics && selectedTopic && !loading && !phrases.some(phrase => phrase.topic_id === selectedTopic) && <p>{t("premium.topicHasNoCustom")}</p>}
     <div className={cn("grid min-w-0 gap-3", browseTopics && "premium-phrase-grid grid-cols-2")}>
     {phrases.filter(phrase => !browseTopics || phrase.topic_id === selectedTopic).map(phrase => <div className={contentItem} key={phrase.id}>
       <strong className="text-sm leading-snug">{phrase.source_versions?.[getLanguage()] ?? phrase.source_ru}</strong>
       {!browseTopics && <><span className="text-ink" lang="tr">{phrase.canonical_tr}</span><small className="text-caption text-ink-muted">{topicText(phrase.topic_id, phrase.topic_title ?? "", topics.find(topic => topic.id === phrase.topic_id)?.title_en)}</small></>}
-      <Button className="mt-auto self-start px-3 text-sm" disabled={busy || Boolean(confirmation)} onClick={() => setConfirmation({ kind: "phrase", id: phrase.id, title: phrase.source_ru })}>{t("Удалить фразу")}</Button>
+      <Button className="mt-auto self-start px-3 text-sm" disabled={busy || Boolean(confirmation)} onClick={() => setConfirmation({ kind: "phrase", id: phrase.id, title: phrase.source_ru })}>{t("premium.deletePhrase")}</Button>
     </div>)}
     </div>
   </section>;

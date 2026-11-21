@@ -48,7 +48,7 @@ export function useAssistancePreference(initial: boolean) {
       const confirmed = await request(value);
       if (active.current) setEnabled(confirmed);
     } catch {
-      if (active.current) setError("Не удалось сохранить настройку. Проверьте подключение и повторите изменение.");
+      if (active.current) setError("settings.couldNotSavePreference");
     } finally {
       writing.current = false;
       if (active.current) setSaving(false);

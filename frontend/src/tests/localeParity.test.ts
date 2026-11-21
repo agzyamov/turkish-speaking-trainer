@@ -47,16 +47,17 @@ it("finds literals inside ternaries and props, not only direct t() arguments", (
 it("has an English translation for every Russian interface string", () => {
   setLanguage("en");
   const missing: string[] = [];
-  let checked = 0;
+  let scanned = 0;
   for (const file of sourceFiles(root)) {
     const name = relative(root, file);
     if (skippedFiles.some(pattern => pattern.test(name))) continue;
+    scanned += 1;
     for (const key of cyrillicLiterals(readFileSync(file, "utf8"))) {
-      checked += 1;
       if (!(key in allowed) && t(key) === key) missing.push(`${name}: ${key}`);
     }
   }
-  expect(checked).toBeGreaterThan(250);
+  // The literal count falls to zero as modules move to stable keys; make sure the scan ran.
+  expect(scanned).toBeGreaterThan(40);
   expect(missing).toEqual([]);
 });
 

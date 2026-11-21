@@ -72,6 +72,11 @@ function isKey(value: string, options?: TranslationOptions): boolean {
     && typeof i18next.getResource("ru", "ui", value) !== "object"; // a branch such as "practice.pause" is not a key
 }
 
+/** A stable key in a fixed language (for text rendered in both languages at once, like the login copy). */
+export function translateIn(language: InterfaceLanguage, key: string): string {
+  return String(i18next.t(key, { lng: language }));
+}
+
 /**
  * Translate presentation text. A stable key is looked up in the catalogue (with interpolation and
  * plurals from `options`); legacy Russian text is translated through the old dictionary until its

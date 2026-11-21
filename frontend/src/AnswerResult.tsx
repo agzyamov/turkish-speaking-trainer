@@ -112,7 +112,7 @@ const resultLabel = "text-caption font-semibold";
 
 export function AnswerResult({ answer, attempt }: { answer: string; attempt: Attempt }) {
   return <div className="result-phrases grid gap-3">
-    <div className={`${resultBox} border-line bg-surface-raised`}><small className={`${resultLabel} text-ink-muted`}>{t("Ваш вариант")}</small><HighlightedAnswer answer={answer} attempt={attempt} /></div>
-    <div className={`${resultBox} correction border-success/35 bg-success/8`}><small className={`${resultLabel} text-success`}>{t(attempt.analysis.verdict === "correct" ? "Вариант перевода" : "Правильный вариант")}</small><span className="result-phrase__text text-answer text-ink" lang="tr">{latinForEvaluation(attempt.analysis.corrected_tr)}</span></div>
+    <div className={`${resultBox} border-line bg-surface-raised`}><small className={`${resultLabel} text-ink-muted`}>{t("practice.result.answer")}</small><HighlightedAnswer answer={answer} attempt={attempt} /></div>
+    <div className={`${resultBox} correction border-success/35 bg-success/8`}><small className={`${resultLabel} text-success`}>{t(attempt.analysis.verdict === "correct" ? "practice.result.translation" : "practice.result.correctAnswer")}</small><span className="result-phrase__text text-answer text-ink" lang="tr">{latinForEvaluation(attempt.analysis.corrected_tr)}</span></div>
   </div>;
 }

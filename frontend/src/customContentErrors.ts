@@ -1,23 +1,23 @@
 import { BackendError } from "./api/training";
 import { budgetPauseMessage } from "./budgetPause";
 
-export const topicLimitMessage = "Достигнут лимит: 5 пользовательских тем. Удалите свою тему, чтобы добавить новую.";
-export const phraseLimitMessage = "Достигнут лимит: 30 фраз в теме. Удалите свою фразу, чтобы добавить новую.";
+export const topicLimitMessage = "premium.limit.topics";
+export const phraseLimitMessage = "premium.limit.phrasesPerTopic";
 export function customContentError(error: unknown, fallback: string): string {
   if (!(error instanceof BackendError)) return fallback;
   const budgetPause = budgetPauseMessage(error);
   if (budgetPause) return budgetPause;
   const messages: Record<string, string> = {
-    topic_translation_unavailable: "Не удалось перевести название темы. Тема не сохранена. Повторите попытку.",
+    topic_translation_unavailable: "premium.couldNotTranslateTopic",
     custom_topic_limit: topicLimitMessage,
     custom_phrase_limit: phraseLimitMessage,
-    custom_total_phrase_limit: "Достигнут лимит: 150 своих фраз. Удалите свою фразу, чтобы добавить новую.",
-    custom_topic_required: "Выберите свою пользовательскую тему. В готовые темы добавлять фразы нельзя.",
-    phrase_preparation_expired: "Подготовленный перевод устарел. Подготовьте перевод заново.",
-    phrase_preparation_used: "Этот перевод уже использован. Подготовьте перевод заново.",
-    phrase_already_exists: "Такая фраза уже есть в другой теме. Чтобы перенести её, сначала удалите прежнюю фразу.",
+    custom_total_phrase_limit: "premium.limit.phrasesTotal",
+    custom_topic_required: "premium.chooseOneCustomTopics",
+    phrase_preparation_expired: "premium.preparedTranslationHasExpired",
+    phrase_preparation_used: "premium.translationHasAlreadyBeen",
+    phrase_already_exists: "premium.phraseAlreadyExistsAnother",
   };
   if (error.code && messages[error.code]) return messages[error.code];
-  if (Array.isArray(error.detail) && error.detail.some(item => item?.type === "phrase_word_limit")) return "Фраза должна содержать не более 15 слов.";
+  if (Array.isArray(error.detail) && error.detail.some(item => item?.type === "phrase_word_limit")) return "premium.phraseMustContainNo";
   return fallback;
 }

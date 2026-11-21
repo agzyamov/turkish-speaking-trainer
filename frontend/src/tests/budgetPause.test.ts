@@ -27,5 +27,5 @@ it("explains a spent budget on custom topic creation instead of the generic tran
   expect(budgetPauseOf(error)).toBe("monthly");
   expect(t(customContentError(error, "fallback"))).toContain("до начала следующего месяца");
   // Without a budget failure the released message stays.
-  expect(customContentError(new BackendError(503, { code: "topic_translation_unavailable" }), "fallback")).toContain("Не удалось перевести название темы");
+  expect(t(customContentError(new BackendError(503, { code: "topic_translation_unavailable" }), "fallback"))).toContain("Не удалось перевести название темы");
 });

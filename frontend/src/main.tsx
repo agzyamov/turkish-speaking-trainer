@@ -2,6 +2,7 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 
 import App from "./App";
+import { t } from "./i18n";
 
 function renderApp(): void {
   createRoot(document.getElementById("root")!).render(
@@ -19,7 +20,7 @@ if (import.meta.env.MODE === "testlab") {
       return;
     }
     const banner = document.createElement("p");
-    banner.textContent = "Тестовая среда — локальные данные и имитация AI/STT";
+    banner.textContent = t("common.testEnvironmentLocalData");
     document.body.prepend(banner);
     renderApp();
   }).catch(() => window.location.replace("/testlab.html"));
