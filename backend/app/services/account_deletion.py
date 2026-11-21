@@ -3,15 +3,16 @@
 No public delete endpoint or client-visible provider secret is introduced.
 """
 from collections.abc import Callable
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
+
 from sqlalchemy.orm import Session
 
-from app.repositories.account_deletion import AccountDeletionRepository, identity_hash
+from app.repositories.account_deletion import AccountDeletionRepository, identity_hash  # noqa: F401  (re-exported)
 from app.repositories.users import UserRepository
 
 
 def reject_deleted_identity(db: Session, user_id: str) -> None:
-    if AccountDeletionRepository(db).blocked(user_id, datetime.now(timezone.utc)):
+    if AccountDeletionRepository(db).blocked(user_id, datetime.now(UTC)):
         raise PermissionError('Account deletion is in progress or complete')
 
 
@@ -25,7 +26,7 @@ class AccountDeletionService:
             return False
         if user.role == 'admin' or user.email.casefold() != confirmed_email.strip().casefold():
             raise PermissionError('Refusing an unconfirmed or administrator account deletion')
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         repo = AccountDeletionRepository(self.db)
         repo.block(user_id, now, now + timedelta(days=30))
         # Persist before contacting Auth: stale signed access tokens cannot recreate

@@ -1,12 +1,12 @@
 import argparse
 from pathlib import Path
 
-from alembic import command
 from alembic.config import Config
 from sqlalchemy import text
 from sqlalchemy.engine import make_url
 from sqlalchemy.orm import Session
 
+from alembic import command
 from app.config import BACKEND_ROOT, get_settings
 from app.db.seed import seed_catalog
 from app.db.session import engine, session_scope

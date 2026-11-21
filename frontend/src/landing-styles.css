@@ -1,0 +1,3 @@
+/* Landing page stylesheet entry: the shared entry plus the landing page's own legacy rules. */
+@import "./index.css";
+@import "./landing.css" layer(legacy);

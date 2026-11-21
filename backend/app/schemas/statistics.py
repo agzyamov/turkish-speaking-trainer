@@ -25,7 +25,7 @@ class MonthlyStatisticsResponse(BaseModel):
 class PhraseStatisticsItem(BaseModel):
     id: str
     source_ru: str
-    target_sr: str
+    target_tr: str
     attempts: int = Field(ge=0)
     status: Literal["learning", "mastered"]
     difficulty: Literal["easy", "medium", "hard"] | None = None

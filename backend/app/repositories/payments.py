@@ -7,7 +7,6 @@ from sqlalchemy.orm import Session
 from app.models import User
 from app.models.payments import PaymentRequest
 
-
 PAYMENT_CODE_ALPHABET = "23456789ABCDEFGHJKLMNPQRSTUVWXYZ"
 
 

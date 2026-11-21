@@ -1,19 +1,18 @@
-from app.api.dependencies import get_current_user
-from app.main import app
-from app.models import User
-from app.services.auth_service import LEGACY_USER_ID, UserService
 from pathlib import Path
 
 import pytest
-from alembic import command
 from alembic.config import Config
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
 
+from alembic import command
+from app.api.dependencies import get_current_user
 from app.db import get_db
 from app.db.seed import seed_catalog
 from app.db.session import create_database_engine
-from app.services.auth_service import AuthenticatedIdentity, SupabaseAuthService
+from app.main import app
+from app.models import User
+from app.services.auth_service import LEGACY_USER_ID, AuthenticatedIdentity, SupabaseAuthService, UserService
 
 
 def test_preferences_roundtrip_and_isolation(api_client, db_session):

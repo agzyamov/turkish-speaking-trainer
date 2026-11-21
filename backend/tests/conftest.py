@@ -2,18 +2,44 @@ import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
 
+from app.api.dependencies import get_current_user
 from app.db.base import Base
 from app.db.seed import seed_catalog
-from app.db.session import get_db
-from app.db.session import create_database_engine
+from app.db.session import create_database_engine, get_db
 from app.main import app
 from app.models import User
-from app.api.dependencies import get_current_user
-from app.services.auth_service import LEGACY_USER_ID
 from app.services.ai_adapter import get_ai_provider
+from app.services.auth_service import LEGACY_USER_ID
 from app.services.transcription_adapter import get_transcription_provider
 from app.services.transcription_assistance_adapter import get_transcription_assistance_provider
-from tests.fakes import FakeAIProvider, FakeTranscriptionProvider, FakeTranscriptionAssistanceProvider
+from tests.fakes import FakeAIProvider, FakeTranscriptionAssistanceProvider, FakeTranscriptionProvider
+
+
+@pytest.fixture(autouse=True)
+def synthetic_administrator(monkeypatch):
+    # The application has no built-in administrators; tests name a synthetic one.
+    from app.config import get_settings
+    monkeypatch.setenv("ADMIN_EMAILS", "owner@example.com")
+    monkeypatch.setenv("DEBUG_ADMIN_EMAIL", "owner@example.com")
+    get_settings.cache_clear()
+    yield
+    get_settings.cache_clear()
+
+
+@pytest.fixture(autouse=True)
+def isolated_usage_ledger():
+    """Every test gets its own throwaway spend ledger, so a guarded adapter never touches a real database.
+
+    Tests that go through the API or set ``usage_context`` themselves replace it for their own scope.
+    """
+    from app.models import AIUsageEvent
+    from app.services.budget_guard import UsageContext, usage_context
+    engine = create_database_engine("sqlite+pysqlite:///:memory:")
+    AIUsageEvent.__table__.create(engine)
+    token = usage_context.set(UsageContext(user_id=None, engine=engine))
+    yield engine
+    usage_context.reset(token)
+    engine.dispose()
 
 
 @pytest.fixture(autouse=True)

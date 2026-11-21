@@ -1,6 +1,6 @@
 import { Capacitor } from "@capacitor/core";
 
-const STORAGE_KEY = "serbian-trainer-api-base-url-v2";
+const STORAGE_KEY = "turktalk.api-base-url";
 const EMULATOR_API_URL = "http://10.0.2.2:8000";
 
 function normalizeBaseUrl(value: string): string {
@@ -14,7 +14,7 @@ export function getDefaultApiBaseUrl(): string {
 }
 
 export function getApiBaseUrl(): string {
-  const stored = typeof window === "undefined" ? "" : window.localStorage.getItem(STORAGE_KEY) ?? "";
+  const stored = typeof window === "undefined" ? "" : (window.localStorage.getItem(STORAGE_KEY) ?? "");
   return normalizeBaseUrl(stored) || getDefaultApiBaseUrl();
 }
 

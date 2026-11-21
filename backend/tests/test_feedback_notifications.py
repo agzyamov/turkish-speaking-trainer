@@ -1,23 +1,20 @@
 import json
-from datetime import datetime, timezone
 from io import BytesIO
-from types import SimpleNamespace
+from pathlib import Path
 from uuid import uuid4
 
-import pytest
-from sqlalchemy import select, inspect
-from alembic import command
 from alembic.config import Config
-from pathlib import Path
+from sqlalchemy import inspect, select
 
+from alembic import command
 from app.api.dependencies import get_current_user
 from app.config import Settings, get_settings
 from app.main import app
-from app.models import Attempt, Exercise, ReviewPhrase, TrainingSession, User, UserFeedback
+from app.models import Attempt, Exercise, ReviewPhrase, UserFeedback
 from app.services import notifications
-from app.services.auth_service import AuthenticatedIdentity, UserService, LEGACY_USER_ID
-from app.services.transcription_adapter import OpenAITranscriptionProvider, get_transcription_provider
-
+from app.services.auth_service import LEGACY_USER_ID, AuthenticatedIdentity, UserService
+from app.services.transcription_adapter import get_transcription_provider
+from tests.providers import STT_MODEL, elevenlabs_provider
 
 real_send_notification = notifications.send_notification
 
@@ -36,7 +33,7 @@ def test_feedback_saved_with_owner_timestamp_and_notified(api_client, db_session
     assert feedback.user_id == LEGACY_USER_ID
     assert feedback.content == "Спасибо за тренировку!"
     assert feedback.created_at is not None
-    assert sent == ["learner@example.com оставил обратную связь в SerboTalk"]
+    assert sent == ["learner@example.com оставил обратную связь в TurkTalk"]
     assert "content" not in response.json()
     for payload in ({"content": "  "}, {"content": "x" * 5001}, {"content": "x", "user_id": "other"}):
         assert api_client.post("/api/feedback", json=payload).status_code == 422
@@ -63,7 +60,7 @@ def test_registration_only_after_commit_once_and_rollback_discards(db_session, m
     db_session.commit()
     service.sync(identity)
     db_session.commit()
-    assert sent == ["new@example.com зарегистрировался в SerboTalk"]
+    assert sent == ["new@example.com зарегистрировался в TurkTalk"]
 
 
 def test_twentieth_attempt_notifies_once_even_on_idempotent_replay(api_client, db_session, monkeypatch):
@@ -75,13 +72,13 @@ def test_twentieth_attempt_notifies_once_even_on_idempotent_replay(api_client, d
     for index in range(18):
         exercise = Exercise(session_id=session_id, source_ru=f"synthetic {index}")
         db_session.add(exercise); db_session.flush()
-        db_session.add(Attempt(exercise_id=exercise.id, transcript_sr="synthetic"))
+        db_session.add(Attempt(exercise_id=exercise.id, transcript_tr="synthetic"))
     db_session.commit()
-    payload = {"exercise_id": started["exercise"]["id"], "transcript_sr": db_session.get(Exercise, started["exercise"]["id"]).target_hints_json["canonical_sr"], "client_request_id": str(uuid4())}
+    payload = {"exercise_id": started["exercise"]["id"], "transcript_tr": db_session.get(Exercise, started["exercise"]["id"]).target_hints_json["canonical_tr"], "client_request_id": str(uuid4())}
     assert api_client.post("/api/attempts", json=payload).status_code == 201
     assert sent == []
     exercise = api_client.post(f"/api/sessions/{session_id}/next-exercise").json()
-    payload = {**payload, "exercise_id": exercise["id"], "transcript_sr": db_session.get(Exercise, exercise["id"]).target_hints_json["canonical_sr"], "client_request_id": str(uuid4())}
+    payload = {**payload, "exercise_id": exercise["id"], "transcript_tr": db_session.get(Exercise, exercise["id"]).target_hints_json["canonical_tr"], "client_request_id": str(uuid4())}
     response = api_client.post("/api/attempts", json=payload)
     assert response.status_code == 201
     assert response.json()["daily_usage"]["used"] == 20
@@ -105,24 +102,23 @@ def test_telegram_payload_timeout_and_safe_failure(monkeypatch, caplog):
     assert "synthetic-token" not in caplog.text and "private email" not in caplog.text
 
 
-def test_feedback_transcription_uses_no_serbian_language_or_debug_storage(api_client):
-    provider = OpenAITranscriptionProvider(Settings(_env_file=None, openai_api_key="synthetic", openai_transcribe_model="test-model"))
-    calls = []
-    def create(**kwargs):
-        calls.append(kwargs)
-        return SimpleNamespace(text="Мне нравится приложение.")
-    provider._client = SimpleNamespace(audio=SimpleNamespace(transcriptions=SimpleNamespace(create=create)))
+def test_feedback_transcription_sends_no_target_language(api_client):
+    # Feedback may be spoken in any language: the Turkish language hint must not be sent, and Cyrillic text is returned as is.
+    provider, requests = elevenlabs_provider(text="Мне нравится приложение.")
     app.dependency_overrides[get_transcription_provider] = lambda: provider
     response = api_client.post("/api/feedback/transcribe", files={"audio": ("x.webm", b"synthetic audio", "audio/webm")})
     assert response.status_code == 200
     assert response.json() == {"text": "Мне нравится приложение."}
-    assert "language" not in calls[0] and "languages" not in calls[0] and "prompt" not in calls[0]
+    [request] = requests
+    assert b"language_code" not in request.content
+    assert f'name="model_id"\r\n\r\n{STT_MODEL}'.encode() in request.content and b"synthetic audio" in request.content
     assert api_client.post("/api/feedback/transcribe", files={"audio": ("x", b"x", "text/plain")}).status_code == 415
     assert api_client.post("/api/feedback/transcribe", files={"audio": ("x.webm", b"x" * 1_100_000, "audio/webm")}).status_code == 413
+    assert len(requests) == 1
 
 
 def test_review_exercise_contains_original_topic(api_client, db_session):
-    db_session.add(ReviewPhrase(user_id=LEGACY_USER_ID, topic_id="bank", source_ru="Синтетическая фраза", source_normalized="синтетическая фраза", intended_sr_variants_json=["Test."], status="active"))
+    db_session.add(ReviewPhrase(user_id=LEGACY_USER_ID, topic_id="bank", source_ru="Синтетическая фраза", source_normalized="синтетическая фраза", intended_tr_variants_json=["Test."], status="active"))
     db_session.commit()
     response = api_client.post("/api/sessions/start", json={"review_mode": True})
     assert response.status_code == 201

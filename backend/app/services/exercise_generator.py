@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import random
 import re
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from difflib import SequenceMatcher
 from uuid import UUID
 
@@ -21,12 +21,12 @@ from app.repositories import (
     TrainingSessionRepository,
 )
 from app.schemas import ExerciseGenerationResult, ExerciseResponse
-from app.services.word_hints import word_hints_for_language, preset_english_source
-from app.services.hint_alignment import aligned_word_hints
 from app.services.ai_adapter import AIServiceError, StructuredAIProvider
+from app.services.hint_alignment import aligned_word_hints
 from app.services.review_service import ReviewQueueEmptyError
 from app.services.scheduler import Scheduler
 from app.services.session_service import SessionCompletedError, SessionNotFoundError, SessionPendingError, SessionService, SessionUnavailableError
+from app.services.word_hints import word_hints_for_language
 
 
 class TopicEmptyError(RuntimeError):
@@ -35,76 +35,74 @@ class TopicEmptyError(RuntimeError):
 
 LOCAL_EXERCISES: dict[str, tuple[tuple[str, tuple[str, ...]], ...]] = {
     "bank": (
-        ("Не могли бы вы объяснить размер комиссии?", ("Da li biste mogli da objasnite visinu naknade?",)),
-        ("Я хотел бы открыть счёт сегодня.", ("Voleo bih da otvorim račun danas.",)),
-        ("Какие документы мне нужно принести?", ("Koje dokumente treba da donesem?",)),
+        ("Не могли бы вы объяснить размер комиссии?", ("Komisyon tutarını açıklayabilir misiniz?",)),
+        ("Я хотел бы открыть счёт сегодня.", ("Bugün bir hesap açmak istiyorum.", "Bugün hesap açmak istiyorum.")),
+        ("Какие документы мне нужно принести?", ("Hangi belgeleri getirmem gerekiyor?", "Hangi belgeleri getirmeliyim?")),
     ),
     "cafe": (
-        ("Можно мне, пожалуйста, меню?", ("Mogu li da dobijem jelovnik, molim vas?",)),
-        ("Я хотел бы заказать кофе без сахара.", ("Voleo bih da naručim kafu bez šećera.",)),
-        ("Не могли бы вы принести счёт?", ("Da li biste mogli da donesete račun?",)),
+        ("Можно мне, пожалуйста, меню?", ("Menüyü alabilir miyim, lütfen?", "Menü alabilir miyim, lütfen?")),
+        ("Я хотел бы заказать кофе без сахара.", ("Şekersiz bir kahve sipariş etmek istiyorum.", "Şekersiz bir kahve istiyorum.")),
+        ("Не могли бы вы принести счёт?", ("Hesabı getirebilir misiniz?",)),
     ),
     "doctor": (
-        ("У меня болит горло уже два дня.", ("Boli me grlo već dva dana.",)),
-        ("Я хотел бы записаться на осмотр.", ("Voleo bih da zakažem pregled.",)),
-        ("Нужно ли мне принимать это лекарство?", ("Da li treba da uzimam ovaj lek?",)),
+        ("У меня болит горло уже два дня.", ("İki gündür boğazım ağrıyor.", "Boğazım iki gündür ağrıyor.")),
+        ("Я хотел бы записаться на осмотр.", ("Muayene için randevu almak istiyorum.",)),
+        ("Нужно ли мне принимать это лекарство?", ("Bu ilacı almam gerekiyor mu?",)),
     ),
     "rent": (
-        ("В квартире не работает стиральная машина.", ("Mašina za veš ne radi u stanu.",)),
-        ("Когда мастер сможет прийти на ремонт?", ("Kada majstor može da dođe na popravku?",)),
-        ("Не могли бы вы проверить отопление?", ("Da li biste mogli da proverite grejanje?",)),
+        ("В квартире не работает стиральная машина.", ("Dairede çamaşır makinesi çalışmıyor.",)),
+        ("Когда мастер сможет прийти на ремонт?", ("Usta tamir için ne zaman gelebilir?",)),
+        ("Не могли бы вы проверить отопление?", ("Kaloriferi kontrol edebilir misiniz?",)),
     ),
     "transport": (
-        ("Где мне нужно сделать пересадку?", ("Gde treba da presednem?",)),
-        ("Я хотел бы купить билет до центра.", ("Voleo bih da kupim kartu do centra.",)),
-        ("Когда отправляется следующий автобус?", ("Kada polazi sledeći autobus?",)),
+        ("Где мне нужно сделать пересадку?", ("Nerede aktarma yapmam gerekiyor?",)),
+        ("Я хотел бы купить билет до центра.", ("Merkeze bir bilet almak istiyorum.",)),
+        ("Когда отправляется следующий автобус?", ("Bir sonraki otobüs ne zaman kalkıyor?",)),
     ),
     "job-interview": (
-        ("Я работал в этой области два года.", ("Radio sam u ovoj oblasti dve godine.",)),
-        ("Я хотел бы узнать больше об этой работе.", ("Voleo bih da saznam više o ovom poslu.",)),
-        ("Когда я могу начать работать?", ("Kada mogu da počnem da radim?",)),
+        ("Я работал в этой области два года.", ("Bu alanda iki yıl çalıştım.",)),
+        ("Я хотел бы узнать больше об этой работе.", ("Bu iş hakkında daha fazla bilgi almak istiyorum.",)),
+        ("Когда я могу начать работать?", ("Ne zaman işe başlayabilirim?",)),
     ),
     "work": (
-        ("Не могли бы мы перенести встречу на завтра?", ("Da li bismo mogli da pomerimo sastanak za sutra?",)),
-        ("Мне нужно закончить эту задачу сегодня.", ("Moram da završim ovaj zadatak danas.",)),
-        ("Я немного опоздаю из-за транспорта.", ("Malo ću kasniti zbog prevoza.",)),
+        ("Не могли бы мы перенести встречу на завтра?", ("Toplantıyı yarına erteleyebilir miyiz?",)),
+        ("Мне нужно закончить эту задачу сегодня.", ("Bu görevi bugün bitirmem gerekiyor.", "Bu işi bugün bitirmem gerekiyor.")),
+        ("Я немного опоздаю из-за транспорта.", ("Trafik yüzünden biraz gecikeceğim.", "Ulaşım yüzünden biraz gecikeceğim.")),
     ),
     "vacation": (
-        ("В прошлом году мы отдыхали у моря.", ("Prošle godine smo se odmarali na moru.",)),
-        ("Я хотел бы посетить этот город снова.", ("Voleo bih da ponovo posetim ovaj grad.",)),
-        ("Где вы остановились во время отпуска?", ("Gde ste odseli tokom odmora?",)),
+        ("В прошлом году мы отдыхали у моря.", ("Geçen yıl deniz kenarında tatil yaptık.", "Geçen yıl denize gittik.")),
+        ("Я хотел бы посетить этот город снова.", ("Bu şehri tekrar ziyaret etmek istiyorum.",)),
+        ("Где вы остановились во время отпуска?", ("Tatilde nerede kaldınız?",)),
     ),
     "general": (
-        ("Не могли бы вы повторить немного медленнее?", ("Da li biste mogli da ponovite malo sporije?",)),
-        ("Я хотел бы узнать, когда вы открываетесь.", ("Voleo bih da znam kada otvarate.",)),
-        ("Мне нужно купить продукты после работы.", ("Moram da kupim namirnice posle posla.",)),
+        ("Не могли бы вы повторить немного медленнее?", ("Biraz daha yavaş tekrar edebilir misiniz?",)),
+        ("Я хотел бы узнать, когда вы открываетесь.", ("Ne zaman açtığınızı öğrenmek istiyorum.", "Saat kaçta açtığınızı öğrenmek istiyorum.")),
+        ("Мне нужно купить продукты после работы.", ("İşten sonra market alışverişi yapmam gerekiyor.",)),
     ),
 }
 
 LOCAL_WORD_TRANSLATIONS = {
-    "я": "ja", "мы": "mi", "вы": "vi", "мне": "meni", "меня": "mene", "у": "kod",
-    "не": "ne", "ли": "da li", "бы": "bih", "могли": "mogli", "можно": "može",
-    "хотел": "želeo", "хотела": "želela", "хотелось": "želeo bih", "нужно": "treba",
-    "могу": "mogu", "где": "gde", "когда": "kada", "какие": "koji", "этой": "ovoj",
-    "эту": "ovu", "это": "ovo", "самому": "sam", "за": "za", "до": "do", "на": "na",
-    "в": "u", "из": "iz", "после": "posle", "сегодня": "danas", "завтра": "sutra",
-    "два": "dva", "дня": "dana", "года": "godine", "город": "grad", "снова": "ponovo",
-    "открыть": "otvoriti", "счёт": "račun", "комиссии": "naknade", "размер": "visina",
-    "объяснить": "objasniti", "документы": "dokumenti", "принести": "doneti", "меню": "jelovnik",
-    "пожалуйста": "molim vas", "заказать": "naručiti", "кофе": "kafa", "без": "bez", "сахара": "šećera",
-    "болит": "boli", "горло": "grlo", "записаться": "zakazati", "осмотр": "pregled",
-    "принимать": "uzimati", "лекарство": "lek", "квартире": "stanu", "работает": "radi",
-    "стиральная": "veš", "машина": "mašina", "мастер": "majstor", "прийти": "doći",
-    "ремонт": "popravka", "проверить": "proveriti", "отопление": "grejanje", "сделать": "uraditi",
-    "пересадку": "presedanje", "купить": "kupiti", "билет": "karta", "центра": "centra",
-    "отправляется": "polazi", "следующий": "sledeći", "автобус": "autobus", "работал": "radio",
-    "области": "oblasti", "узнать": "saznati", "больше": "više", "работе": "poslu",
-    "начать": "početi", "работать": "raditi", "перенести": "pomeriti", "встречу": "sastanak",
-    "закончить": "završiti", "задачу": "zadatak", "немного": "malo", "опоздаю": "kasniću",
-    "транспорта": "prevoza", "прошлом": "prošloj", "году": "godini", "отдыхали": "odmarali",
-    "моря": "mora", "посетить": "posetiti", "остановились": "odseli", "время": "vreme",
-    "отпуска": "odmora", "повторить": "ponoviti", "медленнее": "sporije", "открываетесь": "otvarate",
-    "продукты": "namirnice", "работы": "posla", "платить": "platiti",
+    "я": "ben", "мы": "biz", "вы": "siz", "мне": "bana", "меня": "beni",
+    "можно": "mümkün", "хотел": "istiyorum", "хотела": "istiyorum",
+    "нужно": "gerekiyor", "где": "nerede", "когда": "ne zaman",
+    "какие": "hangi", "этой": "bu", "эту": "bu", "это": "bu", "после": "sonra",
+    "сегодня": "bugün", "завтра": "yarın", "два": "iki", "дня": "gün", "года": "yıl",
+    "году": "yıl", "город": "şehir", "снова": "tekrar", "открыть": "açmak", "счёт": "hesap",
+    "комиссии": "komisyon", "размер": "tutar", "объяснить": "açıklamak", "документы": "belgeler",
+    "принести": "getirmek", "меню": "menü", "пожалуйста": "lütfen", "заказать": "sipariş etmek",
+    "кофе": "kahve", "сахара": "şeker", "болит": "ağrıyor", "горло": "boğaz",
+    "записаться": "randevu almak", "осмотр": "muayene", "принимать": "almak", "лекарство": "ilaç",
+    "квартире": "dairede", "работает": "çalışıyor", "стиральная": "çamaşır", "машина": "makine",
+    "мастер": "usta", "прийти": "gelmek", "ремонт": "tamir", "проверить": "kontrol etmek",
+    "отопление": "kalorifer", "пересадку": "aktarma", "купить": "almak", "билет": "bilet",
+    "центра": "merkez", "отправляется": "kalkıyor", "следующий": "bir sonraki", "автобус": "otobüs",
+    "работал": "çalıştım", "области": "alan", "узнать": "öğrenmek", "больше": "daha fazla",
+    "работе": "iş", "начать": "başlamak", "работать": "çalışmak", "перенести": "ertelemek",
+    "встречу": "toplantı", "закончить": "bitirmek", "задачу": "görev", "немного": "biraz",
+    "опоздаю": "gecikeceğim", "транспорта": "ulaşım", "прошлом": "geçen", "отдыхали": "tatil yaptık",
+    "моря": "deniz", "посетить": "ziyaret etmek", "остановились": "kaldınız", "отпуска": "tatil",
+    "повторить": "tekrar etmek", "медленнее": "daha yavaş", "открываетесь": "açıyorsunuz",
+    "продукты": "market alışverişi", "работы": "iş",
 }
 
 
@@ -140,7 +138,7 @@ class ExerciseGenerator:
             raise SessionUnavailableError(session_id)
         if not training_session.normalized_topic_json.get("review_carousel"):
             requested_length = int(training_session.normalized_topic_json.get("session_length", 20))
-            if self.attempt_requests.count_checked_or_reserved_exercises(session_id, datetime.now(timezone.utc)) >= requested_length:
+            if self.attempt_requests.count_checked_or_reserved_exercises(session_id, datetime.now(UTC)) >= requested_length:
                 if self.attempts.count_checked_exercises(session_id) >= requested_length:
                     raise SessionCompletedError(session_id)
                 raise SessionPendingError(session_id)
@@ -150,7 +148,7 @@ class ExerciseGenerator:
             return self._review_exercise(training_session.id, review_payload, request_id)
         if training_session.normalized_topic_json.get("review_carousel"):
             return self._next_review_exercise(training_session.id, request_id)
-        self.review_phrases.activate_due(datetime.now(timezone.utc))
+        self.review_phrases.activate_due(datetime.now(UTC))
         recent = self.exercises.list_recent(session_id, limit=20)
         skills = self.skills.list_for_training(self.user_id)
         skill_catalog = {skill.key: skill for skill in skills}
@@ -172,7 +170,7 @@ class ExerciseGenerator:
             result = ExerciseGenerationResult(
                 source_ru=catalog_phrase.source_ru,
                 topic_fit=f"Постоянный каталог A2 для темы «{topic.title_ru}».",
-                intended_sr_variants=[catalog_phrase.canonical_sr],
+                intended_tr_variants=[catalog_phrase.canonical_tr],
                 targeted_skills=target_keys,
                 difficulty=0.5,
                 novelty_signature=f"catalog:{catalog_phrase.id}",
@@ -191,8 +189,8 @@ class ExerciseGenerator:
                 source_ru=result.source_ru,
                 targeted_skill_ids=[skill_catalog[key].id for key in target_keys if key in skill_catalog],
                 target_hints_json={
-                    "intended_sr_variants": result.intended_sr_variants,
-                    "canonical_sr": result.intended_sr_variants[0],
+                    "intended_tr_variants": result.intended_tr_variants,
+                    "canonical_tr": result.intended_tr_variants[0],
                     "word_hints": [hint.model_dump() for hint in result.word_hints],
                 },
                 generation_meta_json={
@@ -222,7 +220,7 @@ class ExerciseGenerator:
         return random.choice(candidates)
 
     def _next_review_exercise(self, session_id: str, request_id: str | None = None) -> ExerciseResponse:
-        self.review_phrases.activate_due(datetime.now(timezone.utc))
+        self.review_phrases.activate_due(datetime.now(UTC))
         phrases = self.review_phrases.list_active()
         if not phrases:
             raise ReviewQueueEmptyError
@@ -240,7 +238,7 @@ class ExerciseGenerator:
         return {
             "id": phrase.id,
             "source_ru": phrase.source_ru,
-            "intended_sr_variants": phrase.intended_sr_variants_json,
+            "intended_tr_variants": phrase.intended_tr_variants_json,
             "word_hints": phrase.word_hints_json,
             "targeted_skill_keys": phrase.targeted_skill_keys_json,
             "topic_id": phrase.topic_id,
@@ -261,8 +259,8 @@ class ExerciseGenerator:
                 source_ru=str(payload["source_ru"]),
                 targeted_skill_ids=[catalog[key].id for key in target_keys if key in catalog],
                 target_hints_json={
-                    "intended_sr_variants": list(payload.get("intended_sr_variants", [])),
-                    "canonical_sr": next(iter(payload.get("intended_sr_variants", [])), None),
+                    "intended_tr_variants": list(payload.get("intended_tr_variants", [])),
+                    "canonical_tr": next(iter(payload.get("intended_tr_variants", [])), None),
                     "word_hints": list(payload.get("word_hints", [])),
                 },
                 generation_meta_json={
@@ -292,13 +290,13 @@ class ExerciseGenerator:
             raise
 
     def _response(self, entity: Exercise) -> ExerciseResponse:
-        from app.services.source_versions import SourceLanguageService, exercise_source
         from app.services.interface_language import interface_language
+        from app.services.source_versions import SourceLanguageService, exercise_source
         versions = SourceLanguageService(self.db, self.ai, self.user_id).ensure(entity)
         language = interface_language.get()
         topic_id = entity.generation_meta_json.get("topic_id")
         topic = self.topics.get_visible(topic_id) if topic_id and entity.generation_meta_json.get("review_phrase_id") else None
-        canonical = entity.target_hints_json.get("canonical_sr") or next(iter(entity.target_hints_json.get("intended_sr_variants", [])), "")
+        canonical = entity.target_hints_json.get("canonical_tr") or next(iter(entity.target_hints_json.get("intended_tr_variants", [])), "")
         return ExerciseResponse(
             topic_id=topic_id,
             topic_title_ru=topic.title_ru if topic else None,
@@ -333,9 +331,9 @@ class ExerciseGenerator:
                 )
                 retry_reason = None
                 if not self._is_russian_source(result.source_ru):
-                    retry_reason = "source_ru должен быть полностью на русском языке кириллицей, без сербских слов или латиницы."
+                    retry_reason = "source_ru must be entirely in Russian, written in Cyrillic, with no Turkish words or Latin letters."
                 elif self._too_similar(result.source_ru, recent_sources):
-                    retry_reason = "Фраза слишком похожа на недавнюю; выбери другую ситуацию и формулировку."
+                    retry_reason = "The sentence is too similar to a recent one; choose a different situation and wording."
                 if retry_reason:
                     result = ExerciseGenerationResult.model_validate(
                         self.ai.generate_exercise(
@@ -368,7 +366,7 @@ class ExerciseGenerator:
         return ExerciseGenerationResult(
             source_ru=source,
             topic_fit=f"Локальный A2 fallback для темы «{topic_title}».",
-            intended_sr_variants=list(variants),
+            intended_tr_variants=list(variants),
             targeted_skills=target_keys,
             difficulty=0.5,
             novelty_signature=f"local:{topic_id}:{index}",
@@ -379,7 +377,7 @@ class ExerciseGenerator:
     def _local_word_hints(source: str) -> list[dict[str, str]]:
         words = re.findall(r"[А-Яа-яЁё]+", source)
         return [
-            {"word_ru": word, "translation_sr": LOCAL_WORD_TRANSLATIONS[word.casefold()]}
+            {"word_ru": word, "translation_tr": LOCAL_WORD_TRANSLATIONS[word.casefold()]}
             for word in words
             if word.casefold() in LOCAL_WORD_TRANSLATIONS
         ]

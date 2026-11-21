@@ -16,7 +16,6 @@ import zipfile
 from pathlib import Path, PurePosixPath
 from urllib.parse import quote, urlsplit
 
-
 REPOSITORY = Path(__file__).resolve().parents[2]
 LAB_ROOT = REPOSITORY / "artifacts" / "testlab" / "postgres"
 DATA_DIR = LAB_ROOT / "cluster"

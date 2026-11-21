@@ -16,3 +16,13 @@ export function validateAndroidEnvironment(env: Record<string, string | undefine
     throw new Error("Android release requires VITE_SUPABASE_URL and VITE_SUPABASE_PUBLISHABLE_KEY.");
   }
 }
+
+// A hosted web build has no /api proxy (vercel.json), so it must know where the backend is.
+export function validateHostedWebEnvironment(env: Record<string, string | undefined>): void {
+  let endpoint: URL;
+  try { endpoint = new URL((env.VITE_API_BASE_URL ?? "").trim()); }
+  catch { throw new Error("Hosted web build requires an absolute HTTPS VITE_API_BASE_URL: there is no /api proxy."); }
+  if (endpoint.protocol !== "https:" || endpoint.username || endpoint.password || endpoint.search || endpoint.hash) {
+    throw new Error("Hosted web build requires a public HTTPS API endpoint without credentials, query or fragment.");
+  }
+}

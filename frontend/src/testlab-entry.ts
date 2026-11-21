@@ -3,7 +3,7 @@ import { getSupabase } from "./auth";
 // This entry point is built only by Vite's explicit testlab mode.
 const form = document.querySelector<HTMLFormElement>("#login")!;
 const status = document.querySelector<HTMLParagraphElement>("#status")!;
-form.addEventListener("submit", async (event) => {
+form.addEventListener("submit", async event => {
   event.preventDefault();
   const submit = form.querySelector<HTMLButtonElement>("button")!;
   submit.disabled = true;
@@ -12,7 +12,8 @@ form.addEventListener("submit", async (event) => {
     const data = new FormData(form);
     form.reset();
     const { error } = await getSupabase().auth.signInWithPassword({
-      email: String(data.get("email")), password: String(data.get("password")),
+      email: String(data.get("email")),
+      password: String(data.get("password")),
     });
     if (error) throw error;
     window.location.replace("/?perf");

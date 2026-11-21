@@ -1,14 +1,14 @@
-from datetime import datetime, timezone
 import os
+from datetime import UTC, datetime
 from pathlib import Path
 from uuid import uuid4
 
 import pytest
-from alembic import command
 from alembic.config import Config
-from sqlalchemy import MetaData, Table, event, inspect, select
+from sqlalchemy import MetaData, Table, event, inspect
 from sqlalchemy.engine import make_url
 
+from alembic import command
 from app.db.session import create_database_engine
 
 
@@ -28,7 +28,7 @@ def test_idempotency_migration_upgrade_downgrade_roundtrip(tmp_path: Path) -> No
             exercises = Table("exercises", metadata, autoload_with=connection)
             attempts = Table("attempts", metadata, autoload_with=connection)
             errors = Table("error_events", metadata, autoload_with=connection)
-            now = datetime.now(timezone.utc)
+            now = datetime.now(UTC)
             connection.execute(sessions.insert().values(
                 id="session", user_id="00000000-0000-0000-0000-000000000001",
                 started_at=now, level="A2", normalized_topic_json={}, status="active",
@@ -45,12 +45,18 @@ def test_idempotency_migration_upgrade_downgrade_roundtrip(tmp_path: Path) -> No
                 id="error", attempt_id="attempt", type="grammar", severity=0.5,
                 confidence=1.0, evidence_json={"evidence": "Test"},
             ))
-            history = {table.name: connection.execute(select(table)).all() for table in (sessions, exercises, attempts, errors)}
+            def rows(table: Table) -> list:
+                # Raw rows: later revisions rename columns, so the reflected names go stale; the values must not.
+                return connection.exec_driver_sql(f"SELECT * FROM {table.name} ORDER BY id").all()
+
+            # Only the columns present at this revision are compared; later revisions append more.
+            history = {table.name: rows(table) for table in (sessions, exercises, attempts, errors)}
 
             def assert_history_preserved() -> None:
                 assert connection.exec_driver_sql("PRAGMA foreign_keys").scalar() == 1
                 for table in (sessions, exercises, attempts, errors):
-                    assert connection.execute(select(table)).all() == history[table.name]
+                    width = len(history[table.name][0])
+                    assert [tuple(row)[:width] for row in rows(table)] == [tuple(row) for row in history[table.name]]
                 assert connection.exec_driver_sql("PRAGMA foreign_key_check").all() == []
 
             command.upgrade(config, "head")
@@ -80,7 +86,7 @@ def test_reservation_migration_preserves_completed_request_on_roundtrip(tmp_path
         with engine.begin() as connection:
             config.attributes["connection"] = connection
             command.upgrade(config, "c7d91a2e5b60")
-            now = datetime.now(timezone.utc)
+            now = datetime.now(UTC)
             connection.exec_driver_sql(
                 "INSERT INTO training_sessions (id, user_id, started_at, level, normalized_topic_json, status) "
                 "VALUES (?, ?, ?, ?, ?, ?)",
@@ -143,7 +149,7 @@ def test_postgres_reservation_migration_preserves_history() -> None:
         with engine.begin() as connection:
             config.attributes["connection"] = connection
             command.upgrade(config, "c7d91a2e5b60")
-            now = datetime.now(timezone.utc)
+            now = datetime.now(UTC)
             connection.exec_driver_sql(
                 "INSERT INTO training_sessions (id, user_id, started_at, level, normalized_topic_json, status) "
                 "VALUES (%s, %s, %s, %s, %s, %s)",

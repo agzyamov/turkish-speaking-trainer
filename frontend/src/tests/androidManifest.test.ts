@@ -3,17 +3,9 @@ import { resolve } from "node:path";
 
 import { describe, expect, it } from "vitest";
 
-const manifest = readFileSync(
-  resolve(process.cwd(), "android/app/src/main/AndroidManifest.xml"),
-  "utf-8",
-);
-const androidBuild = readFileSync(
-  resolve(process.cwd(), "android/app/build.gradle"),
-  "utf-8",
-);
-const packageJson = JSON.parse(
-  readFileSync(resolve(process.cwd(), "package.json"), "utf-8"),
-) as { version: string };
+const manifest = readFileSync(resolve(process.cwd(), "android/app/src/main/AndroidManifest.xml"), "utf-8");
+const androidBuild = readFileSync(resolve(process.cwd(), "android/app/build.gradle"), "utf-8");
+const packageJson = JSON.parse(readFileSync(resolve(process.cwd(), "package.json"), "utf-8")) as { version: string };
 
 describe("Android microphone permissions", () => {
   it("declares every permission requested by Capacitor for WebView audio capture", () => {
@@ -27,6 +19,6 @@ describe("Android release metadata", () => {
     expect(packageJson.version).toBe("1.45.0");
     expect(androidBuild).toContain("versionCode 55");
     expect(androidBuild).toContain('versionName "1.45"');
-    expect(androidBuild).toContain('outputFileName = "SerboTalk-andorid16-1.45.apk"');
+    expect(androidBuild).toContain('outputFileName = "TurkTalk-android16-1.45.apk"');
   });
 });

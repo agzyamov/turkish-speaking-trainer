@@ -6,7 +6,7 @@ function matches(source: string, language: "ru" | "en"): boolean {
   return language === "ru" ? cyrillic : !cyrillic && /[a-z]/i.test(source);
 }
 
-export function exerciseSource(exercise: Exercise): { source: string; hints: Record<string, Pick<WordHint, "translation_sr">> } | undefined {
+export function exerciseSource(exercise: Exercise): { source: string; hints: Record<string, Pick<WordHint, "translation_tr">> } | undefined {
   const language = getLanguage();
   const versions = exercise.source_versions;
   let source: string;
@@ -23,7 +23,7 @@ export function exerciseSource(exercise: Exercise): { source: string; hints: Rec
   } else {
     const legacy = localizedPhrase(exercise.source_ru, exercise.source_en !== null);
     source = legacy.source;
-    if (Object.keys(legacy.hints).length && matches(source, language)) return { source, hints: legacy.hints as Record<string, Pick<WordHint, "translation_sr">> };
+    if (Object.keys(legacy.hints).length && matches(source, language)) return { source, hints: legacy.hints as Record<string, Pick<WordHint, "translation_tr">> };
     hints = exercise.source_hints ?? exercise.word_hints ?? [];
   }
   if (typeof source !== "string" || !source || !matches(source, language)) return undefined;

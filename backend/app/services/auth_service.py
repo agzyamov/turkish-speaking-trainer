@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import datetime, time, timedelta, timezone
+from datetime import UTC, datetime, time, timedelta
 from functools import lru_cache
 
 import httpx
@@ -104,7 +104,7 @@ class SupabaseAuthService:
                         break
                 except httpx.RequestError:
                     if attempt >= self.settings.auth_max_retries:
-                        raise AuthenticationUnavailableError("Authentication provider is unavailable")
+                        raise AuthenticationUnavailableError("Authentication provider is unavailable") from None
             assert response is not None
             if response.status_code in {401, 403}:
                 raise PermissionError("Invalid access token")
@@ -142,7 +142,7 @@ class UserService:
     def sync(self, identity: AuthenticatedIdentity) -> User:
         from app.services.account_deletion import reject_deleted_identity
         reject_deleted_identity(self.db, identity.id)
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         admin_emails = {email.strip().casefold() for email in self.settings.admin_emails.split(",") if email.strip()}
         role = "admin" if identity.email.casefold() in admin_emails else "user"
         user = self.users.get(identity.id)
@@ -163,7 +163,7 @@ class UserService:
             ))
             self.db.flush()
             from app.services.notifications import notify_after_commit
-            notify_after_commit(self.db, self.settings, user.email, "зарегистрировался в SerboTalk")
+            notify_after_commit(self.db, self.settings, user.email, f"зарегистрировался в {self.settings.brand_name}")
             if role == "admin":
                 self._claim_legacy_data(identity.id)
         else:
@@ -177,7 +177,7 @@ class UserService:
                 user.role = role
             last_active_at = user.last_active_at
             if last_active_at.tzinfo is None:
-                last_active_at = last_active_at.replace(tzinfo=timezone.utc)
+                last_active_at = last_active_at.replace(tzinfo=UTC)
             if now - last_active_at >= timedelta(minutes=5):
                 user.last_active_at = now
         if user in self.db.new or user in self.db.dirty:
@@ -209,14 +209,14 @@ class UserService:
         if locked is None:
             raise PermissionError("Account is unavailable")
         if locked.android_premium_granted_at is None:
-            locked.android_premium_granted_at = datetime.now(timezone.utc)
+            locked.android_premium_granted_at = datetime.now(UTC)
         locked.access_tier = "premium"
         self.db.flush()
         return locked
 
     def usage(self, user: User, now: datetime | None = None) -> DailyUsageResponse:
-        current = now or datetime.now(timezone.utc)
-        start = datetime.combine(current.date(), time.min, tzinfo=timezone.utc)
+        current = now or datetime.now(UTC)
+        start = datetime.combine(current.date(), time.min, tzinfo=UTC)
         end = start + timedelta(days=1)
         used = self.users.count_attempts_between(user.id, start, end)
         limit = self.daily_limit(user)
@@ -242,8 +242,8 @@ class UserService:
         )
 
     def list_users(self) -> list[AdminUserResponse]:
-        now = datetime.now(timezone.utc)
-        start = datetime.combine(now.date(), time.min, tzinfo=timezone.utc)
+        now = datetime.now(UTC)
+        start = datetime.combine(now.date(), time.min, tzinfo=UTC)
         counts = self.users.count_attempts_between_by_user(start, start + timedelta(days=1))
         return [
             AdminUserResponse(

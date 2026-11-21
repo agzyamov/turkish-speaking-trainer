@@ -1,5 +1,5 @@
 from collections import Counter
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from app.models import Exercise, Skill
 from app.schemas import TopicContext
@@ -32,7 +32,7 @@ class Scheduler:
             for skill_id in exercise.targeted_skill_ids
         )
         topic_terms = " ".join([topic.title_ru, *topic.suggested_vocabulary]).casefold()
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
 
         def score(skill: Skill) -> tuple[float, str]:
             theme_bonus = 0.7 if skill.title_ru.casefold() in topic_terms else 0.0
@@ -50,7 +50,7 @@ class Scheduler:
                 if learner.next_review_at is not None:
                     review_at = learner.next_review_at
                     if review_at.tzinfo is None:
-                        review_at = review_at.replace(tzinfo=timezone.utc)
+                        review_at = review_at.replace(tzinfo=UTC)
                     due_review_weight = 0.8 if review_at <= now else 0.0
                 mastered_penalty = 0.5 if learner.state == "MASTERED" else 0.0
             value = (

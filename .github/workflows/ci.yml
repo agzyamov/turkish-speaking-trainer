@@ -1,0 +1,131 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      backend: ${{ steps.filter.outputs.backend }}
+      frontend: ${{ steps.filter.outputs.frontend }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            backend:
+              - 'backend/**'
+              - 'scripts/**'
+              - 'justfile'
+              - '.github/workflows/ci.yml'
+            frontend:
+              - 'frontend/**'
+              - 'justfile'
+              - '.github/workflows/ci.yml'
+
+  secrets:
+    name: Secret scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Install gitleaks
+        run: |
+          curl -sSfL https://github.com/gitleaks/gitleaks/releases/download/v8.30.0/gitleaks_8.30.0_linux_x64.tar.gz \
+            | sudo tar -xz -C /usr/local/bin gitleaks
+      - name: Scan working tree
+        run: scripts/guard/check-secrets.sh --all
+      - name: Scan history
+        run: scripts/guard/check-secrets.sh --history
+
+  backend:
+    name: Backend
+    needs: changes
+    if: needs.changes.outputs.backend == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+          cache-dependency-glob: backend/uv.lock
+      - uses: extractions/setup-just@v3
+      - run: uv python install 3.13
+      - run: just backend-install
+      - run: just backend-lint
+      - run: just backend-arch
+      - run: just backend-test
+      - name: Type check (backlog, not blocking yet)
+        run: just backend-types
+        continue-on-error: true
+
+  frontend:
+    name: Frontend
+    needs: changes
+    if: needs.changes.outputs.frontend == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: frontend/pnpm-lock.yaml
+      - uses: extractions/setup-just@v3
+      - run: just frontend-install
+      - run: just frontend-lint
+      - run: just frontend-test
+      - run: just frontend-build
+
+  # Mocked browser flow (all API responses are defined in the spec; no backend, no provider).
+  e2e:
+    name: E2E (mocked)
+    needs: changes
+    if: needs.changes.outputs.frontend == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: frontend/pnpm-lock.yaml
+      - uses: extractions/setup-just@v3
+      - run: just frontend-install
+      - run: cd frontend && pnpm exec playwright install --with-deps chromium
+      - run: just e2e
+        env:
+          E2E_BROWSER_CHANNEL: chromium
+
+  # Single required status for branch protection: passes when every job that ran passed.
+  required:
+    name: Required checks
+    if: always()
+    needs: [secrets, backend, frontend, e2e]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fail if any needed job failed or was cancelled
+        run: |
+          results='${{ join(needs.*.result, ' ') }}'
+          echo "results: $results"
+          for r in $results; do
+            if [ "$r" = "failure" ] || [ "$r" = "cancelled" ]; then exit 1; fi
+          done

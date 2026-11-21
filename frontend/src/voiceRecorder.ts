@@ -23,9 +23,11 @@ export class VoiceRecorder {
     const pendingStream = navigator.mediaDevices.getUserMedia({
       audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true },
     });
-    pendingStream.then((stream) => {
-      if (this.stopped) stream.getTracks().forEach((track) => track.stop());
-    }).catch(() => undefined);
+    pendingStream
+      .then(stream => {
+        if (this.stopped) stream.getTracks().forEach(track => track.stop());
+      })
+      .catch(() => undefined);
 
     try {
       this.stream = await withTimeout(pendingStream, 30_000, "Microphone selection timed out");
@@ -37,7 +39,7 @@ export class VoiceRecorder {
         audioBitsPerSecond: 64_000,
       });
       this.recorder = recorder;
-      recorder.addEventListener("dataavailable", (event) => {
+      recorder.addEventListener("dataavailable", event => {
         if (!this.discard && event.data.size > 0) this.chunks.push(event.data);
       });
       recorder.start(500);
@@ -58,7 +60,10 @@ export class VoiceRecorder {
     const onError = () => rejectFinished(new Error("Voice recording failed"));
     let resolveFinished!: () => void;
     let rejectFinished!: (error: Error) => void;
-    const finished = new Promise<void>((resolve, reject) => { resolveFinished = resolve; rejectFinished = reject; });
+    const finished = new Promise<void>((resolve, reject) => {
+      resolveFinished = resolve;
+      rejectFinished = reject;
+    });
     recorder.addEventListener("stop", onStop);
     recorder.addEventListener("error", onError);
     try {
@@ -96,7 +101,9 @@ export class VoiceRecorder {
     this.discard = true;
     try {
       if (this.recorder?.state !== "inactive") this.recorder?.stop();
-    } catch { /* The stream and buffered chunks must still be released. */ }
+    } catch {
+      /* The stream and buffered chunks must still be released. */
+    }
     this.stopTracks();
     this.chunks = [];
   }
@@ -104,7 +111,7 @@ export class VoiceRecorder {
   private stopTracks(): void {
     const stream = this.stream;
     this.stream = undefined;
-    stream?.getTracks().forEach((track) => track.stop());
+    stream?.getTracks().forEach(track => track.stop());
   }
 }
 
@@ -119,7 +126,7 @@ function withTimeout<T>(promise: Promise<T>, timeoutMs: number, message: string)
   return new Promise((resolve, reject) => {
     const timeoutId = window.setTimeout(() => reject(new Error(message)), timeoutMs);
     promise.then(
-      (value) => {
+      value => {
         window.clearTimeout(timeoutId);
         resolve(value);
       },

@@ -1,26 +1,55 @@
-import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { afterEach, expect, it, vi } from "vitest";
 import { PremiumView } from "../PremiumView";
 import { fetchCustomPhrases, deleteCustomPhrase } from "../api/training";
+import { paymentRequest } from "../api/payments";
 import { setLanguage } from "../i18n";
+import { QueryProvider } from "../shared/lib/QueryProvider";
 vi.mock("../api/training", () => ({ fetchCustomPhrases: vi.fn(), deleteCustomPhrase: vi.fn(), deleteCustomTopic: vi.fn() }));
-const topics = [1, 2].map(id => ({ id: `custom-${id}`, title_ru: `Личная тема ${id}`, is_custom: true, description_ru: "", phrase_count: 0, custom_phrase_count: 1, likely_intents: [], suggested_vocabulary: [] }));
-const phrases = topics.map((topic, i) => ({ id: `p${i}`, topic_id: topic.id, topic_title: topic.title_ru, source_ru: `Мой оригинал ${i}`, canonical_sr: `Moj prevod ${i}`, best_score: 0, attempts: 0, perfect_streak: 0, status: "new", created_at: "2026-10-24" }));
-const props = { topics, alphabet: "latin" as const, onTopicCreated: vi.fn(), onChanged: vi.fn(), onDeleted: vi.fn() };
-afterEach(() => { cleanup(); vi.resetAllMocks(); setLanguage("ru"); });
+vi.mock("../api/payments", () => ({ paymentRequest: vi.fn(() => new Promise(() => undefined)) }));
+const topics = [1, 2].map(id => ({
+  id: `custom-${id}`,
+  title_ru: `Личная тема ${id}`,
+  is_custom: true,
+  description_ru: "",
+  phrase_count: 0,
+  custom_phrase_count: 1,
+  likely_intents: [],
+  suggested_vocabulary: [],
+}));
+const phrases = topics.map((topic, i) => ({
+  id: `p${i}`,
+  topic_id: topic.id,
+  topic_title: topic.title_ru,
+  source_ru: `Мой оригинал ${i}`,
+  canonical_tr: `Moj prevod ${i}`,
+  best_score: 0,
+  attempts: 0,
+  perfect_streak: 0,
+  status: "new",
+  created_at: "2026-10-24",
+}));
+const props = { topics, onTopicCreated: vi.fn(), onChanged: vi.fn(), onDeleted: vi.fn() };
+afterEach(() => {
+  cleanup();
+  vi.resetAllMocks();
+  setLanguage("ru");
+});
 it.each(["ru", "en"] as const)("sorts compact personal cards by the displayed title (%s)", async language => {
   setLanguage(language);
   vi.mocked(fetchCustomPhrases).mockResolvedValue([]);
-  const unsorted = [{ ...topics[0], title_ru: "Язык", title_en: "Animals" }, { ...topics[1], title_ru: "Автомобиль", title_en: "Travel" }];
-  const { container } = render(<PremiumView {...props} topics={unsorted} active />);
+  const unsorted = [
+    { ...topics[0], title_ru: "Язык", title_en: "Animals" },
+    { ...topics[1], title_ru: "Автомобиль", title_en: "Travel" },
+  ];
+  const { container } = render(<PremiumView {...props} topics={unsorted} active />, { wrapper: QueryProvider });
   await screen.findByText(language === "ru" ? "Своих фраз пока нет." : "No custom phrases yet.");
-  expect(Array.from(container.querySelectorAll(".premium-catalog-grid .premium-topic strong"), node => node.textContent))
-    .toEqual(language === "ru" ? ["Автомобиль", "Язык"] : ["Animals", "Travel"]);
+  expect(Array.from(container.querySelectorAll(".premium-catalog-grid .premium-topic strong"), node => node.textContent)).toEqual(language === "ru" ? ["Автомобиль", "Язык"] : ["Animals", "Travel"]);
   expect(unsorted[0].title_ru).toBe("Язык");
 });
 it.each(["ru", "en"] as const)("shows the offer without fetching private content (%s)", language => {
   setLanguage(language);
-  render(<PremiumView {...props} active={false} />);
+  render(<PremiumView {...props} active={false} />, { wrapper: QueryProvider });
   expect(screen.getByRole("heading", { name: language === "ru" ? "Премиум" : "Premium" })).toBeInTheDocument();
   expect(screen.getByRole("button", { name: language === "ru" ? "КУПИТЬ" : "BUY" })).toBeEnabled();
   expect(screen.getAllByRole("listitem")).toHaveLength(3);
@@ -29,13 +58,13 @@ it.each(["ru", "en"] as const)("shows the offer without fetching private content
   expect(screen.getByText(language === "ru" ? "Однократный платёж 5 евро" : "One-time payment of 5 euros")).toBeInTheDocument();
   expect(screen.getByRole("img", { name: language === "ru" ? "Две чашки кофе" : "Two cups of coffee" })).toBeInTheDocument();
   expect(screen.getByRole("heading", { name: language === "ru" ? "Почему платно?" : "Why is it paid?" })).toBeInTheDocument();
-  expect(screen.getByText(language === "ru" ? "Приложение использует API-вызовы внешней модели OpenAI." : "The app makes API calls to an external OpenAI model.")).toBeInTheDocument();
+  expect(screen.getByText(language === "ru" ? "Приложение использует платные API внешних моделей ИИ." : "The app relies on paid external AI model APIs.")).toBeInTheDocument();
   expect(fetchCustomPhrases).not.toHaveBeenCalled();
 });
 it.each(["ru", "en"] as const)("filters topics, hides translations and updates count after confirmed deletion (%s)", async language => {
   setLanguage(language);
   vi.mocked(fetchCustomPhrases).mockResolvedValue(phrases);
-  render(<PremiumView {...props} active />);
+  render(<PremiumView {...props} active />, { wrapper: QueryProvider });
   expect(screen.queryByText(/Однократный платёж|One-time payment/)).not.toBeInTheDocument();
   const first = await screen.findByRole("button", { name: /Личная тема 1/ });
   await screen.findByText(language === "ru" ? "Выберите тему, чтобы увидеть фразы." : "Select a topic to see its phrases.");
@@ -43,7 +72,7 @@ it.each(["ru", "en"] as const)("filters topics, hides translations and updates c
   fireEvent.click(first);
   expect(screen.getByText(phrases[0].source_ru)).toBeInTheDocument();
   expect(screen.queryByText(phrases[1].source_ru)).not.toBeInTheDocument();
-  expect(screen.queryByText(phrases[0].canonical_sr)).not.toBeInTheDocument();
+  expect(screen.queryByText(phrases[0].canonical_tr)).not.toBeInTheDocument();
   fireEvent.click(screen.getByRole("button", { name: language === "ru" ? "Удалить фразу" : "Delete phrase" }));
   expect(deleteCustomPhrase).not.toHaveBeenCalled();
   fireEvent.click(screen.getByRole("button", { name: language === "ru" ? "Подтвердить удаление" : "Confirm deletion" }));
@@ -57,10 +86,60 @@ it.each(["ru", "en"] as const)("filters topics, hides translations and updates c
 });
 it("retries a failed private catalog load", async () => {
   vi.mocked(fetchCustomPhrases).mockRejectedValueOnce(new Error("offline")).mockResolvedValueOnce(phrases);
-  render(<PremiumView {...props} active />);
+  render(<PremiumView {...props} active />, { wrapper: QueryProvider });
   await screen.findByRole("alert");
   fireEvent.click(screen.getByRole("button", { name: "Повторить загрузку" }));
   await screen.findByText("Выберите тему, чтобы увидеть фразы.");
   fireEvent.click(screen.getByRole("button", { name: /Личная тема 1/ }));
   expect(screen.getByText(phrases[0].source_ru)).toBeInTheDocument();
+});
+
+it("returns focus to the buy button when the payment form closes", () => {
+  render(<PremiumView {...props} active={false} />, { wrapper: QueryProvider });
+  const buy = screen.getByRole("button", { name: "КУПИТЬ" });
+  fireEvent.click(buy);
+  expect(buy).toHaveAttribute("aria-expanded", "true");
+  fireEvent.click(screen.getByRole("button", { name: "Закрыть" }));
+  expect(buy).toHaveAttribute("aria-expanded", "false");
+  expect(buy).toHaveFocus();
+});
+
+it("shows loading, not the error, while a failed private catalog load is retried", async () => {
+  let finish!: (value: typeof phrases) => void;
+  vi.mocked(fetchCustomPhrases)
+    .mockRejectedValueOnce(new Error("offline"))
+    .mockImplementationOnce(
+      () =>
+        new Promise(resolve => {
+          finish = resolve;
+        }),
+    );
+  render(<PremiumView {...props} active />, { wrapper: QueryProvider });
+  await screen.findByRole("alert");
+  fireEvent.click(screen.getByRole("button", { name: "Повторить загрузку" }));
+  expect(await screen.findByText("Загружаем свои фразы…")).toBeInTheDocument();
+  expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+  await act(async () => finish(phrases));
+  expect(await screen.findByText("Выберите тему, чтобы увидеть фразы.")).toBeInTheDocument();
+});
+
+it.each(["ru", "en"] as const)("offers no purchase while no payment method is configured (%s)", async language => {
+  setLanguage(language);
+  const options = (available: boolean) => ({ activation: null, countries: { russia: ["sbp"], turkey: ["paypal"], other: ["paypal"] }, methods: { sbp: { available: false }, paypal: { available } } });
+  vi.mocked(paymentRequest).mockResolvedValue(options(false));
+  render(
+    <QueryProvider>
+      <PremiumView active={false} {...props} />
+    </QueryProvider>,
+  );
+  expect(await screen.findByText(language === "ru" ? "Покупка Premium пока недоступна." : "Premium is not on sale yet.")).toBeInTheDocument();
+  expect(screen.queryByRole("button", { name: language === "ru" ? "КУПИТЬ" : "BUY" })).not.toBeInTheDocument();
+  cleanup();
+  vi.mocked(paymentRequest).mockResolvedValue(options(true));
+  render(
+    <QueryProvider>
+      <PremiumView active={false} {...props} />
+    </QueryProvider>,
+  );
+  expect(await screen.findByRole("button", { name: language === "ru" ? "КУПИТЬ" : "BUY" })).toBeInTheDocument();
 });

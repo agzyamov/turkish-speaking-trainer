@@ -2,15 +2,18 @@ import { _android, expect } from "@playwright/test";
 import { readFileSync } from "node:fs";
 import { loginTestlab } from "./flow.mjs";
 
-const packageName = "com.serbiantalk.trainer.testlab";
-const expectedVersion = process.env.TESTLAB_ANDROID_VERSION ?? JSON.parse(readFileSync(new URL("../package.json", import.meta.url), "utf8")).version.split(".").slice(0, 2).join(".");
+const packageName = "com.turktalk.trainer.testlab";
+const expectedVersion =
+  process.env.TESTLAB_ANDROID_VERSION ??
+  JSON.parse(readFileSync(new URL("../package.json", import.meta.url), "utf8"))
+    .version.split(".")
+    .slice(0, 2)
+    .join(".");
 if (!process.env.TESTLAB_EMAIL || !process.env.TESTLAB_PASSWORD) throw new Error("TESTLAB_EMAIL and TESTLAB_PASSWORD are required");
 
 const devices = await _android.devices();
 const serial = process.env.TESTLAB_ANDROID_SERIAL;
-const device = serial
-  ? devices.find((candidate) => candidate.serial() === serial)
-  : devices.length === 1 ? devices[0] : undefined;
+const device = serial ? devices.find(candidate => candidate.serial() === serial) : devices.length === 1 ? devices[0] : undefined;
 if (!device) throw new Error("Specify one test device with TESTLAB_ANDROID_SERIAL");
 
 let releaseHintSave;
@@ -33,7 +36,7 @@ try {
   const webView = await device.webView({ pkg: packageName }, { timeout: 30_000 });
   page = await webView.page();
   await installSyntheticMedia(page);
-  page.on("response", (response) => {
+  page.on("response", response => {
     const path = new URL(response.url()).pathname;
     if (path.startsWith("/api/")) apiStatuses.push(`${path.replace(/\/(sessions|exercises)\/[^/]+/g, "/$1/{id}")}:${response.status()}`);
   });
@@ -53,7 +56,10 @@ try {
 
   stage = "start training session";
   // Match the existing Android runner: select a topic through the WebView, then use native taps for practice controls.
-  await page.getByRole("button", { name: /Собеседование/ }).first().click();
+  await page
+    .getByRole("button", { name: /Собеседование/ })
+    .first()
+    .click();
   await expect(page.locator(".android-training-page .interactive-phrase")).toBeVisible();
 
   stage = "native app lifecycle listener";
@@ -67,7 +73,7 @@ try {
     });
   });
   let transcriptionRequestCount = 0;
-  page.on("request", (request) => {
+  page.on("request", request => {
     if (new URL(request.url()).pathname === "/api/transcriptions") transcriptionRequestCount += 1;
   });
 
@@ -112,16 +118,23 @@ try {
   await device.input.press("Back");
 
   stage = "install blocked hint-save route";
-  const hintSavePending = new Promise((resolve) => { releaseHintSave = resolve; });
-  hintRouteSettled = new Promise((resolve) => { closeHintRoute = resolve; });
+  const hintSavePending = new Promise(resolve => {
+    releaseHintSave = resolve;
+  });
+  hintRouteSettled = new Promise(resolve => {
+    closeHintRoute = resolve;
+  });
   let hintRequests = 0;
-  await page.route("**/api/exercises/*/word-hints", async (route) => {
+  await page.route("**/api/exercises/*/word-hints", async route => {
     hintRequests += 1;
     try {
       await hintSavePending;
       await route.fulfill({ status: 503, contentType: "application/json", body: '{"detail":"Synthetic delayed save failure"}' });
-    } catch { /* A page teardown or request cancellation must not log response contents. */ }
-    finally { closeHintRoute(); }
+    } catch {
+      /* A page teardown or request cancellation must not log response contents. */
+    } finally {
+      closeHintRoute();
+    }
   });
   const phrase = page.locator(".android-training-page .interactive-phrase");
   const previousPhrase = await phrase.getAttribute("aria-label");
@@ -166,31 +179,45 @@ async function installSyntheticMedia(targetPage) {
 }
 
 function installSyntheticMediaInPage() {
-    window.__androidMediaCounts = { recorderStartCount: 0, recorderStopCount: 0, trackStopCount: 0 };
-    window.__androidSyntheticMediaInstalled = true;
-    Object.defineProperty(navigator, "mediaDevices", {
-      configurable: true,
-      value: { getUserMedia: async () => {
+  window.__androidMediaCounts = { recorderStartCount: 0, recorderStopCount: 0, trackStopCount: 0 };
+  window.__androidSyntheticMediaInstalled = true;
+  Object.defineProperty(navigator, "mediaDevices", {
+    configurable: true,
+    value: {
+      getUserMedia: async () => {
         let stopped = false;
-        const track = { stop() { if (!stopped) { stopped = true; window.__androidMediaCounts.trackStopCount += 1; } } };
+        const track = {
+          stop() {
+            if (!stopped) {
+              stopped = true;
+              window.__androidMediaCounts.trackStopCount += 1;
+            }
+          },
+        };
         return { getTracks: () => [track] };
-      } },
-    });
-    class SyntheticRecorder extends EventTarget {
-      static isTypeSupported() { return true; }
-      state = "inactive";
-      mimeType = "audio/webm";
-      start() { this.state = "recording"; window.__androidMediaCounts.recorderStartCount += 1; }
-      stop() {
-        if (this.state === "inactive") return;
-        this.state = "inactive";
-        window.__androidMediaCounts.recorderStopCount += 1;
-        // Synthetic test bytes stay in memory and are discarded by the app lifecycle.
-        this.dispatchEvent(new BlobEvent("dataavailable", { data: new Blob([new Uint8Array(64)], { type: "audio/webm" }) }));
-        this.dispatchEvent(new Event("stop"));
-      }
+      },
+    },
+  });
+  class SyntheticRecorder extends EventTarget {
+    static isTypeSupported() {
+      return true;
     }
-    Object.defineProperty(window, "MediaRecorder", { configurable: true, value: SyntheticRecorder });
+    state = "inactive";
+    mimeType = "audio/webm";
+    start() {
+      this.state = "recording";
+      window.__androidMediaCounts.recorderStartCount += 1;
+    }
+    stop() {
+      if (this.state === "inactive") return;
+      this.state = "inactive";
+      window.__androidMediaCounts.recorderStopCount += 1;
+      // Synthetic test bytes stay in memory and are discarded by the app lifecycle.
+      this.dispatchEvent(new BlobEvent("dataavailable", { data: new Blob([new Uint8Array(64)], { type: "audio/webm" }) }));
+      this.dispatchEvent(new Event("stop"));
+    }
+  }
+  Object.defineProperty(window, "MediaRecorder", { configurable: true, value: SyntheticRecorder });
 }
 
 async function tapButton(targetPage, targetDevice, accessibleName) {
@@ -201,7 +228,7 @@ async function tapLocator(targetPage, targetDevice, locator) {
   await expect(locator).toBeVisible();
   await expect(locator).toBeEnabled();
   await locator.scrollIntoViewIfNeeded();
-  const point = await locator.evaluate((element) => {
+  const point = await locator.evaluate(element => {
     const rect = element.getBoundingClientRect();
     const viewport = window.visualViewport;
     if (!viewport) throw new Error("Visual viewport is unavailable");
@@ -216,7 +243,7 @@ async function tapLocator(targetPage, targetDevice, locator) {
   });
   const { bounds } = await targetDevice.info({ clazz: "android.webkit.WebView", pkg: packageName });
   await targetDevice.input.tap({
-    x: Math.round(bounds.x + point.x * bounds.width / point.width),
-    y: Math.round(bounds.y + point.y * bounds.height / point.height),
+    x: Math.round(bounds.x + (point.x * bounds.width) / point.width),
+    y: Math.round(bounds.y + (point.y * bounds.height) / point.height),
   });
 }

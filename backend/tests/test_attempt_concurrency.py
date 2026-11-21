@@ -51,8 +51,8 @@ def test_concurrent_attempts_cannot_cross_session_length_boundary(
                     session_id="short-session",
                     source_ru=f"Фраза {index}",
                     target_hints_json={
-                        "canonical_sr": "Dobar dan.",
-                        "intended_sr_variants": ["Dobar dan."],
+                        "canonical_tr": "Dobar dan.",
+                        "intended_tr_variants": ["Dobar dan."],
                     },
                     targeted_skill_ids=[],
                     generation_meta_json={"targeted_skill_keys": []},
@@ -82,7 +82,7 @@ def test_concurrent_attempts_cannot_cross_session_length_boundary(
                     request = CreateAttemptRequest(
                         exercise_id=exercise_id,
                         client_request_id=request_id,
-                        transcript_sr="Dobar dan.",
+                        transcript_tr="Dobar dan.",
                     )
                     response = AttemptService(db, ai, user).create(request)
                     if name == "first":
@@ -177,8 +177,8 @@ def test_next_exercise_waits_for_final_attempt_commit(
                 session_id=session_id,
                 source_ru="Добрый день.",
                 target_hints_json={
-                    "canonical_sr": "Dobar dan.",
-                    "intended_sr_variants": ["Dobar dan."],
+                    "canonical_tr": "Dobar dan.",
+                    "intended_tr_variants": ["Dobar dan."],
                 },
                 targeted_skill_ids=[],
                 generation_meta_json={"targeted_skill_keys": []},
@@ -198,7 +198,7 @@ def test_next_exercise_waits_for_final_attempt_commit(
                     assert user is not None
                     response = AttemptService(db, ai, user).create(CreateAttemptRequest(
                         exercise_id=exercise_id,
-                        transcript_sr="Dobar dan.",
+                        transcript_tr="Dobar dan.",
                     ))
                     accepted.set()
                     assert release_attempt.wait(timeout=5)

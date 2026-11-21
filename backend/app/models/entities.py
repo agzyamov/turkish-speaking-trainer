@@ -1,10 +1,25 @@
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 from uuid import uuid4
 
-from sqlalchemy import Boolean, CheckConstraint, DateTime, Float, ForeignKey, Index, Integer, JSON, LargeBinary, String, Text, UniqueConstraint, false
+from sqlalchemy import (
+    JSON,
+    BigInteger,
+    Boolean,
+    CheckConstraint,
+    DateTime,
+    Float,
+    ForeignKey,
+    Index,
+    Integer,
+    LargeBinary,
+    String,
+    Text,
+    UniqueConstraint,
+    false,
+)
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base
@@ -13,11 +28,32 @@ LEGACY_USER_ID = "00000000-0000-0000-0000-000000000001"
 
 
 def utc_now() -> datetime:
-    return datetime.now(timezone.utc)
+    return datetime.now(UTC)
 
 
 def new_id() -> str:
     return str(uuid4())
+
+
+class AIUsageEvent(Base):
+    """One row per provider call: the usage ledger behind the monthly spend cap."""
+    __tablename__ = "ai_usage_events"
+    __table_args__ = (Index("ix_ai_usage_events_created_at", "created_at"),)
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=new_id)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now)
+    # Kept without a foreign key so the spend record survives account deletion.
+    user_id: Mapped[str | None] = mapped_column(String(36))
+    purpose: Mapped[str] = mapped_column(String(100))
+    provider: Mapped[str] = mapped_column(String(50))
+    model: Mapped[str] = mapped_column(String(200))
+    input_tokens: Mapped[int] = mapped_column(Integer, default=0, server_default="0")
+    output_tokens: Mapped[int] = mapped_column(Integer, default=0, server_default="0")
+    cache_write_tokens: Mapped[int] = mapped_column(Integer, default=0, server_default="0")
+    cache_read_tokens: Mapped[int] = mapped_column(Integer, default=0, server_default="0")
+    stt_ms: Mapped[int] = mapped_column(Integer, default=0, server_default="0")
+    cost_micro_usd: Mapped[int] = mapped_column(BigInteger)
+    # True when the provider reported no usage and the worst case was charged instead.
+    estimated: Mapped[bool] = mapped_column(Boolean, default=False, server_default=false())
 
 
 class ModelDebugSetting(Base):
@@ -85,7 +121,7 @@ class Attempt(Base):
 
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=new_id)
     exercise_id: Mapped[str] = mapped_column(ForeignKey("exercises.id", ondelete="CASCADE"), index=True)
-    transcript_sr: Mapped[str] = mapped_column(Text)
+    transcript_tr: Mapped[str] = mapped_column(Text)
     reaction_ms: Mapped[int | None] = mapped_column(Integer)
     speech_duration_ms: Mapped[int | None] = mapped_column(Integer)
     longest_pause_ms: Mapped[int | None] = mapped_column(Integer)
@@ -219,7 +255,7 @@ class TopicPhrase(Base):
     topic_id: Mapped[str] = mapped_column(ForeignKey("topic_presets.id", ondelete="CASCADE"), index=True)
     position: Mapped[int] = mapped_column(Integer)
     source_ru: Mapped[str] = mapped_column(Text)
-    canonical_sr: Mapped[str] = mapped_column(Text)
+    canonical_tr: Mapped[str] = mapped_column(Text)
     word_hints_json: Mapped[list[dict[str, str]]] = mapped_column(JSON, default=list)
     targeted_skill_keys_json: Mapped[list[str]] = mapped_column(JSON, default=list)
     enabled: Mapped[bool] = mapped_column(Boolean, default=True)
@@ -240,7 +276,7 @@ class ReviewPhrase(Base):
     source_ru: Mapped[str] = mapped_column(Text)
     source_versions_json: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict)
     source_normalized: Mapped[str] = mapped_column(String(280), index=True)
-    intended_sr_variants_json: Mapped[list[str]] = mapped_column(JSON, default=list)
+    intended_tr_variants_json: Mapped[list[str]] = mapped_column(JSON, default=list)
     word_hints_json: Mapped[list[dict[str, str]]] = mapped_column(JSON, default=list)
     targeted_skill_keys_json: Mapped[list[str]] = mapped_column(JSON, default=list)
     topic_id: Mapped[str | None] = mapped_column(ForeignKey("topic_presets.id", ondelete="SET NULL"), index=True)
@@ -274,7 +310,7 @@ class WordLearningItem(Base):
     user_id: Mapped[str] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True, default=LEGACY_USER_ID)
     source_ru: Mapped[str] = mapped_column(String(120))
     source_normalized: Mapped[str] = mapped_column(String(120), index=True)
-    translation_sr: Mapped[str] = mapped_column(String(240))
+    translation_tr: Mapped[str] = mapped_column(String(240))
     hint_count: Mapped[int] = mapped_column(Integer, default=1)
     mastery: Mapped[float] = mapped_column(Float, default=0)
     status: Mapped[str] = mapped_column(String(20), default="learning", index=True)

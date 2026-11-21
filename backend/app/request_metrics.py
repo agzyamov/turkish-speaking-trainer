@@ -1,10 +1,10 @@
 """Request-local timing counters without request content or identifiers."""
 
+from collections.abc import Iterator
 from contextlib import contextmanager
 from contextvars import ContextVar, Token
 from dataclasses import dataclass
 from time import perf_counter
-from typing import Iterator
 
 
 @dataclass

@@ -1,12 +1,12 @@
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from app.models import ReviewPhrase, TopicPhrase, WordLearningItem
 from app.main import app
+from app.models import ReviewPhrase, TopicPhrase, WordLearningItem
 from app.schemas import PhrasePreparation, PrepareReviewPhraseRequest, WordHint
 from app.services.ai_adapter import get_ai_provider
 from app.services.review_service import PhrasePreparationUnavailableError, ReviewService
@@ -17,8 +17,8 @@ def test_phrase_preparation_returns_validated_canonical_translation(db_session: 
     ai = FakeAIProvider(
         available=True,
         phrase_result=PhrasePreparation(
-            intended_sr_variants=["Kasniću deset minuta."],
-            word_hints=[WordHint(word_ru="задержусь", translation_sr="kasniću")],
+            intended_tr_variants=["Kasniću deset minuta."],
+            word_hints=[WordHint(word_ru="задержусь", translation_tr="kasniću")],
         ),
     )
 
@@ -27,7 +27,7 @@ def test_phrase_preparation_returns_validated_canonical_translation(db_session: 
     )
 
     assert prepared.source_ru == "Я задержусь на десять минут."
-    assert prepared.canonical_sr == "Kasniću deset minuta."
+    assert prepared.canonical_tr == "Kasniću deset minuta."
 
 
 def test_phrase_preparation_fails_safely_without_ai(db_session: Session) -> None:
@@ -41,7 +41,7 @@ def test_phrase_preparation_api_returns_canonical_translation(api_client: TestCl
     app.dependency_overrides[get_ai_provider] = lambda: FakeAIProvider(
         available=True,
         phrase_result=PhrasePreparation(
-            intended_sr_variants=["Kasniću deset minuta."],
+            intended_tr_variants=["Kasniću deset minuta."],
             word_hints=[],
         ),
     )
@@ -52,7 +52,7 @@ def test_phrase_preparation_api_returns_canonical_translation(api_client: TestCl
     )
 
     assert response.status_code == 200
-    assert response.json()["canonical_sr"] == "Kasniću deset minuta."
+    assert response.json()["canonical_tr"] == "Kasniću deset minuta."
 
 
 def _exercise(api_client: TestClient) -> dict:
@@ -69,13 +69,13 @@ def test_word_hint_is_saved_and_reduces_score(api_client: TestClient, db_session
         json={"word": "меню"},
     )
     assert hint.status_code == 200
-    assert hint.json()["translation_sr"] == "jelovnik"
+    assert hint.json()["translation_tr"] == "Menüyü"
 
     attempt = api_client.post(
         "/api/attempts",
         json={
             "exercise_id": exercise["id"],
-            "transcript_sr": "Mogu li da dobijem jelovnik, molim vas?",
+            "transcript_tr": "Menüyü alabilir miyim, lütfen?",
             "hinted_words": ["меню"],
         },
     )
@@ -95,7 +95,7 @@ def test_attempt_recovers_lost_hint_save_and_late_post_is_idempotent(
     # The UI has opened the word, but its background save never reached the API.
     attempt = api_client.post("/api/attempts", json={
         "exercise_id": exercise["id"],
-        "transcript_sr": "Mogu li da dobijem jelovnik, molim vas?",
+        "transcript_tr": "Menüyü alabilir miyim, lütfen?",
         "hinted_words": ["меню"],
     })
     assert attempt.status_code == 201
@@ -118,7 +118,7 @@ def test_attempt_recovers_lost_hint_save_and_late_post_is_idempotent(
 def test_custom_review_phrase_creates_exact_exercise(api_client: TestClient) -> None:
     created = create_custom_phrase(api_client, {
             "source_ru": "Мне нужно позвонить хозяину квартиры.",
-            "canonical_sr": "Moram da pozovem vlasnika stana.",
+            "canonical_tr": "Moram da pozovem vlasnika stana.",
         },
     )
     assert created.status_code == 201
@@ -135,7 +135,7 @@ def test_review_mode_cycles_through_active_phrases(api_client: TestClient) -> No
     sources = ["Мне нужно позвонить хозяину.", "Я задержусь на десять минут."]
     translations = ["Moram da pozovem vlasnika.", "Kasniću deset minuta."]
     for source, canonical in zip(sources, translations, strict=True):
-        response = create_custom_phrase(api_client, {"source_ru": source, "canonical_sr": canonical},
+        response = create_custom_phrase(api_client, {"source_ru": source, "canonical_tr": canonical},
         )
         assert response.status_code == 201
 
@@ -160,7 +160,7 @@ def test_review_queue_includes_all_active_phrases_beyond_one_hundred(db_session:
         ReviewPhrase(
             source_ru=f"Фраза номер {number}.",
             source_normalized=f"фраза номер {number}",
-            intended_sr_variants_json=[f"Rečenica broj {number}."],
+            intended_tr_variants_json=[f"Rečenica broj {number}."],
         )
         for number in range(101)
     ])
@@ -172,7 +172,7 @@ def test_review_queue_includes_all_active_phrases_beyond_one_hundred(db_session:
 def test_review_mode_starts_with_first_phrase_in_one_request(api_client: TestClient) -> None:
     created = create_custom_phrase(api_client, {
             "source_ru": "Мне нужно позвонить хозяину.",
-            "canonical_sr": "Moram da pozovem vlasnika.",
+            "canonical_tr": "Moram da pozovem vlasnika.",
         },
     )
     assert created.status_code == 201
@@ -192,7 +192,7 @@ def test_ninety_five_percent_counts_as_a_correct_review(
     phrase = ReviewPhrase(
         source_ru="Мне нужно позвонить хозяину.",
         source_normalized="мне нужно позвонить хозяину",
-        intended_sr_variants_json=["Moram da pozovem stanodavca."],
+        intended_tr_variants_json=["Moram da pozovem stanodavca."],
     )
     db_session.add(phrase)
     db_session.commit()
@@ -200,14 +200,14 @@ def test_ninety_five_percent_counts_as_a_correct_review(
 
     service.record_attempt(
         source_ru=phrase.source_ru,
-        intended_sr_variants=phrase.intended_sr_variants_json,
+        intended_tr_variants=phrase.intended_tr_variants_json,
         word_hints=[], targeted_skill_keys=[], score=0.7, hinted_words=[],
         review_phrase_id=phrase.id,
     )
     for _ in range(3):
         service.record_attempt(
             source_ru=phrase.source_ru,
-            intended_sr_variants=phrase.intended_sr_variants_json,
+            intended_tr_variants=phrase.intended_tr_variants_json,
             word_hints=[],
             targeted_skill_keys=[],
             score=0.95,
@@ -232,7 +232,7 @@ def test_review_phrase_leaves_active_list_after_three_perfect_attempts(
     phrase = ReviewPhrase(
         source_ru=exercise["source_ru"],
         source_normalized="можно мне пожалуйста меню",
-        intended_sr_variants_json=["Mogu li da dobijem jelovnik, molim vas?"],
+        intended_tr_variants_json=["Menüyü alabilir miyim, lütfen?"],
     )
     db_session.add(phrase)
     db_session.commit()
@@ -244,7 +244,7 @@ def test_review_phrase_leaves_active_list_after_three_perfect_attempts(
             "/api/attempts",
             json={
                 "exercise_id": review_exercise["id"],
-                "transcript_sr": "Mogu li da dobijem jelovnik, molim vas?",
+                "transcript_tr": "Menüyü alabilir miyim, lütfen?",
             },
         )
         assert response.json()["overall_score"] == 1.0
@@ -271,7 +271,7 @@ def test_catalog_phrase_moves_to_review_then_returns_to_both_topics_when_due(
     exercise = _exercise(api_client)
     assert exercise["source_ru"] == catalog.source_ru
     response = api_client.post("/api/attempts", json={
-        "exercise_id": exercise["id"], "transcript_sr": catalog.canonical_sr,
+        "exercise_id": exercise["id"], "transcript_tr": catalog.canonical_tr,
     })
     assert response.status_code == 201
     review_item = api_client.get("/api/review-phrases").json()[0]
@@ -282,7 +282,7 @@ def test_catalog_phrase_moves_to_review_then_returns_to_both_topics_when_due(
         session = api_client.post("/api/sessions", json={"review_phrase_id": review_item["id"]}).json()
         exercise = api_client.post(f"/api/sessions/{session['id']}/next-exercise").json()
         response = api_client.post("/api/attempts", json={
-            "exercise_id": exercise["id"], "transcript_sr": catalog.canonical_sr,
+            "exercise_id": exercise["id"], "transcript_tr": catalog.canonical_tr,
         })
         assert response.status_code == 201
 
@@ -294,7 +294,7 @@ def test_catalog_phrase_moves_to_review_then_returns_to_both_topics_when_due(
     assert api_client.get("/api/review-phrases").json() == []
     assert topic_count() == 19
 
-    phrase.next_review_at = datetime.now(timezone.utc) - timedelta(seconds=1)
+    phrase.next_review_at = datetime.now(UTC) - timedelta(seconds=1)
     db_session.flush()
     assert topic_count() == 20
     assert api_client.get("/api/review-phrases").json()[0]["id"] == phrase.id
@@ -309,17 +309,17 @@ def test_first_try_success_is_easy_and_due_phrase_returns_with_longer_interval(
     phrase = ReviewPhrase(
         source_ru="Где находится вокзал?",
         source_normalized="где находится вокзал",
-        intended_sr_variants_json=["Gde se nalazi stanica?"],
+        intended_tr_variants_json=["Gde se nalazi stanica?"],
     )
     db_session.add(phrase)
     db_session.commit()
     service = ReviewService(db_session, FakeAIProvider())
-    started_at = datetime(2026, 9, 20, 10, tzinfo=timezone.utc)
+    started_at = datetime(2026, 9, 20, 10, tzinfo=UTC)
 
     for minute in (0, 1, 2):
         service.record_attempt(
             source_ru=phrase.source_ru,
-            intended_sr_variants=phrase.intended_sr_variants_json,
+            intended_tr_variants=phrase.intended_tr_variants_json,
             word_hints=[], targeted_skill_keys=[], score=0.95, hinted_words=[],
             review_phrase_id=phrase.id, now=started_at + timedelta(minutes=minute),
         )
@@ -336,7 +336,7 @@ def test_first_try_success_is_easy_and_due_phrase_returns_with_longer_interval(
     for minute in (3, 4, 5):
         service.record_attempt(
             source_ru=phrase.source_ru,
-            intended_sr_variants=phrase.intended_sr_variants_json,
+            intended_tr_variants=phrase.intended_tr_variants_json,
             word_hints=[], targeted_skill_keys=[], score=1.0, hinted_words=[],
             review_phrase_id=phrase.id, now=started_at + timedelta(minutes=minute),
         )
@@ -349,7 +349,7 @@ def test_two_errors_make_phrase_hard(db_session: Session) -> None:
     phrase = ReviewPhrase(
         source_ru="Мне нужен билет.",
         source_normalized="мне нужен билет",
-        intended_sr_variants_json=["Treba mi karta."],
+        intended_tr_variants_json=["Treba mi karta."],
     )
     db_session.add(phrase)
     db_session.commit()
@@ -358,7 +358,7 @@ def test_two_errors_make_phrase_hard(db_session: Session) -> None:
     for score in (0.4, 0.8, 0.95, 1.0, 0.95):
         service.record_attempt(
             source_ru=phrase.source_ru,
-            intended_sr_variants=phrase.intended_sr_variants_json,
+            intended_tr_variants=phrase.intended_tr_variants_json,
             word_hints=[], targeted_skill_keys=[], score=score, hinted_words=[],
             review_phrase_id=phrase.id,
         )

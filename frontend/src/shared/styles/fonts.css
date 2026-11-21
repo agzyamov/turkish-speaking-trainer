@@ -1,0 +1,4 @@
+/* Display face for phrases: Alegreya Sans covers Cyrillic, Latin and Turkish (ç ğ ı İ ö ş ü). */
+@import "@fontsource/alegreya-sans/400.css";
+@import "@fontsource/alegreya-sans/500.css";
+@import "@fontsource/alegreya-sans/700.css";

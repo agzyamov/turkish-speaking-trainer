@@ -8,7 +8,7 @@ from app.schemas.exercises import BilingualPhrasePreparation, SourceVersions, Wo
 from app.services.ai_adapter import AIServiceError, StructuredAIProvider
 from app.services.hint_alignment import aligned_word_hints
 from app.services.interface_language import interface_language
-from app.services.word_hints import preset_english_source, english_word_hints
+from app.services.word_hints import english_word_hints, preset_english_source
 
 
 class SourceLanguageUnavailableError(RuntimeError):
@@ -24,13 +24,13 @@ def preparation_versions(ai: StructuredAIProvider, source: str, canonical: str |
     if not ai.is_available:
         raise SourceLanguageUnavailableError
     try:
-        candidate = ai.prepare_phrase(source_ru=source, canonical_sr=canonical)
+        candidate = ai.prepare_phrase(source_ru=source, canonical_tr=canonical)
         result = BilingualPhrasePreparation.model_validate(candidate.model_dump() if hasattr(candidate, 'model_dump') else candidate)
-        if canonical and next(iter(result.intended_sr_variants), '') != canonical:
+        if canonical and next(iter(result.intended_tr_variants), '') != canonical:
             raise SourceLanguageUnavailableError
         if source not in (result.source_versions.ru, result.source_versions.en):
             raise SourceLanguageUnavailableError
-        canonical = canonical or next(iter(result.intended_sr_variants), '')
+        canonical = canonical or next(iter(result.intended_tr_variants), '')
         for language in ('ru', 'en'):
             hints = getattr(result.source_versions, 'hints_' + language)
             setattr(result.source_versions, 'hints_' + language, [WordHint.model_validate(item) for item in aligned_word_hints(
@@ -41,11 +41,11 @@ def preparation_versions(ai: StructuredAIProvider, source: str, canonical: str |
 
 
 def version_payload(source: str, canonical: str, versions: SourceVersions) -> dict:
-    return {'source': source, 'canonical_sr': canonical, 'versions': versions.model_dump()}
+    return {'source': source, 'canonical_tr': canonical, 'versions': versions.model_dump()}
 
 
 def read_versions(payload: dict, source: str, canonical: str) -> SourceVersions | None:
-    if payload.get('source') != source or payload.get('canonical_sr') != canonical:
+    if payload.get('source') != source or payload.get('canonical_tr') != canonical:
         return None
     try:
         return SourceVersions.model_validate(payload['versions'])
@@ -54,7 +54,7 @@ def read_versions(payload: dict, source: str, canonical: str) -> SourceVersions 
 
 
 def exercise_versions(exercise: Exercise) -> SourceVersions | None:
-    canonical = exercise.target_hints_json.get('canonical_sr') or next(iter(exercise.target_hints_json.get('intended_sr_variants', [])), '')
+    canonical = exercise.target_hints_json.get('canonical_tr') or next(iter(exercise.target_hints_json.get('intended_tr_variants', [])), '')
     cached = read_versions(exercise.target_hints_json.get('source_versions', {}), exercise.source_ru, canonical)
     if cached is not None:
         return cached
@@ -85,7 +85,7 @@ class SourceLanguageService:
         if versions is not None:
             return versions
         phrase = self.repo.exercise_phrase(exercise)
-        canonical = exercise.target_hints_json.get('canonical_sr') or next(iter(exercise.target_hints_json.get('intended_sr_variants', [])), '')
+        canonical = exercise.target_hints_json.get('canonical_tr') or next(iter(exercise.target_hints_json.get('intended_tr_variants', [])), '')
         if phrase is not None:
             versions = read_versions(phrase.source_versions_json or {}, exercise.source_ru, canonical)
         if versions is None:

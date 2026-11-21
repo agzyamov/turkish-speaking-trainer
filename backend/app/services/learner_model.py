@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
 from sqlalchemy.orm import Session
 
@@ -73,7 +73,7 @@ class LearnerModelService:
         context_novelty: float,
         now: datetime | None = None,
     ) -> list[LearnerSkillUpdate]:
-        current_time = now or datetime.now(timezone.utc)
+        current_time = now or datetime.now(UTC)
         issues_by_key: dict[str, float] = {}
         for issue in analysis.issues:
             if issue.skill_key is None:

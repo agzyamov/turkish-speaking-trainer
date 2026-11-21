@@ -1,0 +1,84 @@
+/*
+ * Design tokens (C-21). Components use these through Tailwind utilities
+ * (bg-surface, text-ink-muted, rounded-card, ...) and never hardcode values.
+ *
+ * World: an Istanbul tea house in the evening. Strong-tea ground, walnut
+ * surfaces, porcelain ink, tea held to the light as the accent, the tulip
+ * glass's gold rim for rewards, leaf green for success, Bosphorus blue for
+ * calm information. Recorded in DESIGN.md once the first surface ships.
+ */
+@theme {
+  --font-sans: system-ui, "Segoe UI", Roboto, Arial, sans-serif;
+  --font-display: "Alegreya Sans", system-ui, "Segoe UI", sans-serif;
+
+  --color-canvas: #120e0b;
+  --color-surface: #1d1712;
+  --color-surface-raised: #271f18;
+  --color-selected: rgb(227 137 58 / 0.16);
+
+  --color-ink: #f5ede3;
+  --color-ink-soft: #dccdbb;
+  --color-ink-muted: #a9967f;
+
+  --color-line: rgb(236 200 158 / 0.16);
+  --color-line-strong: #c98a4b;
+
+  --color-accent: #e3893a;
+  --color-accent-bright: #f2a35a;
+  --color-accent-ink: #1b0f05;
+  --color-focus: #ffcf8a;
+
+  --color-success: #86c9a0;
+  --color-reward: #e6b94f;
+  --color-danger: #f07a6a;
+  --color-info: #8cb8d8;
+
+  /* Google sign-in button: Google's brand surface, not part of the tea-house palette. */
+  --color-google: #ffffff;
+  --color-google-ink: #26352d;
+  --color-google-line: #d5ddd8;
+
+  --container-settings: 980px;
+  /* Desktop workspace: topics column plus practice column. */
+  --container-workspace: 1020px;
+  --spacing-gutter: clamp(1rem, 1.4vw, 1.5rem);
+  --spacing-workspace-gap: clamp(0.85rem, 1.4vw, 1.5rem);
+
+  /* Phone header bar height (without the status-bar inset); the panel pager is sized from it. */
+  --spacing-phone-header: 58px;
+
+  --radius-control: 10px;
+  --radius-card: 16px;
+
+  --text-phrase: 1.875rem;
+  --text-phrase--line-height: 1.22;
+  --text-phrase-lg: 2.25rem;
+  --text-phrase-lg--line-height: 1.2;
+  --text-answer: 1.25rem;
+  --text-answer--line-height: 1.45;
+  --text-title: 2rem;
+  --text-title--line-height: 1.2;
+  --text-title-compact: 1.55rem;
+  --text-title-compact--line-height: 1.2;
+  --text-caption: 0.8rem;
+  --text-caption--line-height: 1.5;
+  --text-day-count: clamp(1.2rem, 2.8vw, 2rem);
+  --text-day-count--line-height: 1;
+  --text-micro: 0.65rem;
+  --text-micro--line-height: 1.3;
+
+  --shadow-lift: 0 6px 18px rgb(0 0 0 / 0.38);
+
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --duration-quick: 150ms;
+  --duration-fill: 700ms;
+
+  /* The perfect-answer reward: the tulip glass's gold rim drawn once around the score. */
+  --animate-reward-ring: reward-ring 1.4s var(--ease-out-expo) both;
+  @keyframes reward-ring {
+    0% { opacity: 0; transform: scale(0.7); }
+    35% { opacity: 1; transform: scale(1); }
+    100% { opacity: 0; transform: scale(1.18); }
+  }
+}

@@ -1,12 +1,12 @@
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 
+from app.api.dependencies import get_current_user
 from app.db import get_db
+from app.models import User
 from app.schemas import MonthlyStatisticsResponse, PhraseStatisticsResponse
 from app.schemas.statistics import PhraseStatisticsTopic
 from app.services.statistics_service import StatisticsService
-from app.api.dependencies import get_current_user
-from app.models import User
 
 router = APIRouter(prefix="/statistics", tags=["statistics"])
 

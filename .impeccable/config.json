@@ -1,0 +1,17 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "dark-glow",
+        "value": "*",
+        "files": [
+          "frontend/dist-e2e/landing.html"
+        ],
+        "createdAt": "2026-11-21T02:05:30.565Z",
+        "reason": "agent: generated e2e build output (gitignored); the glow source is frontend/src/landing.css, scheduled for the Phase 5 landing redesign"
+      }
+    ]
+  }
+}

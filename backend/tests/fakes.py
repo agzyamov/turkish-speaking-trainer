@@ -50,7 +50,7 @@ class FakeAIProvider:
     def prepare_phrase(self, **_kwargs) -> PhrasePreparation:
         from app.schemas.exercises import SourceVersions
         source = _kwargs['source_ru']
-        result = self.phrase_result or PhrasePreparation(intended_sr_variants=[_kwargs.get('canonical_sr') or 'Moja fraza.'])
+        result = self.phrase_result or PhrasePreparation(intended_tr_variants=[_kwargs.get('canonical_tr') or 'Moja fraza.'])
         if result.source_versions is not None:
             return result
         ru = any('а' <= ch.lower() <= 'я' or ch.lower() == 'ё' for ch in source)
@@ -72,6 +72,15 @@ class FakeTranscriptionProvider:
     def transcribe(self, *, audio: bytes, filename: str, content_type: str) -> TranscriptionResponse:
         self.calls.append({"audio": audio, "filename": filename, "content_type": content_type})
         return TranscriptionResponse(text=self.text)
+
+    def transcribe_feedback(self, *, audio: bytes, filename: str, content_type: str):
+        from app.schemas.feedback import FeedbackTranscript
+        self.calls.append({"audio": audio, "filename": filename, "content_type": content_type, "feedback": True})
+        return FeedbackTranscript(text=self.text)
+
+    def for_model(self, model: str) -> "FakeTranscriptionProvider":
+        self.model = model
+        return self
 
 
 class FakeTranscriptionAssistanceProvider:
@@ -98,7 +107,7 @@ def create_custom_phrase(client, body):
         topic_id = client.post("/api/topics", json={"title_ru": "Личные фразы"}).json()["id"]
     previous = app.dependency_overrides[get_ai_provider]
     app.dependency_overrides[get_ai_provider] = lambda: FakeAIProvider(
-        available=True, phrase_result=PhrasePreparation(intended_sr_variants=[body["canonical_sr"]], word_hints=[]),
+        available=True, phrase_result=PhrasePreparation(intended_tr_variants=[body["canonical_tr"]], word_hints=[]),
     )
     try:
         prepared = client.post("/api/review-phrases/prepare", json={"source_ru": body["source_ru"]})

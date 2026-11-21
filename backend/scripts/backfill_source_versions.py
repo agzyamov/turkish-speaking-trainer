@@ -23,10 +23,11 @@ def main():
             if values.get(key):
                 os.environ[key] = values[key]
     from sqlalchemy.orm import Session
+
     from app.db.session import engine
     from app.repositories.source_versions import SourceVersionRepository
     from app.services.ai_adapter import get_ai_provider
-    from app.services.source_versions import read_versions, preparation_versions, version_payload, SourceLanguageUnavailableError
+    from app.services.source_versions import SourceLanguageUnavailableError, preparation_versions, read_versions, version_payload
 
     with Session(engine) as db:
         repo = SourceVersionRepository(db, '')

@@ -1,12 +1,11 @@
 """Choose independent hint dictionaries without changing canonical exercise data."""
 from app.db.topic_phrase_hints_en import ENGLISH_WORD_HINTS
-from app.db.topic_phrases_en import TOPIC_PHRASES_EN
 from app.db.topic_phrases import TOPIC_PHRASES
-from app.services.interface_language import interface_language
+from app.db.topic_phrases_en import TOPIC_PHRASES_EN
 from app.services.hint_alignment import aligned_word_hints, words
+from app.services.interface_language import interface_language
 
-
-_CANONICAL_BY_SOURCE = {p.source_ru: p.canonical_sr for p in TOPIC_PHRASES}
+_CANONICAL_BY_SOURCE = {p.source_ru: p.canonical_tr for p in TOPIC_PHRASES}
 
 
 def preset_english_source(source: str, canonical: str) -> str | None:
@@ -21,7 +20,7 @@ def english_word_hints(source: str, canonical: str | None = None) -> list[dict[s
     if hints is None:
         return None
     # Legacy API field names support both source languages.
-    return [{"word_ru": word, "translation_sr": translation} for word, translation in hints.items()]
+    return [{"word_ru": word, "translation_tr": translation} for word, translation in hints.items()]
 
 
 def word_hints_for_language(source: str, stored: list[dict[str, str]], canonical: str | None = None) -> list[dict[str, str]]:

@@ -21,7 +21,6 @@ from typing import Any
 
 import jwt
 import uvicorn
-from alembic import command
 from alembic.script import ScriptDirectory
 from fastapi import FastAPI, Header, HTTPException, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
@@ -29,6 +28,8 @@ from fastapi.responses import JSONResponse
 from pydantic import BaseModel, ValidationError
 from sqlalchemy import inspect, text
 from sqlalchemy.engine import Engine
+
+from alembic import command
 
 ROOT = Path(__file__).resolve().parents[2]
 BACKEND = ROOT / "backend"
@@ -230,9 +231,9 @@ def create_deterministic_analysis_provider():
             self,
             *,
             source_ru: str,
-            transcript_sr: str,
-            canonical_sr: str | None,
-            intended_sr_variants: list[str],
+            transcript_tr: str,
+            canonical_tr: str | None,
+            intended_tr_variants: list[str],
             target_skills: list[dict[str, str]],
             timings: dict[str, object],
         ) -> AnswerAnalysis:
@@ -250,13 +251,13 @@ def create_deterministic_analysis_provider():
                 naturalness_score=1.0,
                 pronunciation_score=None,
                 fluency_score=1.0,
-                corrected_sr=canonical_sr or transcript_sr,
+                corrected_tr=canonical_tr or transcript_tr,
                 short_feedback_ru="Локальный тестовый анализ: ответ принят.",
                 detailed_feedback_ru=(
                     "Оценки синтетические и предназначены только для проверки полного цикла; "
                     "языковая корректность ответа не оценивалась."
                 ),
-                accepted_alternatives=list(dict.fromkeys(intended_sr_variants))[:8],
+                accepted_alternatives=list(dict.fromkeys(intended_tr_variants))[:8],
                 issues=[],
                 demonstrated_skills=[
                     DemonstratedSkill(skill_key=key, result="strong", confidence=1.0)
@@ -328,7 +329,13 @@ def bootstrap_testlab_database(engine: Engine) -> None:
 
     del _entities
     current = _metadata_shape(Base.metadata)
-    pre_bilingual = {name: frozenset(columns - {"source_versions_json"}) if name == "review_phrases" else columns for name, columns in current.items()}
+    serbian_names = {"attempts": ("transcript_tr", "transcript_sr"), "topic_phrases": ("canonical_tr", "canonical_sr"),
+                     "review_phrases": ("intended_tr_variants_json", "intended_sr_variants_json"),
+                     "word_learning_items": ("translation_tr", "translation_sr")}
+    pre_turkish_columns = {name: frozenset(columns - {serbian_names[name][0]} | {serbian_names[name][1]}) if name in serbian_names else columns
+                           for name, columns in current.items()}
+    pre_usage_ledger = {name: columns for name, columns in pre_turkish_columns.items() if name != "ai_usage_events"}
+    pre_bilingual = {name: frozenset(columns - {"source_versions_json"}) if name == "review_phrases" else columns for name, columns in pre_usage_ledger.items()}
     pre_android = {name: frozenset(columns - {"android_premium_granted_at"}) if name == "users" else columns for name, columns in pre_bilingual.items() if name != "deleted_account_markers"}
     pre_payments = {name: frozenset(columns - {"premium_payment_id"}) if name == "users" else columns for name, columns in pre_android.items() if name != "payment_requests"}
     pre_title_translation = {name: set(columns) for name, columns in pre_payments.items()}
@@ -371,6 +378,18 @@ def bootstrap_testlab_database(engine: Engine) -> None:
             _alembic(engine, "stamp", head)
         elif stamped_revision != head:
             raise RuntimeError("Refusing current-shaped testlab database with an unexpected Alembic revision")
+        return
+
+    if shape == pre_turkish_columns:
+        if stamped_revision != "a71c0de5b2f1":
+            raise RuntimeError("Refusing pre-Turkish-columns schema with unexpected Alembic revision")
+        _alembic(engine, "upgrade", "head")
+        return
+
+    if shape == pre_usage_ledger:
+        if stamped_revision != "f0e065fafe11":
+            raise RuntimeError("Refusing pre-usage-ledger schema with unexpected Alembic revision")
+        _alembic(engine, "upgrade", "head")
         return
 
     if shape == pre_bilingual:
@@ -463,9 +482,9 @@ def create_api_app() -> FastAPI:
     from app.db.seed import seed_catalog
     from app.db.session import SessionLocal, engine
     from app.main import app
+    from app.schemas import TranscriptionResponse
     from app.services.ai_adapter import get_ai_provider
     from app.services.transcription_adapter import get_transcription_provider
-    from app.schemas import TranscriptionResponse
 
     bootstrap_testlab_database(engine)
     with SessionLocal() as session:
@@ -481,7 +500,7 @@ def create_api_app() -> FastAPI:
         def transcribe(self, *, audio: bytes, filename: str, content_type: str) -> TranscriptionResponse:
             # Accept multipart browser payloads but keep no copy/reference once returned.
             del audio, filename, content_type
-            return TranscriptionResponse(text="Radim kao računovođa u maloj firmi.")
+            return TranscriptionResponse(text="Küçük bir şirkette muhasebeci olarak çalışıyorum.")
 
     transcription = LocalFakeTranscriptionProvider()
 

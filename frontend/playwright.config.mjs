@@ -20,15 +20,18 @@ export default defineConfig({
     screenshot: "off",
     video: "off",
   },
-  webServer: live ? undefined : {
-    command: "node node_modules/vite/bin/vite.js build --mode e2e --outDir dist-e2e && node node_modules/vite/bin/vite.js preview --host 127.0.0.1 --port 5179 --strictPort --outDir dist-e2e",
-    url: "http://127.0.0.1:5179/",
-    reuseExistingServer: false,
-    timeout: 60_000,
-    env: {
-      VITE_API_BASE_URL: "",
-      VITE_SUPABASE_URL: "https://e2e-auth.supabase.co",
-      VITE_SUPABASE_PUBLISHABLE_KEY: "e2e-public-key",
-    },
-  },
+  webServer: live
+    ? undefined
+    : {
+        command: "node node_modules/vite/bin/vite.js build --mode e2e --outDir dist-e2e && node node_modules/vite/bin/vite.js preview --host 127.0.0.1 --port 5179 --strictPort --outDir dist-e2e",
+        url: "http://127.0.0.1:5179/",
+        reuseExistingServer: false,
+        timeout: 60_000,
+        env: {
+          VITE_API_BASE_URL: "",
+          VITE_SUPABASE_URL: "https://e2e-auth.supabase.co",
+          VITE_SUPABASE_PUBLISHABLE_KEY: "e2e-public-key",
+          VITE_PUBLIC_APP_URL: "https://turktalk.example/",
+        },
+      },
 });

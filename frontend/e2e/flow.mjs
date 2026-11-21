@@ -8,10 +8,14 @@ export async function installSyntheticMicrophone(page) {
       value: { getUserMedia: async () => ({ getTracks: () => [fakeTrack] }) },
     });
     class SyntheticRecorder extends EventTarget {
-      static isTypeSupported() { return true; }
+      static isTypeSupported() {
+        return true;
+      }
       state = "inactive";
       mimeType = "audio/webm";
-      start() { this.state = "recording"; }
+      start() {
+        this.state = "recording";
+      }
       stop() {
         this.state = "inactive";
         // This is synthetic test data held in memory only; no user audio exists.
@@ -23,7 +27,19 @@ export async function installSyntheticMicrophone(page) {
   });
 }
 
-export async function runPracticeFlow(page, { topic, transcript, firstPhrase, expectedScore, native = false, afterEdit = async () => undefined, activateButton = async (name) => page.getByRole("button", { name }).click(), onStage = () => undefined }) {
+export async function runPracticeFlow(
+  page,
+  {
+    topic,
+    transcript,
+    firstPhrase,
+    expectedScore,
+    native = false,
+    afterEdit = async () => undefined,
+    activateButton = async name => page.getByRole("button", { name }).click(),
+    onStage = () => undefined,
+  },
+) {
   onStage("topic");
   await expect(page.getByRole("button", { name: topic }).first()).toBeVisible();
   await page.getByRole("button", { name: topic }).first().click();
@@ -52,7 +68,7 @@ export async function runPracticeFlow(page, { topic, transcript, firstPhrase, ex
   await expect(phrase).toBeVisible();
   await expect(phrase).not.toHaveAttribute("aria-label", previousPhrase);
   await expect(phrase).toBeInViewport();
-  await page.waitForFunction(() => performance.getEntriesByName("serbotalk:ui:next_phrase", "measure").length > 0);
+  await page.waitForFunction(() => performance.getEntriesByName("turktalk:ui:next_phrase", "measure").length > 0);
 }
 
 export async function loginTestlab(page, loginUrl = "/testlab.html") {
@@ -62,7 +78,7 @@ export async function loginTestlab(page, loginUrl = "/testlab.html") {
   if (loginUrl === null) await page.waitForURL(/\/testlab\.html(?:\?|$)/);
   else await page.goto(loginUrl);
   await page.getByLabel("Email").fill(email);
-  await page.evaluate((value) => {
+  await page.evaluate(value => {
     const input = document.querySelector('input[name="password"]');
     if (!(input instanceof HTMLInputElement)) throw new Error("Testlab password field is unavailable");
     input.value = value;

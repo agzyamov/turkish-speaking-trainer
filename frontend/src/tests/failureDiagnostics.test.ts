@@ -4,7 +4,10 @@ import { authenticatedFetch } from "../auth";
 import { fetchReviewSummary, BackendError } from "../api/training";
 import { failureOf, parseFailure } from "../api/failureDiagnostics";
 
-afterEach(() => { vi.resetAllMocks(); vi.unstubAllGlobals(); });
+afterEach(() => {
+  vi.resetAllMocks();
+  vi.unstubAllGlobals();
+});
 
 it.each(["external_model", "response_parse", "response_return"])("keeps safe %s details and request correlation", async kind => {
   const id = "49d2c9b9-5978-402b-90d6-3822f88d1ae2";
@@ -31,5 +34,7 @@ it("labels a network failure without assuming the external model failed", async 
 
 it("rejects untrusted diagnostic objects instead of rendering arbitrary provider data", () => {
   expect(parseFailure({ kind: "PRIVATE", diagnostic_id: "unsafe" })).toBeUndefined();
-  expect(parseFailure({ kind: "external_model", stage: "PRIVATE message with credentials", reason: "timeout", retryable: true, diagnostic_id: "49d2c9b9-5978-402b-90d6-3822f88d1ae2" })).toBeUndefined();
+  expect(
+    parseFailure({ kind: "external_model", stage: "PRIVATE message with credentials", reason: "timeout", retryable: true, diagnostic_id: "49d2c9b9-5978-402b-90d6-3822f88d1ae2" }),
+  ).toBeUndefined();
 });

@@ -1,15 +1,14 @@
 from __future__ import annotations
 
 from difflib import SequenceMatcher
-from app.services.failure_diagnostics import DiagnosticFailure, diagnostic, classify_provider_error, record_failure
 
 from app.config import Settings, get_settings
 from app.db.topic_phrases_en import TOPIC_PHRASES_EN
 from app.schemas import AnswerAnalysis, AnswerIssue, CreateAttemptRequest, DemonstratedSkill
 from app.services.ai_adapter import AIServiceError, StructuredAIProvider
-from app.services.serbian_text import normalized_serbian_words, serbian_latin_for_evaluation
+from app.services.failure_diagnostics import DiagnosticFailure, classify_provider_error, diagnostic, record_failure
 from app.services.interface_language import interface_language
-from app.services.serbian_standard import is_ekavian_candidate, validate_generated_serbian
+from app.services.turkish_text import latin_for_evaluation, normalized_words, validate_generated_target
 
 
 class AnalysisUnavailableError(DiagnosticFailure):
@@ -26,22 +25,17 @@ class AnswerAnalyzer:
         self,
         *,
         source_ru: str,
-        transcript_sr: str,
-        intended_sr_variants: list[str],
+        transcript_tr: str,
+        intended_tr_variants: list[str],
         target_skills: list[dict[str, str]],
         timing: CreateAttemptRequest,
-        canonical_sr: str | None = None,
+        canonical_tr: str | None = None,
     ) -> AnswerAnalysis:
         target_keys = list(dict.fromkeys(skill["key"] for skill in target_skills))
-        # A stale dialect-contaminated snapshot must not become a perfect-answer
-        # shortcut or be reapplied after the model returns an Ekavian correction.
-        if canonical_sr and not is_ekavian_candidate(canonical_sr):
-            canonical_sr = None
-        intended_sr_variants = [variant for variant in intended_sr_variants if is_ekavian_candidate(variant)]
         acceptable_variants = list(dict.fromkeys([
-            *([canonical_sr] if canonical_sr else []), *intended_sr_variants,
+            *([canonical_tr] if canonical_tr else []), *intended_tr_variants,
         ]))
-        normalized_transcript = self._normalize(transcript_sr)
+        normalized_transcript = self._normalize(transcript_tr)
         exact_variant = next(
             (
                 variant
@@ -50,12 +44,12 @@ class AnswerAnalyzer:
             ),
             None,
         )
-        if exact_variant is not None and is_ekavian_candidate(exact_variant):
+        if exact_variant is not None:
             return self._exact_match(exact_variant, acceptable_variants, target_keys, timing)
 
         if not self.ai.is_available:
             raise AnalysisUnavailableError(diagnostic("external_model", "configuration", "not_configured", retryable=False))
-        evaluation_transcript = serbian_latin_for_evaluation(transcript_sr)
+        evaluation_transcript = latin_for_evaluation(transcript_tr)
         # A structured response can still contradict the words that were actually transcribed.
         # Retry once before any score or learner-model update can be persisted.
         validation_feedback = None
@@ -65,20 +59,18 @@ class AnswerAnalyzer:
                     self.ai.analyze_answer(
                         source_ru=(TOPIC_PHRASES_EN.get(source_ru, source_ru)
                                    if interface_language.get() == "en" else source_ru),
-                        transcript_sr=evaluation_transcript,
-                        canonical_sr=canonical_sr,
-                        intended_sr_variants=acceptable_variants,
+                        transcript_tr=evaluation_transcript,
+                        canonical_tr=canonical_tr,
+                        intended_tr_variants=acceptable_variants,
                         target_skills=target_skills,
                         timings=self._timing_payload(timing),
                         **({"validation_feedback": validation_feedback} if validation_feedback else {}),
                     )
                 )
-                validate_generated_serbian(analysis)
+                validate_generated_target(analysis)
             except (AIServiceError, ValueError) as exc:
                 raise AnalysisUnavailableError(exc.failure if isinstance(exc, DiagnosticFailure) else classify_provider_error(exc)) from exc
             validation_feedback = self._grounding_failure(analysis, evaluation_transcript, target_keys)
-            if validation_feedback is None and analysis.verdict == "correct" and not is_ekavian_candidate(evaluation_transcript):
-                validation_feedback = "dialect_verdict"
             if validation_feedback is None:
                 break
             failure = diagnostic("response_parse", "grounding", validation_feedback)
@@ -104,16 +96,16 @@ class AnswerAnalyzer:
                 "demonstrated_skills": demonstrated,
             }
         )
-        analysis = self._align_with_canonical(analysis, canonical_sr)
-        return self._ground_token_feedback(analysis, canonical_sr)
+        analysis = self._align_with_canonical(analysis, canonical_tr)
+        return self._ground_token_feedback(analysis, canonical_tr)
 
     @classmethod
-    def _response_is_grounded(cls, analysis: AnswerAnalysis, transcript_sr: str, target_keys: list[str]) -> bool:
-        return cls._grounding_failure(analysis, transcript_sr, target_keys) is None
+    def _response_is_grounded(cls, analysis: AnswerAnalysis, transcript_tr: str, target_keys: list[str]) -> bool:
+        return cls._grounding_failure(analysis, transcript_tr, target_keys) is None
 
     @classmethod
-    def _grounding_failure(cls, analysis: AnswerAnalysis, transcript_sr: str, target_keys: list[str]) -> str | None:
-        transcript_words = f" {cls._normalize(transcript_sr)} "
+    def _grounding_failure(cls, analysis: AnswerAnalysis, transcript_tr: str, target_keys: list[str]) -> str | None:
+        transcript_words = f" {cls._normalize(transcript_tr)} "
         for issue in analysis.issues:
             evidence = cls._normalize(issue.evidence)
             if issue.skill_key is not None and issue.skill_key not in target_keys:
@@ -132,15 +124,15 @@ class AnswerAnalyzer:
 
     @classmethod
     def _ground_token_feedback(
-        cls, analysis: AnswerAnalysis, canonical_sr: str | None,
+        cls, analysis: AnswerAnalysis, canonical_tr: str | None,
     ) -> AnswerAnalysis:
-        if not canonical_sr or not analysis.issues:
+        if not canonical_tr or not analysis.issues:
             return analysis
         local_word_correction = any(
             issue.correction is not None
             and " " not in (evidence := cls._normalize(issue.evidence))
             and " " not in (correction := cls._normalize(issue.correction))
-            and f" {correction} " in f" {cls._normalize(canonical_sr)} "
+            and f" {correction} " in f" {cls._normalize(canonical_tr)} "
             and SequenceMatcher(None, evidence, correction).ratio() >= 0.8
             for issue in analysis.issues
         )
@@ -181,12 +173,12 @@ class AnswerAnalyzer:
     def _align_with_canonical(
         cls,
         analysis: AnswerAnalysis,
-        canonical_sr: str | None,
+        canonical_tr: str | None,
     ) -> AnswerAnalysis:
-        if not canonical_sr:
+        if not canonical_tr:
             return analysis
-        if cls._normalize(analysis.corrected_sr) == cls._normalize(canonical_sr):
-            return analysis.model_copy(update={"corrected_sr": canonical_sr})
+        if cls._normalize(analysis.corrected_tr) == cls._normalize(canonical_tr):
+            return analysis.model_copy(update={"corrected_tr": canonical_tr})
 
         feedback = {
             "correct": "Ответ корректен; ниже показан канонический вариант.",
@@ -195,15 +187,15 @@ class AnswerAnalyzer:
         }[analysis.verdict]
         detail = {
             "correct": (
-                f"Ответ передаёт нужный смысл. Канонический вариант «{canonical_sr}» "
+                f"Ответ передаёт нужный смысл. Канонический вариант «{canonical_tr}» "
                 "корректен и естественен в этом контексте."
             ),
             "mostly_correct": (
-                f"Основной смысл передан. Канонический вариант «{canonical_sr}» "
+                f"Основной смысл передан. Канонический вариант «{canonical_tr}» "
                 "корректен и естественен; конкретные замечания к ответу перечислены ниже."
             ),
             "needs_work": (
-                f"Канонический вариант «{canonical_sr}» корректен и естественен. "
+                f"Канонический вариант «{canonical_tr}» корректен и естественен. "
                 "Исправьте ответ с учётом замечаний ниже."
             ),
         }[analysis.verdict]
@@ -214,13 +206,13 @@ class AnswerAnalyzer:
                 "needs_work": "Compare your answer with the canonical translation and comments below.",
             }[analysis.verdict]
             detail = {
-                "correct": f'Your answer conveys the intended meaning. The canonical translation “{canonical_sr}” is correct and natural in this context.',
-                "mostly_correct": f'The main meaning is conveyed. The canonical translation “{canonical_sr}” is correct and natural; specific comments are listed below.',
-                "needs_work": f'The canonical translation “{canonical_sr}” is correct and natural. Edit your answer using the comments below.',
+                "correct": f'Your answer conveys the intended meaning. The canonical translation “{canonical_tr}” is correct and natural in this context.',
+                "mostly_correct": f'The main meaning is conveyed. The canonical translation “{canonical_tr}” is correct and natural; specific comments are listed below.',
+                "needs_work": f'The canonical translation “{canonical_tr}” is correct and natural. Edit your answer using the comments below.',
             }[analysis.verdict]
         return analysis.model_copy(
             update={
-                "corrected_sr": canonical_sr,
+                "corrected_tr": canonical_tr,
                 "short_feedback_ru": feedback,
                 "detailed_feedback_ru": detail,
             }
@@ -242,7 +234,7 @@ class AnswerAnalyzer:
             naturalness_score=1.0,
             pronunciation_score=None,
             fluency_score=fluency,
-            corrected_sr=matched_variant,
+            corrected_tr=matched_variant,
             short_feedback_ru=("Your answer exactly matches a natural reference translation." if interface_language.get() == "en"
                                else "Ответ полностью совпадает с естественным эталонным вариантом."),
             detailed_feedback_ru=(
@@ -299,8 +291,8 @@ class AnswerAnalyzer:
                 naturalness_score=0.5,
                 pronunciation_score=None,
                 fluency_score=1.0,
-                corrected_sr=transcript,
-                short_feedback_ru="Для точной проверки этой добавленной фразы требуется подключение OpenAI.",
+                corrected_tr=transcript,
+                short_feedback_ru="Для точной проверки этой добавленной фразы требуется подключение к сервису проверки.",
                 detailed_feedback_ru="Фраза сохранена для повторения, но локальный режим не может надёжно построить эталонный перевод для произвольного текста.",
                 accepted_alternatives=[],
                 issues=[],
@@ -324,7 +316,7 @@ class AnswerAnalyzer:
             verdict, feedback, detail, result = (
                 "mostly_correct",
                 "Смысл понятен, но формулировку стоит сделать точнее.",
-                "Локальная проверка видит частичное совпадение. Для надёжной семантической оценки подключите OpenAI.",
+                "Локальная проверка видит частичное совпадение. Для надёжной семантической оценки нужен сервис проверки.",
                 "weak",
             )
         else:
@@ -355,7 +347,7 @@ class AnswerAnalyzer:
             naturalness_score=score,
             pronunciation_score=None,
             fluency_score=1.0,
-            corrected_sr=best,
+            corrected_tr=best,
             short_feedback_ru=feedback,
             detailed_feedback_ru=detail,
             accepted_alternatives=usable_alternatives,
@@ -377,4 +369,4 @@ class AnswerAnalyzer:
 
     @staticmethod
     def _normalize(value: str) -> str:
-        return normalized_serbian_words(value)
+        return normalized_words(value)

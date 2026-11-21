@@ -10,7 +10,12 @@ beforeEach(() => {
   auth.onAuthStateChange.mockReturnValue(vi.fn());
   auth.isAuthConfigured.mockReturnValue(true);
 });
-afterEach(() => { cleanup(); vi.resetAllMocks(); setLanguage("ru"); localStorage.clear(); });
+afterEach(() => {
+  cleanup();
+  vi.resetAllMocks();
+  setLanguage("ru");
+  localStorage.clear();
+});
 
 it.each(["ru", "en"] as const)("offers embedded sign-in with busy and safe retry states in %s", async language => {
   setLanguage(language);

@@ -14,10 +14,16 @@ vi.mock("../voiceRecorder", () => ({
     stop = voice.stop;
   },
 }));
-afterEach(() => { cleanup(); setLanguage("ru"); vi.resetAllMocks(); voice.available = true; });
+afterEach(() => {
+  cleanup();
+  setLanguage("ru");
+  vi.resetAllMocks();
+  voice.available = true;
+});
 
 it.each(["ru", "en"] as const)("edits a voice transcript and submits text only in %s", async language => {
-  setLanguage(language); const en = language === "en";
+  setLanguage(language);
+  const en = language === "en";
   vi.mocked(transcribeFeedback).mockResolvedValue({ text: "Синтетический отзыв" });
   vi.mocked(sendFeedback).mockResolvedValue({ id: "test", created_at: "2026-10-17T10:00:00Z" });
   render(<FeedbackSettings />);
@@ -35,7 +41,8 @@ it.each(["ru", "en"] as const)("edits a voice transcript and submits text only i
 });
 
 it.each(["ru", "en"] as const)("retains text after failed submission and supports retry in %s", async language => {
-  setLanguage(language); const en = language === "en";
+  setLanguage(language);
+  const en = language === "en";
   voice.available = false;
   vi.mocked(sendFeedback).mockRejectedValueOnce(new Error("offline"));
   render(<FeedbackSettings />);
@@ -49,7 +56,12 @@ it.each(["ru", "en"] as const)("retains text after failed submission and support
 
 it("releases microphone on close and ignores a late transcript", async () => {
   let complete!: (value: { text: string }) => void;
-  vi.mocked(transcribeFeedback).mockImplementation(() => new Promise(resolve => { complete = resolve; }));
+  vi.mocked(transcribeFeedback).mockImplementation(
+    () =>
+      new Promise(resolve => {
+        complete = resolve;
+      }),
+  );
   render(<FeedbackSettings />);
   fireEvent.click(screen.getByRole("button"));
   fireEvent.click(screen.getByRole("button", { name: "Записать голосом" }));

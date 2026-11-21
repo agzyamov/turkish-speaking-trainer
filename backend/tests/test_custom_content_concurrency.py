@@ -20,7 +20,7 @@ from tests.fakes import FakeAIProvider
 def test_concurrent_requests_cannot_exceed_owner_quota(tmp_path, kind):
     engine = create_database_engine(f"sqlite+pysqlite:///{(tmp_path / 'race.db').as_posix()}")
     Base.metadata.create_all(engine)
-    ai = FakeAIProvider(available=True, phrase_result=PhrasePreparation(intended_sr_variants=["Moja fraza."]))
+    ai = FakeAIProvider(available=True, phrase_result=PhrasePreparation(intended_tr_variants=["Moja fraza."]))
     user_id = "race-user"
     with Session(engine) as db:
         db.add(User(id=user_id, email="race@example.invalid", role="user", access_tier="free"))
@@ -31,7 +31,7 @@ def test_concurrent_requests_cannot_exceed_owner_quota(tmp_path, kind):
             for i in range(3):
                 service.create_custom(CreateTopicRequest(title_ru=f"Другая тема {i}"))
         else:
-            db.add_all([ReviewPhrase(user_id=user_id, topic_id=topic.id, source_ru=f"Фраза {i}", source_normalized=f"фраза {i}", intended_sr_variants_json=["Moja fraza."]) for i in range(29)])
+            db.add_all([ReviewPhrase(user_id=user_id, topic_id=topic.id, source_ru=f"Фраза {i}", source_normalized=f"фраза {i}", intended_tr_variants_json=["Moja fraza."]) for i in range(29)])
         receipts = [ReviewService(db, ai, user_id).prepare_phrase(PrepareReviewPhraseRequest(source_ru=f"Гонка номер {i}")) for i in range(2)]
         db.commit()
     barrier = Barrier(2)

@@ -2,35 +2,51 @@ import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/re
 import { afterEach, expect, it, vi } from "vitest";
 import { PaymentForm } from "../PaymentForm";
 import { AdminPaymentsView } from "../AdminPaymentsView";
+import { QueryProvider } from "../shared/lib/QueryProvider";
 import { paymentRequest, type Payment, type PaymentOptions } from "../api/payments";
 import { setLanguage } from "../i18n";
 
 vi.mock("../api/payments", () => ({ paymentRequest: vi.fn() }));
 const options: PaymentOptions = {
   activation: { ru: "Тестовый срок", en: "Test timeframe" },
-  countries: { russia: ["sbp", "paypal"], serbia: ["paypal"], other: ["paypal"] },
+  countries: { russia: ["sbp", "paypal"], turkey: ["paypal"], other: ["paypal"] },
   methods: { sbp: { available: true }, alta: { available: true }, paypal: { available: true } },
 };
 const payment: Payment = {
-  id: "synthetic-request", user_id: "synthetic-user", country: "russia", method: "sbp", status: "awaiting_payment",
+  id: "synthetic-request",
+  user_id: "synthetic-user",
+  country: "russia",
+  method: "sbp",
+  status: "awaiting_payment",
   provisional_granted_at: null,
   details: { amount: "500.00", currency: "RUB", recipient: "Synthetic Recipient", phone: "+70000000000", bank: "Synthetic bank", instructions: { ru: "Тестовая инструкция", en: "Test instruction" } },
-  activation: options.activation!, created_at: "2026-10-26T12:00:00Z", paid_at: null, reported_amount: null, transaction_id: null, reviewed_by: null, reviewed_at: null,
+  activation: options.activation!,
+  created_at: "2026-10-26T12:00:00Z",
+  paid_at: null,
+  reported_amount: null,
+  transaction_id: null,
+  reviewed_by: null,
+  reviewed_at: null,
 };
 function mockApi(current?: Payment) {
   vi.mocked(paymentRequest).mockImplementation(async (path, method, body) => {
     if (path === "/payments/options") return options;
     if (path === "/payments" && (!method || method === "GET")) return current ? [current] : [];
-    if (path === "/payments") return { ...payment, ...body as object };
+    if (path === "/payments") return { ...payment, ...(body as object) };
     if (path.endsWith("/cancel")) return { ...payment, status: "cancelled" };
     if (path.endsWith("/report")) return { ...payment, status: "awaiting_review" };
     throw new Error("Unexpected request");
   });
 }
-afterEach(() => { cleanup(); vi.resetAllMocks(); setLanguage("ru"); });
+afterEach(() => {
+  cleanup();
+  vi.resetAllMocks();
+  setLanguage("ru");
+});
 
 it.each(["ru", "en"] as const)("selects explicit country, resets method, copies exact values and reports once (%s)", async language => {
-  setLanguage(language); const ru = language === "ru";
+  setLanguage(language);
+  const ru = language === "ru";
   mockApi();
   const writeText = vi.fn().mockResolvedValue(undefined);
   Object.defineProperty(navigator, "clipboard", { configurable: true, value: { writeText } });
@@ -45,7 +61,7 @@ it.each(["ru", "en"] as const)("selects explicit country, resets method, copies 
   fireEvent.click(screen.getByRole("button", { name: ru ? "Копировать: Телефон получателя" : "Copy: Recipient phone number" }));
   expect(writeText).toHaveBeenCalledWith("+70000000000");
   await screen.findByText(ru ? "Скопировано" : "Copied");
-  fireEvent.change(select, { target: { value: "serbia" } });
+  fireEvent.change(select, { target: { value: "turkey" } });
   await waitFor(() => expect(screen.queryByText("+70000000000")).not.toBeInTheDocument());
   expect(screen.queryByRole("button", { name: /SBP|СБП/ })).not.toBeInTheDocument();
   expect(screen.queryByRole("button", { name: /ALTA Banka/ })).not.toBeInTheDocument();
@@ -66,8 +82,9 @@ it.each(["ru", "en"] as const)("selects explicit country, resets method, copies 
 });
 
 it.each(["ru", "en"] as const)("disables unconfigured methods (%s)", async language => {
-  setLanguage(language); mockApi();
-  vi.mocked(paymentRequest).mockImplementation(async path => path === "/payments/options" ? { ...options, activation: null, methods: { ...options.methods, sbp: { available: false } } } : []);
+  setLanguage(language);
+  mockApi();
+  vi.mocked(paymentRequest).mockImplementation(async path => (path === "/payments/options" ? { ...options, activation: null, methods: { ...options.methods, sbp: { available: false } } } : []));
   render(<PaymentForm onClose={vi.fn()} />);
   await screen.findByText(/Условия активации ещё не настроены|The activation terms/);
   fireEvent.change(screen.getByRole("combobox"), { target: { value: "russia" } });
@@ -95,14 +112,21 @@ it("shows loading failure and retries without creating a request", async () => {
 });
 
 it.each(["ru", "en"] as const)("shows automatic activation and lets admin revoke it (%s)", async language => {
-  setLanguage(language); const ru = language === "ru";
+  setLanguage(language);
+  const ru = language === "ru";
   const automatic = { ...payment, status: "awaiting_review" as const, provisional_granted_at: "2026-10-26T12:00:00Z" };
   mockApi(automatic);
   const form = render(<PaymentForm onClose={vi.fn()} />);
   await screen.findByText(/Администратор проверит|The administrator will verify/);
   form.unmount();
-  vi.mocked(paymentRequest).mockImplementation(async (_path, method) => method === "PATCH" ? { ...automatic, status: "rejected" } : [{ ...automatic, email: "synthetic@example.invalid", display_name: null }]);
-  render(<AdminPaymentsView />);
+  vi.mocked(paymentRequest).mockImplementation(async (_path, method) =>
+    method === "PATCH" ? { ...automatic, status: "rejected" } : [{ ...automatic, email: "synthetic@example.invalid", display_name: null }],
+  );
+  render(
+    <QueryProvider>
+      <AdminPaymentsView />
+    </QueryProvider>,
+  );
   await screen.findByText("synthetic@example.invalid");
   fireEvent.click(screen.getByRole("button", { name: ru ? "Отклонить и отозвать доступ" : "Reject and revoke access" }));
   await screen.findByText(ru ? "Отклонена" : "Rejected");
@@ -110,9 +134,18 @@ it.each(["ru", "en"] as const)("shows automatic activation and lets admin revoke
 });
 
 it.each(["ru", "en"] as const)("requires receipt confirmation in admin and reflects terminal state (%s)", async language => {
-  setLanguage(language); const ru = language === "ru";
-  vi.mocked(paymentRequest).mockImplementation(async (_path, method) => method === "PATCH" ? { ...payment, status: "confirmed" } : [{ ...payment, email: "synthetic@example.invalid", display_name: null, status: "awaiting_review", paid_at: "2026-10-25T12:00:00Z", reported_amount: "500.00" }]);
-  render(<AdminPaymentsView />);
+  setLanguage(language);
+  const ru = language === "ru";
+  vi.mocked(paymentRequest).mockImplementation(async (_path, method) =>
+    method === "PATCH"
+      ? { ...payment, status: "confirmed" }
+      : [{ ...payment, email: "synthetic@example.invalid", display_name: null, status: "awaiting_review", paid_at: "2026-10-25T12:00:00Z", reported_amount: "500.00" }],
+  );
+  render(
+    <QueryProvider>
+      <AdminPaymentsView />
+    </QueryProvider>,
+  );
   await screen.findByText("synthetic@example.invalid");
   fireEvent.click(screen.getByRole("button", { name: ru ? "Подтвердить оплату" : "Confirm payment" }));
   expect(vi.mocked(paymentRequest).mock.calls.filter(call => call[1] === "PATCH")).toHaveLength(0);
@@ -121,17 +154,15 @@ it.each(["ru", "en"] as const)("requires receipt confirmation in admin and refle
   expect(vi.mocked(paymentRequest).mock.calls.filter(call => call[1] === "PATCH")).toHaveLength(1);
 });
 
-
 it.each(["ru", "en"] as const)("withholds retired ALTA bank details but preserves settlement (%s)", async language => {
   setLanguage(language);
-  mockApi({ ...payment, method: "alta", country: "serbia", details: { ...payment.details, currency: "RSD", account: "retired-account-secret" } });
+  mockApi({ ...payment, method: "alta", country: "turkey", details: { ...payment.details, currency: "RSD", account: "retired-account-secret" } });
   render(<PaymentForm onClose={vi.fn()} />);
   await screen.findByText(/Этот способ больше|This method is no longer/);
   expect(screen.queryByText("retired-account-secret")).not.toBeInTheDocument();
   expect(screen.queryByRole("button", { name: /ALTA Banka/ })).not.toBeInTheDocument();
   expect(screen.getByRole("button", { name: language === "ru" ? "Я оплатил" : "I have paid" })).toBeEnabled();
 });
-
 
 it.each(["ru", "en"] as const)("copies the complete six-character code (%s)", async language => {
   setLanguage(language);

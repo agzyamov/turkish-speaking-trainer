@@ -33,3 +33,24 @@ inst_user_settings.tmp
 .idea/
 .vscode/
 .vercel
+
+# Secrets: never commit real environment files or key material
+.env.*
+!.env.example
+!frontend/.env.example
+!frontend/.env.android
+*.pem
+*.p12
+*.pfx
+# Personal Claude Code overrides
+.claude/settings.local.json
+
+# local pnpm store
+.pnpm-store/
+
+# Impeccable design skill: installed per machine with `npx impeccable install --providers=claude --scope=project`
+.claude/skills/impeccable/
+.claude/agents/impeccable-*.md
+
+# Supabase CLI local cache
+supabase/.temp/

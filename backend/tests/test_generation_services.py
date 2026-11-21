@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 
-from app.models import TrainingSession
 from app.db.seed import seed_catalog
+from app.models import TrainingSession
 from app.repositories import TopicPresetRepository
 from app.repositories.catalog import TopicPhraseRepository
 from app.schemas import ExerciseGenerationResult, TopicContext
@@ -72,7 +72,7 @@ def test_generator_retries_one_similar_ai_result(db_session: Session) -> None:
         return ExerciseGenerationResult(
             source_ru=source,
             topic_fit="Повседневная ситуация.",
-            intended_sr_variants=["Mogu li da platim karticom?"],
+            intended_tr_variants=["Mogu li da platim karticom?"],
             targeted_skills=["unknown.skill"],
             difficulty=0.4,
             novelty_signature=f"ai:{call}",
@@ -106,7 +106,7 @@ def test_generator_rejects_latin_letters_in_russian_source(db_session: Session) 
         return ExerciseGenerationResult(
             source_ru="Нужна popravka в ванной." if call == 1 else "Нужно починить кран в ванной.",
             topic_fit="Бытовая ситуация.",
-            intended_sr_variants=["Treba popraviti slavinu u kupatilu."],
+            intended_tr_variants=["Treba popraviti slavinu u kupatilu."],
             difficulty=0.4,
             novelty_signature=f"mixed:{call}",
         )

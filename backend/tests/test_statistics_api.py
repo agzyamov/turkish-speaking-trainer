@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from fastapi.testclient import TestClient
 from sqlalchemy import event
@@ -17,7 +17,7 @@ def _add_attempt(db: Session, *, created_at: datetime, suffix: str, score: float
     db.add(
         Attempt(
             exercise_id=exercise.id,
-            transcript_sr=f"Odgovor {suffix}",
+            transcript_tr=f"Odgovor {suffix}",
             overall_score=score,
             created_at=created_at,
         )
@@ -30,12 +30,12 @@ def test_monthly_statistics_groups_completed_phrases_by_local_day(
 ) -> None:
     _add_attempt(
         db_session,
-        created_at=datetime(2026, 8, 31, 22, 30, tzinfo=timezone.utc),
+        created_at=datetime(2026, 8, 31, 22, 30, tzinfo=UTC),
         suffix="one",
     )
     _add_attempt(
         db_session,
-        created_at=datetime(2026, 9, 1, 10, 0, tzinfo=timezone.utc),
+        created_at=datetime(2026, 9, 1, 10, 0, tzinfo=UTC),
         suffix="two",
         score=0.95,
     )
@@ -45,12 +45,12 @@ def test_monthly_statistics_groups_completed_phrases_by_local_day(
             source_normalized="освоенная фраза",
             status="mastered",
             perfect_streak=3,
-            mastered_at=datetime(2026, 9, 1, 11, 0, tzinfo=timezone.utc),
+            mastered_at=datetime(2026, 9, 1, 11, 0, tzinfo=UTC),
         )
     )
     _add_attempt(
         db_session,
-        created_at=datetime(2026, 9, 2, 21, 30, tzinfo=timezone.utc),
+        created_at=datetime(2026, 9, 2, 21, 30, tzinfo=UTC),
         suffix="three",
     )
     db_session.commit()
@@ -97,10 +97,10 @@ def test_monthly_statistics_reads_only_timestamps_and_scores(
     api_client: TestClient,
     db_session: Session,
 ) -> None:
-    _add_attempt(db_session, created_at=datetime(2026, 9, 1, 2, 30, tzinfo=timezone.utc), suffix="projection", score=0.95)
+    _add_attempt(db_session, created_at=datetime(2026, 9, 1, 2, 30, tzinfo=UTC), suffix="projection", score=0.95)
     db_session.add(ReviewPhrase(
         source_ru="Освоенная", source_normalized="освоенная", status="mastered",
-        mastered_at=datetime(2026, 9, 1, 2, 30, tzinfo=timezone.utc),
+        mastered_at=datetime(2026, 9, 1, 2, 30, tzinfo=UTC),
     ))
     db_session.commit()
     sql: list[str] = []
@@ -126,7 +126,7 @@ def test_monthly_statistics_reads_only_timestamps_and_scores(
     assert len(attempt_sql) == len(mastered_sql) == 1
     assert "SELECT attempts.created_at, attempts.overall_score" in attempt_sql[0]
     assert "SELECT review_phrases.mastered_at" in mastered_sql[0]
-    assert "transcript_sr" not in attempt_sql[0]
+    assert "transcript_tr" not in attempt_sql[0]
     assert "source_ru" not in mastered_sql[0]
 
 
@@ -140,7 +140,7 @@ def test_phrase_statistics_are_grouped_by_database_topics_and_paginated(
         ReviewPhrase(
             source_ru=topic_phrase.source_ru,
             source_normalized="можно мне пожалуйста меню",
-            intended_sr_variants_json=[topic_phrase.canonical_sr],
+            intended_tr_variants_json=[topic_phrase.canonical_tr],
             topic_id=topic_phrase.topic_id,
             topic_phrase_id=topic_phrase.id,
             attempts=2,
@@ -148,14 +148,14 @@ def test_phrase_statistics_are_grouped_by_database_topics_and_paginated(
             status="mastered",
             difficulty="easy",
             interval_days=14,
-            next_review_at=datetime(2026, 10, 4, tzinfo=timezone.utc),
+            next_review_at=datetime(2026, 10, 4, tzinfo=UTC),
         )
     )
     db_session.add(
         ReviewPhrase(
             source_ru="Своя фраза",
             source_normalized="своя фраза",
-            intended_sr_variants_json=["Moja rečenica"],
+            intended_tr_variants_json=["Moja rečenica"],
             attempts=1,
             status="active",
             difficulty="medium",
@@ -170,7 +170,7 @@ def test_phrase_statistics_are_grouped_by_database_topics_and_paginated(
     assert payload["total"] == 2
     assert {group["topic_title"] for group in payload["groups"]} == {"Кафе", "Свои фразы"}
     cafe = next(group for group in payload["groups"] if group["topic_title"] == "Кафе")
-    assert cafe["phrases"][0]["target_sr"] == topic_phrase.canonical_sr
+    assert cafe["phrases"][0]["target_tr"] == topic_phrase.canonical_tr
     assert cafe["phrases"][0]["status"] == "mastered"
     assert cafe["phrases"][0]["next_review_at"] is not None
 
@@ -198,15 +198,15 @@ def test_phrase_statistics_hides_foreign_topic_title_for_stale_reference(
     db_session.add_all([
         ReviewPhrase(
             source_ru="Устаревшая связь", source_normalized="устаревшая связь",
-            intended_sr_variants_json=["Stara veza"], topic_id=foreign_topic.id,
+            intended_tr_variants_json=["Stara veza"], topic_id=foreign_topic.id,
         ),
         ReviewPhrase(
             source_ru="Своя тема", source_normalized="своя тема",
-            intended_sr_variants_json=["Moja tema"], topic_id=own_topic.id,
+            intended_tr_variants_json=["Moja tema"], topic_id=own_topic.id,
         ),
         ReviewPhrase(
             user_id=other_user.id, source_ru="Чужая фраза", source_normalized="чужая фраза",
-            intended_sr_variants_json=["Tuđa rečenica"], topic_id=foreign_topic.id,
+            intended_tr_variants_json=["Tuđa rečenica"], topic_id=foreign_topic.id,
         ),
     ])
     db_session.commit()

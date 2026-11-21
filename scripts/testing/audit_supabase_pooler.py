@@ -4,10 +4,10 @@ from __future__ import annotations
 import argparse
 import json
 import os
-from pathlib import Path
 import re
 import sys
 from concurrent.futures import ThreadPoolExecutor
+from pathlib import Path
 from time import perf_counter
 from uuid import uuid4
 
@@ -71,8 +71,8 @@ def main() -> None:
             from app.db.base import Base
             from tests.test_attempt_reservations import (
                 test_ai_wait_releases_sqlite_writer_and_reserves_slot,
-                test_inflight_daily_slot_is_retryable_then_actual_limit,
                 test_expired_lease_retry_fences_old_worker,
+                test_inflight_daily_slot_is_retryable_then_actual_limit,
                 test_parallel_finalization_serializes_learner_updates,
             )
             checks = [
@@ -107,4 +107,4 @@ if __name__ == "__main__":
     except Exception as error:
         # Connection errors may contain credentials/SQL values; never print their messages.
         print(f"Pooler audit failed: {type(error).__name__}; inspect access/configuration locally", file=sys.stderr)
-        raise SystemExit(1)
+        raise SystemExit(1) from None

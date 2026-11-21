@@ -3,7 +3,10 @@ import { afterEach, expect, it } from "vitest";
 import { LegalPage } from "../LegalPage";
 import { setLanguage } from "../i18n";
 
-afterEach(() => { cleanup(); setLanguage("ru"); });
+afterEach(() => {
+  cleanup();
+  setLanguage("ru");
+});
 
 it.each(["ru", "en"] as const)("shows the daily free allowance of 20 in %s", language => {
   setLanguage(language);

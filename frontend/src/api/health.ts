@@ -2,7 +2,7 @@ import { apiUrl } from "./baseUrl";
 
 export type HealthResponse = {
   status: "ok";
-  service: "serbian-speaking-trainer";
+  service: "turkish-speaking-trainer";
 };
 
 export async function fetchHealth(signal?: AbortSignal): Promise<HealthResponse> {

@@ -1,7 +1,11 @@
 import type { Country, Method, PaymentStatus } from "./api/payments";
 
-export const countryLabels: Record<Country, string> = { russia: "Россия", serbia: "Сербия", other: "Другая страна" };
-export const methodLabels: Record<Method, string> = { sbp: "СБП", alta: "ALTA Banka", paypal: "PayPal" };
+export const countryLabels: Record<Country, string> = { russia: "payment.russia", turkey: "payment.turkey", other: "payment.anotherCountry" };
+export const methodLabels: Record<Method, string> = { sbp: "payment.sbp", alta: "ALTA Banka", paypal: "PayPal" };
 export const statusLabels: Record<PaymentStatus, string> = {
-  awaiting_payment: "Ожидает оплаты", awaiting_review: "Ожидает проверки", confirmed: "Подтверждена", rejected: "Отклонена", cancelled: "Отменена",
+  awaiting_payment: "payment.awaitingPayment",
+  awaiting_review: "payment.awaitingVerification",
+  confirmed: "payment.confirmed",
+  rejected: "payment.rejected",
+  cancelled: "payment.cancelled",
 };

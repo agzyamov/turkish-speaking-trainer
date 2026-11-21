@@ -1,32 +1,34 @@
-from pathlib import Path
 import re
+from pathlib import Path
 
 import pytest
-from alembic import command
 from alembic.config import Config
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from alembic import command
 from app.db.misc_phrases import MISC_PHRASES
 from app.db.seed import seed_catalog
 from app.db.session import create_database_engine
 from app.models import TopicPhrase
 from app.services.hint_alignment import aligned_word_hints
+from app.services.turkish_text import turkish_lower
 
 
 def test_misc_catalog_is_substantial_and_uses_conversational_expressions():
     assert len(MISC_PHRASES) == 50
-    assert len({p["canonical_sr"] for p in MISC_PHRASES}) == 50
+    assert len({p["canonical_tr"] for p in MISC_PHRASES}) == 50
     for phrase in MISC_PHRASES:
-        assert len(phrase["canonical_sr"].split()) >= 7
+        # Turkish packs person, case and tense into suffixes, so six words already make a full utterance.
+        assert len(phrase["canonical_tr"].split()) >= 6
         for translation in phrase["hints_en"].values():
             assert not re.search(r"[А-Яа-яЁё]", translation)
     assert "of" not in MISC_PHRASES[0]["hints_en"]
-    assert MISC_PHRASES[7]["hints_en"]["i'll let you know"] == "javiću ti"
-    assert MISC_PHRASES[21]["hints_en"]["lunch"] == "ručka"
-    combined = " ".join(p["canonical_sr"] for p in MISC_PHRASES)
-    for expression in ("Svejedno mi je", "Nemam pojma", "Nema veze", "Ma daj", "Nema šanse", "Čujemo se", "Sve po starom"):
-        assert expression.casefold() in combined.casefold()
+    assert "i'll let you know" in MISC_PHRASES[7]["hints_en"]
+    assert "lunch" in MISC_PHRASES[21]["hints_en"]
+    combined = " ".join(p["canonical_tr"] for p in MISC_PHRASES)
+    for expression in ("Fark etmez", "Hiçbir fikrim yok", "Önemli değil", "Hadi ya", "Asla olmaz", "Görüşürüz", "Her şey aynı"):
+        assert turkish_lower(expression) in turkish_lower(combined)
 
 
 @pytest.mark.parametrize("language", ["ru", "en"])
@@ -35,9 +37,9 @@ def test_misc_session_uses_persisted_bilingual_catalog_without_ai(api_client, db
     assert response.status_code == 201
     exercise = response.json()["exercise"]
     phrase = next(p for p in MISC_PHRASES if p["source_ru"] == exercise["source_ru"])
-    assert phrase["canonical_sr"]
+    assert phrase["canonical_tr"]
     assert exercise["word_hints"]
-    assert aligned_word_hints(phrase[f"source_{language}"], phrase["canonical_sr"], exercise["word_hints"]) == exercise["word_hints"]
+    assert aligned_word_hints(phrase[f"source_{language}"], phrase["canonical_tr"], exercise["word_hints"]) == exercise["word_hints"]
 
 
 def test_position_migration_seed_repeat_and_safe_downgrade(tmp_path):

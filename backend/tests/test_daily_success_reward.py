@@ -1,4 +1,4 @@
-from datetime import datetime, time, timedelta, timezone
+from datetime import UTC, datetime, time, timedelta
 from uuid import uuid4
 
 from app.api.dependencies import get_current_user
@@ -12,7 +12,7 @@ def submit(client, db, **extra):
     session = client.post('/api/sessions', json={'topic_id': 'cafe'}).json()
     exercise = client.post(f"/api/sessions/{session['id']}/next-exercise").json()
     stored = db.get(Exercise, exercise['id'])
-    payload = {'exercise_id': stored.id, 'transcript_sr': stored.target_hints_json['canonical_sr'], **extra}
+    payload = {'exercise_id': stored.id, 'transcript_tr': stored.target_hints_json['canonical_tr'], **extra}
     response = client.post('/api/attempts', json=payload)
     assert response.status_code == 201, response.text
     return payload, response.json()
@@ -29,7 +29,7 @@ def test_first_success_survives_replay_and_later_session(api_client, db_session)
 
 def test_previous_day_and_other_account_do_not_consume_first_success(api_client, db_session):
     _, old = submit(api_client, db_session)
-    db_session.get(Attempt, old['id']).created_at = datetime.now(timezone.utc) - timedelta(days=1)
+    db_session.get(Attempt, old['id']).created_at = datetime.now(UTC) - timedelta(days=1)
     db_session.commit()
     _, today = submit(api_client, db_session)
     assert today['first_success_today'] is True
@@ -44,7 +44,7 @@ def test_previous_day_and_other_account_do_not_consume_first_success(api_client,
 def test_near_perfect_does_not_consume_reward_and_utc_bounds_are_half_open(api_client, db_session):
     _, first = submit(api_client, db_session)
     stored = db_session.get(Attempt, first['id'])
-    start = datetime.combine(datetime.now(timezone.utc).date(), time.min, tzinfo=timezone.utc)
+    start = datetime.combine(datetime.now(UTC).date(), time.min, tzinfo=UTC)
     end = start + timedelta(days=1)
     repo = AttemptRepository(db_session, LEGACY_USER_ID)
     stored.overall_score = .999
@@ -64,7 +64,9 @@ def test_near_perfect_does_not_consume_reward_and_utc_bounds_are_half_open(api_c
 def test_concurrent_successes_award_daily_start_once(tmp_path):
     from concurrent.futures import ThreadPoolExecutor
     from threading import Barrier
+
     from sqlalchemy.orm import Session
+
     from app.db.base import Base
     from app.db.session import create_database_engine
     from app.models import TrainingSession
@@ -83,7 +85,7 @@ def test_concurrent_successes_award_daily_start_once(tmp_path):
             db.add(TrainingSession(id='reward-session', user_id=user_id, status='active', normalized_topic_json={'session_length': 20}))
             db.flush()
             for exercise_id in ids:
-                db.add(Exercise(id=exercise_id, session_id='reward-session', source_ru='Добрый день.', target_hints_json={'canonical_sr': 'Dobar dan.'}, targeted_skill_ids=[], generation_meta_json={'targeted_skill_keys': []}))
+                db.add(Exercise(id=exercise_id, session_id='reward-session', source_ru='Добрый день.', target_hints_json={'canonical_tr': 'Dobar dan.'}, targeted_skill_ids=[], generation_meta_json={'targeted_skill_keys': []}))
             db.commit()
         barrier = Barrier(2)
 
@@ -91,7 +93,7 @@ def test_concurrent_successes_award_daily_start_once(tmp_path):
             with Session(engine) as db:
                 user = db.get(User, user_id)
                 barrier.wait(timeout=5)
-                return AttemptService(db, FakeAIProvider(), user).create(CreateAttemptRequest(exercise_id=exercise_id, transcript_sr='Dobar dan.')).first_success_today
+                return AttemptService(db, FakeAIProvider(), user).create(CreateAttemptRequest(exercise_id=exercise_id, transcript_tr='Dobar dan.')).first_success_today
 
         with ThreadPoolExecutor(max_workers=2) as pool:
             assert sorted(pool.map(check, ids)) == [False, True]

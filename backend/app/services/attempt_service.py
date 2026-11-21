@@ -1,31 +1,34 @@
 import hashlib
 import json
 from dataclasses import dataclass
-from datetime import datetime, time, timedelta, timezone
+from datetime import UTC, datetime, time, timedelta
 from uuid import uuid4
 
 from sqlalchemy import delete, update
 from sqlalchemy.orm import Session
 
 from app.config import get_settings
-from app.models import Attempt, AttemptRequest, ErrorEvent, Exercise
+from app.models import Attempt, AttemptRequest, ErrorEvent, Exercise, User
 from app.repositories import (
-    AttemptRepository, AttemptRequestRepository, ErrorEventRepository, ExerciseRepository,
-    SkillRepository, TrainingSessionRepository,
+    AttemptRepository,
+    AttemptRequestRepository,
+    ErrorEventRepository,
+    ExerciseRepository,
+    SkillRepository,
+    TrainingSessionRepository,
 )
+from app.repositories.transcriptions import TranscriptionReceiptRepository
 from app.schemas import AttemptResponse, CreateAttemptRequest
+from app.schemas.transcriptions import TranscriptionChange
 from app.services.ai_adapter import StructuredAIProvider
 from app.services.answer_analyzer import AnswerAnalyzer
-from app.services.serbian_text import has_unexpected_letter_script
-from app.services.session_service import SessionCompletedError, SessionUnavailableError
+from app.services.auth_service import UserService
+from app.services.custom_content_policy import CustomContentError
 from app.services.learner_model import LearnerModelService
 from app.services.review_service import ReviewService
+from app.services.session_service import SessionCompletedError, SessionUnavailableError
+from app.services.turkish_text import has_unexpected_letter_script, latin_for_evaluation
 from app.services.word_hints import all_word_hints, resolve_hint
-from app.services.auth_service import UserService
-from app.models import User
-from app.repositories.transcriptions import TranscriptionReceiptRepository
-from app.services.custom_content_policy import CustomContentError
-from app.schemas.transcriptions import TranscriptionChange
 
 
 class UnexpectedTranscriptScriptError(ValueError):
@@ -59,7 +62,7 @@ class _Reservation:
     fencing_token: int
     exercise_id: str
     source_ru: str
-    canonical_sr: str | None
+    canonical_tr: str | None
     intended_variants: list[str]
     target_keys: list[str]
     target_skills: list[dict[str, str]]
@@ -68,8 +71,8 @@ class _Reservation:
 class AttemptService:
     @staticmethod
     def _analysis_source(exercise: Exercise) -> str:
-        from app.services.source_versions import exercise_source
         from app.services.interface_language import interface_language
+        from app.services.source_versions import exercise_source
         return exercise_source(exercise, interface_language.get())
 
     def __init__(self, db: Session, ai: StructuredAIProvider, user: User) -> None:
@@ -86,7 +89,9 @@ class AttemptService:
         self.review = ReviewService(db, ai, user.id)
 
     def create(self, request: CreateAttemptRequest) -> AttemptResponse:
-        if has_unexpected_letter_script(request.transcript_sr):
+        # Look-alike Cyrillic letters typed on a Russian keyboard inside Latin words are repaired for
+        # grading (the stored transcript stays verbatim); any other non-Latin letter is rejected.
+        if has_unexpected_letter_script(latin_for_evaluation(request.transcript_tr)):
             raise UnexpectedTranscriptScriptError()
         assistance = self._transcription_evidence(request)
         reserved = self._reserve(request)
@@ -95,9 +100,9 @@ class AttemptService:
         try:
             analysis = self.analyzer.analyze(
                 source_ru=reserved.source_ru,
-                transcript_sr=request.transcript_sr.strip(),
-                canonical_sr=reserved.canonical_sr,
-                intended_sr_variants=reserved.intended_variants,
+                transcript_tr=request.transcript_tr.strip(),
+                canonical_tr=reserved.canonical_tr,
+                intended_tr_variants=reserved.intended_variants,
                 target_skills=reserved.target_skills,
                 timing=request,
             )
@@ -125,7 +130,7 @@ class AttemptService:
             raise ExerciseNotFoundError(request.exercise_id)
         if exercise.generation_meta_json.get("custom_content_deleted"):
             raise CustomContentError("custom_content_deleted")
-        lease_now = datetime.now(timezone.utc)
+        lease_now = datetime.now(UTC)
         existing = self.requests.get_by_client_id(request_id) if request.client_request_id else None
         if existing is not None:
             if existing.payload_hash != payload_hash:
@@ -138,7 +143,7 @@ class AttemptService:
         training_session = self.sessions.get_owned_for_update(exercise.session_id)
         if training_session is None:
             raise ExerciseNotFoundError(request.exercise_id)
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         if training_session.status == "completed":
             raise SessionCompletedError(training_session.id)
         if training_session.status != "active":
@@ -154,7 +159,7 @@ class AttemptService:
         if usage.remaining == 0:
             raise DailyLimitExceededError
         if usage.limit is not None:
-            day_start = datetime.combine(now.date(), time.min, tzinfo=timezone.utc)
+            day_start = datetime.combine(now.date(), time.min, tzinfo=UTC)
             if usage.used + self.requests.count_active_between(day_start, day_start + timedelta(days=1), now) >= usage.limit:
                 raise AttemptInProgressError
 
@@ -165,10 +170,10 @@ class AttemptService:
             for key in target_keys
             if key in catalog
         ]
-        intended_variants = list(exercise.target_hints_json.get("intended_sr_variants", []))
-        canonical_sr = exercise.target_hints_json.get("canonical_sr")
+        intended_variants = list(exercise.target_hints_json.get("intended_tr_variants", []))
+        canonical_tr = exercise.target_hints_json.get("canonical_tr")
         settings = get_settings()
-        lease_seconds = max(60.0, 2 * settings.openai_timeout_seconds * (settings.openai_max_retries + 1) + 30.0)
+        lease_seconds = max(60.0, 2 * settings.anthropic_timeout_seconds * (settings.anthropic_max_retries + 1) + 30.0)
         token = (existing.fencing_token or 0) + 1 if existing is not None else 1
         if existing is None:
             self.requests.add(AttemptRequest(
@@ -191,7 +196,7 @@ class AttemptService:
             fencing_token=token,
             exercise_id=exercise.id,
             source_ru=self._analysis_source(exercise),
-            canonical_sr=str(canonical_sr) if canonical_sr else None,
+            canonical_tr=str(canonical_tr) if canonical_tr else None,
             intended_variants=intended_variants,
             target_keys=target_keys,
             target_skills=target_skills,
@@ -219,7 +224,7 @@ class AttemptService:
         assistance = assistance or {}
         locked_user = UserService(self.db).users.lock(self.user.id)
         entry = self.requests.get_by_client_id(reserved.request_id)
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         if (
             locked_user is None or entry is None or entry.fencing_token != reserved.fencing_token
             or entry.response_json is not None or entry.lease_expires_at is None
@@ -243,7 +248,7 @@ class AttemptService:
         catalog = {skill.key: skill for skill in self.skills.list(limit=500)}
         base_score = self.analyzer.overall_score(analysis)
         available_hints = all_word_hints(exercise.source_ru, list(exercise.target_hints_json.get("word_hints", [])),
-            exercise.target_hints_json.get("canonical_sr") or next(iter(exercise.target_hints_json.get("intended_sr_variants", [])), ""), exercise.target_hints_json.get('source_versions'))
+            exercise.target_hints_json.get("canonical_tr") or next(iter(exercise.target_hints_json.get("intended_tr_variants", [])), ""), exercise.target_hints_json.get('source_versions'))
         hinted_words = list(dict.fromkeys(
             hint["word_ru"]
             for word in request.hinted_words if (hint := resolve_hint(available_hints, word)) is not None
@@ -251,7 +256,7 @@ class AttemptService:
         self.review.record_revealed_words(exercise, hinted_words)
         hint_penalty = self.review.hint_penalty(hinted_words)
         overall_score = round(max(0.0, base_score - hint_penalty), 3)
-        day_start = datetime.combine(now.date(), time.min, tzinfo=timezone.utc)
+        day_start = datetime.combine(now.date(), time.min, tzinfo=UTC)
         day_end = day_start + timedelta(days=1)
         created_at = entry.reserved_at or now
         # The existing user lock serializes this check with other accepted answers.
@@ -263,7 +268,7 @@ class AttemptService:
         attempt = self.attempts.add(
             Attempt(
                 exercise_id=exercise.id,
-                transcript_sr=request.transcript_sr.strip(),
+                transcript_tr=request.transcript_tr.strip(),
                 reaction_ms=request.reaction_ms,
                 speech_duration_ms=request.speech_duration_ms,
                 longest_pause_ms=request.longest_pause_ms,
@@ -293,7 +298,7 @@ class AttemptService:
         )
         self.review.record_attempt(
             source_ru=exercise.source_ru,
-            intended_sr_variants=intended_variants,
+            intended_tr_variants=intended_variants,
             word_hints=list(exercise.target_hints_json.get("word_hints", [])),
             targeted_skill_keys=target_keys,
             score=overall_score,
@@ -304,12 +309,12 @@ class AttemptService:
         )
         if not is_carousel and self.attempts.count_checked_exercises(training_session.id) >= requested_length:
             training_session.status = "completed"
-            training_session.ended_at = datetime.now(timezone.utc)
+            training_session.ended_at = datetime.now(UTC)
             self.db.flush()
         response = AttemptResponse(
             id=attempt.id,
             exercise_id=attempt.exercise_id,
-            transcript_sr=attempt.transcript_sr,
+            transcript_tr=attempt.transcript_tr,
             overall_score=overall_score,
             analysis=analysis,
             learner_updates=learner_updates,
@@ -325,7 +330,7 @@ class AttemptService:
         if response.daily_usage and response.daily_usage.used == 20:
             from app.config import get_settings
             from app.services.notifications import notify_after_commit
-            notify_after_commit(self.db, get_settings(), locked_user.email, "выполнил 20 проверок за день в SerboTalk")
+            notify_after_commit(self.db, get_settings(), locked_user.email, f"выполнил 20 проверок за день в {get_settings().brand_name}")
         self.db.commit()
         return response
 
@@ -340,7 +345,7 @@ class AttemptService:
             )
             if reserved.client_supplied:
                 self.db.execute(update(AttemptRequest).where(*owned_lease).values(
-                    lease_expires_at=datetime.now(timezone.utc) - timedelta(seconds=1),
+                    lease_expires_at=datetime.now(UTC) - timedelta(seconds=1),
                 ))
             else:
                 self.db.execute(delete(AttemptRequest).where(*owned_lease))
@@ -351,7 +356,7 @@ class AttemptService:
 
     @staticmethod
     def _utc(value: datetime) -> datetime:
-        return value if value.tzinfo is not None else value.replace(tzinfo=timezone.utc)
+        return value if value.tzinfo is not None else value.replace(tzinfo=UTC)
 
     @staticmethod
     def _payload_hash(request: CreateAttemptRequest) -> str:

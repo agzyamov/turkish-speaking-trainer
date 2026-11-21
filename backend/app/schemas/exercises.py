@@ -7,7 +7,7 @@ class WordHint(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     word_ru: str = Field(min_length=1, max_length=120)
-    translation_sr: str = Field(min_length=1, max_length=240)
+    translation_tr: str = Field(min_length=1, max_length=240)
 
 
 class SourceVersions(BaseModel):
@@ -35,13 +35,13 @@ class SourceVersions(BaseModel):
 class PhrasePreparation(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
-    intended_sr_variants: list[str] = Field(default_factory=list, max_length=4)
+    intended_tr_variants: list[str] = Field(default_factory=list, max_length=4)
     word_hints: list[WordHint] = Field(default_factory=list, max_length=30)
     source_versions: SourceVersions | None = None
 
 
 class BilingualPhrasePreparation(PhrasePreparation):
-    intended_sr_variants: list[str] = Field(min_length=1, max_length=4)
+    intended_tr_variants: list[str] = Field(min_length=1, max_length=4)
     source_versions: SourceVersions
 
 
@@ -50,7 +50,7 @@ class ExerciseGenerationResult(BaseModel):
 
     source_ru: str = Field(min_length=3, max_length=240)
     topic_fit: str = Field(min_length=1, max_length=400)
-    intended_sr_variants: list[str] = Field(min_length=1, max_length=6)
+    intended_tr_variants: list[str] = Field(min_length=1, max_length=6)
     targeted_skills: list[str] = Field(default_factory=list, max_length=3)
     expected_level: Literal["A2"] = "A2"
     difficulty: float = Field(ge=0, le=1)

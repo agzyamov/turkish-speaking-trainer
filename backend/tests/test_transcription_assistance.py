@@ -1,14 +1,17 @@
+import unicodedata
 from uuid import uuid4
+
 import pytest
 from sqlalchemy import select
+
 from app.main import app
 from app.models import Exercise, LearnerSkill, ReviewPhrase, TranscriptionReceipt, User
+from app.schemas.transcriptions import TranscriptionAssistanceAnalysis, TranscriptionCandidate
+from app.services.ai_adapter import AIServiceError
 from app.services.transcription_adapter import get_transcription_provider
 from app.services.transcription_assistance import apply_changes, validate_analysis
 from app.services.transcription_assistance_adapter import get_transcription_assistance_provider
-from app.schemas.transcriptions import TranscriptionAssistanceAnalysis, TranscriptionCandidate
-from app.services.ai_adapter import AIServiceError
-from tests.fakes import FakeTranscriptionProvider, FakeTranscriptionAssistanceProvider
+from tests.fakes import FakeTranscriptionAssistanceProvider, FakeTranscriptionProvider
 from tests.test_transcriptions_api import _create_exercise
 
 
@@ -46,14 +49,24 @@ def test_all_candidates_are_kept_with_repeated_words_and_unicode_offsets():
 
 
 @pytest.mark.parametrize("proposal", [
-    candidate("kafa", "kapa", plausible_stt_error=False),
-    candidate("kafa", "kapa", preserves_meaning=False),
-    candidate("kafa", "čaj"), candidate("kafa", "kafa 2"),
-    candidate("12", "13"), candidate("nije", "je"), candidate("u", "i"),
-    candidate("ne znam", "znam"), candidate("kafa", "καφα"),
+    candidate("masa", "kasa", plausible_stt_error=False),
+    candidate("masa", "kasa", preserves_meaning=False),
+    candidate("kahve", "çay"), candidate("kahve", "kahve 2"),
+    candidate("12", "13"), candidate("yok", "çok"), candidate("değil", "değin"), candidate("ve", "de"),
+    candidate("hiç bilmiyorum", "bilmiyorum"), candidate("kahve", "καφε"), candidate("kahve", "кahve"),
+    candidate("kahve", unicodedata.normalize("NFD", "kahvé")),
+    # Turkish negates with a verb suffix; deleting or inserting it flips the meaning (-mA-).
+    candidate("istemiyorum", "istiyorum"), candidate("istiyorum", "istemiyorum"),
+    candidate("gelmedim", "geldim"), candidate("geldim", "gelmedim"), candidate("anlamadım", "anladım"),
 ])
 def test_similarity_alone_cannot_hide_errors_or_change_numbers_negation(proposal):
     assert validate_analysis(proposal.original, [], analysis(proposal)) == []
+
+
+def test_the_rejected_proposals_are_close_enough_that_only_the_guards_stop_them():
+    # The same shapes without a number, negation word, short word or foreign script are suggested.
+    for original, replacement in [("masa", "kasa"), ("çok", "çök"), ("değin", "deyin"), ("hiç bilmiyorum", "hiç bilmiyordum")]:
+        assert len(validate_analysis(original, [], analysis(candidate(original, replacement)))) == 1, (original, replacement)
 
 
 def test_valid_alternate_or_exact_match_is_not_forced_to_canonical():
@@ -80,7 +93,7 @@ def test_invalid_model_spans_and_overlaps_are_rejected(raw, proposals):
 def test_opt_in_and_server_validated_scoring(api_client, db_session, raw, canonical, accepted):
     exercise_id = _create_exercise(api_client)
     exercise = db_session.get(Exercise, exercise_id)
-    exercise.target_hints_json = {**exercise.target_hints_json, "canonical_sr": canonical, "intended_sr_variants": [canonical, accepted]}
+    exercise.target_hints_json = {**exercise.target_hints_json, "canonical_tr": canonical, "intended_tr_variants": [canonical, accepted]}
     db_session.commit()
     app.dependency_overrides[get_transcription_provider] = lambda: FakeTranscriptionProvider(text=raw)
     original, replacement = raw.split()[0].rstrip("?"), accepted.split()[0].rstrip("?")
@@ -97,10 +110,10 @@ def test_opt_in_and_server_validated_scoring(api_client, db_session, raw, canoni
     assert result["text"] == result["raw_text"] == raw
     assert len(result["changes"]) == 1
     assert result["assistance_status"] == "analyzed"
-    assert provider.calls[0]["canonical_sr"] == canonical
+    assert provider.calls[0]["canonical_tr"] == canonical
     assert provider.calls[0]["raw_text"] == raw
     assert "audio" not in provider.calls[0]
-    request = {"exercise_id": exercise_id, "transcript_sr": accepted, "transcription_id": result["transcription_id"],
+    request = {"exercise_id": exercise_id, "transcript_tr": accepted, "transcription_id": result["transcription_id"],
                "accepted_transcription_changes": [0], "client_request_id": str(uuid4())}
     response = api_client.post("/api/attempts", json=request)
     assert response.status_code == 201, response.text
@@ -141,9 +154,9 @@ def test_assistance_failure_keeps_transcription_and_reports_unavailable(api_clie
 
 @pytest.mark.parametrize("language", ["ru", "en"])
 @pytest.mark.parametrize("text", [
-    "Želim da otvorim račun.", "Hoću da otvorim račun.",
-    "Желим да отворим рачун.", "  ŽELIM   da otvorim račun!  ",
-    "Z\u030celim da otvorim rac\u030cun.",
+    "Hesap açmak istiyorum.", "Bir hesap açmak istiyorum.",
+    "  HESAP   AÇMAK İSTİYORUM!  ", "hesap açmak istiyorum",
+    unicodedata.normalize("NFD", "Hesap açmak istiyorum."),
 ])
 def test_reference_transcript_skips_assistance_and_receipt(api_client, db_session, language, text):
     exercise_id = _create_exercise(api_client)
@@ -151,8 +164,9 @@ def test_reference_transcript_skips_assistance_and_receipt(api_client, db_sessio
     exercise.source_ru = "Я хочу открыть счёт."
     from app.schemas.exercises import SourceVersions
     from app.services.source_versions import version_payload
-    exercise.target_hints_json = {"canonical_sr": "Želim da otvorim račun.", "intended_sr_variants": ["Hoću da otvorim račun."]}
-    exercise.target_hints_json["source_versions"] = version_payload(exercise.source_ru, "Želim da otvorim račun.", SourceVersions(ru=exercise.source_ru, en="I want to open an account."))
+    exercise.target_hints_json = {"canonical_tr": "Hesap açmak istiyorum.", "intended_tr_variants": ["Bir hesap açmak istiyorum."]}
+    exercise.target_hints_json["source_versions"] = version_payload(
+        exercise.source_ru, "Hesap açmak istiyorum.", SourceVersions(ru=exercise.source_ru, en="I want to open an account."))
     db_session.commit()
     provider = FakeTranscriptionAssistanceProvider(error=AssertionError("Exact references must skip AI"))
     app.dependency_overrides[get_transcription_assistance_provider] = lambda: provider
@@ -161,24 +175,25 @@ def test_reference_transcript_skips_assistance_and_receipt(api_client, db_sessio
         data={"exercise_id": exercise_id, "assistance_enabled": "true"},
         files={"audio": ("speech.webm", b"synthetic", "audio/webm")})
     assert response.status_code == 200
-    from app.services.serbian_text import serbian_latin
-    assert response.json() == {"text": serbian_latin(text)}
+    # The learner's words come back verbatim, in one Unicode form.
+    assert response.json() == {"text": unicodedata.normalize("NFC", text)}
     assert provider.calls == []
     assert list(db_session.scalars(select(TranscriptionReceipt))) == []
     checked = api_client.post("/api/attempts", headers={"X-Interface-Language": language},
-        json={"exercise_id": exercise_id, "transcript_sr": response.json()["text"], "client_request_id": str(uuid4())})
+        json={"exercise_id": exercise_id, "transcript_tr": response.json()["text"], "client_request_id": str(uuid4())})
     assert checked.status_code == 201
     assert checked.json()["analysis"]["verdict"] == "correct"
     assert checked.json()["transcription_assisted"] is False
 
 
 @pytest.mark.parametrize("raw, hints", [
-    ("Želim da otvorim racun.", {"canonical_sr": "Želim da otvorim račun."}),
-    ("Ne želim da otvorim račun.", {"canonical_sr": "Želim da otvorim račun."}),
-    ("Imam 12 računa.", {"canonical_sr": "Imam 2 računa."}),
-    ("Želim otvoriti račun.", {"canonical_sr": "Želim da otvorim račun."}),
-    ("...", {"canonical_sr": "!", "intended_sr_variants": ["?"]}),
-    ("Moj odgovor.", {}),
+    ("Hesap acmak istiyorum.", {"canonical_tr": "Hesap açmak istiyorum."}),
+    ("HESAP AÇMAK ISTIYORUM.", {"canonical_tr": "Hesap açmak istiyorum."}),  # ASCII I is the dotless letter
+    ("Hesap açmak istemiyorum.", {"canonical_tr": "Hesap açmak istiyorum."}),
+    ("12 hesabım var.", {"canonical_tr": "2 hesabım var."}),
+    ("Hesap açmayı istiyorum.", {"canonical_tr": "Hesap açmak istiyorum."}),
+    ("...", {"canonical_tr": "!", "intended_tr_variants": ["?"]}),
+    ("Benim cevabım.", {}),
 ])
 def test_nonmatching_transcript_still_uses_assistance(api_client, db_session, raw, hints):
     exercise_id = _create_exercise(api_client)
@@ -211,12 +226,12 @@ def test_multiple_suggestions_earn_normal_mastery_and_review_interval(api_client
         exercise_id = _create_exercise(api_client)
         exercise = db_session.get(Exercise, exercise_id)
         exercise.source_ru = source
-        exercise.target_hints_json = {"canonical_sr": canonical, "intended_sr_variants": []}
+        exercise.target_hints_json = {"canonical_tr": canonical, "intended_tr_variants": []}
         if target_meta is None:
             target_meta = exercise.generation_meta_json
         exercise.generation_meta_json = target_meta
         db_session.commit()
-        request = {"exercise_id": exercise_id, "transcript_sr": canonical, "client_request_id": str(uuid4())}
+        request = {"exercise_id": exercise_id, "transcript_tr": canonical, "client_request_id": str(uuid4())}
         if assisted:
             result = api_client.post("/api/transcriptions", data={"exercise_id": exercise_id, "assistance_enabled": "true"},
                 files={"audio": ("speech.webm", b"synthetic", "audio/webm")}).json()
@@ -246,7 +261,7 @@ def test_accepting_stt_suggestion_does_not_hide_an_unrelated_answer_error(api_cl
 
     exercise_id = _create_exercise(api_client)
     exercise = db_session.get(Exercise, exercise_id)
-    exercise.target_hints_json = {"canonical_sr": "Čemu danas?", "intended_sr_variants": []}
+    exercise.target_hints_json = {"canonical_tr": "Čemu danas?", "intended_tr_variants": []}
     key = exercise.generation_meta_json["targeted_skill_keys"][0]
     db_session.commit()
     app.dependency_overrides[get_transcription_provider] = lambda: FakeTranscriptionProvider(text="Cemu sutra?")
@@ -254,7 +269,7 @@ def test_accepting_stt_suggestion_does_not_hide_an_unrelated_answer_error(api_cl
         result=analysis(candidate("Cemu", "Čemu")))
     ai = FakeAIProvider(available=True, analysis_result=AnswerAnalysis(
         verdict="needs_work", semantic_score=0.3, grammar_score=0.5, lexical_score=0.3,
-        naturalness_score=0.5, fluency_score=1, corrected_sr="Čemu danas?",
+        naturalness_score=0.5, fluency_score=1, corrected_tr="Čemu danas?",
         short_feedback_ru="Изменён смысл.", detailed_feedback_ru="Сказано завтра вместо сегодня.",
         issues=[{"type": "meaning", "skill_key": key, "severity": 0.8, "confidence": 1,
                  "evidence": "sutra", "correction": "danas"}],
@@ -263,7 +278,7 @@ def test_accepting_stt_suggestion_does_not_hide_an_unrelated_answer_error(api_cl
     app.dependency_overrides[get_ai_provider] = lambda: ai
     result = api_client.post("/api/transcriptions", data={"exercise_id": exercise_id, "assistance_enabled": "true"},
         files={"audio": ("speech.webm", b"synthetic", "audio/webm")}).json()
-    response = api_client.post("/api/attempts", json={"exercise_id": exercise_id, "transcript_sr": "Čemu sutra?",
+    response = api_client.post("/api/attempts", json={"exercise_id": exercise_id, "transcript_tr": "Čemu sutra?",
         "transcription_id": result["transcription_id"], "accepted_transcription_changes": [0]})
     assert response.status_code == 201, response.text
     assert response.json()["transcription_assisted"] is True

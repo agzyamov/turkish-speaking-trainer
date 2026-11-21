@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from sqlalchemy.orm import Session
 
@@ -38,7 +38,7 @@ class SessionService:
         review_phrase = None
         stored_topic_id = request.topic_id
         if request.review_mode:
-            self.review_phrases.activate_due(datetime.now(timezone.utc))
+            self.review_phrases.activate_due(datetime.now(UTC))
             if not self.review_phrases.list_active(limit=1):
                 raise ReviewQueueEmptyError
             topic = TopicContext(
@@ -49,7 +49,7 @@ class SessionService:
                 normalized_prompt_context="Карусель активных фраз для повторения.",
             )
         elif request.review_phrase_id:
-            self.review_phrases.activate_due(datetime.now(timezone.utc))
+            self.review_phrases.activate_due(datetime.now(UTC))
             review_phrase = self.review_phrases.get_owned(request.review_phrase_id)
             if review_phrase is None or review_phrase.status != "active":
                 raise TopicNotFoundError(request.review_phrase_id)
@@ -89,7 +89,7 @@ class SessionService:
                     "review_phrase": {
                         "id": review_phrase.id,
                         "source_ru": review_phrase.source_ru,
-                        "intended_sr_variants": review_phrase.intended_sr_variants_json,
+                        "intended_tr_variants": review_phrase.intended_tr_variants_json,
                         "word_hints": review_phrase.word_hints_json,
                         "targeted_skill_keys": review_phrase.targeted_skill_keys_json,
                         "topic_id": review_phrase.topic_id,

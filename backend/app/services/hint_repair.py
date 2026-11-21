@@ -6,8 +6,8 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 from sqlalchemy.orm.attributes import flag_modified
 
-from app.db.topic_phrases import TOPIC_PHRASES
 from app.db.topic_phrase_hints import TOPIC_PHRASE_HINTS
+from app.db.topic_phrases import TOPIC_PHRASES
 from app.models import Exercise, ReviewPhrase, TopicPhrase, TrainingSession
 from app.schemas.exercises import WordHint
 from app.services.hint_alignment import aligned_word_hints
@@ -27,7 +27,7 @@ def repair_hint_snapshots(db: Session, personal: dict[str, HintRepair], *, apply
     Copies with another canonical are withheld for separate review. No calls to AI.
     A dry run never assigns model attributes. The caller owns commit/rollback.
     """
-    presets = {p.id: HintRepair(source=p.source_ru, canonical=p.canonical_sr,
+    presets = {p.id: HintRepair(source=p.source_ru, canonical=p.canonical_tr,
                                hints=TOPIC_PHRASE_HINTS[p.id]) for p in TOPIC_PHRASES}
     for repair in [*presets.values(), *personal.values()]:
         hints = [h.model_dump() for h in repair.hints]
@@ -56,16 +56,16 @@ def repair_hint_snapshots(db: Session, personal: dict[str, HintRepair], *, apply
 
     for row in rows(TopicPhrase):
         repair = presets.get(row.id)
-        if matching(repair, row.source_ru, row.canonical_sr):
+        if matching(repair, row.source_ru, row.canonical_tr):
             assign(row, "word_hints_json", [h.model_dump() for h in repair.hints])
     for row in rows(ReviewPhrase):
         repair = presets.get(row.topic_phrase_id) if row.topic_phrase_id else personal.get(row.id)
-        if matching(repair, row.source_ru, next(iter(row.intended_sr_variants_json), "")):
+        if matching(repair, row.source_ru, next(iter(row.intended_tr_variants_json), "")):
             assign(row, "word_hints_json", [h.model_dump() for h in repair.hints])
     for row in rows(Exercise):
         meta, target = row.generation_meta_json, row.target_hints_json
         repair = presets.get(meta.get("topic_phrase_id")) or personal.get(meta.get("review_phrase_id"))
-        canonical = target.get("canonical_sr") or next(iter(target.get("intended_sr_variants", [])), "")
+        canonical = target.get("canonical_tr") or next(iter(target.get("intended_tr_variants", [])), "")
         if matching(repair, row.source_ru, canonical):
             assign(row, "target_hints_json", {**target, "word_hints": [h.model_dump() for h in repair.hints]})
     for row in rows(TrainingSession):
@@ -73,7 +73,7 @@ def repair_hint_snapshots(db: Session, personal: dict[str, HintRepair], *, apply
         if not isinstance(payload, dict):
             continue
         repair = presets.get(payload.get("topic_phrase_id")) or personal.get(payload.get("id"))
-        if matching(repair, payload.get("source_ru"), next(iter(payload.get("intended_sr_variants", [])), "")):
+        if matching(repair, payload.get("source_ru"), next(iter(payload.get("intended_tr_variants", [])), "")):
             assign(row, "normalized_topic_json", {**row.normalized_topic_json,
                 "review_phrase": {**payload, "word_hints": [h.model_dump() for h in repair.hints]}})
     return changes

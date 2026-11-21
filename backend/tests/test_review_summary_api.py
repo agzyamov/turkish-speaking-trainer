@@ -1,5 +1,5 @@
 import os
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from uuid import uuid4
 
 import pytest
@@ -41,11 +41,11 @@ def test_review_summary_matches_full_list_after_due_activation_and_is_tenant_sco
     db_session.add_all([own_topic, foreign_topic])
     db_session.flush()
 
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     phrases = [
         ReviewPhrase(
             source_ru=f"Фраза {number}", source_normalized=f"фраза {number}",
-            intended_sr_variants_json=[f"Rečenica {number}"],
+            intended_tr_variants_json=[f"Rečenica {number}"],
             topic_id="cafe" if number % 2 == 0 else own_topic.id,
         )
         for number in range(120)
@@ -53,18 +53,18 @@ def test_review_summary_matches_full_list_after_due_activation_and_is_tenant_sco
     phrases[0].topic_id = foreign_topic.id
     due = ReviewPhrase(
         source_ru="Пора повторить", source_normalized="пора повторить",
-        intended_sr_variants_json=["Vreme je za ponavljanje"],
+        intended_tr_variants_json=["Vreme je za ponavljanje"],
         status="mastered", perfect_streak=3, learning_errors=2,
         next_review_at=now - timedelta(days=1), topic_id="cafe",
     )
     future = ReviewPhrase(
         source_ru="Повторить позже", source_normalized="повторить позже",
-        intended_sr_variants_json=["Ponoviti kasnije"],
+        intended_tr_variants_json=["Ponoviti kasnije"],
         status="mastered", next_review_at=now + timedelta(days=1),
     )
     foreign_phrase = ReviewPhrase(
         user_id=other_user.id, source_ru="Чужая фраза", source_normalized="чужая фраза",
-        intended_sr_variants_json=["Tuđa rečenica"], topic_id=foreign_topic.id,
+        intended_tr_variants_json=["Tuđa rečenica"], topic_id=foreign_topic.id,
     )
     db_session.add_all([*phrases, due, future, foreign_phrase])
     db_session.flush()
@@ -165,35 +165,35 @@ def test_review_summary_and_visible_titles_on_isolated_postgres() -> None:
                 ),
             ])
             db.flush()
-            now = datetime.now(timezone.utc)
+            now = datetime.now(UTC)
             due = ReviewPhrase(
                 user_id=first_id, source_ru="Срок повторения", source_normalized="срок повторения",
-                intended_sr_variants_json=["Ponavljanje"], topic_id="shared",
+                intended_tr_variants_json=["Ponavljanje"], topic_id="shared",
                 status="mastered", perfect_streak=3, learning_errors=2,
                 next_review_at=now - timedelta(days=1),
             )
             db.add_all([
                 ReviewPhrase(
                     user_id=first_id, source_ru="Общая", source_normalized="общая",
-                    intended_sr_variants_json=["Zajednička"], topic_id="shared",
+                    intended_tr_variants_json=["Zajednička"], topic_id="shared",
                 ),
                 ReviewPhrase(
                     user_id=first_id, source_ru="Своя", source_normalized="своя",
-                    intended_sr_variants_json=["Moja"], topic_id="first-owned",
+                    intended_tr_variants_json=["Moja"], topic_id="first-owned",
                 ),
                 ReviewPhrase(
                     user_id=first_id, source_ru="Скрытая", source_normalized="скрытая",
-                    intended_sr_variants_json=["Skrivena"], topic_id="second-owned",
+                    intended_tr_variants_json=["Skrivena"], topic_id="second-owned",
                 ),
                 due,
                 ReviewPhrase(
                     user_id=first_id, source_ru="Будущая", source_normalized="будущая",
-                    intended_sr_variants_json=["Kasnije"], status="mastered",
+                    intended_tr_variants_json=["Kasnije"], status="mastered",
                     next_review_at=now + timedelta(days=1),
                 ),
                 ReviewPhrase(
                     user_id=second_id, source_ru="Чужая", source_normalized="чужая",
-                    intended_sr_variants_json=["Tuđa"], topic_id="second-owned",
+                    intended_tr_variants_json=["Tuđa"], topic_id="second-owned",
                 ),
             ])
             db.flush()

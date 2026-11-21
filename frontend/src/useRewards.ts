@@ -12,8 +12,16 @@ export function useRewards() {
   const seen = useRef(new Set<string>());
   const sounds = useRewardPreference("sounds");
 
-  useEffect(() => () => { clearTimeout(timer.current); audio.current?.dispose(); }, []);
-  useEffect(() => { if (!sounds) audio.current?.stop(); }, [sounds]);
+  useEffect(
+    () => () => {
+      clearTimeout(timer.current);
+      audio.current?.dispose();
+    },
+    [],
+  );
+  useEffect(() => {
+    if (!sounds) audio.current?.stop();
+  }, [sounds]);
 
   function prepareReward() {
     if (!readRewardPreference("sounds")) return;

@@ -2,7 +2,9 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel, ConfigDict, Field
 from sqlalchemy.orm import Session
 
+from app.api.dependencies import get_current_user
 from app.db import get_db
+from app.models import User
 from app.schemas import (
     CreateReviewPhraseRequest,
     LearningWordResponse,
@@ -19,8 +21,6 @@ from app.services.review_service import (
     ReviewService,
     WordHintNotFoundError,
 )
-from app.api.dependencies import get_current_user
-from app.models import User
 
 router = APIRouter(tags=["review"])
 

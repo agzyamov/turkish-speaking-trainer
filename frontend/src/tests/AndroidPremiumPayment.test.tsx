@@ -3,15 +3,19 @@ import { afterEach, expect, it, vi } from "vitest";
 import { Capacitor } from "@capacitor/core";
 import { PremiumView } from "../PremiumView";
 import { setLanguage } from "../i18n";
+import { QueryProvider } from "../shared/lib/QueryProvider";
 
-const props = { topics: [], alphabet: "latin" as const,
-  onTopicCreated: vi.fn(), onChanged: vi.fn(), onDeleted: vi.fn() };
-afterEach(() => { cleanup(); vi.restoreAllMocks(); setLanguage("ru"); });
+const props = { topics: [], onTopicCreated: vi.fn(), onChanged: vi.fn(), onDeleted: vi.fn() };
+afterEach(() => {
+  cleanup();
+  vi.restoreAllMocks();
+  setLanguage("ru");
+});
 
 it.each(["ru", "en"] as const)("never offers payment on Android, including recovery (%s)", language => {
   vi.spyOn(Capacitor, "getPlatform").mockReturnValue("android");
   setLanguage(language);
-  const { container, rerender } = render(<PremiumView {...props} active={false} />);
+  const { container, rerender } = render(<PremiumView {...props} active={false} />, { wrapper: QueryProvider });
   expect(screen.getByRole("status")).toHaveTextContent(language === "ru" ? "Восстанавливаем доступ Premium…" : "Restoring Premium access…");
   expect(container.querySelector("a, button, .payment-form, .premium-offer")).toBeNull();
   rerender(<PremiumView {...props} active />);

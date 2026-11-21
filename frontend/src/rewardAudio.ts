@@ -15,7 +15,9 @@ export class RewardAudio {
       void context.resume().catch(() => undefined);
       this.buffer ??= context.decodeAudioData(Uint8Array.from(atob(bell.split(",")[1]), char => char.charCodeAt(0)).buffer);
       void this.buffer.catch(() => undefined);
-    } catch { /* Unsupported or blocked audio must never interrupt training. */ }
+    } catch {
+      /* Unsupported or blocked audio must never interrupt training. */
+    }
   }
 
   async play() {
@@ -27,9 +29,17 @@ export class RewardAudio {
       this.source.buffer = buffer;
       this.source.connect(this.context.destination);
       this.source.start();
-    } catch { /* Safe silent fallback. */ }
+    } catch {
+      /* Safe silent fallback. */
+    }
   }
 
-  stop() { this.source?.stop(); this.source = undefined; }
-  dispose() { this.stop(); void this.context?.close().catch(() => undefined); }
+  stop() {
+    this.source?.stop();
+    this.source = undefined;
+  }
+  dispose() {
+    this.stop();
+    void this.context?.close().catch(() => undefined);
+  }
 }

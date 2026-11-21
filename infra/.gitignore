@@ -1,0 +1,8 @@
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfplan
+crash.log
+# Secrets come from TF_VAR_* in CI; never keep a local tfvars with values.
+secrets.auto.tfvars
+terraform.tfstate.d/

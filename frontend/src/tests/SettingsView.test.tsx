@@ -5,31 +5,31 @@ import { afterEach, expect, it, vi } from "vitest";
 import { SettingsView } from "../SettingsView";
 import { setLanguage } from "../i18n";
 
-afterEach(() => { cleanup(); setLanguage("ru"); });
+afterEach(() => {
+  cleanup();
+  setLanguage("ru");
+});
 
 it.each(["ru", "en"] as const)("keeps card selections and native switches accessible in %s", language => {
   setLanguage(language);
-  const alphabetChange = vi.fn();
   const assistanceChange = vi.fn();
-  const view = render(<SettingsView alphabet="latin" onAlphabetChange={alphabetChange} assistanceEnabled onAssistanceChange={assistanceChange} />);
+  const view = render(<SettingsView assistanceEnabled onAssistanceChange={assistanceChange} />);
   const languageGroup = screen.getByRole("group", { name: language === "ru" ? "Язык интерфейса и исходных фраз" : "Interface and source language" });
   expect(within(languageGroup).getByRole("radio", { name: language === "ru" ? "Русский" : "English" })).toBeChecked();
   fireEvent.click(within(languageGroup).getByRole("radio", { name: language === "ru" ? "English" : "Русский" }));
   const nextEn = language === "ru";
   expect(screen.getByRole("heading", { name: nextEn ? "Settings" : "Настройки" })).toBeInTheDocument();
-  fireEvent.click(screen.getByRole("radio", { name: new RegExp(nextEn ? "Cyrillic" : "Кириллица") }));
-  expect(alphabetChange).toHaveBeenCalledWith("cyrillic");
+  expect(screen.queryByRole("radio", { name: /Cyrillic|Кириллица|Latin|Латиница/ })).not.toBeInTheDocument();
   const hints = screen.getByRole("switch", { name: nextEn ? "Gentle transcription hints" : "Мягкие подсказки при распознавании" });
   fireEvent.click(hints);
   expect(assistanceChange).toHaveBeenCalledWith(false);
-  view.rerender(<SettingsView alphabet="cyrillic" onAlphabetChange={alphabetChange} assistanceEnabled assistanceSaving />);
-  expect(screen.getByRole("radio", { name: new RegExp(nextEn ? "Cyrillic" : "Кириллица") })).toBeChecked();
+  view.rerender(<SettingsView assistanceEnabled assistanceSaving />);
   expect(screen.getByRole("switch", { name: nextEn ? "Gentle transcription hints" : "Мягкие подсказки при распознавании" })).toBeDisabled();
   expect(screen.getByRole("status")).toHaveTextContent(nextEn ? "Saving preference…" : "Сохраняем настройку…");
 });
 
 it("shows the current Android release number in settings", () => {
-  render(<SettingsView alphabet="latin" onAlphabetChange={() => {}} />);
+  render(<SettingsView />);
   const androidBuild = readFileSync(resolve(process.cwd(), "android/app/build.gradle"), "utf-8");
   const androidVersion = androidBuild.match(/versionName "([^"]+)"/)?.[1];
   expect(androidVersion).toBeDefined();
@@ -42,12 +42,24 @@ it.each(["ru", "en"] as const)("separates account details, sign out and deletion
   setLanguage(language);
   const en = language === "en";
   const signOut = vi.fn();
-  render(<SettingsView alphabet="latin" onAlphabetChange={() => {}} onSignOut={signOut} account={{
-    id: "synthetic-user", email: "review@example.com", display_name: "Maksim Sumin", avatar_url: null,
-    role: "user", access_tier: "free", assistance_enabled: false, can_debug_models: false,
-    registered_at: "2026-10-12T00:00:00Z", last_active_at: "2026-10-12T00:00:00Z",
-    daily_usage: { used: 0, limit: 20, remaining: 20, resets_at: "2026-10-13T00:00:00Z" },
-  }} />);
+  render(
+    <SettingsView
+      onSignOut={signOut}
+      account={{
+        id: "synthetic-user",
+        email: "review@example.com",
+        display_name: "Maksim Sumin",
+        avatar_url: null,
+        role: "user",
+        access_tier: "free",
+        assistance_enabled: false,
+        can_debug_models: false,
+        registered_at: "2026-10-12T00:00:00Z",
+        last_active_at: "2026-10-12T00:00:00Z",
+        daily_usage: { used: 0, limit: 20, remaining: 20, resets_at: "2026-10-13T00:00:00Z" },
+      }}
+    />,
+  );
   const account = screen.getByRole("region", { name: en ? "Account" : "Аккаунт" });
   expect(within(account).getByText("Maksim Sumin")).toBeInTheDocument();
   expect(within(account).getByText(en ? "20 of 20 phrases remaining" : "20 из 20 фраз осталось")).toBeInTheDocument();
@@ -60,14 +72,23 @@ it.each(["ru", "en"] as const)("separates account details, sign out and deletion
   expect(screen.queryByText(/По умолчанию выключено|Off by default/)).not.toBeInTheDocument();
 });
 
-
 it.each(["ru", "en"] as const)("shows the premium daily allowance from the API (%s)", language => {
   setLanguage(language);
-  render(<SettingsView alphabet="latin" onAlphabetChange={() => {}} account={{
-    id: "premium-user", email: "premium@example.invalid", display_name: null, avatar_url: null,
-    role: "user", access_tier: "premium", registered_at: "2026-10-24", last_active_at: "2026-10-24",
-    daily_usage: { used: 99, limit: 100, remaining: 1, resets_at: "2026-10-25T00:00:00Z" },
-  }} />);
+  render(
+    <SettingsView
+      account={{
+        id: "premium-user",
+        email: "premium@example.invalid",
+        display_name: null,
+        avatar_url: null,
+        role: "user",
+        access_tier: "premium",
+        registered_at: "2026-10-24",
+        last_active_at: "2026-10-24",
+        daily_usage: { used: 99, limit: 100, remaining: 1, resets_at: "2026-10-25T00:00:00Z" },
+      }}
+    />,
+  );
   expect(screen.getByText(language === "ru" ? "1 из 100 фраз осталось" : "1 of 100 phrases remaining")).toBeInTheDocument();
   expect(screen.queryByText(/без лимита|unlimited/)).not.toBeInTheDocument();
 });

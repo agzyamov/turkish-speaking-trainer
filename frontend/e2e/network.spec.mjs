@@ -1,39 +1,76 @@
 import { expect, test } from "@playwright/test";
+import { installAccountRoutes } from "./accountRoutes.mjs";
+import { tokenColor } from "./tokens.mjs";
 import { installSyntheticMicrophone } from "./flow.mjs";
 
 const topic = {
-  id: "bank", title_ru: "В банке", description_ru: "Счёт и платежи",
-  likely_intents: ["открыть счёт"], suggested_vocabulary: ["račun"], is_custom: false, phrase_count: 20,
+  id: "bank",
+  title_ru: "В банке",
+  description_ru: "Счёт и платежи",
+  likely_intents: ["открыть счёт"],
+  suggested_vocabulary: ["račun"],
+  is_custom: false,
+  phrase_count: 20,
 };
 const session = {
-  id: "session-1", status: "active", level: "A2", started_at: "2026-09-29T10:00:00Z",
-  requested_length: 10, completed_count: 0,
+  id: "session-1",
+  status: "active",
+  level: "A2",
+  started_at: "2026-09-29T10:00:00Z",
+  requested_length: 10,
+  completed_count: 0,
   topic: { ...topic, source: "preset", target_level: "A2", excluded_domains: [], normalized_prompt_context: "Разговор в банке" },
 };
 const exercise = (id, source) => ({
-  id, session_id: session.id, source_ru: source, targeted_skills: ["modal_verbs"],
-  expected_level: "A2", difficulty: 1, word_hints: [],
+  id,
+  session_id: session.id,
+  source_ru: source,
+  targeted_skills: ["modal_verbs"],
+  expected_level: "A2",
+  difficulty: 1,
+  word_hints: [],
 });
 const account = {
-  id: "user-1", email: "learner@example.invalid", display_name: "Ученик", avatar_url: null,
-  role: "user", access_tier: "free", registered_at: "2026-09-01T10:00:00Z",
+  id: "user-1",
+  email: "learner@example.invalid",
+  display_name: "Ученик",
+  avatar_url: null,
+  role: "user",
+  access_tier: "free",
+  registered_at: "2026-09-01T10:00:00Z",
   last_active_at: "2026-09-29T10:00:00Z",
   daily_usage: { used: 0, limit: 10, remaining: 10, resets_at: "2026-09-30T00:00:00Z" },
 };
-const attempt = (requestBody) => ({
-  id: "attempt-1", exercise_id: requestBody.exercise_id, transcript_sr: requestBody.transcript_sr,
-  overall_score: 0.96, base_score: 0.96, hint_penalty: 0, transcription_assisted: Boolean(requestBody.accepted_transcription_changes?.length), daily_usage: account.daily_usage,
-  analysis: { verdict: "correct", semantic_score: 0.96, grammar_score: 0.96,
-    lexical_score: 0.96, naturalness_score: 0.96, pronunciation_score: null,
-    fluency_score: 1, corrected_sr: requestBody.transcript_sr,
-    short_feedback_ru: "Верный перевод.", detailed_feedback_ru: "Верный перевод.",
-    accepted_alternatives: [], issues: [], demonstrated_skills: [] },
+const attempt = requestBody => ({
+  id: "attempt-1",
+  exercise_id: requestBody.exercise_id,
+  transcript_tr: requestBody.transcript_tr,
+  overall_score: 0.96,
+  base_score: 0.96,
+  hint_penalty: 0,
+  transcription_assisted: Boolean(requestBody.accepted_transcription_changes?.length),
+  daily_usage: account.daily_usage,
+  analysis: {
+    verdict: "correct",
+    semantic_score: 0.96,
+    grammar_score: 0.96,
+    lexical_score: 0.96,
+    naturalness_score: 0.96,
+    pronunciation_score: null,
+    fluency_score: 1,
+    corrected_tr: requestBody.transcript_tr,
+    short_feedback_ru: "Верный перевод.",
+    detailed_feedback_ru: "Верный перевод.",
+    accepted_alternatives: [],
+    issues: [],
+    demonstrated_skills: [],
+  },
 });
 
 async function installApp(page, overrides = {}) {
   await installSyntheticMicrophone(page);
   const state = { topics: 0, start: 0, transcription: 0, attempts: [], next: [], savedAttempts: 0, ...overrides };
-  await page.route("**/api/**", async (route) => {
+  await page.route("**/api/**", async route => {
     const request = route.request();
     const path = new URL(request.url()).pathname;
     const method = request.method();
@@ -74,19 +111,33 @@ async function installApp(page, overrides = {}) {
     }
     throw new Error(`Unexpected mocked API request: ${method} ${path}`);
   });
+  await installAccountRoutes(page);
   await page.goto("/privacy");
-  await page.evaluate(storageKey => localStorage.setItem(storageKey, JSON.stringify({
-    access_token: "e2e-local-only", refresh_token: "e2e-local-only", token_type: "bearer",
-    expires_in: 60 * 60 * 24 * 365, expires_at: 4102444800,
-    user: { id: "user-1", aud: "authenticated", role: "authenticated", email: "learner@example.invalid",
-      app_metadata: {}, user_metadata: {}, created_at: "2026-09-01T10:00:00Z" },
-  })), process.env.E2E_AUTH_STORAGE_KEY ?? "sb-e2e-auth-auth-token");
+  await page.evaluate(
+    storageKey =>
+      localStorage.setItem(
+        storageKey,
+        JSON.stringify({
+          access_token: "e2e-local-only",
+          refresh_token: "e2e-local-only",
+          token_type: "bearer",
+          expires_in: 60 * 60 * 24 * 365,
+          expires_at: 4102444800,
+          user: { id: "user-1", aud: "authenticated", role: "authenticated", email: "learner@example.invalid", app_metadata: {}, user_metadata: {}, created_at: "2026-09-01T10:00:00Z" },
+        }),
+      ),
+    process.env.E2E_AUTH_STORAGE_KEY ?? "sb-e2e-auth-auth-token",
+  );
+  await installAccountRoutes(page);
   await page.goto("/?perf=1");
   return state;
 }
 
 async function startPractice(page) {
-  await page.getByRole("button", { name: /В банке/ }).first().click();
+  await page
+    .getByRole("button", { name: /В банке/ })
+    .first()
+    .click();
   await expect(page.locator(".practice-stage .interactive-phrase")).toBeVisible();
 }
 
@@ -114,7 +165,10 @@ async function submit(page) {
 test("failed session start can be retried from the selected topic", async ({ page }) => {
   const state = await installApp(page, { failStart: true });
   await expect(page.getByRole("alert")).toContainText("Не удалось подготовить");
-  await page.getByRole("button", { name: /В банке/ }).first().click();
+  await page
+    .getByRole("button", { name: /В банке/ })
+    .first()
+    .click();
   await expect(page.locator(".practice-stage .interactive-phrase")).toBeVisible();
   expect(state.start).toBe(2);
 });
@@ -140,7 +194,7 @@ test("disconnected attempt preserves the draft and retries with the same ID once
   await startPractice(page);
   await transcribeSyntheticAnswer(page);
   await submit(page);
-  await expect(page.getByRole("alert")).toContainText("Не удалось проверить ответ");
+  await expect(page.getByRole("alert")).toContainText("Не удалось получить результат проверки. Ваш ответ сохранён");
   await expect(page.getByLabel("Ваш ответ")).toHaveValue("Želim da otvorim račun.");
   await submit(page);
   await expect(page.locator(".practice-stage .feedback")).toBeVisible();
@@ -165,14 +219,16 @@ test("failed next-phrase prefetch retries with the same request ID", async ({ pa
 
 test("late next-phrase response after leaving the session is ignored", async ({ page }) => {
   let releaseNext;
-  const pendingNext = new Promise((resolve) => { releaseNext = resolve; });
+  const pendingNext = new Promise(resolve => {
+    releaseNext = resolve;
+  });
   const state = await installApp(page, { pendingNext });
   await startPractice(page);
   await transcribeSyntheticAnswer(page);
   await submit(page);
   await expect(page.locator(".practice-stage .feedback")).toBeVisible();
   await expect.poll(() => state.next.length).toBe(1);
-  await page.getByRole("button", { name: "SerboTalk — к практике" }).click();
+  await page.getByRole("button", { name: "TurkTalk — к практике" }).click();
   releaseNext();
   await expect(page.locator(".practice-stage .interactive-phrase")).toHaveCount(0);
   await expect(page.getByRole("button", { name: /В банке/ }).first()).toBeVisible();
@@ -181,7 +237,6 @@ test("late next-phrase response after leaving the session is ignored", async ({ 
 async function json(route, value) {
   await route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(value) });
 }
-
 
 test("foreign STT letters remain editable and block grading", async ({ page }) => {
   const state = await installApp(page, { reviewTranscript: "Платячу банковном картицом." });
@@ -200,7 +255,7 @@ test("foreign STT letters remain editable and block grading", async ({ page }) =
       const css = getComputedStyle(el);
       return { color: css.color, background: css.backgroundColor, overflow: el.scrollWidth > el.clientWidth };
     });
-    expect(style.color).toBe("rgb(234, 242, 255)");
+    expect(style.color).toBe(await tokenColor(page, "--color-danger"));
     expect(style.background).not.toBe("rgb(255, 255, 255)");
     expect(style.overflow).toBe(false);
     await page.screenshot({ path: `../artifacts/stt-review-${width}.png`, fullPage: true });
@@ -209,9 +264,8 @@ test("foreign STT letters remain editable and block grading", async ({ page }) =
   await submit(page);
   await expect(page.locator(".feedback:visible")).toBeVisible();
   expect(state.attempts).toHaveLength(1);
-  expect(state.attempts[0].transcript_sr).toBe("Platiću bankovnom karticom.");
+  expect(state.attempts[0].transcript_tr).toBe("Platiću bankovnom karticom.");
 });
-
 
 test("mobile panels fit the viewport and preserve the answer across navigation", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 700 });
@@ -221,12 +275,17 @@ test("mobile panels fit the viewport and preserve the answer across navigation",
   expect(await shell.evaluate(el => getComputedStyle(el).fontFamily)).toContain("system-ui");
   await expect(page.locator(".interactive-phrase:visible")).toHaveAttribute("aria-label", "Я хочу открыть счёт.");
   async function fits() {
-    const dimensions = await page.evaluate(() => ({ width: innerWidth, height: innerHeight,
-      scrollWidth: document.documentElement.scrollWidth, scrollHeight: document.documentElement.scrollHeight }));
+    const dimensions = await page.evaluate(() => ({ width: innerWidth, height: innerHeight, scrollWidth: document.documentElement.scrollWidth, scrollHeight: document.documentElement.scrollHeight }));
     expect(dimensions.scrollWidth).toBeLessThanOrEqual(dimensions.width);
     expect(dimensions.scrollHeight).toBeLessThanOrEqual(dimensions.height);
-    const microphone = await page.getByRole("button", { name: /Ответить голосом|Записать заново/ }).boundingBox();
-    expect(microphone.y + microphone.height).toBeLessThanOrEqual(dimensions.height);
+    // The shell follows the visual viewport on its resize event, so give it a frame to settle.
+    const microphone = page.getByRole("button", { name: /Ответить голосом|Записать заново/ });
+    await expect
+      .poll(async () => {
+        const box = await microphone.boundingBox();
+        return box.y + box.height;
+      })
+      .toBeLessThanOrEqual(dimensions.height);
   }
   await fits();
   await page.getByRole("button", { name: "Темы", exact: true }).click();
@@ -236,7 +295,11 @@ test("mobile panels fit the viewport and preserve the answer across navigation",
   await page.getByRole("button", { name: "Настройки", exact: true }).click();
   await page.getByRole("button", { name: "Тренировка", exact: true }).click();
   await expect(page.getByLabel("Ваш ответ")).toHaveValue("Želim da otvorim račun.");
-  for (const size of [{ width: 320, height: 568 }, { width: 740, height: 360 }, { width: 390, height: 700 }]) {
+  for (const size of [
+    { width: 320, height: 568 },
+    { width: 740, height: 360 },
+    { width: 390, height: 700 },
+  ]) {
     await page.setViewportSize(size);
     await fits();
     await page.screenshot({ path: `../artifacts/mobile-layout-${size.width}.png`, fullPage: true });
@@ -253,7 +316,6 @@ test("mobile panels fit the viewport and preserve the answer across navigation",
   expect(state.start).toBe(1);
 });
 
-
 for (const variant of [
   { name: "desktop", width: 1280, height: 800 },
   { name: "mobile", width: 390, height: 700 },
@@ -262,20 +324,38 @@ for (const variant of [
 ]) {
   test(`compact assistance shows only the replacement and action (${variant.name})`, async ({ page }) => {
     await page.setViewportSize({ width: variant.width, height: variant.height });
-    if (variant.native) await page.addInitScript(() => { window.CapacitorCustomPlatform = { name: "android" }; });
+    if (variant.native)
+      await page.addInitScript(() => {
+        window.CapacitorCustomPlatform = { name: "android" };
+      });
     const raw = "Malo čemo kasniti. Imam racun i neznam.";
-    await installApp(page, { transcriptionResponse: {
-      text: raw, raw_text: raw, assistance_status: "analyzed", transcription_id: "receipt",
-      changes: [["čemo", "ćemo"], ["racun", "račun"], ["neznam", "ne znam"]].map(([original, replacement]) => ({
-        start: raw.indexOf(original), end: raw.indexOf(original) + original.length, original, replacement,
-        kind: "phonetic_ambiguity", action: "suggested", reason_code: "confirm_ambiguous_sound", explanation_ru: "Длинное пояснение, которое не должно отображаться.",
-      })),
-    } });
+    await installApp(page, {
+      transcriptionResponse: {
+        text: raw,
+        raw_text: raw,
+        assistance_status: "analyzed",
+        transcription_id: "receipt",
+        changes: [
+          ["čemo", "ćemo"],
+          ["racun", "račun"],
+          ["neznam", "ne znam"],
+        ].map(([original, replacement]) => ({
+          start: raw.indexOf(original),
+          end: raw.indexOf(original) + original.length,
+          original,
+          replacement,
+          kind: "phonetic_ambiguity",
+          action: "suggested",
+          reason_code: "confirm_ambiguous_sound",
+          explanation_ru: "Длинное пояснение, которое не должно отображаться.",
+        })),
+      },
+    });
     if (variant.native) await page.getByRole("button", { name: "Тренировка", exact: true }).click();
     else if (variant.width > 780) await startPractice(page);
     await page.getByRole("button", { name: "Ответить голосом" }).click();
     await page.getByRole("button", { name: "Завершить запись" }).click();
-    const panel = page.getByRole("region", { name: "Мягкие подсказки" });
+    const panel = page.getByRole("region", { name: "Мягкие подсказки", exact: true });
     await expect(panel).toBeVisible();
     await expect(panel.locator("p")).toHaveCount(1);
     await expect(panel.locator("p")).toHaveText("Возможное искажение распознавания.");

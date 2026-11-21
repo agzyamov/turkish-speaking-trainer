@@ -4,11 +4,17 @@ vi.mock("@capacitor/core", () => ({ Capacitor: { isNativePlatform: native } }));
 const sdk = vi.hoisted(() => ({ signInWithOtp: vi.fn(), verifyOtp: vi.fn() }));
 vi.mock("../auth", () => ({ getSupabase: () => ({ auth: sdk }) }));
 import { isEmailOtpEnabled, requestEmailCode, verifyEmailCode } from "../emailAuth";
-afterEach(() => { native.mockReturnValue(false); vi.resetAllMocks(); vi.unstubAllEnvs(); });
+afterEach(() => {
+  native.mockReturnValue(false);
+  vi.resetAllMocks();
+  vi.unstubAllEnvs();
+});
 
 it("requires an explicit rollout flag", () => {
-  vi.stubEnv("VITE_EMAIL_OTP_ENABLED", "false"); expect(isEmailOtpEnabled()).toBe(false);
-  vi.stubEnv("VITE_EMAIL_OTP_ENABLED", "true"); expect(isEmailOtpEnabled()).toBe(true);
+  vi.stubEnv("VITE_EMAIL_OTP_ENABLED", "false");
+  expect(isEmailOtpEnabled()).toBe(false);
+  vi.stubEnv("VITE_EMAIL_OTP_ENABLED", "true");
+  expect(isEmailOtpEnabled()).toBe(true);
 });
 it("uses Supabase email OTP signup and session verification", async () => {
   sdk.signInWithOtp.mockResolvedValue({ error: null });

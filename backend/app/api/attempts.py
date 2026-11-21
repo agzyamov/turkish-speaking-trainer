@@ -1,17 +1,23 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
+from app.api.dependencies import get_current_user
 from app.db import get_db
+from app.models import User
 from app.schemas import AttemptResponse, CreateAttemptRequest
 from app.services.ai_adapter import StructuredAIProvider, get_ai_provider
-from app.services.attempt_service import AttemptInProgressError, AttemptRequestConflictError, AttemptService, ExerciseNotFoundError
-from app.services.attempt_service import DailyLimitExceededError
-from app.services.attempt_service import InvalidTranscriptionReceiptError, UnexpectedTranscriptScriptError
 from app.services.answer_analyzer import AnalysisUnavailableError
-from app.services.session_service import SessionCompletedError, SessionUnavailableError
-from app.api.dependencies import get_current_user
-from app.models import User
+from app.services.attempt_service import (
+    AttemptInProgressError,
+    AttemptRequestConflictError,
+    AttemptService,
+    DailyLimitExceededError,
+    ExerciseNotFoundError,
+    InvalidTranscriptionReceiptError,
+    UnexpectedTranscriptScriptError,
+)
 from app.services.failure_diagnostics import record_failure
+from app.services.session_service import SessionCompletedError, SessionUnavailableError
 
 router = APIRouter(prefix="/attempts", tags=["attempts"])
 

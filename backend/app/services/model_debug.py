@@ -2,10 +2,12 @@
 from contextlib import contextmanager
 from contextvars import ContextVar
 from dataclasses import dataclass
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from time import perf_counter
+
 from sqlalchemy import Engine
 from sqlalchemy.orm import Session
+
 from app.config import Settings
 from app.models import User
 from app.repositories.model_debug import ModelDebugRepository
@@ -57,7 +59,7 @@ class DebugCapture:
                     self.request = DebugPayload(data={**_clean(request, secret), "_diagnostic_id": diagnostic_context.get()}).data
             except Exception:
                 self.generation = None  # Diagnostics must not break learning.
-        self.started_at = datetime.now(timezone.utc)
+        self.started_at = datetime.now(UTC)
         self.started = perf_counter()
 
     @property
@@ -66,7 +68,7 @@ class DebugCapture:
 
     def attach_audio(self, payload: bytes, content_type: str):
         # Only the initial STT call stores bytes; retries use the same SHA-256.
-        if self.enabled and self.operation == "audio.transcriptions" and 0 < len(payload) <= 1_000_000:
+        if self.enabled and self.operation in {"audio.transcriptions", "speech_to_text"} and 0 < len(payload) <= 1_000_000:
             if content_type in {"audio/webm", "audio/ogg", "audio/mp4", "audio/mpeg", "audio/wav", "audio/x-wav"}:
                 self.audio, self.audio_content_type = payload, content_type
 
@@ -109,7 +111,7 @@ class DebugCapture:
         self.response = DebugPayload(data=_clean(data, self.secret)).data
 
     def finish(self, error: Exception | None):
-        completed_at = datetime.now(timezone.utc)
+        completed_at = datetime.now(UTC)
         duration_ms = (perf_counter() - self.started) * 1000
         if self.generation is None or self.context is None:
             return

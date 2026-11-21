@@ -1,4 +1,4 @@
-from sqlalchemy import select, func
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from app.models import Exercise, ReviewPhrase, TopicPreset, User
@@ -16,7 +16,7 @@ class SourceVersionRepository:
 
     def cache(self, exercise: Exercise, phrase: ReviewPhrase | None, payload: dict) -> None:
         exercise.target_hints_json = {**exercise.target_hints_json, 'source_versions': payload}
-        if phrase is not None and phrase.source_ru == exercise.source_ru and next(iter(phrase.intended_sr_variants_json), '') == payload['canonical_sr']:
+        if phrase is not None and phrase.source_ru == exercise.source_ru and next(iter(phrase.intended_tr_variants_json), '') == payload['canonical_tr']:
             phrase.source_versions_json = payload
         self.db.flush()
 
@@ -29,7 +29,7 @@ class SourceVersionRepository:
 
     def save_phrase(self, phrase: ReviewPhrase, payload: dict) -> None:
         self.db.refresh(phrase)
-        if phrase.source_ru != payload['source'] or next(iter(phrase.intended_sr_variants_json), '') != payload['canonical_sr']:
+        if phrase.source_ru != payload['source'] or next(iter(phrase.intended_tr_variants_json), '') != payload['canonical_tr']:
             raise RuntimeError('Phrase changed during translation; retry without overwriting it')
         phrase.source_versions_json = payload
         self.db.flush()

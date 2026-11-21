@@ -7,17 +7,16 @@ from pathlib import Path
 import jwt
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine, inspect, text
-
 from testlab import (
     EMAIL,
     ISSUER,
     USER_ID,
     Credentials,
+    _alembic,
+    bootstrap_testlab_database,
     create_auth_app,
     create_deterministic_analysis_provider,
     ensure_local_configuration,
-    bootstrap_testlab_database,
-    _alembic,
 )
 
 
@@ -101,6 +100,7 @@ def alembic_revision(engine) -> str:
 
 def current_revision() -> str:
     from alembic.script import ScriptDirectory
+
     from app.db.cli import alembic_config
     return ScriptDirectory.from_config(alembic_config()).get_current_head()
 
@@ -240,8 +240,6 @@ def test_fresh_testlab_database_is_initialized_by_alembic(tmp_path) -> None:
             assert {column["name"] for column in inspector.get_columns(table.name)} == {
                 column.name for column in table.columns
             }
-        from alembic.script import ScriptDirectory
-        from app.db.cli import alembic_config
         assert alembic_revision(engine) == current_revision()
     finally:
         engine.dispose()
@@ -347,14 +345,14 @@ def test_deterministic_analysis_uses_schema_and_catalog_skills_through_real_anal
     assert provider.is_available
     result = provider.analyze_answer(
         source_ru="Тестовый ответ",
-        transcript_sr="Izvinite, možete li da mi pomognete?",
-        canonical_sr="Radim kao računovođa u maloj firmi.",
-        intended_sr_variants=["Radim kao računovođa u maloj firmi."],
-        target_skills=[{"key": "grammar.present"}, {"key": "unknown.generated.skill"}],
+        transcript_tr="Affedersiniz, bana yardım edebilir misiniz?",
+        canonical_tr="Küçük bir şirkette muhasebeci olarak çalışıyorum.",
+        intended_tr_variants=["Küçük bir şirkette muhasebeci olarak çalışıyorum."],
+        target_skills=[{"key": "grammar.present_continuous"}, {"key": "unknown.generated.skill"}],
         timings={},
     )
     assert result.verdict == "correct"
-    assert [item.skill_key for item in result.demonstrated_skills] == ["grammar.present"]
+    assert [item.skill_key for item in result.demonstrated_skills] == ["grammar.present_continuous"]
     assert result.issues == []
     assert "синтетические" in result.detailed_feedback_ru
 
@@ -362,21 +360,21 @@ def test_deterministic_analysis_uses_schema_and_catalog_skills_through_real_anal
     from app.schemas import CreateAttemptRequest
     from app.services.answer_analyzer import AnswerAnalyzer
 
-    transcript = "Izvinite, možete li da mi pomognete?"
+    transcript = "Affedersiniz, bana yardım edebilir misiniz?"
     checked = AnswerAnalyzer(provider, Settings(
         app_env="testlab", database_url="sqlite:///:memory:", supabase_url="http://127.0.0.1:8766",
         supabase_publishable_key="sb_publishable_testlab_local_only", admin_emails="",
     )).analyze(
         source_ru="Тестовый ответ",
-        transcript_sr=transcript,
-        intended_sr_variants=["Radim kao računovođa u maloj firmi."],
-        target_skills=[{"key": "grammar.present"}],
-        timing=CreateAttemptRequest(exercise_id="test", transcript_sr=transcript),
-        canonical_sr="Radim kao računovođa u maloj firmi.",
+        transcript_tr=transcript,
+        intended_tr_variants=["Küçük bir şirkette muhasebeci olarak çalışıyorum."],
+        target_skills=[{"key": "grammar.present_continuous"}],
+        timing=CreateAttemptRequest(exercise_id="test", transcript_tr=transcript),
+        canonical_tr="Küçük bir şirkette muhasebeci olarak çalışıyorum.",
     )
     assert checked.verdict == "correct"
-    assert checked.corrected_sr == "Radim kao računovođa u maloj firmi."
-    assert [item.skill_key for item in checked.demonstrated_skills] == ["grammar.present"]
+    assert checked.corrected_tr == "Küçük bir şirkette muhasebeci olarak çalışıyorum."
+    assert [item.skill_key for item in checked.demonstrated_skills] == ["grammar.present_continuous"]
 
 
 def test_pre_preference_schema_upgrades_preserving_users(tmp_path) -> None:

@@ -52,7 +52,7 @@ def test_training_graph_crud_and_cascade(db_session: Session) -> None:
         Exercise(session_id=training.id, source_ru="Можно оплатить картой?")
     )
     attempt = Repository(db_session, Attempt).add(
-        Attempt(exercise_id=exercise.id, transcript_sr="Da li mogu da platim karticom?", overall_score=0.9)
+        Attempt(exercise_id=exercise.id, transcript_tr="Da li mogu da platim karticom?", overall_score=0.9)
     )
     learner = Repository(db_session, LearnerSkill).add(LearnerSkill(skill_id=skill.id, mastery=0.4))
     error = Repository(db_session, ErrorEvent).add(

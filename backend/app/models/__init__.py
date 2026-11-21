@@ -1,25 +1,27 @@
-from .payments import PaymentRequest
 from .entities import (
-    ModelDebugLog,
-    ModelDebugSetting,
+    AIUsageEvent,
     Attempt,
     AttemptRequest,
-    TranscriptionReceipt,
-    PhrasePreparationReceipt,
     ErrorEvent,
     Exercise,
     LearnerSkill,
+    ModelDebugLog,
+    ModelDebugSetting,
+    PhrasePreparationReceipt,
     ReviewPhrase,
     Skill,
-    TopicPreset,
     TopicPhrase,
+    TopicPreset,
     TrainingSession,
+    TranscriptionReceipt,
     User,
     UserFeedback,
     WordLearningItem,
 )
+from .payments import PaymentRequest
 
 __all__ = [
+    "AIUsageEvent",
     "PaymentRequest",
     "ModelDebugLog",
     "ModelDebugSetting",

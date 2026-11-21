@@ -2,15 +2,15 @@
 from __future__ import annotations
 
 import argparse
-from collections import Counter
-from datetime import datetime, timezone
 import hashlib
 import json
 import math
 import os
-from pathlib import Path
 import statistics
 import sys
+from collections import Counter
+from datetime import UTC, datetime
+from pathlib import Path
 from time import perf_counter
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -36,6 +36,7 @@ def main() -> None:
     from fastapi.testclient import TestClient
     from sqlalchemy import event, select
     from sqlalchemy.orm import Session
+
     from app.api.dependencies import get_current_user
     from app.db.base import Base
     from app.db.session import create_database_engine, get_db
@@ -65,18 +66,18 @@ def main() -> None:
             for index in range(count):
                 db.add(Attempt(
                     exercise_id=exercises[user_index].id,
-                    transcript_sr="Synthetic transcript, no recorded audio",
+                    transcript_tr="Synthetic transcript, no recorded audio",
                     analysis_json={"synthetic": "x" * 300}, timings_json={"duration_ms": 2500},
                     overall_score=0.95 if index % 3 == 0 else 0.7,
-                    created_at=datetime(2026, 9, index % 28 + 1, 12, tzinfo=timezone.utc),
+                    created_at=datetime(2026, 9, index % 28 + 1, 12, tzinfo=UTC),
                 ))
         for user_index, count in enumerate((FIXTURE["mastered"], FIXTURE["other_mastered"])):
             for index in range(count):
                 db.add(ReviewPhrase(
                     user_id=users[user_index].id, source_ru=f"Synthetic phrase {index}",
                     source_normalized=f"synthetic {index}", status="mastered",
-                    intended_sr_variants_json=["Sintetička rečenica"],
-                    mastered_at=datetime(2026, 9, index % 28 + 1, 12, tzinfo=timezone.utc),
+                    intended_tr_variants_json=["Sintetička rečenica"],
+                    mastered_at=datetime(2026, 9, index % 28 + 1, 12, tzinfo=UTC),
                 ))
         db.commit()
     current_user = User(id=USER_ID, email="benchmark@example.invalid")

@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from sqlalchemy.orm import Session
 
@@ -10,7 +10,7 @@ from app.repositories.users import UserRepository
 from app.schemas.payments import PaymentChoice, PaymentConfig, PaymentDecision, PaymentReport
 from app.services.notifications import notify_after_commit
 
-COUNTRY_METHODS = {"russia": ["sbp"], "serbia": ["paypal"], "other": ["paypal"]}
+COUNTRY_METHODS = {"russia": ["sbp"], "turkey": ["paypal"], "other": ["paypal"]}
 
 
 class PaymentError(Exception):
@@ -81,18 +81,19 @@ class PaymentService:
         payment.transaction_id = report.transaction_id
         if user.access_tier == "free":
             user.access_tier, user.premium_payment_id = "premium", payment.id
-            payment.provisional_granted_at = datetime.now(timezone.utc)
+            payment.provisional_granted_at = datetime.now(UTC)
         self.db.flush()
-        country = {"russia": "Россия", "serbia": "Сербия", "other": "Другая страна"}[payment.country]
+        country = {"russia": "Россия", "turkey": "Турция", "other": "Другая страна"}[payment.country]
         method = {"sbp": "СБП", "alta": "ALTA Banka", "paypal": "PayPal"}[payment.method]
         access = "Premium включён сразу" if payment.provisional_granted_at else "Premium уже был активен"
         notify_after_commit(self.db, self.settings, user.email,
-            f"сообщил об оплате Premium в SerboTalk.\n"
+            f"сообщил об оплате Premium в {self.settings.brand_name}.\n"
             f"Заявка: {payment.id}\nСтрана: {country}\nСпособ: {method}\n"
             f"К оплате: {payment.details['amount']} {payment.details['currency']}\n"
             f"Пользователь указал: {payment.reported_amount} {payment.details['currency']}\n"
             f"{access}; заявка ожидает проверки.\n"
-            "Поступление денег ещё не подтверждено.\nПроверить заявку: https://serbotalk.app/app")
+            "Поступление денег ещё не подтверждено."
+            + (f"\nПроверить заявку: {self.settings.public_app_url.rstrip('/')}/app" if self.settings.public_app_url else ""))
         return payment
 
     def cancel(self, user: User, payment_id: str) -> PaymentRequest:
@@ -118,7 +119,7 @@ class PaymentService:
         if payment.status != "awaiting_review" and not (payment.status == "awaiting_payment" and decision.status == "cancelled"):
             raise PaymentError("invalid_payment_state")
         payment.status, payment.active_user_id = decision.status, None
-        payment.reviewed_by, payment.reviewed_at = admin.id, datetime.now(timezone.utc)
+        payment.reviewed_by, payment.reviewed_at = admin.id, datetime.now(UTC)
         if decision.status == "confirmed":
             if owner.access_tier == "free" or owner.premium_payment_id == payment.id:
                 owner.access_tier, owner.premium_payment_id = "premium", payment.id
