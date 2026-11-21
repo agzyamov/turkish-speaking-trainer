@@ -1,4 +1,5 @@
 import { useState, type Dispatch, type SetStateAction } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { CustomContentForm } from "./CustomContentForm";
 import { CustomContentManager } from "./CustomContentManager";
 import { t } from "./i18n";
@@ -36,6 +37,7 @@ export function PremiumView({
   const setPaymentOpen = (open: boolean) => setUi(state => ({ ...state, paymentOpen: open }));
   const setPaymentReported = (reported: boolean) => setUi(state => ({ ...state, paymentReported: reported }));
   const [catalogVersion, setCatalogVersion] = useState(0);
+  const queryClient = useQueryClient();
   const perk = "relative pl-6 [overflow-wrap:anywhere] before:absolute before:left-0 before:text-reward before:content-['✓']";
   return (
     <section className="premium-page mx-auto grid w-full max-w-[680px] gap-4 p-5 text-ink in-[.android-page]:p-0" aria-label={t("premium.title")}>
@@ -108,6 +110,8 @@ export function PremiumView({
               onTopicCreated={onTopicCreated}
               onPhraseSaved={() => {
                 onChanged();
+                // Drop the cached list so the remounted manager shows loading, not the list from before the save.
+                void queryClient.resetQueries({ queryKey: ["customPhrases"] });
                 setCatalogVersion(value => value + 1);
               }}
             />

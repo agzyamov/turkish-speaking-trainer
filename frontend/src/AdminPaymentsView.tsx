@@ -1,42 +1,43 @@
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
+import { keepPreviousData, useQuery, useQueryClient } from "@tanstack/react-query";
 import { getLocale, t } from "./i18n";
 import { paymentRequest, type AdminPayment, type Payment } from "./api/payments";
 import { countryLabels, methodLabels, statusLabels } from "./paymentLabels";
 import { Button } from "./shared/ui/button";
 
 export function AdminPaymentsView() {
-  const [payments, setPayments] = useState<AdminPayment[]>();
-  const [error, setError] = useState(false);
+  const [actionFailed, setActionFailed] = useState(false);
   const [busy, setBusy] = useState(false);
   const [offset, setOffset] = useState(0);
-  const [refresh, setRefresh] = useState(0);
   const [confirm, setConfirm] = useState<string>();
   const locked = useRef(false);
-  useEffect(() => {
-    const controller = new AbortController();
-    paymentRequest<AdminPayment[]>(`/admin/payments?offset=${offset}`, "GET", undefined, controller.signal)
-      .then(rows => {
-        if (!controller.signal.aborted) {
-          setPayments(rows);
-          setError(false);
-        }
-      })
-      .catch(() => {
-        if (!controller.signal.aborted) setError(true);
-      });
-    return () => controller.abort();
-  }, [offset, refresh]);
+  const queryClient = useQueryClient();
+  const queryKey = ["admin", "payments", offset];
+  // The previous page stays on screen while the next one loads, as before.
+  const query = useQuery({
+    queryKey,
+    queryFn: ({ signal }) => paymentRequest<AdminPayment[]>(`/admin/payments?offset=${offset}`, "GET", undefined, signal),
+    placeholderData: keepPreviousData,
+  });
+  const payments = query.data;
+  // Rows from the previous page stay visible while the next loads; their actions wait for the real page.
+  const actionsDisabled = busy || query.isPlaceholderData;
+  const error = actionFailed || (query.isError && !query.isFetching);
+  function refresh() {
+    setActionFailed(false);
+    void query.refetch();
+  }
   async function decide(id: string, status: "confirmed" | "rejected" | "cancelled") {
     if (locked.current) return;
     locked.current = true;
     setBusy(true);
-    setError(false);
+    setActionFailed(false);
     try {
       const updated = await paymentRequest<Payment>(`/admin/payments/${id}`, "PATCH", { status });
-      setPayments(rows => rows?.map(row => (row.id === id ? { ...row, ...updated } : row)));
+      queryClient.setQueryData<AdminPayment[]>(queryKey, rows => rows?.map(row => (row.id === id ? { ...row, ...updated } : row)));
       setConfirm(undefined);
     } catch {
-      setError(true);
+      setActionFailed(true);
     } finally {
       locked.current = false;
       setBusy(false);
@@ -48,7 +49,7 @@ export function AdminPaymentsView() {
       aria-busy={busy}
     >
       <h2 className="m-0 font-display text-xl font-bold">{t("admin.premiumPaymentRequests")}</h2>
-      <Button className="justify-self-start" disabled={busy} onClick={() => setRefresh(value => value + 1)}>
+      <Button className="justify-self-start" disabled={busy} onClick={refresh}>
         {t("admin.refreshStatus")}
       </Button>
       {error && <p role="alert">{t("admin.actionCouldNotCompleted")}</p>}
@@ -93,25 +94,25 @@ export function AdminPaymentsView() {
               {confirm === payment.id ? (
                 <>
                   <p>{t("admin.confirmMoneyHasActually")}</p>
-                  <Button variant="primary" className="justify-self-start" disabled={busy} onClick={() => void decide(payment.id, "confirmed")}>
+                  <Button variant="primary" className="justify-self-start" disabled={actionsDisabled} onClick={() => void decide(payment.id, "confirmed")}>
                     {t("admin.moneyReceivedActivatePremium")}
                   </Button>
-                  <Button className="justify-self-start" disabled={busy} onClick={() => setConfirm(undefined)}>
+                  <Button className="justify-self-start" disabled={actionsDisabled} onClick={() => setConfirm(undefined)}>
                     {t("admin.back")}
                   </Button>
                 </>
               ) : (
-                <Button className="justify-self-start" disabled={busy} onClick={() => setConfirm(payment.id)}>
+                <Button className="justify-self-start" disabled={actionsDisabled} onClick={() => setConfirm(payment.id)}>
                   {t("admin.confirmPayment")}
                 </Button>
               )}
-              <Button variant="danger" className="justify-self-start" disabled={busy} onClick={() => void decide(payment.id, "rejected")}>
+              <Button variant="danger" className="justify-self-start" disabled={actionsDisabled} onClick={() => void decide(payment.id, "rejected")}>
                 {t(payment.provisional_granted_at ? "admin.rejectRevokeAccess" : "admin.rejectRequest")}
               </Button>
             </>
           )}
           {(payment.status === "awaiting_payment" || payment.status === "awaiting_review") && (
-            <Button variant="danger" className="justify-self-start" disabled={busy} onClick={() => void decide(payment.id, "cancelled")}>
+            <Button variant="danger" className="justify-self-start" disabled={actionsDisabled} onClick={() => void decide(payment.id, "cancelled")}>
               {t(payment.provisional_granted_at ? "admin.cancelRevokeAccess" : "admin.cancelRequest")}
             </Button>
           )}

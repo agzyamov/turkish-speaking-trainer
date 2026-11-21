@@ -2,6 +2,7 @@ import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/re
 import { afterEach, expect, it, vi } from "vitest";
 import { PaymentForm } from "../PaymentForm";
 import { AdminPaymentsView } from "../AdminPaymentsView";
+import { QueryProvider } from "../shared/lib/QueryProvider";
 import { paymentRequest, type Payment, type PaymentOptions } from "../api/payments";
 import { setLanguage } from "../i18n";
 
@@ -121,7 +122,11 @@ it.each(["ru", "en"] as const)("shows automatic activation and lets admin revoke
   vi.mocked(paymentRequest).mockImplementation(async (_path, method) =>
     method === "PATCH" ? { ...automatic, status: "rejected" } : [{ ...automatic, email: "synthetic@example.invalid", display_name: null }],
   );
-  render(<AdminPaymentsView />);
+  render(
+    <QueryProvider>
+      <AdminPaymentsView />
+    </QueryProvider>,
+  );
   await screen.findByText("synthetic@example.invalid");
   fireEvent.click(screen.getByRole("button", { name: ru ? "Отклонить и отозвать доступ" : "Reject and revoke access" }));
   await screen.findByText(ru ? "Отклонена" : "Rejected");
@@ -136,7 +141,11 @@ it.each(["ru", "en"] as const)("requires receipt confirmation in admin and refle
       ? { ...payment, status: "confirmed" }
       : [{ ...payment, email: "synthetic@example.invalid", display_name: null, status: "awaiting_review", paid_at: "2026-10-25T12:00:00Z", reported_amount: "500.00" }],
   );
-  render(<AdminPaymentsView />);
+  render(
+    <QueryProvider>
+      <AdminPaymentsView />
+    </QueryProvider>,
+  );
   await screen.findByText("synthetic@example.invalid");
   fireEvent.click(screen.getByRole("button", { name: ru ? "Подтвердить оплату" : "Confirm payment" }));
   expect(vi.mocked(paymentRequest).mock.calls.filter(call => call[1] === "PATCH")).toHaveLength(0);

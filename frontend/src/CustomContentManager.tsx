@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { deleteCustomPhrase, deleteCustomTopic, fetchCustomPhrases } from "./api/training";
 import { t, topicText, getLanguage } from "./i18n";
 import type { ReviewPhrase, TopicListItem } from "./types/training";
@@ -18,10 +19,13 @@ export function CustomContentManager({
   onClose: () => void;
   browseTopics?: boolean;
 }) {
-  const [phrases, setPhrases] = useState<ReviewPhrase[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-  const [retry, setRetry] = useState(0);
+  const queryClient = useQueryClient();
+  const query = useQuery({ queryKey: ["customPhrases"], queryFn: ({ signal }) => fetchCustomPhrases(signal) });
+  const phrases = query.data ?? [];
+  const loading = query.isPending;
+  const setPhrases = (update: (current: ReviewPhrase[]) => ReviewPhrase[]) => queryClient.setQueryData<ReviewPhrase[]>(["customPhrases"], current => update(current ?? []));
+  const [actionError, setError] = useState("");
+  const error = actionError || (query.isError ? "premium.couldNotLoadCustom" : "");
   const [busy, setBusy] = useState(false);
   const [confirmation, setConfirmation] = useState<{ kind: "topic" | "phrase"; id: string; title: string }>();
   const [message, setMessage] = useState("");
@@ -34,21 +38,6 @@ export function CustomContentManager({
       confirmationRef.current?.scrollIntoView?.({ block: "nearest" });
     }
   }, [confirmation]);
-
-  useEffect(() => {
-    const controller = new AbortController();
-    fetchCustomPhrases(controller.signal)
-      .then(result => {
-        if (!controller.signal.aborted) setPhrases(result);
-      })
-      .catch(() => {
-        if (!controller.signal.aborted) setError("premium.couldNotLoadCustom");
-      })
-      .finally(() => {
-        if (!controller.signal.aborted) setLoading(false);
-      });
-    return () => controller.abort();
-  }, [retry]);
 
   async function remove() {
     if (!confirmation || busy) return;
@@ -93,9 +82,8 @@ export function CustomContentManager({
               className="mt-2"
               disabled={busy}
               onClick={() => {
-                setLoading(true);
                 setError("");
-                setRetry(value => value + 1);
+                void query.refetch();
               }}
             >
               {t("premium.retryLoading")}
