@@ -29,8 +29,7 @@ function pauseOf(error?: string): BudgetPause | undefined {
 }
 
 const focusRing = "outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-surface";
-// bg-none clears the gradient the shared legacy .android-primary rule still paints.
-const primaryButton = "inline-flex min-h-13 w-full cursor-pointer items-center justify-center gap-2 rounded-control border-0 bg-accent bg-none px-5 text-base font-semibold text-accent-ink shadow-lift transition-colors duration-(--duration-quick) hover:bg-accent-bright disabled:cursor-default disabled:opacity-55";
+const primaryButton = "inline-flex min-h-13 w-full cursor-pointer items-center justify-center gap-2 rounded-control border-0 bg-accent px-5 text-base font-semibold text-accent-ink shadow-lift transition-colors duration-(--duration-quick) hover:bg-accent-bright disabled:cursor-default disabled:opacity-55";
 
 /** One exercise: phrase, answer (voice or typed), check, then the result and the next-phrase button. */
 export function PracticeCard(props: {
@@ -70,7 +69,7 @@ export function PracticeCard(props: {
   const pause = pauseOf(props.error);
   return <div className={cn("practice-card exercise-layout relative flex min-h-0 flex-col bg-surface text-ink",
     // Desktop: bounded to the viewport so the controls stay on screen and the content scrolls.
-    compact ? "android-training-content h-full" : "h-[calc(100dvh-7.8rem)] min-h-[32rem] rounded-card border border-line")}>
+    compact ? "android-training-content h-full" : "h-[calc(100dvh-6.5rem)] min-h-[32rem] rounded-card border border-line")}>
     {/* "start" shows its message in the free space above the controls; "perfect" is drawn on the score row itself. */}
     <RewardOverlay reward={props.reward?.kind === "start" ? props.reward : undefined} />
     <div className="exercise-scroll grid min-h-0 flex-1 content-start gap-6 overflow-y-auto px-5 pb-4 pt-4 sm:px-8 sm:pt-6">

@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { tokenColor } from "./tokens.mjs";
 import { installSyntheticMicrophone } from "./flow.mjs";
 
 const topic = {
@@ -200,7 +201,7 @@ test("foreign STT letters remain editable and block grading", async ({ page }) =
       const css = getComputedStyle(el);
       return { color: css.color, background: css.backgroundColor, overflow: el.scrollWidth > el.clientWidth };
     });
-    expect(style.color).toBe("rgb(234, 242, 255)");
+    expect(style.color).toBe(await tokenColor(page, "--color-ink"));
     expect(style.background).not.toBe("rgb(255, 255, 255)");
     expect(style.overflow).toBe(false);
     await page.screenshot({ path: `../artifacts/stt-review-${width}.png`, fullPage: true });

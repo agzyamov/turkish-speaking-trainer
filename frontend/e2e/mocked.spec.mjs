@@ -323,7 +323,7 @@ for (const { native, width } of [{ native: false, width: 1280 }, { native: false
       const style = getComputedStyle(element); return { background: style.backgroundColor, color: style.color };
     });
     expect(selectStyle.background).not.toBe("rgb(255, 255, 255)");
-    expect(selectStyle.color).toBe("rgb(234, 242, 255)");
+    expect(selectStyle.color).toBe(await tokenColor(page, "--color-ink"));
     await page.screenshot({ path: `../artifacts/statistics-phrases-${native ? "android" : "web"}-${width}.png`, fullPage: true });
     await page.getByRole("button", { name: "← К статистике" }).click();
     await expect(page.getByRole("heading", { name: "Календарь занятий" })).toBeVisible();

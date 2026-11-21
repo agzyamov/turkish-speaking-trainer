@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { tokenColor } from './tokens.mjs';
 import { mkdir } from 'node:fs/promises';
 for (const language of ['ru', 'en']) for (const layout of ['desktop', 'mobile', 'android']) for (const tier of ['free', 'premium']) {
   test(`premium tab ${language} ${layout} ${tier}`, async ({ page }) => {
@@ -43,9 +44,9 @@ for (const language of ['ru', 'en']) for (const layout of ['desktop', 'mobile', 
     await premium.click();
     const content = page.locator('.premium-page');
     if (accessTier === 'premium' || layout !== 'android') await expect(content.getByRole('heading', { name: accessTier === 'free' ? ru ? 'Премиум' : 'Premium' : ru ? 'ПРЕМИУМ' : 'PREMIUM', exact: true })).toBeVisible();
-    const selectedColor = await crown.evaluate(element => getComputedStyle(element).color);
-    expect(selectedColor).not.toBe(inactiveColor);
-    await expect(crown).toHaveCSS('color', accessTier === 'premium' ? 'rgb(242, 189, 90)' : layout === 'desktop' ? 'rgb(64, 164, 255)' : 'rgb(102, 186, 255)');
+    // The nav colour eases over the quick duration, so wait for it to settle instead of sampling once.
+    await expect.poll(() => crown.evaluate(element => getComputedStyle(element).color)).not.toBe(inactiveColor);
+    await expect(crown).toHaveCSS('color', accessTier === 'premium' ? await tokenColor(page, '--color-reward') : layout === 'desktop' ? await tokenColor(page, '--color-ink') : await tokenColor(page, '--color-accent'));
     if (accessTier === 'free' && layout === 'android') {
       await expect(content.getByText(ru ? 'Оплатить премиум вы можете на сайте' : 'You can pay for Premium on the website')).toBeVisible();
       await expect(content.getByRole('button', { name: 'https://serbotalk.app/', exact: true })).toBeVisible();
@@ -66,7 +67,7 @@ for (const language of ['ru', 'en']) for (const layout of ['desktop', 'mobile', 
       const offerBox = await offer.boundingBox();
       expect(buyBox.width).toBeLessThan(offerBox.width * .7);
       expect(Math.abs(buyBox.x + buyBox.width / 2 - (offerBox.x + offerBox.width / 2))).toBeLessThan(2);
-      await expect(content.locator('.premium-offer__hero svg')).toHaveCSS('color', 'rgb(242, 189, 90)');
+      await expect(content.locator('.premium-offer__hero svg')).toHaveCSS('color', await tokenColor(page, '--color-reward'));
       await expect(content.getByText(ru ? 'Однократный платёж 5 евро' : 'One-time payment of 5 euros')).toBeVisible();
       await expect(content.getByRole('heading', { name: ru ? 'Почему платно?' : 'Why is it paid?' })).toBeVisible();
       expect(await offer.evaluate(el => el.scrollWidth <= el.clientWidth)).toBe(true);
@@ -78,12 +79,12 @@ for (const language of ['ru', 'en']) for (const layout of ['desktop', 'mobile', 
       await expect(content.getByText(ru ? 'Тема сохранена.' : 'Topic saved.', { exact: true })).toBeVisible();
       await nav.getByRole('button', { name: ru ? layout === 'desktop' ? 'Практика' : 'Темы' : layout === 'desktop' ? 'Practice' : 'Topics', exact: true }).click();
       await expect(page.getByRole('button', { name: /Моя тема/ })).toBeVisible();
-      await expect(page.getByRole('button', { name: /Моя тема/ })).toHaveCSS('border-color', 'rgb(242, 189, 90)');
+      await expect(page.getByRole('button', { name: /Моя тема/ })).toHaveCSS('border-color', await tokenColor(page, '--color-reward'));
       await expect(page.getByRole('button', { name: /Моя тема/ })).toHaveCSS('border-width', '1px');
       await page.reload();
       if (layout === 'mobile') await nav.getByRole('button', { name: ru ? 'Темы' : 'Topics', exact: true }).click();
       await expect(page.getByRole('button', { name: /Моя тема/ })).toBeVisible();
-      await expect(page.getByRole('button', { name: /Моя тема/ })).toHaveCSS('border-color', 'rgb(242, 189, 90)');
+      await expect(page.getByRole('button', { name: /Моя тема/ })).toHaveCSS('border-color', await tokenColor(page, '--color-reward'));
       await expect(page.getByRole('button', { name: /Моя тема/ })).toHaveCSS('border-width', '1px');
       await expect(page.locator('.topic--personal')).toHaveCount(1);
       await mkdir('../artifacts/premium-home', { recursive: true });

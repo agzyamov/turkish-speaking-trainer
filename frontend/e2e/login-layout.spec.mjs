@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { tokenColor } from './tokens.mjs';
 import { mkdir } from 'node:fs/promises';
 
 for (const layout of ['desktop', 'mobile', 'narrow', 'android']) {
@@ -22,11 +23,11 @@ for (const layout of ['desktop', 'mobile', 'narrow', 'android']) {
     const russian = await measure();
     await expect(page.locator('.review-login')).toHaveCount(1);
     if (layout === 'android') await expect(page.locator('.email-login')).toHaveCount(0);
-    await expect(ru).toHaveCSS('border-color', 'rgb(242, 189, 90)');
+    await expect(ru).toHaveCSS('border-color', await tokenColor(page, '--color-reward'));
     await en.click();
     await expect(en).toHaveAttribute('aria-pressed', 'true');
     await expect(ru).toHaveAttribute('aria-pressed', 'false');
-    await expect(en).toHaveCSS('border-color', 'rgb(242, 189, 90)');
+    await expect(en).toHaveCSS('border-color', await tokenColor(page, '--color-reward'));
     expect(await measure()).toEqual(russian);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
     await mkdir('../artifacts/login-flags', { recursive: true });

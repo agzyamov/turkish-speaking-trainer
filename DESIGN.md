@@ -127,7 +127,7 @@ components:
 
 # Design System: TurkTalk
 
-<!-- Scope: this system covers the screens migrated onto the Tailwind tokens (the practice screen, Settings, and the shared/ui primitives). The legacy navy stylesheet (frontend/src/styles.css, loaded in the lower "legacy" cascade layer) still styles the app shell (header, navigation), the topic list, statistics, premium and other unmigrated screens. It is not part of this system: do not copy its navy colors, gold glows or radii into new work. -->
+<!-- Scope: this system covers the screens migrated onto the Tailwind tokens (the app shell and topic chooser, the practice screen, Settings, and the shared/ui primitives). The legacy stylesheet (frontend/src/styles.css, loaded in the lower "legacy" cascade layer) still lays out statistics, premium, login and legal pages; its colours now resolve to these tokens, but its radii, sizes and class structure are not part of this system: do not copy them into new work. -->
 
 ## Overview
 
@@ -274,7 +274,7 @@ Session progress as a 24x36 tulip-glass outline in soft porcelain with a tulip-g
 - **Do** gate decorative motion (tea fill, recording ping) behind `prefers-reduced-motion`.
 
 ### Don't:
-- **Don't** copy colors, glows or radii from the legacy navy stylesheet (`frontend/src/styles.css`); it is not part of this system.
+- **Don't** copy colors, glows or radii from the legacy stylesheet (`frontend/src/styles.css`); it is not part of this system.
 - **Don't** add colored or zero-offset glows to buttons, icons or medals.
 - **Don't** use pomegranate for limits, pauses or neutral information.
 - **Don't** use the verdict colors as decoration.

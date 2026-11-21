@@ -1,5 +1,6 @@
 import { mkdir } from 'node:fs/promises';
 import { expect, test } from '@playwright/test';
+import { tokenColor } from './tokens.mjs';
 
 for (const language of ['ru', 'en']) for (const layout of ['desktop', 'compact-desktop', 'mobile', 'android']) {
   test(`calendar legend matches day colors ${language} ${layout}`, async ({ page }) => {
@@ -55,7 +56,7 @@ for (const language of ['ru', 'en']) for (const layout of ['desktop', 'compact-d
     const size = page.getByRole('combobox', { name: language === 'en' ? 'Per page' : 'На странице' });
     await expect(size).toHaveValue('20');
     await expect(size.locator('option')).toHaveText(['20', '50']);
-    await expect(size).toHaveCSS('background-color', 'rgb(7, 27, 52)');
+    await expect(size).toHaveCSS('background-color', await tokenColor(page, '--color-surface-raised'));
     await page.getByRole('button', { name: language === 'en' ? 'Next' : 'Вперёд' }).click();
     await expect(size).toBeVisible();
     await size.selectOption('50');

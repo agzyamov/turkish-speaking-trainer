@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { tokenColor } from './tokens.mjs';
 import { mkdir } from 'node:fs/promises';
 
 for (const language of ['ru', 'en']) for (const layout of ['desktop', 'mobile', 'android']) {
@@ -52,7 +53,7 @@ for (const language of ['ru', 'en']) for (const layout of ['desktop', 'mobile', 
     await page.getByRole('combobox').selectOption('custom-test');
     const form = page.getByRole('form', { name: language === 'ru' ? 'Добавить фразу' : 'Add phrase' });
     for (const control of await form.locator('input, select, button').all()) {
-      await expect(control).toHaveCSS('color', 'rgb(234, 242, 255)');
+      await expect(control).toHaveCSS('color', await tokenColor(page, '--color-ink'));
       expect(await control.evaluate(element => getComputedStyle(element).backgroundColor)).not.toBe('rgb(255, 255, 255)');
     }
     expect(await form.evaluate(element => element.scrollWidth <= element.clientWidth)).toBe(true);

@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { tokenColor } from './tokens.mjs';
 import { mkdir } from 'node:fs/promises';
 const titles = [['job-interview', 'Собеседование'], ['bank', 'В банке'], ['vacation', 'В отпуске'], ['cafe', 'В кафе'], ['work', 'На работе'], ['doctor', 'У врача'], ['rent', 'Аренда'], ['transport', 'Транспорт'], ['misc', 'Разное']];
 for (const language of ['ru', 'en']) for (const width of [800, 1024, 1366, 1920]) {
@@ -34,7 +35,7 @@ for (const language of ['ru', 'en']) for (const width of [800, 1024, 1366, 1920]
     const premium = page.locator('.desktop-topic-card--premium');
     for (const button of await premium.all()) {
       await expect(button).toBeDisabled();
-      await expect(button.getByRole('img', { name: language === 'en' ? 'Premium' : 'Премиум' })).toHaveCSS('color', 'rgb(242, 189, 90)');
+      await expect(button.getByRole('img', { name: language === 'en' ? 'Premium' : 'Премиум' })).toHaveCSS('color', await tokenColor(page, '--color-reward'));
       await expect(button.locator('strong')).toHaveCSS('white-space', 'normal');
     }
     await expect(page.locator('.topic-action')).toHaveCount(0);

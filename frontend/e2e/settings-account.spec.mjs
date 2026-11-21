@@ -86,7 +86,7 @@ for (const language of ['ru', 'en']) for (const layout of ['desktop', 'mobile', 
     await modelSelect.selectOption('env-alternative');
     await expect(modelSelect).toHaveValue('env-alternative');
     await expect(modelSelect).toBeEnabled();
-    await expect(modelSelect).toHaveCSS('color', 'rgb(234, 242, 255)');
+    await expect(modelSelect).toHaveCSS('color', await tokenColor(page, '--color-ink'));
     expect(await experiment.evaluate(el => el.scrollWidth <= el.clientWidth)).toBe(true);
     await mkdir('../artifacts/transcription-models', { recursive: true });
     await experiment.screenshot({ path: `../artifacts/transcription-models/${language}-${layout}.png` });
@@ -102,6 +102,9 @@ for (const language of ['ru', 'en']) for (const layout of ['desktop', 'mobile', 
     expect(await name.evaluate(el => el.getBoundingClientRect().height)).toBeLessThan(44);
     const signOut = account.getByRole('button', { name: en ? 'Sign out' : 'Выйти' });
     await expect(signOut).toHaveCSS('color', await tokenColor(page, '--color-ink'));
+    const avatar = account.locator('.avatar');
+    expect((await avatar.boundingBox()).width).toBeGreaterThanOrEqual(36);
+    await expect(avatar).toHaveCSS('border-top-left-radius', /^(?!0px)/);
     if (layout !== 'desktop') {
       const profileBox = await account.locator('[data-slot=account-profile]').boundingBox();
       expect((await signOut.boundingBox()).y).toBeGreaterThanOrEqual(profileBox.y + profileBox.height);

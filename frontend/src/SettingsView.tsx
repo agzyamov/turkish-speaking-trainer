@@ -96,7 +96,7 @@ export function SettingsView({ account, onSignOut, assistanceEnabled = false, as
         <CardTitle id={accountTitleId}>{t("Аккаунт")}</CardTitle>
         <div className="grid items-center gap-4 sm:grid-cols-[minmax(0,1fr)_auto]">
           <div data-slot="account-profile" className="flex min-w-0 items-center gap-3">
-            <span className="avatar shrink-0">{account.display_name?.slice(0, 1).toLocaleUpperCase() || "A"}</span>
+            <span className="avatar grid size-10 shrink-0 place-items-center rounded-full border border-line-strong bg-selected font-semibold text-accent">{account.display_name?.slice(0, 1).toLocaleUpperCase() || "A"}</span>
             <span className="grid min-w-0 gap-1 [overflow-wrap:anywhere]">
               <strong>{account.display_name || account.email}</strong>
               {account.display_name && <span className="text-caption text-ink-muted">{account.email}</span>}

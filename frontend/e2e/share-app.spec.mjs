@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { tokenColor } from './tokens.mjs';
 
 for (const language of ['ru', 'en']) for (const layout of ['desktop', 'mobile', 'android']) {
   test(`share settings ${language} ${layout}`, async ({ page }) => {
@@ -37,13 +38,13 @@ for (const language of ['ru', 'en']) for (const layout of ['desktop', 'mobile', 
     await panel.scrollIntoViewIfNeeded();
     const share = panel.getByRole('button', { name: en ? 'Share' : 'Поделиться', exact: true });
     const copy = panel.getByRole('button', { name: en ? 'Copy link' : 'Скопировать ссылку' });
-    await expect(share).toHaveCSS('color', 'rgb(234, 242, 255)');
+    await expect(share).toHaveCSS('color', await tokenColor(page, '--color-ink'));
     await expect(panel.locator('input')).toHaveValue('https://serbotalk.app/');
     expect(await panel.evaluate(el => el.scrollWidth <= el.clientWidth)).toBe(true);
     await share.click();
     await expect(share).toBeDisabled(); await expect(copy).toBeDisabled();
     await expect(panel.getByRole('status')).toHaveText(en ? 'Opening share menu…' : 'Открываем меню отправки…');
-    await expect(share).toHaveCSS('color', 'rgb(136, 166, 210)');
+    await expect(share).toHaveCSS('color', await tokenColor(page, '--color-ink-muted'));
     await page.evaluate(() => window.shareTest.finish());
     await expect(share).toBeEnabled();
     expect(await page.evaluate(() => window.shareTest.calls)).toEqual([{ title: 'SerboTalk', text: en ? 'Practise speaking Serbian with SerboTalk.' : 'Практикуйте разговорный сербский с SerboTalk.', url: 'https://serbotalk.app/' }]);
@@ -52,7 +53,7 @@ for (const language of ['ru', 'en']) for (const layout of ['desktop', 'mobile', 
     await expect(panel.getByRole('alert')).toHaveCount(0);
     await page.evaluate(() => { window.shareTest.mode = 'error'; });
     await share.click(); await expect(panel.getByRole('alert')).toBeVisible();
-    await expect(panel.getByRole('alert')).toHaveCSS('color', 'rgb(255, 158, 170)');
+    await expect(panel.getByRole('alert')).toHaveCSS('color', await tokenColor(page, '--color-danger'));
     await panel.screenshot({ path: `test-results/share-${language}-${layout}-error.png` });
     await copy.click();
     await expect(panel.getByRole('status')).toHaveText(en ? 'Link copied.' : 'Ссылка скопирована.');

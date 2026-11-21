@@ -2,7 +2,7 @@ import { failureOf } from "./api/failureDiagnostics";
 import { budgetPauseMessage } from "./budgetPause";
 import { t, useLanguage, setLanguage, getLocale, topicText } from "./i18n";
 import { exerciseSource } from "./exerciseSource";
-import { Fragment, useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { App as CapacitorApp } from "@capacitor/app";
 import { Capacitor } from "@capacitor/core";
 import type { Session } from "@supabase/supabase-js";
@@ -24,7 +24,6 @@ import { useAssistancePreference } from "./useAssistancePreference";
 import { useMobileLayout } from "./useMobileLayout";
 import { SettingsView } from "./SettingsView";
 import { PremiumView } from "./PremiumView";
-import { PremiumBadge } from "./PremiumBadge";
 import { sortedPersonalTopics } from "./personalTopics";
 import { hasUnexpectedLetterScript, latinForEvaluation } from "./turkishText";
 import { RewardOverlay } from "./RewardOverlay";
@@ -38,9 +37,12 @@ import type { VoiceState } from "./features/practice/AnswerActions";
 import { PhraseLoading } from "./features/practice/PhraseLoading";
 import { InteractivePhrase } from "./features/practice/InteractivePhrase";
 import { PracticeCard } from "./features/practice/PracticeCard";
+import { AppHeader, MobileHeader, type AppView, type BackendState } from "./features/shell/AppHeader";
+import { TopicGrid } from "./features/shell/TopicGrid";
+import { topicIconName } from "./features/shell/topicIcons";
+import { PracticeDone, ReviewComplete, WelcomeCard } from "./features/shell/StageStates";
+import { cn } from "./shared/lib/utils";
 
-type BackendState = "checking" | "online" | "offline";
-type AppView = "practice" | "statistics" | "premium" | "settings" | "admin";
 type StartupState = "loading" | "ready" | "fallback";
 
 
@@ -67,10 +69,6 @@ function resetTimeLabel(iso: string): string {
   return `после ${new Intl.DateTimeFormat(getLocale(), { day: "numeric", month: "long", hour: "2-digit", minute: "2-digit" }).format(date)}`;
 }
 
-const topicIcons: Record<string, string> = {
-  "job-interview": "briefcase", bank: "bank", vacation: "sun", cafe: "cup",
-  work: "laptop", doctor: "heart", rent: "home", transport: "bus",
-};
 
 
 export default function App() {
@@ -835,23 +833,36 @@ function TrainerApp({ account, onAccountChange, onSignOut }: { account: CurrentU
 
   if (startupState === "loading") return <main className="auth-page auth-page--loading"><PhraseLoading /></main>;
 
+  const topicGrid = (compact: boolean) => <TopicGrid compact={compact} topics={orderedTopics} personalStart={premiumActive ? mainTopics.length : undefined}
+    selectedTopic={customTopic ? undefined : selectedTopic} reviewSelected={isReviewMode} reviewCount={reviewPhraseCount}
+    onReview={() => { if (compact) showAndroidPanel(1); void startReviewTraining(); }}
+    onSelect={topicId => { selectTopic(topicId); if (compact) showAndroidPanel(1); }} />;
+  const doneTitle = topicExhausted ? "Все фразы темы пройдены" : "Тренировка завершена";
+  const doneSummary = topicExhausted ? `${completedCount} фраз проверено. В этой теме пока нет следующих фраз.` : `${completedCount} из ${session?.requested_length ?? 10} фраз проверено.`;
+  const stageTitle = customTopic.trim() || (currentTopic ? topicText(currentTopic.id, currentTopic.title_ru, currentTopic.title_en) : t("Выберите тему"));
+  const stage = (compact: boolean) => preparingPhrase && !session ? <PhraseLoading /> : sessionComplete
+    ? <PracticeDone compact={compact} title={doneTitle} summary={doneSummary} onRestart={() => { resetTraining(); if (mobileLayout) showAndroidPanel(0); }} />
+    : !session && reviewFinished ? <ReviewComplete compact={compact} message={t(error)} onHome={returnToTopics} />
+    : !session ? <WelcomeCard compact={compact} icon={topicIconName(currentTopic?.id)} title={stageTitle}
+      description={selectedTopicData?.phrase_count === 0 ? "Тема пока пустая. Добавьте в неё фразы — автоматической генерации не будет." : currentTopic?.description_ru || "Темы загрузятся после подключения к backend."}
+      onChooseTopic={compact && !isNative ? returnToTopics : undefined}
+      retry={!compact && (startupState === "fallback" || backendState === "offline") ? retryCatalog : undefined} error={error} />
+    : renderPractice(compact);
+  const settings = <SettingsView account={account} onSignOut={onSignOut} assistanceEnabled={assistanceEnabled} assistanceSaving={assistanceSaving} assistanceError={assistanceError} onAssistanceChange={enabled => { interruptVoice(); void changeAssistance(enabled); }} />;
+  const secondaryButton = "mobile-admin-link my-2 min-h-11 w-full cursor-pointer rounded-control border border-line bg-surface-raised p-2.5 text-ink hover:border-line-strong";
+
   if (mobileLayout) {
+    // Native Android scrolls between panels; the mobile browser shows one panel at a time above the keyboard.
+    const page = cn("android-page min-w-0 overflow-y-auto overflow-x-hidden bg-canvas text-ink",
+      isNative ? "h-full w-full flex-[0_0_100%] snap-start snap-always px-[max(0.9rem,calc((100%-560px)/2))] pb-[calc(1.3rem+env(safe-area-inset-bottom))] pt-[1.15rem]"
+        : "h-full overscroll-contain px-4 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-3 in-[.mobile-web-shell--short]:py-1");
     return (
-      <div ref={isNative ? undefined : mobileShellRef} className={`android-shell${isNative ? "" : " mobile-web-shell"}`}>
+      <div ref={isNative ? undefined : mobileShellRef} className={cn("android-shell overflow-hidden bg-canvas text-ink", isNative ? "h-dvh" : "mobile-web-shell fixed inset-x-0 top-(--mobile-top,0px) h-(--mobile-height,100dvh) w-full")}>
         <RewardOverlay reward={reward?.kind === "twenty" ? reward : undefined} />
-        <header className="android-header">
-          <strong>Serbo<span>Talk</span></strong>
-          <nav aria-label={t("Панели приложения")}>
-            <button type="button" aria-label={t("Темы")} aria-current={visiblePanel === 0 ? "page" : undefined} onClick={() => showAndroidPanel(0)}><Icon name="home" /></button>
-            <button type="button" aria-label={t("Тренировка")} aria-current={visiblePanel === 1 ? "page" : undefined} onClick={() => showAndroidPanel(1)}><Icon name="mic" /></button>
-            <button type="button" aria-label={t("Статистика")} aria-current={visiblePanel === 2 ? "page" : undefined} onClick={() => showAndroidPanel(2)}><Icon name="chart" /></button>
-            <button className={premiumActive ? "premium-nav premium-nav--active" : "premium-nav"} type="button" aria-label={t("Премиум")} aria-current={visiblePanel === 3 ? "page" : undefined} onClick={() => showAndroidPanel(3)}><PremiumBadge /></button>
-            <button type="button" aria-label={t("Настройки")} aria-current={visiblePanel === 4 ? "page" : undefined} onClick={() => showAndroidPanel(4)}><Icon name="settings" /></button>
-          </nav>
-        </header>
+        <MobileHeader panel={visiblePanel} premiumActive={premiumActive} webShell={!isNative} onShow={showAndroidPanel} />
 
         <div
-          className="android-pager"
+          className={cn("android-pager w-full", isNative ? "flex h-[calc(100dvh-var(--spacing-phone-header)-env(safe-area-inset-top))] snap-x snap-mandatory overflow-x-auto overflow-y-hidden overscroll-x-contain [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" : "block h-[calc(100%-var(--spacing-phone-header))] overflow-hidden")}
           aria-label={t("Содержимое панели")}
           ref={androidPagerRef}
           onScroll={(event) => {
@@ -868,59 +879,26 @@ function TrainerApp({ account, onAccountChange, onSignOut }: { account: CurrentU
             }
           }}
         >
-          <section className="android-page android-topics-page" hidden={!isNative && visiblePanel !== 0} aria-label={t("Выбор темы")}>
-            <div className="android-topic-list" aria-label={t("Темы тренировки")}>
-              <button className={isReviewMode ? "android-topic is-selected" : "android-topic"} type="button" disabled={reviewPhraseCount === 0} onClick={() => { showAndroidPanel(1); void startReviewTraining(); }}>
-                <span className="topic__icon"><Icon name="repeat" /></span>
-                <strong>{t("Повторение")}</strong>
-                <small>{reviewPhraseCount}<span>{t("к повторению")}</span></small>
-              </button>
-              {orderedTopics.map((topic, index) => <Fragment key={topic.id}>
-                {premiumActive && topic.is_custom && index === mainTopics.length && <hr className="topics-divider" aria-label={t("Личные темы")} />}
-                <button className={`android-topic${selectedTopic === topic.id && !customTopic ? " is-selected" : ""}${premiumActive && topic.is_custom ? " topic--personal" : ""}`} type="button" onClick={() => { selectTopic(topic.id); showAndroidPanel(1); }}>
-                  <span className={`topic__icon topic__icon--${topicIcons[topic.id] ?? "message"}`}><Icon name={topicIcons[topic.id] ?? "message"} /></span>
-                  <strong>{topicText(topic.id, topic.title_ru, topic.title_en)}</strong>
-                  <small>{topic.phrase_count}<span>{t(" неизученных")}</span></small>
-                </button>
-              </Fragment>)}
-            </div>
-
-            {(startupState === "fallback" || backendState === "offline") && <div className="android-error" role="alert">{t(startupState === "fallback" ? error : "Нет подключения к сервису.")} <button type="button" onClick={retryCatalog}>{t("Повторить загрузку")}</button></div>}
+          <section className={cn(page, "android-topics-page", isNative ? "pt-3" : "flex flex-col gap-2 [&>.android-topic-list]:min-h-0 [&>.android-topic-list]:flex-1 [&>.android-topic-list]:overflow-y-auto [&>.android-topic-list]:p-px [&_.android-topic]:min-h-23")} hidden={!isNative && visiblePanel !== 0} aria-label={t("Выбор темы")}>
+            {topicGrid(true)}
+            {(startupState === "fallback" || backendState === "offline") && <div className="android-error mt-3 text-center text-sm text-danger" role="alert">{t(startupState === "fallback" ? error : "Нет подключения к сервису.")} <button className="ml-1 cursor-pointer rounded-control border border-line bg-surface-raised px-3 py-1.5 text-ink hover:border-line-strong" type="button" onClick={retryCatalog}>{t("Повторить загрузку")}</button></div>}
           </section>
 
-          <section className="android-page android-training-page" hidden={!isNative && visiblePanel !== 1} aria-label={t("Тренировка")}>
-            {preparingPhrase && !session ? <PhraseLoading /> : sessionComplete ? (
-              <div className="practice-done"><h1>{t(topicExhausted ? "Все фразы темы пройдены" : "Тренировка завершена")}</h1><p>{t(topicExhausted ? `${completedCount} фраз проверено. В этой теме пока нет следующих фраз.` : `${completedCount} из ${session?.requested_length ?? 10} фраз проверено.`)}</p><button className="android-primary" type="button" onClick={() => { resetTraining(); if (mobileLayout) showAndroidPanel(0); }}>{t("Выбрать новую тему")}</button></div>
-            ) : !session && reviewFinished ? (
-              <div className="review-complete">
-                <button className="review-home" type="button" aria-label={t("Выбрать тему")} onClick={returnToTopics}><Icon name="home" size={32} /></button>
-                <p className="review-congratulations" role="status">{t(error)}</p>
-              </div>
-            ) : !session ? (
-              <div className="android-training-start">
-                <span className="topic__icon"><Icon name={topicIcons[currentTopic?.id ?? ""] ?? "message"} size={26} /></span>
-                <h1>{customTopic.trim() || (currentTopic ? topicText(currentTopic.id, currentTopic.title_ru, currentTopic.title_en) : t("Выберите тему"))}</h1>
-                {!isNative && <button className="android-primary" type="button" onClick={returnToTopics}>{t("Выбрать тему")}</button>}
-                {error && <p className="android-error" role="alert">{t(error)}</p>}
-              </div>
-            ) : (
-              renderPractice(true)
-            )}
+          <section className={cn(page, "android-training-page grid")} hidden={!isNative && visiblePanel !== 1} aria-label={t("Тренировка")}>
+            {stage(true)}
           </section>
 
-          <section className="android-page android-statistics-page" hidden={!isNative && visiblePanel !== 2} aria-label={t("Статистика")}>
+          <section className={cn(page, "android-statistics-page", isNative && "pt-1.5")} hidden={!isNative && visiblePanel !== 2} aria-label={t("Статистика")}>
             {visiblePanel === 2 && <DeferredPanel load={loadStatistics} panelProps={{ page: statisticsPage, onPageChange: setStatisticsPage }} label={t("статистику")} />}
-
           </section>
-          <section className="android-page android-premium-page" hidden={!isNative && visiblePanel !== 3}>
+          <section className={cn(page, "android-premium-page")} hidden={!isNative && visiblePanel !== 3}>
             {visiblePanel === 3 && premiumPanel}
           </section>
-          <section className="android-page android-settings-page" hidden={!isNative && visiblePanel !== 4} aria-label={t("Настройки приложения")}>
-            {!isNative && view === "admin" ? <><button className="mobile-admin-link" type="button" onClick={() => showAndroidPanel(4)}>{t("← Настройки")}</button><DeferredPanel load={loadAdminUsers} panelProps={{}} label={t("пользователей")} /></> : <>
-            <SettingsView account={account} onSignOut={onSignOut} assistanceEnabled={assistanceEnabled} assistanceSaving={assistanceSaving} assistanceError={assistanceError} onAssistanceChange={enabled => { interruptVoice(); void changeAssistance(enabled); }} />
-            {!isNative && account.role === "admin" && <button className="mobile-admin-link" type="button" onClick={() => setView("admin")}>{t("Пользователи")}</button>}
+          <section className={cn(page, "android-settings-page")} hidden={!isNative && visiblePanel !== 4} aria-label={t("Настройки приложения")}>
+            {!isNative && view === "admin" ? <><button className={secondaryButton} type="button" onClick={() => showAndroidPanel(4)}>{t("← Настройки")}</button><DeferredPanel load={loadAdminUsers} panelProps={{}} label={t("пользователей")} /></> : <>
+            {settings}
+            {!isNative && account.role === "admin" && <button className={secondaryButton} type="button" onClick={() => setView("admin")}>{t("Пользователи")}</button>}
             </>}
-
           </section>
         </div>
       </div>
@@ -928,70 +906,24 @@ function TrainerApp({ account, onAccountChange, onSignOut }: { account: CurrentU
   }
 
   return (
-    <div className="app-shell">
+    <div className="app-shell min-h-screen bg-canvas pb-[env(safe-area-inset-bottom)] text-ink">
       <RewardOverlay reward={reward?.kind === "twenty" ? reward : undefined} />
-      <header className="topbar">
-        <button className="brand" type="button" onClick={resetTraining} aria-label={t("SerboTalk — к практике")}>
-          <span className="brand__mark"><Icon name="message" size={28} /></span>
-          <span className="brand__copy"><strong>Serbo<span>Talk</span></strong><small>{t("Говори. Понимай. Будь ближе.")}</small></span>
-        </button>
-        <nav className="main-nav" aria-label={t("Основная навигация")}>
-          <button className={view === "practice" ? "is-active" : ""} type="button" onClick={() => showView("practice")}><Icon name="home" />{t("Практика")}</button>
-          <button className={view === "statistics" ? "is-active" : ""} type="button" onClick={() => showView("statistics")}><Icon name="chart" />{t("Статистика")}</button>
-          <button className={`premium-nav${premiumActive ? " premium-nav--active" : ""}${view === "premium" ? " is-active" : ""}`} type="button" aria-label={t("Премиум")} onClick={() => showView("premium")}><PremiumBadge />{t("Премиум")}</button>
-          <button className={view === "settings" ? "is-active" : ""} type="button" onClick={() => showView("settings")}><Icon name="settings" />{t("Настройки")}</button>
-          {account.role === "admin" && !Capacitor.isNativePlatform() && <button className={view === "admin" ? "is-active" : ""} type="button" onClick={() => showView("admin")}><Icon name="settings" />{t("Пользователи")}</button>}
-        </nav>
-        <div className="profile">
-          <div className={`connection connection--${backendState}`} role="status" aria-label={t(backendState === "online" ? "Backend готов" : backendState === "offline" ? "Backend недоступен" : "Подключение")}><span /></div>
-          {backendState === "offline" && <button className="connection-settings-button" type="button" aria-label={t("Повторить загрузку тем")} onClick={retryCatalog}><Icon name="repeat" /></button>}
-        </div>
-      </header>
+      <AppHeader view={view} premiumActive={premiumActive} showAdmin={account.role === "admin" && !Capacitor.isNativePlatform()} backendState={backendState}
+        onHome={resetTraining} onShow={showView} onRetry={retryCatalog} />
 
-
-
-      {view === "admin" ? <DeferredPanel key="admin" load={loadAdminUsers} panelProps={{}} label={t("пользователей")} /> : view === "statistics" ? <DeferredPanel key="statistics" load={loadStatistics} panelProps={{ page: statisticsPage, onPageChange: setStatisticsPage }} label={t("статистику")} /> : view === "premium" ? premiumPanel : view === "settings" ? <SettingsView account={account} onSignOut={onSignOut} assistanceEnabled={assistanceEnabled} assistanceSaving={assistanceSaving} assistanceError={assistanceError} onAssistanceChange={enabled => { interruptVoice(); void changeAssistance(enabled); }} /> : (
-        <main className="workspace">
-          <aside className="topics-panel panel">
-            <div className="panel-heading"><h2>{t("Темы для практики")}</h2><p>{t("Выберите ситуацию и начните разговор на турецком языке")}</p></div>
-            <div className="topics desktop-topic-grid" aria-label={t("Темы тренировки")}>
-              <button className={isReviewMode ? "review-topic desktop-topic-card is-selected" : "review-topic desktop-topic-card"} type="button" onClick={() => void startReviewTraining()}>
-                <span className="topic__icon"><Icon name="repeat" /></span>
-                <span className="topic__copy"><strong>{t("Фразы для повторения")}</strong><small className="sr-only">{t(reviewPhraseCount ? `${reviewPhraseCount} требуют практики` : "Список пока пуст")}</small></span>
-                <span className="review-topic__count">{reviewPhraseCount}</span>
-              </button>
-              {orderedTopics.map((topic, index) => <Fragment key={topic.id}>
-                {premiumActive && topic.is_custom && index === mainTopics.length && <hr className="topics-divider" aria-label={t("Личные темы")} />}
-                <button className={`topic desktop-topic-card${selectedTopic === topic.id && !customTopic ? " is-selected" : ""}${premiumActive && topic.is_custom ? " topic--personal" : ""}`} type="button" onClick={() => selectTopic(topic.id)}>
-                  <span className={`topic__icon topic__icon--${topicIcons[topic.id] ?? "message"}`}><Icon name={topicIcons[topic.id] ?? "message"} /></span>
-                  <span className="topic__copy"><strong>{topicText(topic.id, topic.title_ru, topic.title_en)}</strong></span>
-                  <span className="topic__unlearned"><strong>{topic.phrase_count}</strong><small>{t("неизученных")}</small></span>
-                </button>
-              </Fragment>)}
+      {view === "admin" ? <DeferredPanel key="admin" load={loadAdminUsers} panelProps={{}} label={t("пользователей")} /> : view === "statistics" ? <DeferredPanel key="statistics" load={loadStatistics} panelProps={{ page: statisticsPage, onPageChange: setStatisticsPage }} label={t("статистику")} /> : view === "premium" ? premiumPanel : view === "settings" ? settings : (
+        <main className="workspace mx-auto grid min-h-[calc(100vh-4rem)] max-w-[1020px] grid-cols-[minmax(0,1fr)_minmax(0,2fr)] gap-[clamp(0.85rem,1.4vw,1.5rem)] px-[clamp(1rem,1.4vw,1.5rem)] pb-6 pt-4">
+          <aside className="topics-panel flex min-h-0 flex-col gap-4 rounded-card border border-line bg-surface p-4">
+            <div className="panel-heading grid gap-1.5 px-0.5">
+              <h2 className="m-0 font-display text-xl font-bold text-ink">{t("Темы для практики")}</h2>
+              <p className="m-0 text-sm leading-normal text-ink-muted">{t("Выберите ситуацию и начните разговор на турецком языке")}</p>
             </div>
-            <div className="topics-panel__note"><Icon name="message" /><span>{t("Каждый короткий разговор делает речь увереннее.")}</span></div>
+            {topicGrid(false)}
+            <div className="topics-panel__note mt-auto flex items-center gap-3 border-t border-line px-1 pt-4 text-caption text-ink-muted"><span className="text-accent"><Icon name="message" /></span><span>{t("Каждый короткий разговор делает речь увереннее.")}</span></div>
           </aside>
 
-          <section className={`practice-stage${preparingPhrase && !session ? " is-preparing" : ""}`} aria-label={t("Практика")}>
-            {preparingPhrase && !session ? <PhraseLoading /> : sessionComplete ? (
-              <div className="practice-done panel"><h1>{t(topicExhausted ? "Все фразы темы пройдены" : "Тренировка завершена")}</h1><p>{t(topicExhausted ? `${completedCount} фраз проверено. В этой теме пока нет следующих фраз.` : `${completedCount} из ${session?.requested_length ?? 10} фраз проверено.`)}</p><button className="answer-submit" type="button" onClick={() => { resetTraining(); if (mobileLayout) showAndroidPanel(0); }}>{t("Выбрать новую тему")}</button></div>
-            ) : !session && reviewFinished ? (
-              <div className="review-complete">
-                <button className="review-home" type="button" aria-label={t("Выбрать тему")} onClick={returnToTopics}><Icon name="home" size={32} /></button>
-                <p className="review-congratulations" role="status">{t(error)}</p>
-              </div>
-            ) : !session ? (
-              <div className="welcome-card panel">
-                <div className="welcome-card__glow"/><span className="welcome-card__icon"><Icon name={topicIcons[currentTopic?.id ?? ""] ?? "message"} size={32} /></span>
-                <p className="kicker">{t("Выбранная ситуация")}</p><h2>{customTopic.trim() || (currentTopic ? topicText(currentTopic.id, currentTopic.title_ru, currentTopic.title_en) : t("Выберите тему"))}</h2>
-                <p>{t(selectedTopicData?.phrase_count === 0 ? "Тема пока пустая. Добавьте в неё фразы — автоматической генерации не будет." : currentTopic?.description_ru || "Темы загрузятся после подключения к backend.")}</p>
-                {(startupState === "fallback" || backendState === "offline") && <button className="answer-submit mx-auto mt-3 min-h-11 min-w-[16rem] cursor-pointer rounded-control border-0 bg-accent bg-none px-5 font-semibold text-accent-ink" type="button" onClick={retryCatalog}>{t("Повторить загрузку")}</button>}
-                <div className="welcome-card__steps"><span><b>1</b>{t(" Получите фразу")}</span><span><b>2</b>{t(" Ответьте голосом")}</span><span><b>3</b>{t(" Разберите результат")}</span></div>
-                {error && <p className="error" role="alert">{t(error)}</p>}
-              </div>
-            ) : (
-              renderPractice(false)
-            )}
+          <section className={cn("practice-stage grid min-w-0 content-start gap-4", preparingPhrase && !session && "is-preparing content-stretch [&>.phrase-loading]:min-h-full [&>.phrase-loading]:w-full")} aria-label={t("Практика")}>
+            {stage(false)}
           </section>
         </main>
       )}

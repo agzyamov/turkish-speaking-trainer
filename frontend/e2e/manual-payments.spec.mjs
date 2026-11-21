@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { tokenColor } from './tokens.mjs';
 import { mkdir } from 'node:fs/promises';
 
 for (const language of ['ru', 'en']) for (const layout of ['desktop', 'mobile']) {
@@ -77,7 +78,7 @@ for (const language of ['ru', 'en']) for (const layout of ['desktop', 'mobile'])
     await form.locator('input[type="datetime-local"]').fill('2026-10-25T12:34');
     await form.getByRole('spinbutton').fill('5.00');
     const inputStyle = await form.getByRole('spinbutton').evaluate(el => ({ color: getComputedStyle(el).color, bg: getComputedStyle(el).backgroundColor }));
-    expect(inputStyle.color).toBe('rgb(234, 242, 255)');
+    expect(inputStyle.color).toBe(await tokenColor(page, '--color-ink'));
     expect(inputStyle.bg).not.toBe('rgb(255, 255, 255)');
     expect(await form.evaluate(el => el.scrollWidth <= el.clientWidth)).toBe(true);
     await mkdir('../artifacts/manual-payments', { recursive: true });

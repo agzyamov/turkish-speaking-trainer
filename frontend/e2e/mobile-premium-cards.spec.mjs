@@ -1,6 +1,7 @@
 import { expect, test } from '@playwright/test';
 import { mkdir } from 'node:fs/promises';
 import { readFileSync } from 'node:fs';
+import { tokenColor } from './tokens.mjs';
 const releaseVersion = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8')).version.split('.').slice(0, 2).join('.');
 
 for (const [native, width] of [[false, 320], [false, 390], [true, 393]]) {
@@ -42,7 +43,7 @@ for (const [native, width] of [[false, 320], [false, 390], [true, 393]]) {
     await page.getByRole('button', { name: 'Статистика', exact: true }).click();
     const day = page.getByLabel('Ср 7: 20 попыток');
     await expect(day.locator('.calendar-day__star')).toBeVisible();
-    await expect(day.locator('.calendar-day__star')).toHaveCSS('color', 'rgb(242, 189, 90)');
+    await expect(day.locator('.calendar-day__star')).toHaveCSS('color', await tokenColor(page, '--color-reward'));
     const placement = await day.evaluate(element => {
       const cell = element.getBoundingClientRect(), star = element.querySelector('.calendar-day__star').getBoundingClientRect(), count = element.querySelector('.calendar-count').getBoundingClientRect();
       return { inside: star.bottom <= cell.bottom && star.left >= cell.left && star.right <= cell.right, below: star.top >= count.bottom };

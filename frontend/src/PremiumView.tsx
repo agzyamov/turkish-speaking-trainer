@@ -30,7 +30,7 @@ export function PremiumView({ active, topics, onTopicCreated, onChanged, onDelet
       {paymentOpen && <PaymentForm onGranted={async () => { setPaymentReported(true); await onPaymentReported?.(); }} onClose={() => { setPaymentOpen(false); document.querySelector<HTMLButtonElement>(".premium-offer > button")?.focus(); }} />}
       <p className="premium-offer__price">{t("Однократный платёж 5 евро")}</p>
       <img className="premium-offer__coffee" src={twoCoffees} alt={t("Две чашки кофе")} width="768" height="512" />
-      <footer className="premium-offer__why"><h2>{t("Почему платно?")}</h2><p>{t("Приложение использует API-вызовы внешней модели OpenAI.")}</p></footer>
+      <footer className="premium-offer__why"><h2>{t("Почему платно?")}</h2><p>{t("Приложение использует платные API внешних моделей ИИ.")}</p></footer>
     </div> : <>
       <h1>{t("ПРЕМИУМ")}</h1>
       {paymentReported && <p role="status">{t("Администратор проверит и подтвердит ваш платёж, а пока вы можете пользоваться всеми Premium-функциями без ограничений.")}</p>}

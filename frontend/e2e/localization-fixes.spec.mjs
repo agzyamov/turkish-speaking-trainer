@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { tokenColor } from './tokens.mjs';
 import { mkdir } from 'node:fs/promises';
 import { installSyntheticMicrophone } from './flow.mjs';
 for (const language of ['ru', 'en']) for (const layout of ['desktop', 'mobile', 'android']) {
@@ -43,7 +44,7 @@ for (const language of ['ru', 'en']) for (const layout of ['desktop', 'mobile', 
     await page.getByRole('button', { name: en ? (layout === 'android' ? 'Check' : 'Check answer') : (layout === 'android' ? 'Проверить' : 'Проверить ответ'), exact: true }).click();
     await page.getByRole('button', { name: en ? (layout === 'desktop' ? 'Next phrase' : 'Next') : (layout === 'desktop' ? 'Следующая фраза' : 'Следующая') }).click();
     const congratulations = page.locator('.review-congratulations:visible');
-    await expect(congratulations).toHaveCSS('color', 'rgb(255, 255, 255)');
+    await expect(congratulations).toHaveCSS('color', await tokenColor(page, '--color-ink'));
     expect(parseFloat(await congratulations.evaluate(el => getComputedStyle(el).fontSize))).toBeGreaterThanOrEqual(20);
     await page.screenshot({ path: `../artifacts/localization-fixes/${language}-${layout}-complete.png` });
     await page.locator('.review-complete:visible').getByRole('button', { name: en ? 'Choose topic' : 'Выбрать тему' }).click();

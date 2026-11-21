@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { tokenColor } from './tokens.mjs';
 
 for (const native of [false, true]) {
   test(`${native ? 'Android layout' : 'web'} browses past weeks and stops at the current week`, async ({ page }) => {
@@ -34,8 +35,8 @@ for (const native of [false, true]) {
     await expect(navigation).toHaveText('‹Неделя · 5 янв. — 11 янв.');
     await expect(page.getByRole('button',{name:'Следующая неделя'})).toHaveCount(0);
     const previous = page.getByRole('button', {name:'Предыдущая неделя'});
-    await expect(previous).toHaveCSS('background-color', 'rgba(17, 52, 91, 0.38)');
-    await expect(previous).toHaveCSS('color', 'rgb(141, 188, 232)');
+    await expect(previous).toHaveCSS('background-color', await tokenColor(page, '--color-surface-raised'));
+    await expect(previous).toHaveCSS('color', await tokenColor(page, '--color-ink-soft'));
     await expect(previous).toHaveCSS('border-radius', '10px');
     await page.getByRole('button',{name:'Предыдущая неделя'}).click();
     await expect(navigation).toContainText('Неделя · 29 дек. — 4 янв.');

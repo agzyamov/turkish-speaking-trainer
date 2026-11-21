@@ -29,7 +29,7 @@ it.each(["ru", "en"] as const)("shows the offer without fetching private content
   expect(screen.getByText(language === "ru" ? "Однократный платёж 5 евро" : "One-time payment of 5 euros")).toBeInTheDocument();
   expect(screen.getByRole("img", { name: language === "ru" ? "Две чашки кофе" : "Two cups of coffee" })).toBeInTheDocument();
   expect(screen.getByRole("heading", { name: language === "ru" ? "Почему платно?" : "Why is it paid?" })).toBeInTheDocument();
-  expect(screen.getByText(language === "ru" ? "Приложение использует API-вызовы внешней модели OpenAI." : "The app makes API calls to an external OpenAI model.")).toBeInTheDocument();
+  expect(screen.getByText(language === "ru" ? "Приложение использует платные API внешних моделей ИИ." : "The app relies on paid external AI model APIs.")).toBeInTheDocument();
   expect(fetchCustomPhrases).not.toHaveBeenCalled();
 });
 it.each(["ru", "en"] as const)("filters topics, hides translations and updates count after confirmed deletion (%s)", async language => {
