@@ -503,14 +503,14 @@
     "administratorWillVerifyConfirm": "Администратор проверит и подтвердит ваш платёж, а пока вы можете пользоваться всеми Premium-функциями без ограничений.",
     "premiumHasBeenActivated": "Premium включён для вашего аккаунта. Обновите приложение, чтобы продолжить.",
     "russia": "Россия",
-    "serbia": "Сербия",
     "anotherCountry": "Другая страна",
     "sbp": "СБП",
     "awaitingPayment": "Ожидает оплаты",
     "awaitingVerification": "Ожидает проверки",
     "confirmed": "Подтверждена",
     "rejected": "Отклонена",
-    "cancelled": "Отменена"
+    "cancelled": "Отменена",
+    "turkey": "Турция"
   },
   "app": {
     "afterLimitResets": "после обновления лимита",

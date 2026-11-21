@@ -33,7 +33,7 @@ def test_feedback_saved_with_owner_timestamp_and_notified(api_client, db_session
     assert feedback.user_id == LEGACY_USER_ID
     assert feedback.content == "Спасибо за тренировку!"
     assert feedback.created_at is not None
-    assert sent == ["learner@example.com оставил обратную связь в SerboTalk"]
+    assert sent == ["learner@example.com оставил обратную связь в TurkTalk"]
     assert "content" not in response.json()
     for payload in ({"content": "  "}, {"content": "x" * 5001}, {"content": "x", "user_id": "other"}):
         assert api_client.post("/api/feedback", json=payload).status_code == 422
@@ -60,7 +60,7 @@ def test_registration_only_after_commit_once_and_rollback_discards(db_session, m
     db_session.commit()
     service.sync(identity)
     db_session.commit()
-    assert sent == ["new@example.com зарегистрировался в SerboTalk"]
+    assert sent == ["new@example.com зарегистрировался в TurkTalk"]
 
 
 def test_twentieth_attempt_notifies_once_even_on_idempotent_replay(api_client, db_session, monkeypatch):

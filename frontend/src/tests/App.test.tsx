@@ -383,7 +383,7 @@ describe("App", () => {
       const rawUrl = input.toString();
       const url = rawUrl.startsWith("http") ? `${new URL(rawUrl).pathname}${new URL(rawUrl).search}` : rawUrl;
       let body: unknown;
-      if (url === "/api/health") body = { status: "ok", service: "serbian-speaking-trainer" };
+      if (url === "/api/health") body = { status: "ok", service: "turkish-speaking-trainer" };
       else if (url === "/api/auth/me")
         body = {
           assistance_enabled: assistanceEnabled,

@@ -501,14 +501,14 @@
     "administratorWillVerifyConfirm": "The administrator will verify and confirm your payment. Meanwhile, you can use all Premium features without restrictions.",
     "premiumHasBeenActivated": "Premium has been activated for your account. Reload the app to continue.",
     "russia": "Russia",
-    "serbia": "Serbia",
     "anotherCountry": "Another country",
     "sbp": "SBP",
     "awaitingPayment": "Awaiting payment",
     "awaitingVerification": "Awaiting verification",
     "confirmed": "Confirmed",
     "rejected": "Rejected",
-    "cancelled": "Cancelled"
+    "cancelled": "Cancelled",
+    "turkey": "Turkey"
   },
   "app": {
     "afterLimitResets": "after the limit resets",

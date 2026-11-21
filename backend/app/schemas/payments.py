@@ -5,7 +5,7 @@ from urllib.parse import urlparse
 
 from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, field_validator
 
-Country = Literal["russia", "serbia", "other"]
+Country = Literal["russia", "turkey", "other"]
 Method = Literal["sbp", "alta", "paypal"]
 Status = Literal["awaiting_payment", "awaiting_review", "confirmed", "rejected", "cancelled"]
 

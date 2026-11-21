@@ -18,7 +18,7 @@ class FeedbackService:
     def create(self, user: User, payload: FeedbackRequest) -> FeedbackResponse:
         entry = self.feedback.add(UserFeedback(user_id=user.id, content=payload.content))
         result = FeedbackResponse(id=entry.id, created_at=entry.created_at)
-        notify_after_commit(self.db, self.settings, user.email, "оставил обратную связь в SerboTalk")
+        notify_after_commit(self.db, self.settings, user.email, f"оставил обратную связь в {self.settings.brand_name}")
         self.db.commit()
         return result
 

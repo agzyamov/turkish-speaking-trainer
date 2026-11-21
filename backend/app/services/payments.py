@@ -10,7 +10,7 @@ from app.repositories.users import UserRepository
 from app.schemas.payments import PaymentChoice, PaymentConfig, PaymentDecision, PaymentReport
 from app.services.notifications import notify_after_commit
 
-COUNTRY_METHODS = {"russia": ["sbp"], "serbia": ["paypal"], "other": ["paypal"]}
+COUNTRY_METHODS = {"russia": ["sbp"], "turkey": ["paypal"], "other": ["paypal"]}
 
 
 class PaymentError(Exception):
@@ -83,16 +83,17 @@ class PaymentService:
             user.access_tier, user.premium_payment_id = "premium", payment.id
             payment.provisional_granted_at = datetime.now(UTC)
         self.db.flush()
-        country = {"russia": "Россия", "serbia": "Сербия", "other": "Другая страна"}[payment.country]
+        country = {"russia": "Россия", "turkey": "Турция", "other": "Другая страна"}[payment.country]
         method = {"sbp": "СБП", "alta": "ALTA Banka", "paypal": "PayPal"}[payment.method]
         access = "Premium включён сразу" if payment.provisional_granted_at else "Premium уже был активен"
         notify_after_commit(self.db, self.settings, user.email,
-            f"сообщил об оплате Premium в SerboTalk.\n"
+            f"сообщил об оплате Premium в {self.settings.brand_name}.\n"
             f"Заявка: {payment.id}\nСтрана: {country}\nСпособ: {method}\n"
             f"К оплате: {payment.details['amount']} {payment.details['currency']}\n"
             f"Пользователь указал: {payment.reported_amount} {payment.details['currency']}\n"
             f"{access}; заявка ожидает проверки.\n"
-            "Поступление денег ещё не подтверждено.\nПроверить заявку: https://serbotalk.app/app")
+            "Поступление денег ещё не подтверждено."
+            + (f"\nПроверить заявку: {self.settings.public_app_url.rstrip('/')}/app" if self.settings.public_app_url else ""))
         return payment
 
     def cancel(self, user: User, payment_id: str) -> PaymentRequest:

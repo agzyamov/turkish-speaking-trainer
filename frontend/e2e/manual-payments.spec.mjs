@@ -30,7 +30,7 @@ for (const language of ["ru", "en"])
         creates = 0;
       const options = {
         activation: { ru: "Тестовые условия активации", en: "Test activation terms" },
-        countries: { russia: ["sbp"], serbia: ["paypal"], other: ["paypal"] },
+        countries: { russia: ["sbp"], turkey: ["paypal"], other: ["paypal"] },
         methods: { sbp: { available: true }, alta: { available: true, currencies: ["EUR", "RSD"] }, paypal: { available: true } },
       };
       await page.route("**/api/**", async route => {
@@ -129,7 +129,7 @@ for (const language of ["ru", "en"])
       await form.getByRole("button", { name: ru ? "Копировать: Телефон получателя" : "Copy: Recipient phone number" }).click();
       // Browser clipboard may require user permission: manual fallback must remain readable.
       await expect(form.locator(".payment-value").filter({ hasText: "+70000000000" }).getByRole("status")).not.toBeEmpty();
-      await select.selectOption("serbia");
+      await select.selectOption("turkey");
       await expect(form.getByText("+70000000000")).toHaveCount(0);
       await expect(form.getByRole("button", { name: /ALTA Banka|СБП|SBP/ })).toHaveCount(0);
       await form

@@ -25,7 +25,7 @@ class PaymentRequest(Base):
     reviewed_by: Mapped[str | None] = mapped_column(String(36))
     reviewed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     __table_args__ = (
-        CheckConstraint("country IN ('russia','serbia','other')", name="ck_payment_country"),
+        CheckConstraint("country IN ('russia','turkey','other')", name="ck_payment_country"),
         CheckConstraint("method IN ('sbp','alta','paypal')", name="ck_payment_method"),
         CheckConstraint("status IN ('awaiting_payment','awaiting_review','confirmed','rejected','cancelled')", name="ck_payment_status"),
         CheckConstraint("(status IN ('awaiting_payment','awaiting_review') AND active_user_id = user_id AND active_user_id IS NOT NULL) OR (status IN ('confirmed','rejected','cancelled') AND active_user_id IS NULL)", name="ck_payment_active"),

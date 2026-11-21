@@ -163,7 +163,7 @@ class UserService:
             ))
             self.db.flush()
             from app.services.notifications import notify_after_commit
-            notify_after_commit(self.db, self.settings, user.email, "зарегистрировался в SerboTalk")
+            notify_after_commit(self.db, self.settings, user.email, f"зарегистрировался в {self.settings.brand_name}")
             if role == "admin":
                 self._claim_legacy_data(identity.id)
         else:

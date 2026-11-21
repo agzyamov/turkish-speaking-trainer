@@ -1,7 +1,7 @@
 import { authenticatedFetch } from "../auth";
 import { apiUrl } from "./baseUrl";
 
-export type Country = "russia" | "serbia" | "other";
+export type Country = "russia" | "turkey" | "other";
 export type Method = "sbp" | "alta" | "paypal";
 export type PaymentStatus = "awaiting_payment" | "awaiting_review" | "confirmed" | "rejected" | "cancelled";
 export type Localized = { ru: string; en: string };

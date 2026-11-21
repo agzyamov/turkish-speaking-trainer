@@ -21,6 +21,9 @@ class Settings(BaseSettings):
     )
 
     app_env: str = "development"
+    # Product identity (ADR-0005): the working name and, once the owner has one, the public address.
+    brand_name: str = "TurkTalk"
+    public_app_url: str = ""
     manual_payments: PaymentConfig = Field(default_factory=PaymentConfig)
     database_url: str = "sqlite:///./data/trainer.db"
     cors_allowed_origin_regex: str = (
@@ -31,7 +34,7 @@ class Settings(BaseSettings):
     auto_next: bool = True
     supabase_url: str | None = None
     supabase_publishable_key: str | None = None
-    review_login_username: str = "serbotalkreview"
+    review_login_username: str = "turktalkreview"
     review_login_email: str | None = None
     # No built-in administrators: an account becomes admin only when the deployment names it.
     admin_emails: str = ""

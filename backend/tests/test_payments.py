@@ -94,7 +94,7 @@ def test_payment_notification_api_uses_injected_settings(payment_api, db_session
     sent = []
     monkeypatch.setattr(notifications, "send_notification", lambda settings, text: sent.append(text))
     app.dependency_overrides[get_settings] = payment_notification_settings
-    created = payment_api.post("/api/payments", json={"country": "serbia", "method": "paypal"}).json()
+    created = payment_api.post("/api/payments", json={"country": "turkey", "method": "paypal"}).json()
     response = payment_api.post(f'/api/payments/{created["id"]}/report', json=report_data())
     assert response.status_code == 200
     assert sent == []  # The fixture's DB override leaves the transaction to the test.
@@ -146,12 +146,12 @@ def test_missing_partial_settings_disable_methods(db_session):
 def test_matrix_snapshot_switch_and_retries(payment_api, db_session):
     options = payment_api.get("/api/payments/options")
     assert options.headers["cache-control"] == "no-store"
-    assert options.json()["countries"] == {"russia": ["sbp"], "serbia": ["paypal"], "other": ["paypal"]}
+    assert options.json()["countries"] == {"russia": ["sbp"], "turkey": ["paypal"], "other": ["paypal"]}
     assert payment_api.post("/api/payments", json={"country": "other", "method": "sbp"}).status_code == 409
     first = payment_api.post("/api/payments", json={"country": "russia", "method": "sbp"}).json()
     again = payment_api.post("/api/payments", json={"country": "russia", "method": "sbp"}).json()
     assert first["id"] == again["id"]
-    second = payment_api.post("/api/payments", json={"country": "serbia", "method": "paypal"}).json()
+    second = payment_api.post("/api/payments", json={"country": "turkey", "method": "paypal"}).json()
     assert first["id"] != second["id"]
     assert db_session.get(PaymentRequest, first["id"]).status == "cancelled"
     assert second["details"]["paypal"] == "synthetic@example.invalid"
@@ -237,7 +237,7 @@ def test_alta_is_disabled_even_with_configured_accounts(payment_api, currency):
     options = payment_api.get("/api/payments/options").json()
     assert set(options["methods"]) == {"sbp", "paypal"}
     assert all("alta" not in methods for methods in options["countries"].values())
-    response = payment_api.post("/api/payments", json={"country": "serbia", "method": "alta", "currency": currency})
+    response = payment_api.post("/api/payments", json={"country": "turkey", "method": "alta", "currency": currency})
     assert response.status_code == 409
     assert response.json()["detail"] == "method_unavailable"
 
@@ -245,11 +245,11 @@ def test_alta_is_disabled_even_with_configured_accounts(payment_api, currency):
 def test_old_alta_history_can_be_reported_without_allowing_recreation(payment_api, db_session):
     config = configured()
     old = PaymentRequest(user_id=LEGACY_USER_ID, active_user_id=LEGACY_USER_ID,
-        country="serbia", method="alta", status="awaiting_payment",
+        country="turkey", method="alta", status="awaiting_payment",
         details=config.methods["alta"].model_dump(mode="json"), activation=config.activation.model_dump())
     db_session.add(old)
     db_session.flush()
-    assert payment_api.post("/api/payments", json={"country": "serbia", "method": "alta"}).status_code == 409
+    assert payment_api.post("/api/payments", json={"country": "turkey", "method": "alta"}).status_code == 409
     assert payment_api.get("/api/payments").json()[0]["id"] == old.id
     assert payment_api.post(f"/api/payments/{old.id}/report", json=report_data()).status_code == 200
     assert db_session.get(User, LEGACY_USER_ID).access_tier == "premium"
@@ -347,7 +347,7 @@ def test_concurrent_create_report_and_confirm(tmp_path, monkeypatch):
         engine.dispose()
 
 
-@pytest.mark.parametrize("country,method", [("russia", "sbp"), ("serbia", "paypal"), ("other", "paypal")])
+@pytest.mark.parametrize("country,method", [("russia", "sbp"), ("turkey", "paypal"), ("other", "paypal")])
 def test_new_payment_codes_are_six_unambiguous_characters_and_stable(payment_api, country, method):
     from app.repositories.payments import PAYMENT_CODE_ALPHABET
     choice = {"country": country, "method": method}
@@ -427,3 +427,22 @@ def test_payment_code_retry_does_not_hide_other_integrity_errors(db_session, mon
             country="russia", method="sbp", status="awaiting_payment", details={}, activation={}))
     assert len(generated) == 1
     db_session.rollback()
+
+
+@pytest.mark.parametrize("public_app_url,link", [("", None), ("https://turktalk.example/", "https://turktalk.example/app")])
+def test_payment_report_notification_names_brand_country_and_optional_review_link(db_session, monkeypatch, public_app_url, link):
+    from app.services import notifications
+    sent = []
+    monkeypatch.setattr(notifications, "send_notification", lambda settings, text: sent.append(text))
+    settings = Settings(_env_file=None, manual_payments=configured(), telegram_bot_token="synthetic-token", telegram_chat_id="test-chat", public_app_url=public_app_url)
+    service = PaymentService(db_session, settings.manual_payments, settings)
+    user = db_session.get(User, LEGACY_USER_ID)
+    payment = service.create(user, PaymentChoice(country="turkey", method="paypal"))
+    service.report(user, payment.id, PaymentReport.model_validate(report_data()))
+    db_session.commit()
+    assert len(sent) == 1
+    assert "Premium в TurkTalk" in sent[0] and "Страна: Турция" in sent[0]
+    if link is None:
+        assert "Проверить заявку" not in sent[0]
+    else:
+        assert f"Проверить заявку: {link}" in sent[0]
