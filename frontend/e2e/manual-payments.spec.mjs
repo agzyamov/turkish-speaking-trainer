@@ -45,6 +45,22 @@ for (const language of ['ru', 'en']) for (const layout of ['desktop', 'mobile'])
     const form = page.locator('.payment-form');
     const select = form.getByLabel(ru ? 'Из какой страны вы платите?' : 'Which country are you paying from?');
     await expect(select).toBeEnabled();
+    if (layout === 'desktop') {
+      // Narrowing the window switches to the phone layout and back; the open payment form must survive it.
+      const size = page.viewportSize();
+      await page.setViewportSize({ width: 390, height: size.height });
+      await expect(page.locator('.mobile-web-shell')).toBeVisible();
+      await expect(form).toBeVisible();
+      await page.setViewportSize(size);
+      await expect(page.locator('.app-shell')).toBeVisible();
+      await expect(select).toBeEnabled();
+      // Leaving the section closes the form, as before.
+      await nav.getByRole('button', { name: ru ? 'Статистика' : 'Statistics', exact: true }).click();
+      await nav.getByRole('button', { name: ru ? 'Премиум' : 'Premium', exact: true }).click();
+      await expect(form).toHaveCount(0);
+      await page.getByRole('button', { name: ru ? 'КУПИТЬ' : 'BUY' }).click();
+      await expect(select).toBeEnabled();
+    }
     await expect(select).toHaveValue('');
     // A native <select> opens a system popup on macOS Chrome, so choose the option directly.
     await select.selectOption('russia');

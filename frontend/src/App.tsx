@@ -1,48 +1,43 @@
 import { failureOf } from "./api/failureDiagnostics";
 import { budgetPauseMessage } from "./budgetPause";
-import { t, translateIn, useLanguage, setLanguage, getLocale, topicText } from "./i18n";
+import { t, useLanguage, getLocale, topicText } from "./i18n";
 import { exerciseSource } from "./exerciseSource";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { App as CapacitorApp } from "@capacitor/app";
 import { Capacitor } from "@capacitor/core";
-import type { Session } from "@supabase/supabase-js";
 
 import { BackendError, fetchNextExercise, fetchReviewSummary, fetchTopics, revealWordHint, startTrainingSession, submitAttempt, transcribeAudio } from "./api/training";
 import type { Attempt, AttemptTimings, Exercise, TopicListItem, TrainingSession, WordHint } from "./types/training";
 import { supportsVoiceRecording, VoiceRecorder } from "./voiceRecorder";
 import { DeferredPanel } from "./DeferredPanel";
 import { fetchCurrentUser } from "./api/users";
-import { initializeAuth, isAuthConfigured, onAuthStateChange, signInWithGoogle, signOut } from "./auth";
 import type { CurrentUser } from "./types/auth";
 import { LegalPage } from "./LegalPage";
-import { EmailLogin } from "./EmailLogin";
-import { ReviewLogin } from "./ReviewLogin";
 import { assistedText } from "./transcriptionAssistance";
 import { transcriptionErrorMessage } from "./transcriptionError";
 import type { AssistanceDraft } from "./TranscriptionAssistanceView";
 import { useAssistancePreference } from "./useAssistancePreference";
 import { useMobileLayout } from "./useMobileLayout";
 import { SettingsView } from "./SettingsView";
-import { PremiumView } from "./PremiumView";
+import { PremiumView, type PremiumUiState } from "./PremiumView";
 import { sortedPersonalTopics } from "./personalTopics";
 import { hasUnexpectedLetterScript, latinForEvaluation } from "./turkishText";
 import { RewardOverlay } from "./RewardOverlay";
 import { useRewards } from "./useRewards";
 import { finishUiTimingWhenVisible, startUiTiming } from "./performance";
-import appLogo from "./assets/app-logo.png?inline";
 import "./index.css";
 import { Icon } from "./shared/ui/icon";
 import type { VoiceState } from "./features/practice/AnswerActions";
 import { PhraseLoading } from "./features/practice/PhraseLoading";
 import { InteractivePhrase } from "./features/practice/InteractivePhrase";
 import { PracticeCard } from "./features/practice/PracticeCard";
+import { AuthGate } from "./features/auth/AuthGate";
 import { AppHeader, MobileHeader, type AppView, type BackendState } from "./features/shell/AppHeader";
 import { TopicGrid } from "./features/shell/TopicGrid";
 import { topicIconName } from "./features/shell/topicIcons";
 import { PracticeDone, ReviewComplete, WelcomeCard } from "./features/shell/StageStates";
 import { cn } from "./shared/lib/utils";
-import { authCard, authLegal, authPage, googleButton } from "./features/auth/authStyles";
-import { Button } from "./shared/ui/button";
+import { authPage } from "./features/auth/authStyles";
 
 type StartupState = "loading" | "ready" | "fallback";
 
@@ -78,80 +73,7 @@ export default function App() {
   if (window.location.pathname === "/privacy") return <LegalPage kind="privacy" />;
   if (window.location.pathname === "/terms") return <LegalPage kind="terms" />;
   if (window.location.pathname === "/delete-account") return <LegalPage kind="delete-account" />;
-  return <AuthenticatedApp />;
-}
-
-function LoginLanguageButton() {
-  const language = useLanguage();
-  return <div className="login-languages mb-4.5 flex justify-center gap-3" role="group" aria-label={t("app.interfaceLanguage")}>
-    {(["ru", "en"] as const).map(locale => <button key={locale} className="login-language grid size-11.5 cursor-pointer place-items-center rounded-sm border border-line bg-surface-raised p-1 hover:bg-selected aria-pressed:border-reward outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-surface [&_svg]:block" type="button" aria-label={t(locale === "ru" ? "app.selectRussian" : "app.selectEnglish")} aria-pressed={language === locale} onClick={() => setLanguage(locale)}>
-      <svg aria-hidden="true" viewBox="0 0 60 60" width="36" height="36">
-        {locale === "ru" ? <><path fill="#fff" d="M0 0h60v20H0z"/><path fill="#0039a6" d="M0 20h60v20H0z"/><path fill="#d52b1e" d="M0 40h60v20H0z"/></> : <>
-          <path fill="#012169" d="M0 0h60v60H0z"/><path stroke="#fff" strokeWidth="12" d="m0 0 60 60M60 0 0 60"/><path stroke="#c8102e" strokeWidth="4" d="m0 0 60 60M60 0 0 60"/><path stroke="#fff" strokeWidth="20" d="M30 0v60M0 30h60"/><path stroke="#c8102e" strokeWidth="12" d="M30 0v60M0 30h60"/>
-        </>}
-      </svg>
-    </button>)}
-  </div>;
-}
-
-// Both translations participate in layout so switching languages never moves the form.
-function LoginCopy({ as: Tag, text, href }: { as: "h1" | "p" | "a"; text: string; href?: string }) {
-  const language = useLanguage();
-  return <Tag className="login-copy grid [&>span]:col-start-1 [&>span]:row-start-1 [&>span]:self-center" href={href}>{(["ru", "en"] as const).map(locale => <span key={locale} lang={locale} aria-hidden={language !== locale} className={language !== locale ? "login-copy__sizing pointer-events-none invisible" : undefined}>{translateIn(locale, text)}</span>)}</Tag>;
-}
-
-function AuthenticatedApp() {
-  const [authAttempt, setAuthAttempt] = useState(0);
-  const [authReady, setAuthReady] = useState(false);
-  const [hasSession, setHasSession] = useState(false);
-  const [account, setAccount] = useState<CurrentUser>();
-  const [authError, setAuthError] = useState<string>();
-
-  useEffect(() => {
-    let active = true;
-    let lastToken: string | null | undefined;
-    const syncAccount = async (session: Session | null) => {
-      if (!active) return;
-      const token = session?.access_token ?? null;
-      if (lastToken === token) return;
-      lastToken = token;
-      setHasSession(Boolean(session));
-      if (!session) { setAccount(undefined); setAuthReady(true); return; }
-      try {
-        const user = await fetchCurrentUser();
-        if (active && lastToken === token) { setAccount(user); setAuthError(undefined); }
-      } catch {
-        if (active && lastToken === token) setAuthError("app.couldNotLoadProfile");
-      } finally {
-        if (active && lastToken === token) setAuthReady(true);
-      }
-    };
-    initializeAuth().then(syncAccount).catch(() => {
-      if (active) { setAuthError("app.couldNotRestoreSession"); setAuthReady(true); }
-    });
-    const unsubscribe = onAuthStateChange((session) => {
-      window.setTimeout(() => { void syncAccount(session); }, 0);
-    });
-    return () => { active = false; unsubscribe(); };
-  }, [authAttempt]);
-
-  async function login() {
-    setAuthError(undefined);
-    try { await signInWithGoogle(); }
-    catch { setAuthError("app.couldNotOpenGoogle"); }
-  }
-
-  if (!authReady) return <main className={cn(authPage, "auth-page--loading")}><div className="auth-loading" role="status" aria-label={t("app.signingLoading")}>
-    <span className="auth-loading__ring"><img src={appLogo} alt="SerboTalk" /></span>
-    <p>{t("app.signingLoadingDots")}</p>
-  </div></main>;
-  if (!isAuthConfigured()) return <main className={authPage}><div className={authCard}><LoginLanguageButton /><h1>{t("app.signSetupRequired")}</h1><p>{t("app.addViteSupabaseUrl")}</p></div></main>;
-  if (hasSession && !account && authError) return <main className={authPage}><div className={authCard}><LoginLanguageButton />
-    <p role="alert">{t(authError)}</p>
-    <Button className="mt-4" onClick={() => { setAuthReady(false); setAuthAttempt(value => value + 1); }}>{t("app.retryLoadingProfile")}</Button>
-  </div></main>;
-  if (!hasSession || !account) return <main className={authPage}><div className={authCard}><LoginLanguageButton /><LoginCopy as="h1" text="app.welcomeSerbotalk" /><LoginCopy as="p" text="app.signRegisterSaveProgress" /><button className={googleButton} type="button" onClick={() => void login()}>{t("app.signGoogle")}</button><EmailLogin /><ReviewLogin />{authError && <p role="alert">{t(authError)}</p>}<nav className={authLegal} aria-label={t("app.legalInformation")}><LoginCopy as="a" href="/privacy" text="app.privacy" /><LoginCopy as="a" href="/terms" text="app.terms" /><LoginCopy as="a" href="/delete-account" text="app.accountDeletion" /></nav></div></main>;
-  return <TrainerApp key={account.id} account={account} onAccountChange={setAccount} onSignOut={() => void signOut()} />;
+  return <AuthGate>{(account, onAccountChange, onSignOut) => <TrainerApp key={account.id} account={account} onAccountChange={onAccountChange} onSignOut={onSignOut} />}</AuthGate>;
 }
 
 function TrainerApp({ account, onAccountChange, onSignOut }: { account: CurrentUser; onAccountChange: (account: CurrentUser) => void; onSignOut: () => void }) {
@@ -215,6 +137,15 @@ function TrainerApp({ account, onAccountChange, onSignOut }: { account: CurrentU
   const { compact, shell: mobileShellRef } = useMobileLayout(startupState !== "loading" && !isNative);
   const mobileLayout = isNative || compact;
   const visiblePanel = !isNative && view !== "practice" ? view === "statistics" ? 2 : view === "premium" ? 3 : 4 : androidPanel;
+  // Section state that must survive the phone/desktop layout switch (which remounts the visible section)
+  // but not leaving the section: it resets when another panel is shown.
+  const premiumUi = useState<PremiumUiState>({ paymentOpen: false, paymentReported: false });
+  const [, setPremiumUi] = premiumUi;
+  const [shownPanel, setShownPanel] = useState(visiblePanel);
+  if (shownPanel !== visiblePanel) { // React's "reset state when a value changes" pattern, during render
+    setShownPanel(visiblePanel);
+    if (visiblePanel !== 3) setPremiumUi({ paymentOpen: false, paymentReported: false });
+  }
 
   useEffect(() => { startUiTiming("topics"); }, []);
   useEffect(() => {
@@ -802,7 +733,7 @@ function TrainerApp({ account, onAccountChange, onSignOut }: { account: CurrentU
   const personalTopics = premiumActive ? sortedPersonalTopics(topics) : [];
   const orderedTopics = [...mainTopics, ...personalTopics];
 
-  const premiumPanel = <PremiumView active={premiumActive} topics={topics}
+  const premiumPanel = <PremiumView ui={premiumUi} active={premiumActive} topics={topics}
       onPaymentReported={async () => { const updated = await fetchCurrentUser(); onAccountChange(updated); refreshCustomContent(); }}
       onTopicCreated={topic => setTopics(current => [...current.filter(item => item.id !== topic.id), topic])}
       onChanged={refreshCustomContent} onDeleted={topicId => {

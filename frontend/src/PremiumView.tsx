@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, type Dispatch, type SetStateAction } from "react";
 import { CustomContentForm } from "./CustomContentForm";
 import { CustomContentManager } from "./CustomContentManager";
 import { t } from "./i18n";
@@ -10,16 +10,22 @@ import { Capacitor } from "@capacitor/core";
 import { Button } from "./shared/ui/button";
 import { cn } from "./shared/lib/utils";
 
-export function PremiumView({ active, topics, onTopicCreated, onChanged, onDeleted, onPaymentReported }: {
+/** What the Premium panel has open. Owned by the app so it survives the layout switching between phone and desktop. */
+export type PremiumUiState = { mode?: "topic" | "phrase"; paymentOpen: boolean; paymentReported: boolean };
+
+export function PremiumView({ active, topics, onTopicCreated, onChanged, onDeleted, onPaymentReported, ui }: {
   active: boolean; topics: TopicListItem[];
   onTopicCreated: (topic: TopicListItem) => void; onChanged: () => void;
   onDeleted: (topicId?: string) => void;
   onPaymentReported?: () => Promise<void>;
+  ui?: [PremiumUiState, Dispatch<SetStateAction<PremiumUiState>>];
 }) {
-  const [mode, setMode] = useState<"topic" | "phrase">();
+  const local = useState<PremiumUiState>({ paymentOpen: false, paymentReported: false });
+  const [{ mode, paymentOpen, paymentReported }, setUi] = ui ?? local;
+  const setMode = (next?: "topic" | "phrase") => setUi(state => ({ ...state, mode: next }));
+  const setPaymentOpen = (open: boolean) => setUi(state => ({ ...state, paymentOpen: open }));
+  const setPaymentReported = (reported: boolean) => setUi(state => ({ ...state, paymentReported: reported }));
   const [catalogVersion, setCatalogVersion] = useState(0);
-  const [paymentOpen, setPaymentOpen] = useState(false);
-  const [paymentReported, setPaymentReported] = useState(false);
   const perk = "relative pl-6 [overflow-wrap:anywhere] before:absolute before:left-0 before:text-reward before:content-['✓']";
   return <section className="premium-page mx-auto grid w-full max-w-[680px] gap-4 p-5 text-ink in-[.android-page]:p-0" aria-label={t("premium.title")}>
     {!active ? Capacitor.getPlatform() === "android" ? <p className="m-0 text-ink-soft" role="status">{t("premium.restoringPremiumAccess")}</p> : <div className="premium-offer flex flex-col items-center rounded-card border border-line bg-surface p-[clamp(1.25rem,4vw,2.5rem)] text-center">
