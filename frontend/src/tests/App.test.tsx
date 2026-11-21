@@ -366,15 +366,17 @@ describe("App", () => {
     expect(screen.getByRole("heading", { name: "Политика конфиденциальности" })).toBeInTheDocument();
     expect(screen.getByText(/Обычные записи голоса не сохраняются/)).toBeInTheDocument();
     expect(screen.getByText(/администратор может включить сохранение собственного аудио/)).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: /Вернуться в SerboTalk/ })).toHaveAttribute("href", "/");
+    expect(screen.getByRole("link", { name: /Вернуться в TurkTalk/ })).toHaveAttribute("href", "/");
+    expect(screen.getByText(/Anthropic \(Claude\), ElevenLabs и Resend/)).toBeInTheDocument();
+    expect(screen.queryByText(/OpenAI/)).not.toBeInTheDocument();
   });
 
   it("renders the public deletion request without signing in", () => {
     window.history.replaceState({}, "", "/delete-account");
     render(<App />);
-    expect(screen.getByRole("heading", { name: "Удаление аккаунта SerboTalk" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Удаление аккаунта TurkTalk" })).toBeInTheDocument();
     expect(screen.getByText(/7 календарных дней/)).toBeInTheDocument();
-    expect(screen.getAllByRole("link", { name: "suezergut@gmail.com" })[0]).toHaveAttribute("href", expect.stringContaining("mailto:suezergut@gmail.com"));
+    expect(screen.getAllByRole("link", { name: "support@turktalk.example" })[0]).toHaveAttribute("href", expect.stringContaining("mailto:support@turktalk.example?subject="));
   });
 
   function mockApi(omitLearnerUpdates = false, initialReviewPhrases: Array<Record<string, unknown>> = [], role = "user", assistanceEnabled = false) {

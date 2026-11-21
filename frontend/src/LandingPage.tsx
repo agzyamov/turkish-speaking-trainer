@@ -3,34 +3,27 @@ import { getLanguage, setLanguage, t, useLanguage } from "./i18n";
 import logo from "./assets/app-logo.png";
 import { LandingLogin } from "./LandingLogin";
 import "./landing-styles.css";
+import { brand } from "./shared/brand";
+
+/** Landing copy comes from the legacy dictionary; "{app}" stands for the product name (ADR-0005). */
+const lt = (text: string) => t(text).replaceAll("{app}", brand.name);
 
 const screenshots = [
-  { id: "topics", number: "01", title: "Выберите свою ситуацию", text: "Кафе, банк, врач или работа. Тренируйте фразы, которые пригодятся в обычной жизни.", alt: "SerboTalk: выбор темы" },
+  { id: "topics", number: "01", title: "Выберите свою ситуацию", text: "Кафе, банк, врач или работа. Тренируйте фразы, которые пригодятся в обычной жизни.", alt: "{app}: выбор темы" },
   {
     id: "practice",
     number: "02",
-    title: "Скажите это по-сербски",
+    title: "Скажите это по-турецки",
     text: "Соберите фразу сами и произнесите вслух. Если слово забылось, воспользуйтесь подсказкой.",
-    alt: "SerboTalk: разговорная тренировка",
+    alt: "{app}: разговорная тренировка",
   },
-  { id: "feedback", number: "03", title: "Разберите и повторите", text: "Посмотрите разбор ответа и вернитесь к фразам, которым нужно ещё немного практики.", alt: "SerboTalk: разбор ответа" },
+  { id: "feedback", number: "03", title: "Разберите и повторите", text: "Посмотрите разбор ответа и вернитесь к фразам, которым нужно ещё немного практики.", alt: "{app}: разбор ответа" },
 ];
 
 function AppLink({ compact = false }: { compact?: boolean }) {
   return (
     <a className={`landing-cta${compact ? " landing-cta--small" : ""}`} href="#sign-in">
-      {t(compact ? "Открыть приложение" : "Начать говорить")} <span aria-hidden="true">↗</span>
-    </a>
-  );
-}
-
-function GooglePlayLink() {
-  return (
-    <a className="landing-store" href="https://play.google.com/apps/testing/com.serbiantalk.trainer" target="_blank" rel="noopener noreferrer">
-      <img className="landing-store__logo" src="/landing/google-play.png" alt="" width="26" height="29" />
-      <span>
-        Google Play <small>{t("Открытое тестирование")}</small>
-      </span>
+      {lt(compact ? "Открыть приложение" : "Начать говорить")} <span aria-hidden="true">↗</span>
     </a>
   );
 }
@@ -39,29 +32,29 @@ export function LandingPage() {
   const language = useLanguage();
   useEffect(() => {
     document.documentElement.lang = getLanguage();
-    document.title = t("SerboTalk — начните говорить по-сербски");
+    document.title = lt("{app} — начните говорить по-турецки");
     document
       .querySelector('meta[name="description"]')
-      ?.setAttribute("content", t("SerboTalk — тренируйте разговорный сербский на простых бытовых фразах. Для тех, кто уже знает слова и хочет начать говорить."));
+      ?.setAttribute("content", lt("{app} — тренируйте разговорный турецкий на простых бытовых фразах. Для тех, кто уже знает слова и хочет начать говорить."));
   }, [language]);
   return (
     <div className="landing" id="top">
       <a className="landing-skip" href="#main">
-        {t("Перейти к содержанию")}
+        {lt("Перейти к содержанию")}
       </a>
       <header className="landing-header landing-wrap">
-        <a href="#top" className="landing-brand" aria-label="SerboTalk">
+        <a href="#top" className="landing-brand" aria-label={brand.name}>
           <img src={logo} alt="" width="38" height="38" />
           <span>
-            Serbo<span>Talk</span>
-            <small>{t("Сербский. Своими словами.")}</small>
+            {brand.wordmark[0]}
+            <span>{brand.wordmark[1]}</span>
+            <small>{lt("Турецкий. Своими словами.")}</small>
           </span>
         </a>
-        <nav aria-label={t("Навигация по лендингу")}>
-          <a href="#story">{t("Идея")}</a>
-          <a href="#how">{t("Как это работает")}</a>
+        <nav aria-label={lt("Навигация по лендингу")}>
+          <a href="#how">{lt("Как это работает")}</a>
         </nav>
-        <div className="landing-languages" role="group" aria-label={t("Язык страницы")}>
+        <div className="landing-languages" role="group" aria-label={lt("Язык страницы")}>
           <button type="button" lang="ru" aria-pressed={language === "ru"} onClick={() => setLanguage("ru")}>
             RU
           </button>
@@ -76,108 +69,76 @@ export function LandingPage() {
           <div className="landing-hero-copy">
             <p className="landing-eyebrow">
               <span />
-              {t("ОТ ЗНАКОМЫХ СЛОВ — К ЖИВОЙ РЕЧИ")}
+              {lt("ОТ ЗНАКОМЫХ СЛОВ — К ЖИВОЙ РЕЧИ")}
             </p>
             <h1>
-              {t("Вы уже знаете слова.")}
+              {lt("Вы уже знаете слова.")}
               <br />
-              <span>{t("Пора заговорить.")}</span>
+              <span>{lt("Пора заговорить.")}</span>
             </h1>
-            <p className="landing-lead">{t("Сербский для повседневной жизни. Простые фразы, ваш голос и практика, которая помогает словам складываться в речь.")}</p>
+            <p className="landing-lead">{lt("Турецкий для повседневной жизни. Простые фразы, ваш голос и практика, которая помогает словам складываться в речь.")}</p>
             <div className="landing-actions">
               <AppLink />
-              <GooglePlayLink />
             </div>
-            <p className="landing-hero-note">{t("Для уровня A1–A2 · В браузере и на Android")}</p>
+            <p className="landing-hero-note">{lt("Для уровня A2 · В браузере")}</p>
             <a className="landing-explore" href="#how">
-              {t("Заглянуть внутрь")} <span aria-hidden="true">↓</span>
+              {lt("Заглянуть внутрь")} <span aria-hidden="true">↓</span>
             </a>
           </div>
           <div className="landing-hero-visual">
             <div className="landing-phone landing-phone--hero">
-              <img src={`/landing/screens/phone/${language}-statistics.jpg`} alt={t("SerboTalk: статистика занятий")} width="1280" height="2772" fetchPriority="high" />
+              <img src={`/landing/screens/phone/${language}-statistics.jpg`} alt={lt("{app}: статистика занятий")} width="1280" height="2772" fetchPriority="high" />
             </div>
-          </div>
-        </section>
-        <section id="story" className="landing-story landing-wrap">
-          <div>
-            <p className="landing-eyebrow">{t("ПОЧЕМУ ПОЯВИЛСЯ SERBOTALK")}</p>
-            <h2>
-              {t("Знать слово — ещё не значит")} <em>{t("уметь его сказать.")}</em>
-            </h2>
-            <div className="landing-author">
-              <img src={logo} width="42" height="42" alt="" />
-              <span>
-                {t("От создателя SerboTalk")}
-                <small>{t("Приложение, рождённое из простой идеи")}</small>
-              </span>
-            </div>
-          </div>
-          <div className="landing-story-text">
-            <p>
-              {t(
-                "Я создал SerboTalk, потому что учить слова по карточкам или в приложениях вроде Duolingo — это прежде всего пополнять словарный запас. А чтобы начать разговаривать, нужно открывать рот и говорить: самому подбирать слова и складывать их во фразы.",
-              )}
-            </p>
-            <p>
-              {t(
-                "Так родилась идея простого, лёгкого приложения для практики большого количества несложных бытовых фраз. Достаточно словарного запаса уровня A1–A2, чтобы начать тренировать именно говорение: самостоятельно произносить слова и целые предложения.",
-              )}
-            </p>
-            <blockquote>{t("Мне хотелось создать короткий путь от «я знаю эти слова» к «я могу это сказать» — и помочь быстрее освоиться с сербским в жизни.")}</blockquote>
           </div>
         </section>
         <section id="how" className="landing-how landing-wrap">
           <div className="landing-section-heading">
             <div>
-              <p className="landing-eyebrow">{t("МЕНЬШЕ ТЕОРИИ. БОЛЬШЕ ВАШЕГО ГОЛОСА.")}</p>
+              <p className="landing-eyebrow">{lt("МЕНЬШЕ ТЕОРИИ. БОЛЬШЕ ВАШЕГО ГОЛОСА.")}</p>
               <h2>
-                {t("Ваш следующий разговор")}
+                {lt("Ваш следующий разговор")}
                 <br />
-                <em>{t("начинается здесь.")}</em>
+                <em>{lt("начинается здесь.")}</em>
               </h2>
             </div>
-            <p>{t("Одна бытовая ситуация. Одна фраза за другой. Практика в вашем темпе.")}</p>
+            <p>{lt("Одна бытовая ситуация. Одна фраза за другой. Практика в вашем темпе.")}</p>
           </div>
           <div className="landing-steps">
             {screenshots.map(item => (
               <article key={item.id}>
                 <div className="landing-step-title">
                   <span>{item.number}</span>
-                  <h3>{t(item.title)}</h3>
+                  <h3>{lt(item.title)}</h3>
                 </div>
-                <p>{t(item.text)}</p>
+                <p>{lt(item.text)}</p>
                 <div className="landing-phone">
-                  <img src={`/landing/screens/phone/${language}-${item.id}.jpg`} alt={t(item.alt)} width="1280" height="2772" loading="lazy" />
+                  <img src={`/landing/screens/phone/${language}-${item.id}.jpg`} alt={lt(item.alt)} width="1280" height="2772" loading="lazy" />
                 </div>
               </article>
             ))}
           </div>
         </section>
         <section id="get-app" className="landing-bottom landing-wrap">
-          <span className="landing-eyebrow">{t("НЕБОЛЬШАЯ ПРАКТИКА. НАСТОЯЩИЙ РАЗГОВОР.")}</span>
+          <span className="landing-eyebrow">{lt("НЕБОЛЬШАЯ ПРАКТИКА. НАСТОЯЩИЙ РАЗГОВОР.")}</span>
           <h2>
-            {t("Дайте словам")} <em>{t("свой голос.")}</em>
+            {lt("Дайте словам")} <em>{lt("свой голос.")}</em>
           </h2>
-          <p>{t("Начните с простой фразы. Например, с кофе.")}</p>
+          <p>{lt("Начните с простой фразы. Например, с кофе.")}</p>
           <LandingLogin />
-          <div className="landing-actions">
-            <GooglePlayLink />
-          </div>
-          <p>{t("Присоединитесь к открытому тестированию, затем установите приложение из Google Play.")}</p>
         </section>
       </main>
       <footer className="landing-footer landing-wrap">
         <a className="landing-brand" href="#top">
-          Serbo<span>Talk</span>
+          {brand.wordmark[0]}
+          <span>{brand.wordmark[1]}</span>
         </a>
-        <span>{t("Сербский. Своими словами.")}</span>
+        <span>{lt("Турецкий. Своими словами.")}</span>
         <div>
           <a href="/privacy" target="_blank" rel="noopener noreferrer">
-            {t("Конфиденциальность")}
+            {lt("Конфиденциальность")}
           </a>
           <a href="/terms" target="_blank" rel="noopener noreferrer">
-            {t("Условия использования")}
+            {lt("Условия использования")}
           </a>
         </div>
       </footer>

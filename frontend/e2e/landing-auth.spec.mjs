@@ -46,7 +46,7 @@ for (const language of ["ru", "en"])
       await installAccountRoutes(page);
       await page.goto("/landing.html");
       await page.getByRole("link", { name: en ? /Start speaking/ : /Начать говорить/ }).click();
-      const login = page.getByRole("region", { name: en ? "Welcome to SerboTalk" : "Добро пожаловать в SerboTalk" });
+      const login = page.getByRole("region", { name: en ? "Welcome to TurkTalk" : "Добро пожаловать в TurkTalk" });
       await expect(login).toBeInViewport();
       await login.locator("summary").click();
       await login.getByLabel(en ? "Username or email" : "Имя пользователя или email").fill("demo@example.invalid");
