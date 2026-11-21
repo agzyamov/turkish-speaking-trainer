@@ -22,3 +22,8 @@ export function Select({ className, ...props }: React.ComponentProps<"select">) 
 export function Field({ className, ...props }: React.ComponentProps<"label">) {
   return <label data-slot="field" className={cn("grid gap-1.5 text-sm text-ink-soft", className)} {...props} />;
 }
+
+/** Multi-line text input styled like Input. */
+export function Textarea({ className, ...props }: React.ComponentProps<"textarea">) {
+  return <textarea data-slot="textarea" className={cn(control, "resize-y leading-normal", className)} {...props} />;
+}

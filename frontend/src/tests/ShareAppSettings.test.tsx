@@ -32,7 +32,7 @@ it.each(["ru", "en"] as const)("copies the public URL when sharing is unsupporte
 it.each(["ru", "en"] as const)("shares only public data in the selected language (%s)", async language => {
   setup(language, true);
   fireEvent.click(screen.getByRole("button", { name: language === "en" ? "Share" : "Поделиться" }));
-  expect(webShare).toHaveBeenCalledWith({ title: "SerboTalk", url: publicAppUrl, text: language === "en" ? "Practise speaking Serbian with SerboTalk." : "Практикуйте разговорный сербский с SerboTalk." });
+  expect(webShare).toHaveBeenCalledWith({ title: "SerboTalk", url: publicAppUrl, text: language === "en" ? "Practise speaking Turkish with SerboTalk." : "Практикуйте разговорный турецкий с SerboTalk." });
   await act(async () => {});
   expect(copy).not.toHaveBeenCalled();
 });

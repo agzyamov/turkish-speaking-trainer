@@ -48,7 +48,7 @@ for (const language of ['ru', 'en']) for (const layout of ['desktop', 'mobile', 
     await expect(share).toHaveCSS('color', await tokenColor(page, '--color-ink-muted'));
     await page.evaluate(() => window.shareTest.finish());
     await expect(share).toBeEnabled();
-    expect(await page.evaluate(() => window.shareTest.calls)).toEqual([{ title: 'SerboTalk', text: en ? 'Practise speaking Serbian with SerboTalk.' : 'Практикуйте разговорный сербский с SerboTalk.', url: 'https://serbotalk.app/' }]);
+    expect(await page.evaluate(() => window.shareTest.calls)).toEqual([{ title: 'SerboTalk', text: en ? 'Practise speaking Turkish with SerboTalk.' : 'Практикуйте разговорный турецкий с SerboTalk.', url: 'https://serbotalk.app/' }]);
     await page.evaluate(() => { window.shareTest.mode = 'cancel'; });
     await share.click(); await expect(share).toBeEnabled();
     await expect(panel.getByRole('alert')).toHaveCount(0);

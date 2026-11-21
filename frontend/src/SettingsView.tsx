@@ -89,7 +89,7 @@ export function SettingsView({ account, onSignOut, assistanceEnabled = false, as
 
     <ShareAppSettings />
     <FeedbackSettings />
-    {account?.role === "admin" && account.can_debug_models && <div className="settings-admin-grid settings-card-grid"><TranscriptionModelSettings key={`transcription-${account.id}`} /><ModelDebugSettings key={account.id} /></div>}
+    {account?.role === "admin" && account.can_debug_models && <div className="settings-admin-grid grid min-w-0 grid-cols-2 items-stretch gap-3.5 max-[640px]:grid-cols-1"><TranscriptionModelSettings key={`transcription-${account.id}`} /><ModelDebugSettings key={account.id} /></div>}
 
     {account && <>
       <Card aria-labelledby={accountTitleId}>

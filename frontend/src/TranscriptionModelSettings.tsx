@@ -2,6 +2,10 @@ import { SettingsIcon } from "./SettingsIcon";
 import { useEffect, useRef, useState } from "react";
 import { fetchTranscriptionModels, updateTranscriptionModel, type TranscriptionModelSettings as ModelSettings } from "./api/users";
 import { t } from "./i18n";
+import { cn } from "./shared/lib/utils";
+import { Button } from "./shared/ui/button";
+import { Select } from "./shared/ui/input";
+import { settingsCard, settingsCopy } from "./settingsStyles";
 
 export function TranscriptionModelSettings() {
   const [settings, setSettings] = useState<ModelSettings>();
@@ -42,20 +46,20 @@ export function TranscriptionModelSettings() {
     }
   }
 
-  return <section className="transcription-model-settings settings-section settings-card" aria-labelledby="transcription-model-title">
-    <SettingsIcon name="openai" />
-    <div className="settings-card__copy">
-    <h2 id="transcription-model-title">{t("Эксперимент: распознавание речи")}</h2>
+  return <section className={cn("transcription-model-settings settings-section", settingsCard, "[&_[role=alert]]:text-danger [&_[role=status]]:text-ink-soft")} aria-labelledby="transcription-model-title">
+    <SettingsIcon name="speech" />
+    <div className={settingsCopy}>
+    <h2 id="transcription-model-title" className="m-0 text-base font-bold text-ink">{t("Эксперимент: распознавание речи")}</h2>
     <p>{t("Модель меняется только для вашего аккаунта и следующих записей. Отладку включать необязательно.")}</p>
-    <label htmlFor="transcription-model">{t("Модель распознавания")}</label>
-    <select id="transcription-model" disabled={busy || !settings} value={settings?.selected_model ?? ""} onChange={event => void change(event.target.value)}>
+    <label htmlFor="transcription-model" className="text-sm text-ink-soft">{t("Модель распознавания")}</label>
+    <Select id="transcription-model" disabled={busy || !settings} value={settings?.selected_model ?? ""} onChange={event => void change(event.target.value)}>
       <option value="">{t("По умолчанию")}{settings?.default_model ? ` (${settings.default_model})` : ""}</option>
       {settings?.options.map(model => <option key={model} value={model}>{model}</option>)}
-    </select>
+    </Select>
     <p>{t("Язык записи — турецкий. Качество распознавания проверяйте на собственных записях.")}</p>
     {busy && <p role="status">{t("Загружаем или сохраняем модель…")}</p>}
     {error && <p role="alert">{t(error)}</p>}
-    {!busy && !settings && <button type="button" onClick={() => { setBusy(true); setError(undefined); setReload(value => value + 1); }}>{t("Повторить загрузку")}</button>}
+    {!busy && !settings && <Button className="justify-self-start" onClick={() => { setBusy(true); setError(undefined); setReload(value => value + 1); }}>{t("Повторить загрузку")}</Button>}
     </div>
   </section>;
 }

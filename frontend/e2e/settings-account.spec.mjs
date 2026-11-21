@@ -64,9 +64,7 @@ for (const language of ['ru', 'en']) for (const layout of ['desktop', 'mobile', 
     await sounds.click();
     expect(await sounds.isChecked()).toBe(!soundsBefore);
     await sounds.click();
-    const logo = settings.locator('.settings-icon--openai img');
-    await expect(logo).toBeVisible();
-    await expect.poll(() => logo.evaluate(img => img.complete && img.naturalWidth > 0)).toBe(true);
+    await expect(settings.locator('.settings-icon--speech svg')).toBeVisible();
     for (const card of await settings.locator('.settings-card').all()) {
       expect(await card.evaluate(el => el.scrollWidth <= el.clientWidth + 1)).toBe(true);
     }

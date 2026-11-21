@@ -1,9 +1,14 @@
 import { SettingsIcon } from "./SettingsIcon";
 import { t } from "./i18n";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { fetchModelDebug, updateModelDebug } from "./api/users";
+import { cn } from "./shared/lib/utils";
+import { Button } from "./shared/ui/button";
+import { Switch } from "./shared/ui/switch";
+import { settingsCard, settingsCopy } from "./settingsStyles";
 
 export function ModelDebugSettings() {
+  const switchId = useId();
   const [enabled, setEnabled] = useState(false);
   const [busy, setBusy] = useState(true);
   const [error, setError] = useState<string>();
@@ -43,15 +48,15 @@ export function ModelDebugSettings() {
     }
   }
 
-  return <section className="assistance-settings settings-section settings-card" aria-label={t("Режим отладки")}>
+  return <section className={cn("assistance-settings settings-section", settingsCard, "[&_[role=alert]]:text-danger [&_[role=status]]:text-ink-soft")} aria-label={t("Режим отладки")}>
     <SettingsIcon name="debug" />
-    <div className="settings-card__copy">
-    <label className="settings-toggle"><strong>{t("Режим отладки")}</strong><input type="checkbox" role="switch" checked={enabled} disabled={busy || !loaded} onChange={event => void change(event.target.checked)} /></label>
+    <div className={settingsCopy}>
+    <label htmlFor={switchId} className="settings-toggle flex min-h-11 cursor-pointer items-center justify-between gap-3"><strong>{t("Режим отладки")}</strong><Switch id={switchId} checked={enabled} disabled={busy || !loaded} onCheckedChange={checked => void change(checked)} /></label>
     <p>{t("Сохранять в БД запросы и ответы моделей вашего аккаунта, точное время, длительность и аудио для диагностики распознавания.")}</p>
     <small>{t("Временно хранятся последние 20 аудиозаписей. При выключении все логи и аудио удаляются из БД.")}</small>
     {busy && <p role="status">{t("Сохраняем или загружаем режим отладки…")}</p>}
     {error && <p role="alert">{t(error)}</p>}
-    {!busy && !loaded && <button className="debug-retry-button" type="button" onClick={() => { setBusy(true); setError(undefined); setReload(value => value + 1); }}>{t("Повторить загрузку")}</button>}
+    {!busy && !loaded && <Button className="debug-retry-button justify-self-start" onClick={() => { setBusy(true); setError(undefined); setReload(value => value + 1); }}>{t("Повторить загрузку")}</Button>}
     </div>
   </section>;
 }
