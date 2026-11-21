@@ -5,7 +5,9 @@ import { PremiumBadge } from "../../PremiumBadge";
 import { cn } from "../../shared/lib/utils";
 
 export type AppView = "practice" | "statistics" | "premium" | "settings" | "admin";
-export type BackendState = "checking" | "online" | "offline";
+import type { BackendState } from "../../types/app";
+
+export type { BackendState };
 
 const focusRing = "outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-canvas";
 
