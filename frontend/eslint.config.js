@@ -20,6 +20,17 @@ export default tseslint.config(
     rules: {
       ...reactHooks.configs.recommended.rules,
       "react-refresh/only-export-components": ["warn", { allowConstantExport: true }],
+      // C-20: the client reaches the backend only through the API client modules.
+      "no-restricted-globals": ["error",
+        { name: "fetch", message: "Call the backend through src/api/* (C-20)." },
+        { name: "XMLHttpRequest", message: "Call the backend through src/api/* (C-20)." }],
+      "no-restricted-properties": ["error",
+        ...["window", "globalThis", "self"].map(object => ({ object, property: "fetch", message: "Call the backend through src/api/* (C-20)." }))],
     },
+  },
+  {
+    // The API client, the auth client and tests may call fetch.
+    files: ["src/api/**/*.ts", "src/auth.ts", "src/tests/**", "**/*.test.{ts,tsx}"],
+    rules: { "no-restricted-globals": "off", "no-restricted-properties": "off" },
   },
 );

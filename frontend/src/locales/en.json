@@ -638,5 +638,8 @@
   "Ответ, который точно совпадает с эталоном, можно ввести вручную — он проверяется без ИИ.": "You can still type an answer that exactly matches the reference; it is checked without AI.",
   "Подробнее": "Details",
   "{0} из {1} фраз": "{0} of {1} phrases",
-  "Исправить": "Correct it"
+  "Исправить": "Correct it",
+  "Далее": "Next",
+  "Завершить": "Finish",
+  "Остановить": "Stop"
 }

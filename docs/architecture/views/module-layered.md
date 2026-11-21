@@ -40,7 +40,7 @@ flowchart TB
 |---|---|---|
 | 4. App shell | routes, providers, entry points | 3, 2, 1 |
 | 3. Features | `features/*` | 2, 1; never another feature |
-| 2. Shared | `shared/ui`, `shared/i18n`, hooks, platform helpers | 1 |
+| 2. Shared | `shared/ui`, `shared/lib`, `shared/styles` | `types/` and the i18n helper only; not the API client (enforced by dependency-cruiser `shared-is-a-leaf`) |
 | 1. API client and types | `api/`, `types/` | nothing above |
 
 ## Element catalog

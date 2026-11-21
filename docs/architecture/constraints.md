@@ -43,15 +43,15 @@ The **Enforced by** column says how a violation is caught. "Check" means an auto
 |---|---|---|
 | C-17 | The target language is standard (Istanbul) Turkish at level A2, written in the Turkish Latin alphabet. Text comparison and casing use Turkish rules (`İ/i`, `I/ı`). | Unit tests (Phase 3) |
 | C-18 | A learner's original speech and transcript are kept verbatim. Normalised text is never presented as what the learner said. | Review |
-| C-19 | Every interface string exists in Russian and English and is added or changed in both in the same change. | Check: locale key parity test (Phase 4) |
+| C-19 | Every interface string exists in Russian and English and is added or changed in both in the same change. | Check: `frontend/src/tests/localeParity.test.ts` (every Cyrillic string literal in application code translates in English; landing, legal pages and catalogue data excluded and listed in the test) |
 
 ### Frontend
 
 | ID | Rule | Enforced by |
 |---|---|---|
-| C-20 | The client reaches the backend only through the API client modules. Components do not call `fetch` directly. | Check: dependency-cruiser (Phase 1) |
+| C-20 | The client reaches the backend only through the API client modules. Components do not call `fetch` directly. | Check: ESLint `no-restricted-globals` (`fetch`, `XMLHttpRequest`) and `no-restricted-properties` (`window`/`globalThis`/`self.fetch`) outside `src/api/`, `src/auth.ts` and tests, run by `pnpm lint`. dependency-cruiser additionally keeps UI out of the API client (`api-client-has-no-ui`) |
 | C-21 | Colors, spacing, radii, type sizes and motion come from design tokens. Components do not hardcode them. | Review; Impeccable audit |
-| C-22 | A feature module does not import from another feature module. Shared code lives in the shared layer. | Check: dependency-cruiser (Phase 4) |
+| C-22 | A feature module does not import from another feature module. Shared code lives in the shared layer. | Check: dependency-cruiser rules `no-cross-feature-imports`, `features-do-not-import-the-app`, `shared-is-a-leaf` (`frontend/.dependency-cruiser.cjs`, run by `pnpm lint`, so by `just frontend` and CI) |
 
 ### Platform
 
