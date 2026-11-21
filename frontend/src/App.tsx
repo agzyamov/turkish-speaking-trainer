@@ -22,6 +22,8 @@ import { InteractivePhrase } from "./features/practice/InteractivePhrase";
 import { PracticeCard } from "./features/practice/PracticeCard";
 import { resetTimeLabel, usePracticeSession } from "./features/practice/usePracticeSession";
 import { AuthGate } from "./features/auth/AuthGate";
+import { AppRouter } from "./appRouter";
+import { useSection } from "./useSection";
 import { QueryProvider } from "./shared/lib/QueryProvider";
 import { AppHeader, MobileHeader, type AppView } from "./features/shell/AppHeader";
 import { TopicGrid } from "./features/shell/TopicGrid";
@@ -49,7 +51,9 @@ export default function App() {
     <AuthGate>
       {(account, onAccountChange, onSignOut) => (
         <QueryProvider key={account.id}>
-          <TrainerApp account={account} onAccountChange={onAccountChange} onSignOut={onSignOut} />
+          <AppRouter native={Capacitor.isNativePlatform()}>
+            <TrainerApp account={account} onAccountChange={onAccountChange} onSignOut={onSignOut} />
+          </AppRouter>
         </QueryProvider>
       )}
     </AuthGate>
@@ -57,7 +61,10 @@ export default function App() {
 }
 
 function TrainerApp({ account, onAccountChange, onSignOut }: { account: CurrentUser; onAccountChange: (account: CurrentUser) => void; onSignOut: () => void }) {
-  const [view, setView] = useState<AppView>("practice");
+  const section = useSection(Capacitor.isNativePlatform());
+  // Only administrators have an admin section; a link to it opens practice for everyone else.
+  const view: AppView = section.view === "admin" && account.role !== "admin" ? "practice" : section.view;
+  const { setView, statisticsPage, setStatisticsPage } = section;
   const {
     enabled: assistanceEnabled,
     saving: assistanceSaving,
@@ -123,12 +130,12 @@ function TrainerApp({ account, onAccountChange, onSignOut }: { account: CurrentU
   const androidPagerRef = useRef<HTMLDivElement | null>(null);
   const presentedExerciseRef = useRef<string | undefined>(undefined);
   const [androidPanel, setAndroidPanel] = useState(() => (Capacitor.isNativePlatform() ? 0 : 1));
-  const [statisticsPage, setStatisticsPage] = useState<"activity" | "phrases">("activity");
   const androidBackHandlerRef = useRef<() => void>(() => undefined);
   const isNative = Capacitor.isNativePlatform();
   const { compact, shell: mobileShellRef } = useMobileLayout(startupState !== "loading" && !isNative);
   const mobileLayout = isNative || compact;
-  const visiblePanel = !isNative && view !== "practice" ? (view === "statistics" ? 2 : view === "premium" ? 3 : 4) : androidPanel;
+  // On the web, practice shows the topics or the training panel; a stale section panel (after browser Back) falls back to training.
+  const visiblePanel = !isNative && view !== "practice" ? (view === "statistics" ? 2 : view === "premium" ? 3 : 4) : !isNative && androidPanel > 1 ? 1 : androidPanel;
   // Section state that must survive the phone/desktop layout switch (which remounts the visible section)
   // but not leaving the section: it resets when another panel is shown.
   const premiumUi = useState<PremiumUiState>({ paymentOpen: false, paymentReported: false });
@@ -256,6 +263,11 @@ function TrainerApp({ account, onAccountChange, onSignOut }: { account: CurrentU
     };
   }, [interruptVoice, isNative, refreshAssistance, onAccountChange, accountRefreshEpochRef]);
 
+  // Leaving practice by any route (header, browser Back, a link) stops a recording in progress.
+  useEffect(() => {
+    if (view !== "practice") interruptVoice();
+  }, [view, interruptVoice]);
+
   function showView(next: AppView) {
     if (next !== "practice") interruptVoice();
     setView(next);
@@ -288,8 +300,7 @@ function TrainerApp({ account, onAccountChange, onSignOut }: { account: CurrentU
       onChanged={refreshCustomContent}
       onDeleted={topicId => {
         interruptVoice();
-        resetTraining();
-        setView("premium");
+        resetTraining({ keepSection: true });
         if (topicId) {
           setTopics(current => current.filter(topic => topic.id !== topicId));
           if (selectedTopic === topicId) setSelectedTopic(undefined);
@@ -542,7 +553,7 @@ function TrainerApp({ account, onAccountChange, onSignOut }: { account: CurrentU
         premiumActive={premiumActive}
         showAdmin={account.role === "admin" && !Capacitor.isNativePlatform()}
         backendState={backendState}
-        onHome={resetTraining}
+        onHome={() => resetTraining()}
         onShow={showView}
         onRetry={retryCatalog}
       />

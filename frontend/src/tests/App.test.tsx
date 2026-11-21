@@ -2064,6 +2064,48 @@ describe("App", () => {
     }
   });
 
+  it("opens practice, not the admin screen, when a learner follows an admin link", async () => {
+    window.history.replaceState(null, "", "/#/admin");
+    vi.stubGlobal("fetch", mockApi());
+    render(<App />);
+    expect(await screen.findByRole("button", { name: /В банке/ })).toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "Пользователи" })).not.toBeInTheDocument();
+  });
+
+  it("returns the phone browser layout to the training panel on browser Back", async () => {
+    vi.stubGlobal(
+      "matchMedia",
+      vi.fn(() => ({ matches: true, addEventListener: vi.fn(), removeEventListener: vi.fn() })),
+    );
+    vi.stubGlobal("fetch", mockApi());
+    const { container } = render(<App />);
+    await screen.findByRole("heading", { name: "Я хочу открыть счёт." });
+    fireEvent.click(screen.getByRole("button", { name: "Статистика" }));
+    expect(await screen.findByRole("heading", { name: "Календарь занятий" })).toBeInTheDocument();
+    await act(async () => {
+      window.history.back();
+      await new Promise(resolve => setTimeout(resolve, 50));
+    });
+    await waitFor(() => expect(container.querySelector(".android-training-page")).not.toHaveAttribute("hidden"));
+    expect(container.querySelector(".android-statistics-page")).toHaveAttribute("hidden");
+    expect(screen.getByRole("button", { name: "Тренировка" })).toHaveAttribute("aria-current", "page");
+  });
+
+  it("opens a section from its link and goes back with the browser", async () => {
+    window.history.replaceState(null, "", "/#/statistics");
+    vi.stubGlobal("fetch", mockApi());
+    render(<App />);
+    expect(await screen.findByRole("heading", { name: "Календарь занятий" })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Настройки" }));
+    expect(await screen.findByRole("heading", { name: "Настройки" })).toBeInTheDocument();
+    expect(window.location.hash).toBe("#/settings");
+    await act(async () => {
+      window.history.back();
+      await new Promise(resolve => setTimeout(resolve, 50));
+    });
+    expect(await screen.findByRole("heading", { name: "Календарь занятий" })).toBeInTheDocument();
+  });
+
   it("shows only the current week and separates attempts from mastered phrases", async () => {
     vi.stubGlobal("fetch", mockApi());
     render(<App />);

@@ -12,6 +12,7 @@ One file per decision. Decisions are never edited to say something different; a 
 | [0006](ADR-0006-agent-confinement-and-secrets.md) | Coding agents are confined to the repository; secrets are blocked by tooling | Accepted |
 | [0007](ADR-0007-claude-api-conventions.md) | Conventions for calling the Claude API (structured outputs, caching, effort, refusals) | Accepted |
 | [0008](ADR-0008-budget-reason-on-custom-content-errors.md) | Budget reason added to custom content errors (topic creation), code unchanged | Accepted |
+| [0009](ADR-0009-section-urls-with-hash-history.md) | Sections as URLs: TanStack Router with hash history in the browser, memory history on Android | Accepted |
 
 ## Template
 

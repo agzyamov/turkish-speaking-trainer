@@ -532,10 +532,11 @@ export function usePracticeSession({
     }
   }
 
-  function resetTraining() {
+  /** Ends the session. `keepSection` leaves the app's current section as it is (e.g. Premium after a deletion). */
+  function resetTraining({ keepSection = false }: { keepSection?: boolean } = {}) {
     invalidateFlow();
     stopVoice();
-    onReset();
+    if (!keepSection) onReset();
     setSession(undefined);
     setExercise(undefined);
     setAnswer("");
