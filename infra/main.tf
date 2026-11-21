@@ -23,6 +23,7 @@ resource "vercel_project" "frontend" {
 
 resource "vercel_project" "backend" {
   name           = var.backend_project_name
+  framework      = "fastapi" # finds the app in app/main.py; without it Vercel looks only in api/
   root_directory = "backend"
   # Next to the Supabase database (Ireland, eu-west-1): every request makes several database round trips.
   resource_config = {
