@@ -57,7 +57,7 @@ FastAPI generates the exact request and response schemas from `backend/app/schem
 |---|---|
 | Field names ending `_sr` become `_tr` (`canonical_sr`, `transcript_sr`, `translation_sr`, `intended_sr_variants`, `corrected_sr`) | 3 |
 | The `alphabet` form field on `/transcriptions` is removed | 3 |
-| Payment country value `serbia` becomes `turkey` | Done (Phase 5, migration `c93e0f1a2b47`) |
+| Payment country value becomes `turkey` | Done (Phase 5, migration `c93e0f1a2b47`) |
 | `budget_exhausted` failure reasons and `/admin/usage` were added | 2 (done) |
 | `failure` and `retryable` added to custom content errors caused by an AI failure; `code` unchanged (ADR-0008) | 4 (done) |
 

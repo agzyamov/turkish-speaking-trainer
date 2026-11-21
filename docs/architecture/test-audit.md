@@ -11,7 +11,7 @@ Audit date: 2026-11-20. Every test file was read and judged against the views, c
 | Frontend end-to-end (`frontend/e2e`) | 43 | 5 | 32 | 0 | 7 |
 
 - **Keep**: verifies behaviour the target architecture keeps unchanged.
-- **Adapt**: valid purpose, but tied to Serbian, OpenAI, the old brand or today's CSS; changes in the phase shown below.
+- **Adapt**: valid purpose, but tied to the previous language, OpenAI, the old brand or today's CSS; changes in the phase shown below.
 - **Retire**: verifies something the architecture removes.
 - **Questionable**: platform-specific, pins release facts, needs infrastructure the project no longer has, or already fails.
 
@@ -19,11 +19,11 @@ Audit date: 2026-11-20. Every test file was read and judged against the views, c
 
 | Phase | Tests affected | Change |
 |---|---|---|
-| 3 (Turkish) | About 30 backend files, 20 frontend unit files, 12 e2e specs | `_sr` → `_tr` fields; Serbian samples → Turkish; `alphabet` field and Latin/Cyrillic cases removed; country `serbia` → `turkey` |
-| 3 | `test_ekavica_policy.py`, `test_transcription_adapter.py`, `serbianScript.test.ts` | Backend files retired 2026-11-20, replaced by `test_turkish_text.py` and the ElevenLabs adapter tests. `serbianScript.test.ts` goes with the frontend alphabet toggle (Phase 4) |
+| 3 (Turkish) | About 30 backend files, 20 frontend unit files, 12 e2e specs | `_sr` → `_tr` fields; samples → Turkish; `alphabet` field and two-alphabet cases removed; payment country → `turkey` |
+| 3 | The old dialect-policy, transcription-adapter and alphabet-conversion tests | Retired 2026-11-20, replaced by `test_turkish_text.py`, the ElevenLabs adapter tests and `turkishText` tests |
 | 3 | 12 backend files that constructed the OpenAI adapters | Done 2026-11-20: ported to the Claude and ElevenLabs adapters over fake clients (`backend/tests/providers.py`); OpenAI adapters deleted |
 | 4 (frontend restructure) | 11 unit files (about 110 assertions) and 35 e2e files (about 200 class locators, 50 bounding-box checks, 35 hardcoded colors) | Selectors moved from CSS classes and pixel geometry to roles and labels **before** the restyle; pixel and color checks become Phase 6 screenshot baselines |
-| 5 (rebrand) | About 15 files | SerboTalk, `serbotalk.app`, `com.serbiantalk.trainer`, the review alias and the previous owner's name and email replaced by the single brand module and synthetic identities |
+| 5 (rebrand) | About 15 files | The old brand, domain and package id, the review alias and the previous owner's name and email replaced by the single brand module and synthetic identities |
 
 ## Findings that need action before the phase they block
 

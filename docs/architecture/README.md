@@ -72,4 +72,4 @@ Every view document has the same sections:
 
 - A change that alters an element, relation or interface updates the affected view in the same change.
 - When a Planned element lands, its status becomes Existing.
-- The older `docs/architecture.md`, `docs/decisions.md` and the spec docx describe the Serbian product and are kept as history. Where they disagree with this directory, this directory wins.
+- Where any other document disagrees with this directory, this directory wins.
