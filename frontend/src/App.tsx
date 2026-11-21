@@ -33,6 +33,7 @@ import { InteractivePhrase } from "./features/practice/InteractivePhrase";
 import { PracticeCard } from "./features/practice/PracticeCard";
 import { useWordHints } from "./features/practice/useWordHints";
 import { AuthGate } from "./features/auth/AuthGate";
+import { QueryProvider } from "./shared/lib/QueryProvider";
 import { AppHeader, MobileHeader, type AppView, type BackendState } from "./features/shell/AppHeader";
 import { TopicGrid } from "./features/shell/TopicGrid";
 import { topicIconName } from "./features/shell/topicIcons";
@@ -69,7 +70,7 @@ export default function App() {
   if (window.location.pathname === "/privacy") return <LegalPage kind="privacy" />;
   if (window.location.pathname === "/terms") return <LegalPage kind="terms" />;
   if (window.location.pathname === "/delete-account") return <LegalPage kind="delete-account" />;
-  return <AuthGate>{(account, onAccountChange, onSignOut) => <TrainerApp key={account.id} account={account} onAccountChange={onAccountChange} onSignOut={onSignOut} />}</AuthGate>;
+  return <AuthGate>{(account, onAccountChange, onSignOut) => <QueryProvider key={account.id}><TrainerApp account={account} onAccountChange={onAccountChange} onSignOut={onSignOut} /></QueryProvider>}</AuthGate>;
 }
 
 function TrainerApp({ account, onAccountChange, onSignOut }: { account: CurrentUser; onAccountChange: (account: CurrentUser) => void; onSignOut: () => void }) {

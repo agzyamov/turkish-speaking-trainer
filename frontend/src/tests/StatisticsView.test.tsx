@@ -1,7 +1,14 @@
 import { StrictMode } from 'react';
 import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
-import { StatisticsView } from '../features/statistics/StatisticsView';
+import { StatisticsView as StatisticsScreen } from '../features/statistics/StatisticsView';
+import { QueryProvider } from '../shared/lib/QueryProvider';
+import { createQueryClient } from '../shared/lib/queryClient';
+import { QueryClientProvider } from '@tanstack/react-query';
+import type { ComponentProps } from 'react';
+
+// Each render gets its own cache, like each signed-in account in the app.
+const StatisticsView = (props: ComponentProps<typeof StatisticsScreen>) => <QueryProvider><StatisticsScreen {...props} /></QueryProvider>;
 import { setLanguage } from '../i18n';
 import { fetchMonthlyStatistics, fetchPhraseStatistics, fetchPhraseTopics } from '../api/statistics';
 import type { PhraseStatistics } from '../types/statistics';
@@ -233,4 +240,37 @@ it.each([true, false])('stacks phrase rows with their own labels only in the com
   const label = container.querySelector('.phrase-cell-label')!;
   expect(label).toHaveClass(compact ? 'block' : 'hidden');
   expect(container.querySelector('.statistics-page')!.className.includes('*2/3')).toBe(!compact);
+});
+
+it('shows the loading panel, not the error, while a retry runs', async () => {
+  let finish!: (value: PhraseStatistics) => void;
+  vi.mocked(fetchPhraseStatistics).mockRejectedValueOnce(new Error('offline')).mockImplementationOnce(() => new Promise(resolve => { finish = resolve; }));
+  render(<StatisticsView page="phrases"/>);
+  fireEvent.click(await screen.findByRole('button', { name: 'Повторить загрузку фраз' }));
+  expect(await screen.findByText('Загружаем фразы…')).toBeInTheDocument();
+  expect(screen.queryByRole('button', { name: 'Повторить загрузку фраз' })).not.toBeInTheDocument();
+  await act(async () => finish(phrases('Актуальная тема')));
+  expect(await screen.findByRole('heading', { name: 'Актуальная тема' })).toBeInTheDocument();
+});
+
+it('shows cached statistics at once when the learner comes back, and refreshes them', async () => {
+  // One client = one account; the statistics section unmounts and mounts again inside it.
+  const client = createQueryClient();
+  const first = render(<QueryClientProvider client={client}><StatisticsScreen page="phrases" /></QueryClientProvider>);
+  await screen.findByRole('heading', { name: 'Актуальная тема' });
+  first.unmount();
+  const before = vi.mocked(fetchPhraseStatistics).mock.calls.length;
+  render(<QueryClientProvider client={client}><StatisticsScreen page="phrases" /></QueryClientProvider>);
+  expect(screen.getByRole('heading', { name: 'Актуальная тема' })).toBeInTheDocument();
+  await waitFor(() => expect(vi.mocked(fetchPhraseStatistics).mock.calls.length).toBe(before + 1));
+});
+
+it('starts a new account with an empty cache', async () => {
+  const first = render(<QueryProvider key="account-1"><StatisticsScreen page="phrases" /></QueryProvider>);
+  await screen.findByRole('heading', { name: 'Актуальная тема' });
+  first.unmount();
+  vi.mocked(fetchPhraseStatistics).mockImplementation(() => new Promise(() => undefined));
+  render(<QueryProvider key="account-2"><StatisticsScreen page="phrases" /></QueryProvider>);
+  expect(await screen.findByText('Загружаем фразы…')).toBeInTheDocument();
+  expect(screen.queryByRole('heading', { name: 'Актуальная тема' })).not.toBeInTheDocument();
 });

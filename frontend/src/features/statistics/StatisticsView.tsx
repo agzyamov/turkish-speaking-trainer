@@ -1,7 +1,7 @@
-import { useEffect, useState, type ReactNode } from "react";
+import { useState, type ReactNode } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { t, getLocale, topicText } from "../../i18n";
 import { fetchMonthlyStatistics, fetchPhraseStatistics, fetchPhraseTopics } from "../../api/statistics";
-import type { MonthlyStatistics, PhraseStatistics, PhraseStatisticsTopic } from "../../types/statistics";
 import { cn } from "../../shared/lib/utils";
 import { GoldStar } from "./GoldStar";
 
@@ -49,33 +49,18 @@ function RetryButton({ onClick, children }: { onClick: () => void; children: Rea
 function PhraseList({ topicId, compact }: { topicId: string; compact: boolean }) {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState<PageSize>("20");
-  const [statistics, setStatistics] = useState<PhraseStatistics>();
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
-  const [retry, setRetry] = useState(0);
+  const query = useQuery({
+    queryKey: ["statistics", "phrases", topicId, page, pageSize],
+    queryFn: ({ signal }) => fetchPhraseStatistics(page, pageSize, signal, topicId),
+  });
+  const statistics = query.data;
+  const loading = query.isPending; // a retry with no data yet goes back to pending
 
-  useEffect(() => {
-    const controller = new AbortController();
-    fetchPhraseStatistics(page, pageSize, controller.signal, topicId)
-      .then((result) => { if (!controller.signal.aborted) setStatistics(result); })
-      .catch((requestError: unknown) => {
-        if (controller.signal.aborted || requestError instanceof DOMException && requestError.name === "AbortError") return;
-        setError(true);
-      })
-      .finally(() => { if (!controller.signal.aborted) setLoading(false); });
-    return () => controller.abort();
-  }, [page, pageSize, retry, topicId]);
-
-  function changePage(nextPage: number) {
-    setLoading(true); setError(false); setPage(nextPage);
-  }
-
-  function changePageSize(nextPageSize: PageSize) {
-    setLoading(true); setError(false); setPageSize(nextPageSize); setPage(1);
-  }
+  function changePage(nextPage: number) { setPage(nextPage); }
+  function changePageSize(nextPageSize: PageSize) { setPageSize(nextPageSize); setPage(1); }
 
   if (loading) return <StatusPanel>{t("statistics.phrases.loading")}</StatusPanel>;
-  if (error || !statistics) return <StatusPanel role="alert">{t("statistics.phrases.failed")}{" "}<RetryButton onClick={() => { setLoading(true); setError(false); setRetry((value) => value + 1); }}>{t("statistics.phrases.reload")}</RetryButton></StatusPanel>;
+  if (query.isError || !statistics) return <StatusPanel role="alert">{t("statistics.phrases.failed")}{" "}<RetryButton onClick={() => void query.refetch()}>{t("statistics.phrases.reload")}</RetryButton></StatusPanel>;
 
   // Phone (every window up to 780px uses the phone layout): each phrase becomes a small card with its own labels.
   const cell = cn("border-t border-line px-3 py-3 align-top leading-snug text-ink-soft", compact && "block w-full border-0 px-0 py-1.5 text-left [overflow-wrap:anywhere]");
@@ -116,25 +101,17 @@ function PhraseList({ topicId, compact }: { topicId: string; compact: boolean })
 }
 
 function PhrasesPage({ compact }: { compact: boolean }) {
-  const [topics, setTopics] = useState<PhraseStatisticsTopic[]>();
-  const [selectedTopic, setSelectedTopic] = useState("");
-  const [error, setError] = useState(false);
-  const [retry, setRetry] = useState(0);
-  useEffect(() => {
-    const controller = new AbortController();
-    fetchPhraseTopics(controller.signal).then(result => {
-      if (controller.signal.aborted) return;
-      setTopics(result);
-      setSelectedTopic(result[0] ? result[0].topic_id ?? "unassigned" : "");
-    }).catch(() => { if (!controller.signal.aborted) setError(true); });
-    return () => controller.abort();
-  }, [retry]);
+  const query = useQuery({ queryKey: ["statistics", "phraseTopics"], queryFn: ({ signal }) => fetchPhraseTopics(signal) });
+  const topics = query.data;
+  const [chosenTopic, setChosenTopic] = useState<string>();
+  // The first topic is selected until the learner picks another one.
+  const selectedTopic = chosenTopic ?? (topics?.[0] ? topics[0].topic_id ?? "unassigned" : "");
 
-  if (error) return <StatusPanel role="alert">{t("statistics.topics.failed")}{" "}<RetryButton onClick={() => { setError(false); setRetry(value => value + 1); }}>{t("statistics.topics.reload")}</RetryButton></StatusPanel>;
+  if (query.isError) return <StatusPanel role="alert">{t("statistics.topics.failed")}{" "}<RetryButton onClick={() => void query.refetch()}>{t("statistics.topics.reload")}</RetryButton></StatusPanel>;
   if (!topics) return <StatusPanel role="status">{t("statistics.topics.loading")}</StatusPanel>;
   if (!topics.length) return <StatusPanel>{t("statistics.empty")}</StatusPanel>;
   return <>
-    <label className={cn("phrase-topic-control grid gap-2 p-4 text-sm text-ink-muted", card)}>{t("statistics.topics.label")}<select className={cn(select, "w-full py-2.5")} aria-label={t("statistics.topics.label")} value={selectedTopic} onChange={event => setSelectedTopic(event.target.value)}>
+    <label className={cn("phrase-topic-control grid gap-2 p-4 text-sm text-ink-muted", card)}>{t("statistics.topics.label")}<select className={cn(select, "w-full py-2.5")} aria-label={t("statistics.topics.label")} value={selectedTopic} onChange={event => setChosenTopic(event.target.value)}>
         {topics.map(topic => <option key={topic.topic_id ?? "unassigned"} value={topic.topic_id ?? "unassigned"}>{topicText(topic.topic_id, topic.topic_title, topic.topic_title_en)} · {topic.phrase_count}</option>)}
       </select>
     </label>
@@ -146,31 +123,16 @@ function ActivityTab({ compact }: { compact: boolean }) {
   const [thisWeek] = useState(currentWeek);
   const [weekOffset, setWeekOffset] = useState(0);
   const week = thisWeek.map((date) => new Date(date.getFullYear(), date.getMonth(), date.getDate() + weekOffset * 7));
-  const [statistics, setStatistics] = useState<MonthlyStatistics[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
-  const [retry, setRetry] = useState(0);
   const months = [...new Set(week.map(monthKey))];
-  const monthKeys = months.join(",");
+  // One request per calendar month the week touches; weeks inside the same months reuse the data.
+  const query = useQuery({
+    queryKey: ["statistics", "monthly", ...months],
+    queryFn: ({ signal }) => Promise.all(months.map((month) => fetchMonthlyStatistics(month, signal))),
+  });
+  const statistics = query.data ?? [];
+  const loading = query.isPending; // a retry with no data yet goes back to pending
 
-  useEffect(() => {
-    const controller = new AbortController();
-    Promise.all(monthKeys.split(",").map((month) => fetchMonthlyStatistics(month, controller.signal)))
-      .then((result) => { if (!controller.signal.aborted) setStatistics(result); })
-      .catch((requestError: unknown) => {
-        if (controller.signal.aborted || requestError instanceof DOMException && requestError.name === "AbortError") return;
-        setError(true);
-      })
-      .finally(() => { if (!controller.signal.aborted) setLoading(false); });
-    return () => controller.abort();
-  }, [monthKeys, retry]);
-
-  function changeWeek(direction: number) {
-    const nextOffset = Math.min(0, weekOffset + direction);
-    const nextMonths = [...new Set(thisWeek.map((date) => monthKey(new Date(date.getFullYear(), date.getMonth(), date.getDate() + nextOffset * 7))))].join(",");
-    if (nextMonths !== monthKeys) { setLoading(true); setError(false); }
-    setWeekOffset(nextOffset);
-  }
+  function changeWeek(direction: number) { setWeekOffset(Math.min(0, weekOffset + direction)); }
 
   const weekTitle = `${new Intl.DateTimeFormat(getLocale(), { day: "numeric", month: "short" }).format(week[0])} — ${new Intl.DateTimeFormat(getLocale(), { day: "numeric", month: "short" }).format(week[6])}`;
   const stepButton = cn("grid min-h-11 cursor-pointer place-items-center rounded-control border border-line bg-surface-raised p-1 text-2xl leading-none text-ink-soft transition-colors duration-(--duration-quick) hover:border-line-strong hover:bg-selected hover:text-ink active:bg-selected", focusRing);
@@ -181,7 +143,7 @@ function ActivityTab({ compact }: { compact: boolean }) {
   </nav>;
 
   if (loading) return <>{toolbar}<StatusPanel role="status">{t("statistics.loading")}</StatusPanel></>;
-  if (error || !statistics.length) return <>{toolbar}<StatusPanel role="alert">{t("statistics.failed")}{" "}<RetryButton onClick={() => { setLoading(true); setError(false); setRetry((value) => value + 1); }}>{t("statistics.reload")}</RetryButton></StatusPanel></>;
+  if (query.isError || !statistics.length) return <>{toolbar}<StatusPanel role="alert">{t("statistics.failed")}{" "}<RetryButton onClick={() => void query.refetch()}>{t("statistics.reload")}</RetryButton></StatusPanel></>;
   const byDate = new Map(statistics.flatMap((month) => month.days).map((day) => [day.date, day]));
   const days = week.map((date) => byDate.get(dateKey(date)) ?? { date: dateKey(date), phrase_count: 0, translation_count: 0, correct_translation_count: 0, mastered_phrase_count: 0 });
   const total = days.reduce((sum, day) => sum + day.translation_count, 0);

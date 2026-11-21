@@ -1,8 +1,7 @@
 import { t, getLocale } from "./i18n";
-import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 
 import { fetchAdminUsers } from "./api/users";
-import type { AdminUser } from "./types/auth";
 import { AdminPaymentsView } from "./AdminPaymentsView";
 import { cn } from "./shared/lib/utils";
 
@@ -13,17 +12,9 @@ function formatDate(value: string): string {
 }
 
 export function AdminUsersView() {
-  const [users, setUsers] = useState<AdminUser[]>();
-  const [error, setError] = useState(false);
-
-  useEffect(() => {
-    const controller = new AbortController();
-    fetchAdminUsers(controller.signal).then(setUsers).catch((requestError: unknown) => {
-      if (requestError instanceof DOMException && requestError.name === "AbortError") return;
-      setError(true);
-    });
-    return () => controller.abort();
-  }, []);
+  const query = useQuery({ queryKey: ["admin", "users"], queryFn: ({ signal }) => fetchAdminUsers(signal) });
+  const users = query.data;
+  const error = query.isError;
 
   const cell = "border-t border-line px-3 py-3 align-top leading-snug text-ink-soft in-[.mobile-web-shell]:block in-[.mobile-web-shell]:border-0 in-[.mobile-web-shell]:px-0 in-[.mobile-web-shell]:py-1 [overflow-wrap:anywhere]";
   return <main className="admin-page grid gap-6 px-[clamp(18px,4vw,64px)] pb-16 pt-8 text-ink in-[.mobile-web-shell]:max-w-full in-[.mobile-web-shell]:p-0">

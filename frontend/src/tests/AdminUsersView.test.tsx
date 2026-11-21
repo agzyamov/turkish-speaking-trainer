@@ -1,6 +1,7 @@
 import { cleanup, render, screen, within } from "@testing-library/react";
 import { afterEach, expect, it, vi } from "vitest";
 import { AdminUsersView } from "../AdminUsersView";
+import { QueryProvider } from "../shared/lib/QueryProvider";
 import { fetchAdminUsers } from "../api/users";
 import { setLanguage } from "../i18n";
 vi.mock("../api/users", () => ({ fetchAdminUsers: vi.fn() }));
@@ -12,7 +13,7 @@ it.each(["ru", "en"] as const)("shows premium role and server-provided limits (%
     { id: "free", email: "free@example.invalid", display_name: null, role: "user", access_tier: "free", daily_limit: 20, phrases_today: 3, registered_at: "2026-10-01", last_active_at: "2026-10-24" },
     { id: "admin", email: "admin@example.invalid", display_name: null, role: "admin", access_tier: "premium", daily_limit: null, phrases_today: 9, registered_at: "2026-10-01", last_active_at: "2026-10-24" },
   ]);
-  render(<AdminUsersView />);
+  render(<QueryProvider><AdminUsersView /></QueryProvider>);
   const premium = (await screen.findByText("premium@example.invalid")).closest("tr")!;
   expect(within(premium).getByText(language === "ru" ? "Премиум пользователь" : "Premium user")).toBeInTheDocument();
   expect(within(premium).getByText("12 / 73")).toBeInTheDocument();
