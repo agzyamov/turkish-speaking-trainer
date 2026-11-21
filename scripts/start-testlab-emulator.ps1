@@ -1,4 +1,4 @@
-param([string]$Avd = "SerboTalk_API_36", [ValidateRange(0.25, 1.0)][double]$WindowScale = 0.5, [switch]$Headless, [switch]$SyntheticAudioOnly)
+param([string]$Avd = "TurkTalk_API_36", [ValidateRange(0.25, 1.0)][double]$WindowScale = 0.5, [switch]$Headless, [switch]$SyntheticAudioOnly)
 $ErrorActionPreference = "Stop"
 $sdk = if ($env:ANDROID_HOME) { $env:ANDROID_HOME } else { Join-Path $env:LOCALAPPDATA "Android\Sdk" }
 $emulator = Join-Path $sdk "emulator\emulator.exe"

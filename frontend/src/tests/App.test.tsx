@@ -598,7 +598,7 @@ describe("App", () => {
     return screen.findByLabelText("Ваш ответ");
   }
 
-  it.each([false, true])("warns after three consecutive recordings with non-Serbian letters and resets after success (native=%s)", async native => {
+  it.each([false, true])("warns after three consecutive recordings with non-Turkish letters and resets after success (native=%s)", async native => {
     vi.spyOn(Capacitor, "isNativePlatform").mockReturnValue(native);
     voiceMock.available = true;
     const base = mockApi();
@@ -624,7 +624,7 @@ describe("App", () => {
     expect(fetchMock.mock.calls.some(([url]) => url.toString().endsWith("/api/attempts"))).toBe(false);
   });
 
-  it("breaks the non-Serbian failure streak on an unrelated provider error", async () => {
+  it("breaks the non-Turkish failure streak on an unrelated provider error", async () => {
     voiceMock.available = true;
     const base = mockApi();
     let recordings = 0;
@@ -1971,7 +1971,7 @@ describe("App", () => {
     expect(document.querySelector(".reward-overlay")).toBeNull();
   });
 
-  it("submits a Serbian answer and shows concise and expandable feedback", async () => {
+  it("submits a Turkish answer and shows concise and expandable feedback", async () => {
     voiceMock.available = true;
     vi.stubGlobal("fetch", mockApi());
     render(<App />);

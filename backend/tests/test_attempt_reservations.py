@@ -77,12 +77,12 @@ def database_engine(request, tmp_path: Path):
     if not raw:
         pytest.skip("isolated PostgreSQL test database is unavailable")
     url = make_url(raw)
-    if url.host not in {"localhost", "127.0.0.1", "::1"} or url.port != 55432 or url.database != "serbotalk_concurrency_test":
+    if url.host not in {"localhost", "127.0.0.1", "::1"} or url.port != 55432 or url.database != "turktalk_concurrency_test":
         pytest.fail("TEST_POSTGRES_URL must point to the isolated loopback test database")
     schema = f"test_attempt_{uuid4().hex}"
     engine = create_database_engine(raw)
     with engine.begin() as db:
-        assert db.exec_driver_sql("SELECT current_database()").scalar() == "serbotalk_concurrency_test"
+        assert db.exec_driver_sql("SELECT current_database()").scalar() == "turktalk_concurrency_test"
         db.exec_driver_sql(f"CREATE SCHEMA {schema}")
 
     @event.listens_for(engine, "connect")

@@ -394,7 +394,7 @@ def test_unanchored_or_no_op_issue_retries_then_refuses_false_grade() -> None:
         lexical_score=0.88, naturalness_score=0.88, fluency_score=1,
         corrected_tr="Platiću bankovnom karticom.",
         short_feedback_ru="Неправильная буква i.",
-        detailed_feedback_ru="Замените латинскую i на сербскую i.",
+        detailed_feedback_ru="Замените латинскую i на турецкую ı.",
         issues=[AnswerIssue(
             type="grammar", skill_key="grammar.spelling", severity=0.2,
             confidence=0.9, evidence="Platiću", correction="Platiću",

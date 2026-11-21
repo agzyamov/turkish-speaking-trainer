@@ -19,18 +19,18 @@ from urllib.parse import quote, urlsplit
 REPOSITORY = Path(__file__).resolve().parents[2]
 LAB_ROOT = REPOSITORY / "artifacts" / "testlab" / "postgres"
 DATA_DIR = LAB_ROOT / "cluster"
-MARKER = LAB_ROOT / ".serbotalk-testlab-marker"
+MARKER = LAB_ROOT / ".turktalk-testlab-marker"
 PASSWORD_FILE = LAB_ROOT / ".cluster-password"
 LOG_FILE = LAB_ROOT / "postgres.log"
 PORT = 55432
-DB_NAME = "serbotalk_concurrency_test"
+DB_NAME = "turktalk_concurrency_test"
 ARCHIVE_URL = "https://get.enterprisedb.com/postgresql/postgresql-17.11-3-windows-x64-binaries.zip"
 ARCHIVE_NAME = "postgresql-17.11-3-windows-x64-binaries.zip"
 ARCHIVE_LIMIT = 1_500_000_000
 DOWNLOAD_TIMEOUT = 120
 COMMAND_TIMEOUT = 40
 MAX_START_WAIT = 35
-MARKER_PREFIX = "serbian-speaking-trainer-postgres-testlab-v1|"
+MARKER_PREFIX = "turktalk-postgres-testlab-v1|"
 
 
 class LabError(RuntimeError):
@@ -173,7 +173,7 @@ def setup() -> None:
     if archive.exists() or (LAB_ROOT / "pgsql").exists() or DATA_DIR.exists():
         raise LabError("Testlab setup target already exists; refusing to overwrite anything")
     temporary = _require_lab_path(LAB_ROOT / f".download-{uuid.uuid4().hex}.tmp")
-    request = urllib.request.Request(ARCHIVE_URL, headers={"User-Agent": "SerbianSpeakingTrainer-testlab/1"})
+    request = urllib.request.Request(ARCHIVE_URL, headers={"User-Agent": "TurkTalk-testlab/1"})
     digest = hashlib.sha256()
     total = 0
     try:
@@ -343,7 +343,7 @@ def _build_test_env(dsn: str, source: dict[str, str] | None = None) -> dict[str,
         "APP_ENV": "testlab",
         "TEST_POSTGRES_URL": dsn,
         "DATABASE_URL": dsn,
-        "SERBOTALK_TESTLAB": "1",
+        "TURKTALK_TESTLAB": "1",
         "PYTHONPATH": str(REPOSITORY / "backend"),
     })
     env.pop("DOTENV_PATH", None)

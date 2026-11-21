@@ -1,4 +1,4 @@
-"""Validated bilingual presentation; original sources and Serbian evidence stay intact."""
+"""Validated bilingual presentation; original sources and Turkish evidence stay intact."""
 from pydantic import ValidationError
 from sqlalchemy.orm import Session
 

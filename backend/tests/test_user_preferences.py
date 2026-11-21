@@ -70,7 +70,7 @@ def test_native_preference_patch_cors(api_client):
 
 
 @pytest.mark.parametrize("enabled", [True, False])
-@pytest.mark.parametrize("first_client", ["SerboTalk Web", "SerboTalk/1.41 Android"])
+@pytest.mark.parametrize("first_client", ["TurkTalk Web", "TurkTalk/1.41 Android"])
 def test_saved_preference_survives_restart_login_and_release_bootstrap(tmp_path, monkeypatch, enabled, first_client):
     """Use fresh DB connections and real auth sync, rather than a cached fixture user."""
     database_url = f"sqlite+pysqlite:///{(tmp_path / 'profile.db').as_posix()}"
@@ -116,7 +116,7 @@ def test_saved_preference_survives_restart_login_and_release_bootstrap(tmp_path,
             session.commit()
         identity = AuthenticatedIdentity(identity.id, identity.email, "After restart", "https://example.com/avatar.png")
         with TestClient(app) as client:
-            client.headers.update({"Authorization": "Bearer refreshed-mocked-token", "User-Agent": "SerboTalk/next-version Web"})
+            client.headers.update({"Authorization": "Bearer refreshed-mocked-token", "User-Agent": "TurkTalk/next-version Web"})
             profile = client.get("/api/auth/me").json()
             assert profile["display_name"] == "After restart"
             assert profile["assistance_enabled"] is enabled
