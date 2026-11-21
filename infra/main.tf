@@ -24,6 +24,10 @@ resource "vercel_project" "frontend" {
 resource "vercel_project" "backend" {
   name           = var.backend_project_name
   root_directory = "backend"
+  # Next to the Supabase database (Frankfurt, eu-central-1): every request makes several database round trips.
+  resource_config = {
+    function_default_regions = ["fra1"]
+  }
 }
 
 import {
