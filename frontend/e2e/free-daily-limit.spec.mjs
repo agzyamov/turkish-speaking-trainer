@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { installAccountRoutes } from './accountRoutes.mjs';
 
 for (const language of ['ru', 'en']) for (const layout of ['desktop', 'mobile', 'android']) {
   test(`free daily allowance ${language} ${layout}`, async ({ page }) => {
@@ -19,10 +20,10 @@ for (const language of ['ru', 'en']) for (const layout of ['desktop', 'mobile', 
       else throw new Error(`Unexpected fixture API: ${path}`);
       await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(body) });
     });
-    await page.goto('/terms');
+    await installAccountRoutes(page); await page.goto('/terms');
     await expect(page.getByText(en ? /Free accounts can complete up to 20 phrases per day/ : /Бесплатный аккаунт может выполнить до 20 фраз в сутки/)).toBeVisible();
     await expect(page.getByText(/до 10 фраз в сутки|up to 10 phrases per day/)).toHaveCount(0);
-    await page.goto('/');
+    await installAccountRoutes(page); await page.goto('/');
     await page.getByRole('button', { name: en ? 'Settings' : 'Настройки', exact: true }).click();
     const usage = page.getByText(en ? '17 of 20 phrases remaining' : '17 из 20 фраз осталось', { exact: true });
     await expect(usage).toBeVisible();

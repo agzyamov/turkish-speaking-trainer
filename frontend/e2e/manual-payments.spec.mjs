@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { installAccountRoutes } from './accountRoutes.mjs';
 import { tokenColor } from './tokens.mjs';
 import { mkdir } from 'node:fs/promises';
 
@@ -37,7 +38,7 @@ for (const language of ['ru', 'en']) for (const layout of ['desktop', 'mobile'])
       else throw new Error(`Unexpected API ${path}`);
       await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(body) });
     });
-    await page.goto(process.env.TRAINER_PAGE_PATH ?? '/');
+    await installAccountRoutes(page); await page.goto(process.env.TRAINER_PAGE_PATH ?? '/');
     const nav = page.locator(layout === 'desktop' ? '.main-nav' : '.android-header nav');
     await nav.getByRole('button', { name: ru ? 'Премиум' : 'Premium', exact: true }).click();
     await page.getByRole('button', { name: ru ? 'КУПИТЬ' : 'BUY' }).click();
@@ -45,16 +46,14 @@ for (const language of ['ru', 'en']) for (const layout of ['desktop', 'mobile'])
     const select = form.getByLabel(ru ? 'Из какой страны вы платите?' : 'Which country are you paying from?');
     await expect(select).toBeEnabled();
     await expect(select).toHaveValue('');
-    await select.focus();
-    await select.press('ArrowDown');
-    await select.press('Enter');
+    // A native <select> opens a system popup on macOS Chrome, so choose the option directly.
+    await select.selectOption('russia');
     await expect(select).toHaveValue('russia');
     await expect(form.getByRole('button', { name: /СБП|SBP/ })).toBeVisible();
     await expect(form.getByRole('button', { name: /PayPal/ })).toHaveCount(0);
     await form.getByRole('button', { name: /СБП|SBP/ }).click();
     await expect(form.getByText('500.00 RUB', { exact: true })).toBeVisible();
     await expect(form.getByText('7K4M92', { exact: true })).toBeVisible();
-    await form.getByText('7K4M92', { exact: true }).scrollIntoViewIfNeeded();
     await mkdir('../artifacts/short-payment-codes', { recursive: true });
     await page.screenshot({ path: `../artifacts/short-payment-codes/${language}-${layout}.png`, fullPage: true });
     await expect(form.getByText('+70000000000')).toBeVisible();
@@ -64,10 +63,10 @@ for (const language of ['ru', 'en']) for (const layout of ['desktop', 'mobile'])
     await select.selectOption('serbia');
     await expect(form.getByText('+70000000000')).toHaveCount(0);
     await expect(form.getByRole('button', { name: /ALTA Banka|СБП|SBP/ })).toHaveCount(0);
-    await form.getByRole('button', { name: /PayPal/ }).click();
+    await form.locator('.payment-methods').getByRole('button', { name: /PayPal/ }).click();
     await select.selectOption('other');
     await expect(form.getByRole('button', { name: /ALTA Banka|СБП|SBP/ })).toHaveCount(0);
-    await form.getByRole('button', { name: /PayPal/ }).click();
+    await form.locator('.payment-methods').getByRole('button', { name: /PayPal/ }).click();
     await expect(form.getByText('synthetic@example.invalid')).toBeVisible();
     await expect(form.getByRole('link', { name: ru ? 'Перейти в PayPal' : 'Open PayPal' })).toHaveAttribute('href', 'https://www.paypal.com/');
     for (const image of await form.locator('.payment-logo img').all()) {
@@ -83,7 +82,6 @@ for (const language of ['ru', 'en']) for (const layout of ['desktop', 'mobile'])
     expect(await form.evaluate(el => el.scrollWidth <= el.clientWidth)).toBe(true);
     await mkdir('../artifacts/manual-payments', { recursive: true });
     await page.screenshot({ path: `../artifacts/manual-payments/${language}-${layout}.png`, fullPage: true });
-    await form.locator('.payment-methods').scrollIntoViewIfNeeded();
     await page.screenshot({ path: `../artifacts/manual-payments/${language}-${layout}-methods.png`, fullPage: true });
     await form.getByRole('button', { name: ru ? 'Я оплатил' : 'I have paid', exact: true }).click();
     await expect(page.getByText(/Администратор проверит|The administrator will verify/)).toBeVisible();

@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { installAccountRoutes } from './accountRoutes.mjs';
 import { tokenColor } from './tokens.mjs';
 import { mkdir } from 'node:fs/promises';
 const titles = [['job-interview', 'Собеседование'], ['bank', 'В банке'], ['vacation', 'В отпуске'], ['cafe', 'В кафе'], ['work', 'На работе'], ['doctor', 'У врача'], ['rent', 'Аренда'], ['transport', 'Транспорт'], ['misc', 'Разное']];
@@ -20,7 +21,7 @@ for (const language of ['ru', 'en']) for (const width of [800, 1024, 1366, 1920]
       else throw new Error(`Unexpected API: ${path}`);
       await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(body) });
     });
-    await page.goto(process.env.TRAINER_PAGE_PATH ?? '/');
+    await installAccountRoutes(page); await page.goto(process.env.TRAINER_PAGE_PATH ?? '/');
     const cards = page.locator('.desktop-topic-grid > button');
     await expect(cards).toHaveCount(12);
     const topicsPanel = await page.locator('.workspace > .topics-panel').boundingBox();

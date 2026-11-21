@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { installAccountRoutes } from './accountRoutes.mjs';
 import { tokenColor } from './tokens.mjs';
 import { mkdir } from 'node:fs/promises';
 
@@ -35,7 +36,7 @@ for (const language of ['ru', 'en']) for (const layout of ['desktop', 'mobile', 
       else throw new Error(`Unexpected API ${path}`);
       await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(body) });
     });
-    await page.goto(process.env.TRAINER_PAGE_PATH ?? '/');
+    await installAccountRoutes(page); await page.goto(process.env.TRAINER_PAGE_PATH ?? '/');
     if (layout === 'mobile') await page.getByRole('button', { name: language === 'ru' ? 'Темы' : 'Topics', exact: true }).click();
     await expect(page.getByRole('button', { name: /добавить тему|add topic/ })).toHaveCount(0);
     await page.getByRole('button', { name: language === 'ru' ? 'Премиум' : 'Premium', exact: true }).click();

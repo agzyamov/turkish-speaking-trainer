@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { installAccountRoutes } from "./accountRoutes.mjs";
 import { tokenColor } from "./tokens.mjs";
 import { installSyntheticMicrophone } from "./flow.mjs";
 
@@ -75,14 +76,14 @@ async function installApp(page, overrides = {}) {
     }
     throw new Error(`Unexpected mocked API request: ${method} ${path}`);
   });
-  await page.goto("/privacy");
+  await installAccountRoutes(page); await page.goto("/privacy");
   await page.evaluate(storageKey => localStorage.setItem(storageKey, JSON.stringify({
     access_token: "e2e-local-only", refresh_token: "e2e-local-only", token_type: "bearer",
     expires_in: 60 * 60 * 24 * 365, expires_at: 4102444800,
     user: { id: "user-1", aud: "authenticated", role: "authenticated", email: "learner@example.invalid",
       app_metadata: {}, user_metadata: {}, created_at: "2026-09-01T10:00:00Z" },
   })), process.env.E2E_AUTH_STORAGE_KEY ?? "sb-e2e-auth-auth-token");
-  await page.goto("/?perf=1");
+  await installAccountRoutes(page); await page.goto("/?perf=1");
   return state;
 }
 
@@ -141,7 +142,7 @@ test("disconnected attempt preserves the draft and retries with the same ID once
   await startPractice(page);
   await transcribeSyntheticAnswer(page);
   await submit(page);
-  await expect(page.getByRole("alert")).toContainText("Не удалось проверить ответ");
+  await expect(page.getByRole("alert")).toContainText("Не удалось получить результат проверки. Ваш ответ сохранён");
   await expect(page.getByLabel("Ваш ответ")).toHaveValue("Želim da otvorim račun.");
   await submit(page);
   await expect(page.locator(".practice-stage .feedback")).toBeVisible();
@@ -201,7 +202,7 @@ test("foreign STT letters remain editable and block grading", async ({ page }) =
       const css = getComputedStyle(el);
       return { color: css.color, background: css.backgroundColor, overflow: el.scrollWidth > el.clientWidth };
     });
-    expect(style.color).toBe(await tokenColor(page, "--color-ink"));
+    expect(style.color).toBe(await tokenColor(page, "--color-danger"));
     expect(style.background).not.toBe("rgb(255, 255, 255)");
     expect(style.overflow).toBe(false);
     await page.screenshot({ path: `../artifacts/stt-review-${width}.png`, fullPage: true });
@@ -226,8 +227,9 @@ test("mobile panels fit the viewport and preserve the answer across navigation",
       scrollWidth: document.documentElement.scrollWidth, scrollHeight: document.documentElement.scrollHeight }));
     expect(dimensions.scrollWidth).toBeLessThanOrEqual(dimensions.width);
     expect(dimensions.scrollHeight).toBeLessThanOrEqual(dimensions.height);
-    const microphone = await page.getByRole("button", { name: /Ответить голосом|Записать заново/ }).boundingBox();
-    expect(microphone.y + microphone.height).toBeLessThanOrEqual(dimensions.height);
+    // The shell follows the visual viewport on its resize event, so give it a frame to settle.
+    const microphone = page.getByRole("button", { name: /Ответить голосом|Записать заново/ });
+    await expect.poll(async () => { const box = await microphone.boundingBox(); return box.y + box.height; }).toBeLessThanOrEqual(dimensions.height);
   }
   await fits();
   await page.getByRole("button", { name: "Темы", exact: true }).click();
@@ -276,7 +278,7 @@ for (const variant of [
     else if (variant.width > 780) await startPractice(page);
     await page.getByRole("button", { name: "Ответить голосом" }).click();
     await page.getByRole("button", { name: "Завершить запись" }).click();
-    const panel = page.getByRole("region", { name: "Мягкие подсказки" });
+    const panel = page.getByRole("region", { name: "Мягкие подсказки", exact: true });
     await expect(panel).toBeVisible();
     await expect(panel.locator("p")).toHaveCount(1);
     await expect(panel.locator("p")).toHaveText("Возможное искажение распознавания.");

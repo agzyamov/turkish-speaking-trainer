@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { installAccountRoutes } from "./accountRoutes.mjs";
 
 const topic = {
   id: "bank", title_ru: "В банке", description_ru: "Счёт и платежи",
@@ -72,14 +73,14 @@ async function installLifecycleApp(page, { onTranscription } = {}) {
     throw new Error(`Unexpected mocked API request: ${method} ${path}`);
   });
 
-  await page.goto("/privacy");
+  await installAccountRoutes(page, { preferences: true }); await page.goto("/privacy");
   await page.evaluate(() => localStorage.setItem("sb-e2e-auth-auth-token", JSON.stringify({
     access_token: "e2e-lifecycle-only", refresh_token: "e2e-lifecycle-only", token_type: "bearer",
     expires_in: 60 * 60 * 24 * 365, expires_at: 4102444800,
     user: { id: "user-lifecycle", aud: "authenticated", role: "authenticated", email: "learner@example.invalid",
       app_metadata: {}, user_metadata: {}, created_at: "2026-09-01T10:00:00Z" },
   })));
-  await page.goto("/?perf=1");
+  await installAccountRoutes(page, { preferences: true }); await page.goto("/?perf=1");
   await page.getByRole("button", { name: /В банке/ }).first().click();
   await expect(page.locator(".practice-stage .interactive-phrase")).toBeVisible();
 }

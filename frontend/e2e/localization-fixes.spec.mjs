@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { installAccountRoutes } from './accountRoutes.mjs';
 import { tokenColor } from './tokens.mjs';
 import { mkdir } from 'node:fs/promises';
 import { installSyntheticMicrophone } from './flow.mjs';
@@ -28,7 +29,7 @@ for (const language of ['ru', 'en']) for (const layout of ['desktop', 'mobile', 
       else throw new Error(`Unexpected path: ${path}`);
       await route.fulfill({ status, contentType: 'application/json', body: JSON.stringify(body) });
     });
-    await page.goto('/');
+    await installAccountRoutes(page); await page.goto('/');
     if (layout !== 'desktop') await page.getByRole('button', { name: en ? 'Topics' : 'Темы', exact: true }).click();
     await page.locator(layout === 'desktop' ? '.review-topic' : '.android-topic-list > button').first().click();
     await page.getByRole('button', { name: en ? 'Answer aloud' : 'Ответить голосом', exact: true }).click();
@@ -36,7 +37,10 @@ for (const language of ['ru', 'en']) for (const layout of ['desktop', 'mobile', 
     const answer = page.getByLabel(en ? 'Your answer' : 'Ваш ответ', { exact: true });
     await expect(answer).toHaveValue('Želim da otvorim račun.');
     const phrase = page.locator('.interactive-phrase:visible');
-    expect(await answer.evaluate(el => getComputedStyle(el).fontSize)).toBe(await phrase.evaluate(el => getComputedStyle(el).fontSize));
+    // The answer field uses the answer type step: smaller than the phrase, never below 16px (no iOS zoom).
+    const answerSize = parseFloat(await answer.evaluate(el => getComputedStyle(el).fontSize));
+    expect(answerSize).toBeGreaterThanOrEqual(16);
+    expect(answerSize).toBeLessThan(parseFloat(await phrase.evaluate(el => getComputedStyle(el).fontSize)));
     const box = await answer.boundingBox();
     expect(box.y + box.height / 2).toBeLessThan(851 * .8);
     await mkdir('../artifacts/localization-fixes', { recursive: true });
@@ -56,7 +60,7 @@ for (const layout of ['desktop', 'mobile', 'android']) {
   test(`login language ${layout}`, async ({ page }) => {
     await page.setViewportSize(layout === 'desktop' ? { width: 1366, height: 900 } : { width: 393, height: 851 });
     if (layout === 'android') await page.addInitScript(() => { window.CapacitorCustomPlatform = { name: 'android' }; });
-    await page.goto('/');
+    await installAccountRoutes(page); await page.goto('/');
     await expect(page.getByRole('heading', { name: 'Добро пожаловать в SerboTalk' })).toBeVisible();
     await page.getByRole('button', { name: 'Выбрать английский язык' }).click();
     await expect(page.getByRole('heading', { name: 'Welcome to SerboTalk' })).toBeVisible();

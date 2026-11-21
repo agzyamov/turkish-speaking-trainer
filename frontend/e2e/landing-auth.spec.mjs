@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { installAccountRoutes } from './accountRoutes.mjs';
 
 for (const language of ['ru', 'en']) for (const native of [false, true]) {
   test(`embedded login → trainer ${language} ${native ? 'android-layout' : 'web'}`, async ({ page }) => {
@@ -23,7 +24,7 @@ for (const language of ['ru', 'en']) for (const native of [false, true]) {
       else if (path === '/api/sessions/start') await route.fulfill({ json: { session: { id: 's1', status: 'active', requested_length: 10, completed_count: 0, topic: { id: 'cafe', title_ru: 'В кафе', source: 'preset' } }, exercise: { id: 'e1', session_id: 's1', source_ru: 'Можно мне, пожалуйста, меню?', word_hints: [], targeted_skills: [], expected_level: 'A2', difficulty: 1 } } });
       else throw new Error(`Unexpected API ${path}`);
     });
-    await page.goto('/landing.html');
+    await installAccountRoutes(page); await page.goto('/landing.html');
     await page.getByRole('link', { name: en ? /Start speaking/ : /Начать говорить/ }).click();
     const login = page.getByRole('region', { name: en ? 'Welcome to SerboTalk' : 'Добро пожаловать в SerboTalk' });
     await expect(login).toBeInViewport();
@@ -36,7 +37,7 @@ for (const language of ['ru', 'en']) for (const native of [false, true]) {
     expect(signInRequests).toBe(1);
     await page.reload();
     await expect(page.locator('.interactive-phrase').filter({ visible: true })).toBeVisible();
-    await page.goto('/landing.html#sign-in');
+    await installAccountRoutes(page); await page.goto('/landing.html#sign-in');
     await expect(page.getByRole('link', { name: en ? /Continue practising/ : /Продолжить тренировку/ })).toBeVisible();
     await expect(page).toHaveURL(/landing\.html#sign-in$/);
   });

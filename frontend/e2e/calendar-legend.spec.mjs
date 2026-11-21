@@ -1,5 +1,6 @@
 import { mkdir } from 'node:fs/promises';
 import { expect, test } from '@playwright/test';
+import { installAccountRoutes } from './accountRoutes.mjs';
 import { tokenColor } from './tokens.mjs';
 
 for (const language of ['ru', 'en']) for (const layout of ['desktop', 'compact-desktop', 'mobile', 'android']) {
@@ -27,7 +28,7 @@ for (const language of ['ru', 'en']) for (const layout of ['desktop', 'compact-d
       else throw new Error(`Unexpected fixture route ${url.pathname}`);
       await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(body) });
     });
-    await page.goto(process.env.TRAINER_PAGE_PATH ?? '/');
+    await installAccountRoutes(page); await page.goto(process.env.TRAINER_PAGE_PATH ?? '/');
     const practiceWidth = layout.includes('desktop') ? (await page.locator('.practice-stage').boundingBox()).width : null;
     await page.getByRole('button', { name: language === 'en' ? 'Statistics' : 'Статистика', exact: true }).click();
     await expect(page.locator('.calendar-day')).toHaveCount(7);

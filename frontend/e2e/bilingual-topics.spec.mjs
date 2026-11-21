@@ -1,4 +1,5 @@
 import {expect,test} from '@playwright/test';
+import { installAccountRoutes } from './accountRoutes.mjs';
 import {mkdir} from 'node:fs/promises';
 for(const initial of ['ru','en']) for(const layout of ['desktop','mobile','android']) {
  test(`bilingual topic ${initial} ${layout}`,async({page})=>{
@@ -36,7 +37,7 @@ for(const initial of ['ru','en']) for(const layout of ['desktop','mobile','andro
    else throw new Error(`Unexpected API ${path}`);
    await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify(body)});
   });
-  await page.goto(process.env.TRAINER_PAGE_PATH??'/');
+  await installAccountRoutes(page); await page.goto(process.env.TRAINER_PAGE_PATH??'/');
   const nav=page.locator(layout==='desktop'?'.main-nav':'.android-header nav');
   await nav.getByRole('button',{name:label('Премиум','Premium'),exact:true}).click();
   const premium=page.locator('.premium-page');

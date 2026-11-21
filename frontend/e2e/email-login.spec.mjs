@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { installAccountRoutes } from './accountRoutes.mjs';
 
 for (const language of ['ru', 'en']) for (const native of [false, true]) for (const landing of [false, true]) {
   test(`email code ${language} ${native ? 'android-layout' : 'web'} ${landing ? 'landing' : 'app'}`, async ({ page }) => {
@@ -33,7 +34,7 @@ for (const language of ['ru', 'en']) for (const native of [false, true]) for (co
       else if (path === '/api/auth/me/preferences') await route.fulfill({ json: { assistance_enabled: false } });
       else await route.fulfill({ json: {} });
     });
-    await page.goto(landing ? '/landing.html#sign-in' : '/app');
+    await installAccountRoutes(page); await page.goto(landing ? '/landing.html#sign-in' : '/app');
     await page.getByText(en ? 'Sign in with email' : 'Войти по email', { exact: true }).click();
     const form = page.getByRole('form', { name: en ? 'Sign in with an email code' : 'Вход по коду из письма' });
     await form.getByLabel('Email', { exact: true }).fill('demo@example.invalid');

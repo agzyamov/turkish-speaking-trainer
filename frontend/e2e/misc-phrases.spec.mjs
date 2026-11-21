@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { installAccountRoutes } from './accountRoutes.mjs';
 import { readFileSync, mkdirSync } from 'node:fs';
 
 const phrases = JSON.parse(readFileSync(new URL('../src/locales/phrases.en.json', import.meta.url), 'utf8'));
@@ -26,7 +27,7 @@ for (const language of ['ru', 'en']) for (const layout of ['web', 'android']) {
       else throw new Error(`Unexpected fixture path ${path}`);
       await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(body) });
     });
-    await page.goto('/');
+    await installAccountRoutes(page); await page.goto('/');
     const stage = page.locator('.exercise-layout:visible');
     await expect(stage.locator('.exercise-topic')).toHaveText(en ? 'Miscellaneous' : 'Разное');
     const source = stage.locator('.interactive-phrase');

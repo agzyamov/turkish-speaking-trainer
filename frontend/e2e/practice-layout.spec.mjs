@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { installAccountRoutes } from './accountRoutes.mjs';
 import { mkdir } from 'node:fs/promises';
 import { installSyntheticMicrophone } from './flow.mjs';
 for (const language of ['ru', 'en']) for (const layout of ['desktop', 'mobile', 'narrow', 'short', 'android']) {
@@ -30,7 +31,7 @@ for (const language of ['ru', 'en']) for (const layout of ['desktop', 'mobile', 
       else throw new Error(`Unexpected path: ${path}`);
       await route.fulfill({ status, contentType: 'application/json', body: JSON.stringify(body) });
     });
-    await page.goto('/');
+    await installAccountRoutes(page); await page.goto('/');
     const stage = page.locator('.exercise-layout:visible');
     const phrase = stage.locator('.interactive-phrase');
     const theme = stage.locator('.exercise-topic');

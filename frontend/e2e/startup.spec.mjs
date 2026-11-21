@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { installAccountRoutes } from "./accountRoutes.mjs";
 import { installSyntheticMicrophone } from "./flow.mjs";
 
 test("Android layout waits for the default review exercise before showing topics and microphone", async ({ page }) => {
@@ -48,7 +49,7 @@ test("Android layout waits for the default review exercise before showing topics
     await route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(body) });
   });
 
-  await page.goto("/privacy");
+  await installAccountRoutes(page); await page.goto("/privacy");
   await page.evaluate(() => {
     localStorage.setItem("sb-e2e-auth-auth-token", JSON.stringify({
       access_token: "e2e-local-only", refresh_token: "e2e-local-only", token_type: "bearer",
@@ -57,7 +58,7 @@ test("Android layout waits for the default review exercise before showing topics
         app_metadata: {}, user_metadata: {}, created_at: "2026-09-01T10:00:00Z" },
     }));
   });
-  await page.goto("/?perf=1");
+  await installAccountRoutes(page); await page.goto("/?perf=1");
   await expect(page.getByRole("status", { name: "Подготовка фразы" })).toBeVisible();
   await expect(page.locator(".android-topic-list")).toHaveCount(0);
   expect(starts).toHaveLength(0);

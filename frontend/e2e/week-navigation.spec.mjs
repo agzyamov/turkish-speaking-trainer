@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { installAccountRoutes } from './accountRoutes.mjs';
 import { tokenColor } from './tokens.mjs';
 
 for (const native of [false, true]) {
@@ -27,9 +28,9 @@ for (const native of [false, true]) {
       } else throw new Error(`Unexpected fixture route ${url.pathname}`);
       await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify(body)});
     });
-    await page.goto('/privacy');
+    await installAccountRoutes(page); await page.goto('/privacy');
     await page.evaluate(() => localStorage.setItem('sb-e2e-auth-auth-token', JSON.stringify({ access_token:'e2e-local-only',refresh_token:'e2e-local-only',token_type:'bearer',expires_in:31536000,expires_at:4102444800,user:{id:'week-user',aud:'authenticated',role:'authenticated',email:'learner@example.invalid',app_metadata:{},user_metadata:{},created_at:'2025-12-01T00:00:00Z'} })));
-    await page.goto('/');
+    await installAccountRoutes(page); await page.goto('/');
     await page.getByRole('button',{name:'Статистика',exact:true}).click();
     const navigation = page.getByRole('navigation',{name:'Выбор недели'});
     await expect(navigation).toHaveText('‹Неделя · 5 янв. — 11 янв.');

@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { installAccountRoutes } from "./accountRoutes.mjs";
 
 const account = {
   id: "user-1", email: "learner@example.invalid", display_name: "Ученик", avatar_url: null,
@@ -45,10 +46,11 @@ test("secondary panels load on demand while practice remains usable", async ({ p
       role: "admin", access_tier: "free", registered_at: account.registered_at,
       last_active_at: account.last_active_at, phrases_today: 0,
     }];
+    else if (path === "/api/admin/payments") body = [];
     else throw new Error(`Unexpected API request: ${path}`);
     await route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(body) });
   });
-  await page.goto("/privacy");
+  await installAccountRoutes(page, { preferences: true }); await page.goto("/privacy");
   await page.evaluate(() => {
     localStorage.setItem("sb-e2e-auth-auth-token", JSON.stringify({
       access_token: "e2e-local-only", refresh_token: "e2e-local-only", token_type: "bearer",
@@ -57,7 +59,7 @@ test("secondary panels load on demand while practice remains usable", async ({ p
         app_metadata: {}, user_metadata: {}, created_at: "2026-09-01T10:00:00Z" },
     }));
   });
-  await page.goto("/");
+  await installAccountRoutes(page, { preferences: true }); await page.goto("/");
   await expect(page.getByRole("heading", { name: "Темы для практики" })).toBeVisible();
   expect(assets.some((url) => /StatisticsView|AdminUsersView/.test(url))).toBe(false);
 
@@ -100,7 +102,7 @@ test("statistics chunk can be retried after a network failure", async ({ page })
     if (body === undefined) throw new Error(`Unexpected API request: ${path}`);
     await route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(body) });
   });
-  await page.goto("/privacy");
+  await installAccountRoutes(page, { preferences: true }); await page.goto("/privacy");
   await page.evaluate(() => {
     localStorage.setItem("sb-e2e-auth-auth-token", JSON.stringify({
       access_token: "e2e-local-only", refresh_token: "e2e-local-only", token_type: "bearer",
@@ -109,7 +111,7 @@ test("statistics chunk can be retried after a network failure", async ({ page })
         app_metadata: {}, user_metadata: {}, created_at: "2026-09-01T10:00:00Z" },
     }));
   });
-  await page.goto("/");
+  await installAccountRoutes(page, { preferences: true }); await page.goto("/");
   await page.getByRole("button", { name: "Статистика" }).click();
   await expect(page.getByRole("alert")).toContainText("Не удалось открыть раздел");
   await page.getByRole("button", { name: "Повторить загрузку" }).click();

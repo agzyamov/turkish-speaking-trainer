@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { installAccountRoutes } from './accountRoutes.mjs';
 import { mkdir } from 'node:fs/promises';
 
 for (const language of ['ru', 'en']) for (const layout of ['desktop', 'mobile', 'android']) {
@@ -28,7 +29,7 @@ for (const language of ['ru', 'en']) for (const layout of ['desktop', 'mobile', 
       } else throw new Error(`Unexpected API ${path}`);
       await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(body) });
     });
-    await page.goto(process.env.TRAINER_PAGE_PATH ?? '/');
+    await installAccountRoutes(page); await page.goto(process.env.TRAINER_PAGE_PATH ?? '/');
     if (layout !== 'desktop') await page.getByRole('button', { name: ru ? 'Темы' : 'Topics', exact: true }).click();
     const home = page.locator(layout === 'desktop' ? '.desktop-topic-grid' : '.android-topic-list');
     const divider = home.getByRole('separator', { name: ru ? 'Личные темы' : 'Personal topics' });

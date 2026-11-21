@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { installAccountRoutes } from './accountRoutes.mjs';
 import { readFileSync } from 'node:fs';
 import { mkdir } from 'node:fs/promises';
 const catalog = JSON.parse(readFileSync(new URL('../src/locales/phrases.en.json', import.meta.url), 'utf8'));
@@ -32,7 +33,7 @@ for (const language of ['ru', 'en']) for (const layout of ['desktop', 'mobile', 
       } else throw new Error(`Unexpected path ${path}`);
       await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(body) });
     });
-    await page.goto('/');
+    await installAccountRoutes(page); await page.goto('/');
     const phrase = page.locator('.interactive-phrase:visible');
     await expect(phrase).toHaveAttribute('aria-label', en ? current.source_en : current.source_ru);
     if (en) {

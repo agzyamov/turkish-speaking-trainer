@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { installAccountRoutes } from './accountRoutes.mjs';
 import { tokenColor } from './tokens.mjs';
 
 for (const language of ['ru', 'en']) for (const layout of ['desktop', 'mobile', 'android']) {
@@ -32,7 +33,7 @@ for (const language of ['ru', 'en']) for (const layout of ['desktop', 'mobile', 
       else throw new Error(`Unexpected API ${path}`);
       await route.fulfill({ contentType: 'application/json', body: JSON.stringify(body) });
     });
-    await page.goto(process.env.TRAINER_PAGE_PATH ?? '/');
+    await installAccountRoutes(page); await page.goto(process.env.TRAINER_PAGE_PATH ?? '/');
     await page.getByRole('button', { name: en ? 'Settings' : 'Настройки', exact: true }).click();
     const panel = page.getByRole('region', { name: en ? 'Share app' : 'Поделиться приложением', exact: true });
     await panel.scrollIntoViewIfNeeded();

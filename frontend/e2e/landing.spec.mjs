@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { installAccountRoutes } from './accountRoutes.mjs';
 import { mkdir } from 'node:fs/promises';
 
 // Screenshots are owner-provided originals; tests must never regenerate these assets.
@@ -9,7 +10,7 @@ for (const language of ['ru', 'en']) for (const layout of ['desktop', 'mobile', 
     const errors = [];
     page.on('pageerror', error => errors.push(error.message));
     await page.route('**/api/**', () => { throw new Error('Landing must not call the API'); });
-    await page.goto(process.env.LANDING_PAGE_PATH ?? '/landing.html');
+    await installAccountRoutes(page, { preferences: true }); await page.goto(process.env.LANDING_PAGE_PATH ?? '/landing.html');
     await expect(page.getByRole('heading', { level: 1 })).toContainText(language === 'en' ? 'Now speak them.' : 'Пора заговорить.');
     for (const img of await page.locator('.landing-phone img').all()) {
       await img.scrollIntoViewIfNeeded();

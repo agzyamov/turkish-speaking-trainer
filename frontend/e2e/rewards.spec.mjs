@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { installAccountRoutes } from './accountRoutes.mjs';
 import { mkdir } from 'node:fs/promises';
 import { installSyntheticMicrophone } from './flow.mjs';
 for (const language of ['ru', 'en']) for (const layout of ['desktop', 'wide', 'tablet', 'mobile', 'narrow', 'short', 'landscape', 'android', 'android-narrow', 'android-landscape']) {
@@ -38,7 +39,7 @@ for (const language of ['ru', 'en']) for (const layout of ['desktop', 'wide', 't
     });
     const requests = [];
     page.on('request', request => requests.push(request.url()));
-    await page.goto(process.env.REWARDS_APP_PATH ?? '/');
+    await installAccountRoutes(page); await page.goto(process.env.REWARDS_APP_PATH ?? '/');
     async function check() {
       await page.getByRole('button', { name: en ? 'Answer aloud' : 'Ответить голосом', exact: true }).click();
       await page.getByRole('button', { name: en ? 'Finish recording' : 'Завершить запись', exact: true }).click();
