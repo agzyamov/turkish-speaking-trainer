@@ -74,8 +74,8 @@ for (const language of ["ru", "en"])
       await expect(password).toHaveValue("");
       await expect(username).toHaveValue("turktalkreview");
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
-      await mkdir("../artifacts/android-1.45-review", { recursive: true });
-      await page.screenshot({ path: `../artifacts/android-1.45-review/${language}-${native ? "android" : "web"}-error.png` });
+      await mkdir("../artifacts/android-review", { recursive: true });
+      await page.screenshot({ path: `../artifacts/android-review/${language}-${native ? "android" : "web"}-error.png` });
       await password.fill("synthetic-password");
       await page.getByRole("button", { name: ru ? "Войти" : "Sign in", exact: true }).click();
       const nav = page.locator(native ? ".android-header nav" : ".main-nav");
@@ -84,6 +84,6 @@ for (const language of ["ru", "en"])
       await expect(page.locator(".premium-offer, .payment-form")).toHaveCount(0);
       expect(signIns).toBe(2);
       expect(claims).toBe(native ? 1 : 0);
-      await page.screenshot({ path: `../artifacts/android-1.45-review/${language}-${native ? "android" : "web"}-premium.png` });
+      await page.screenshot({ path: `../artifacts/android-review/${language}-${native ? "android" : "web"}-premium.png` });
     });
   }

@@ -6,6 +6,7 @@ import { cn } from "../../shared/lib/utils";
 
 export type AppView = "practice" | "statistics" | "premium" | "settings" | "admin";
 import type { BackendState } from "../../types/app";
+import appLogo from "../../assets/app-logo.png?inline";
 import { brand } from "../../shared/brand";
 
 export type { BackendState };
@@ -85,9 +86,7 @@ export function AppHeader({
         onClick={onHome}
         aria-label={t("shell.homeLabel", { app: brand.name })}
       >
-        <span className="grid size-10 place-items-center rounded-control border border-line-strong text-accent">
-          <Icon name="message" size={24} />
-        </span>
+        <img src={appLogo} alt="" width="40" height="40" className="size-10 rounded-control" />
         <span className="grid">
           <Wordmark className="text-2xl leading-none" />
           <small className="mt-1 text-xs text-ink-muted">{t("shell.tagline")}</small>

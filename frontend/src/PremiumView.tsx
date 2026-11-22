@@ -110,7 +110,7 @@ export function PremiumView({
                 key={kind}
                 aria-pressed={mode === kind}
                 onClick={() => setMode(kind)}
-                className={cn("min-h-20 justify-start bg-surface-raised text-left", mode === kind && "border-accent bg-selected text-accent-bright")}
+                className={cn("min-h-20 justify-start bg-surface-raised text-left", mode === kind && "border-accent bg-selected text-accent")}
               >
                 {t(kind === "topic" ? "premium.createTopic" : "premium.createPhrase")}
               </Button>

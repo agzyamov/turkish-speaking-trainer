@@ -11,6 +11,17 @@
         ],
         "createdAt": "2026-11-21T02:05:30.565Z",
         "reason": "agent: generated e2e build output (gitignored); the glow source is frontend/src/landing.css, scheduled for the Phase 5 landing redesign"
+      },
+      {
+        "rule": "cream-palette",
+        "value": "*",
+        "files": [
+          "frontend/dist-e2e/**",
+          "frontend/dist/**",
+          "frontend/src/shared/styles/tokens.css"
+        ],
+        "createdAt": "2026-11-22T16:45:15.496Z",
+        "reason": "owner: approved the tea-on-the-ferry direction comp with a porcelain ground (saucer and ferry white) on 2026-11-22"
       }
     ]
   }

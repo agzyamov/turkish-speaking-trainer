@@ -47,7 +47,7 @@ Shows where modules live in the repository and how they are built and checked.
 | Frontend lint and format | Biome formats (`frontend/biome.json`, `pnpm format`; `pnpm lint` fails on unformatted code); ESLint lints, because the React hooks rules (including set-state-in-effect) and the C-20 `fetch` rule have no full Biome equivalent | Done (Phase 1) |
 | Frontend tests | Vitest + Testing Library; Playwright with mocked API | Existing |
 | Frontend boundary enforcement | dependency-cruiser (`frontend/.dependency-cruiser.cjs`, part of `pnpm lint`) and ESLint `no-restricted-globals` for `fetch` | Done (Phase 4) |
-| Styling | Tailwind v4 tokens (`src/shared/styles/tokens.css`, tea-house world, DESIGN.md), the Alegreya Sans display face (`@fontsource/alegreya-sans`) and shadcn/ui components (`src/shared/ui`); the inherited global CSS sits in a lower cascade layer until each screen is migrated | In progress (Phase 4) |
+| Styling | Tailwind v4 tokens (`src/shared/styles/tokens.css`, the light "tea on the Bosphorus ferry" world, DESIGN.md), the Alegreya Sans display face (`@fontsource/alegreya-sans`) and shadcn/ui components (`src/shared/ui`); the inherited global CSS sits in a lower cascade layer until each screen is migrated | In progress (Phase 4) |
 | Secret scanning | gitleaks through `scripts/guard/check-secrets.sh` | Existing (local hook and CI) |
 | One command for all checks | `just check` (`justfile`) | Existing; the frontend recipes need dependencies installed |
 | Continuous integration | GitHub Actions, `.github/workflows/ci.yml`, path-filtered | Existing; not yet run on GitHub |
