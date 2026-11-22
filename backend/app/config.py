@@ -21,6 +21,8 @@ class Settings(BaseSettings):
     )
 
     app_env: str = "development"
+    # Release version of this deployment, set by the production deploy job (ADR-0011); "dev" elsewhere.
+    app_version: str = "dev"
     # Product identity (ADR-0005): the working name and, once the owner has one, the public address.
     brand_name: str = "TurkTalk"
     public_app_url: str = ""

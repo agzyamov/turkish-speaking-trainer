@@ -65,7 +65,7 @@ With the GitHub CLI, from the owner's own terminal (it asks for each value witho
 
 1. Pull requests touching `infra/` get **Deploy → Terraform validate** (format and validation, no secrets). Pull requests touching `backend/`, `frontend/` or `infra/main.tf` get **CI → Vercel build** for both projects: an offline `vercel build` with the framework and root directory from `infra/main.tf`, so a broken build fails there and not in production.
 2. After a merge, when CI passes on `main`, **Deploy → Production** waits: Actions → the run → Review deployments → Approve (or Reject to skip this push).
-3. The job prints the Terraform plan and applies exactly it, deploys the backend (its production build runs the migrations and the catalogue seed), checks `/api/health`, deploys the frontend and checks `/app`. The environment link on the run opens the site. Read the first plan carefully: adopting hand-made projects may change their settings (for example the framework preset of the backend).
+3. The job prints the Terraform plan and applies exactly it, deploys the backend (its production build runs the migrations and the catalogue seed), checks `/api/health`, deploys the frontend and checks `/app`, then tags the deployed commit and publishes the GitHub release when the commits call for a new version (ADR-0011). The environment link on the run opens the site. Read the first plan carefully: adopting hand-made projects may change their settings (for example the framework preset of the backend).
 
 To deploy without a code change: Actions → Deploy → Run workflow (still waits for approval).
 

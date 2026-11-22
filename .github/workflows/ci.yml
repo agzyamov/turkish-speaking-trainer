@@ -145,11 +145,30 @@ jobs:
       - uses: astral-sh/setup-uv@v6
       - run: scripts/vercel-build-check.sh ${{ matrix.project }}
 
+  # Commit titles drive the version and release notes (ADR-0011); merge commits are ignored by commitlint.
+  commits:
+    name: Commit messages
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 26
+      - run: npm ci --ignore-scripts
+      - name: Lint the pull request's commits
+        env:
+          BASE: ${{ github.event.pull_request.base.sha }}
+          HEAD: ${{ github.event.pull_request.head.sha }}
+        run: npx commitlint --from "$BASE" --to "$HEAD" --verbose
+
   # Single required status for branch protection: passes when every job that ran passed.
   required:
     name: Required checks
     if: always()
-    needs: [secrets, backend, frontend, e2e, vercel-build]
+    needs: [secrets, commits, backend, frontend, e2e, vercel-build]
     runs-on: ubuntu-latest
     steps:
       - name: Fail if any needed job failed or was cancelled

@@ -25,25 +25,40 @@ Required before merge:
 | Mocked end-to-end tests | The main flows still work |
 | Review | A reviewer (human or reviewer agent) found no blocking issue |
 
-Checks are path-filtered: a docs-only change runs the secret scan and link check only. Merges are squash merges, so `main` has one commit per change.
+| Commit messages | Every commit title follows Conventional Commits (commitlint), so the version and release notes come out right |
+
+Checks are path-filtered: a docs-only change runs the secret scan and commit lint only. Pull requests are merged with a merge commit; the branch's commits keep their titles, which feed the release notes.
 
 ## 3. Version and changelog
 
-- Versions follow semantic versioning: `MAJOR.MINOR.PATCH`. Before the first public release, versions are `0.x`.
-- Commit titles on `main` follow Conventional Commits (`feat: …`, `fix: …`). The changelog and the next version number are derived from them.
-- A release is a git tag `vX.Y.Z` on `main` with a GitHub release whose notes are the changelog section.
-- Web and backend share one version. Android has its own `versionName` and `versionCode`, changed only on an Android release.
+Automated by semantic-release (ADR-0011, `.releaserc.json`).
+
+- Versions follow semantic versioning: `MAJOR.MINOR.PATCH`. The first TurkTalk release is `v1.0.0`.
+- Commit titles follow Conventional Commits; CI rejects others. The type sets the next version:
+
+  | Commit title | Release |
+  |---|---|
+  | `fix: …`, `perf: …` | patch |
+  | `feat: …` | minor |
+  | `feat!: …` or a `BREAKING CHANGE:` footer | major |
+  | `docs`, `chore`, `ci`, `refactor`, `test`, `style`, `build` | none |
+
+- A release is a git tag `vX.Y.Z` on the deployed commit with a GitHub release whose notes are generated from those commits. It is created by the production job after a successful deploy, never by hand.
+- Web and backend share one version: `/api/health` reports it, Settings shows it. Android has its own `versionName` and `versionCode`, changed only on an Android release.
 
 ## 4. Web and backend release
 
 Only on the owner's instruction (constraint C-25).
 
-1. Confirm `main` is green.
-2. Tag the release.
-3. Deploy the backend first. Its build runs database migrations and the catalogue seed under a lock.
-4. Deploy the frontend.
-5. Smoke-test production: sign in, complete one exercise by typing, complete one by voice, open statistics, check the admin spend view.
-6. Record the release in the GitHub release notes: version, commit, time, smoke-test result.
+Merging to `main` starts it; the owner approves the `production` job in Actions (ADR-0010). The job then:
+
+1. Works out the version (the next release, or the last tag if nothing releasable changed).
+2. Applies Terraform.
+3. Deploys the backend first. Its build runs database migrations and the catalogue seed under a lock. Checks `/api/health`.
+4. Deploys the frontend and checks `/app`.
+5. Tags the deployed commit and publishes the GitHub release.
+
+Then the owner smoke-tests production: sign in, complete one exercise by typing, one by voice, open statistics, check the admin spend view.
 
 Backward compatibility rule for migrations: a migration must work with the previous backend version still running, so a failed deploy can be rolled back without touching the database. A change that cannot meet this is split into two releases (add, then remove).
 

@@ -32,7 +32,7 @@ This repository is public.
 
 ## 3. Actions that need the owner's instruction each time
 
-- Pushing, tagging, opening or merging pull requests.
+- Pushing, tagging, opening or merging pull requests. Release tags come only from the approved `production` job (ADR-0011).
 - Deploying anything, running migrations against a hosted database, changing hosted configuration. Production deploys go only through the approved `production` job in `.github/workflows/deploy.yml` (ADR-0010); agents may edit `infra/` and run `just infra`, but never run `terraform plan` or `apply` with real credentials and never approve a deployment.
 - Android sync, build, version change or store submission.
 - Any call to a real AI provider that spends money.

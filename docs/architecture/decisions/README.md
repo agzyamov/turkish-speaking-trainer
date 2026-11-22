@@ -14,6 +14,7 @@ One file per decision. Decisions are never edited to say something different; a 
 | [0008](ADR-0008-budget-reason-on-custom-content-errors.md) | Budget reason added to custom content errors (topic creation), code unchanged | Accepted |
 | [0009](ADR-0009-section-urls-with-hash-history.md) | Sections as URLs: TanStack Router with hash history in the browser, memory history on Android | Accepted |
 | [0010](ADR-0010-infrastructure-as-code-and-ci-deploy.md) | Terraform in `infra/` with state in the project's Supabase Postgres; production deploys from CI after the owner's approval | Accepted |
+| [0011](ADR-0011-semantic-release.md) | Versions, tags and GitHub releases derived from commit titles by semantic-release, published by the approved production job | Accepted |
 
 ## Template
 
