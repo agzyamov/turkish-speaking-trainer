@@ -141,6 +141,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+      # Vercel's Python builder installs backend dependencies with uv, which its build image provides.
+      - uses: astral-sh/setup-uv@v6
       - run: scripts/vercel-build-check.sh ${{ matrix.project }}
 
   # Single required status for branch protection: passes when every job that ran passed.

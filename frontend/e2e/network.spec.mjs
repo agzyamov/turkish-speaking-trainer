@@ -251,11 +251,14 @@ test("foreign STT letters remain editable and block grading", async ({ page }) =
     await page.setViewportSize({ width, height: 844 });
     const warning = page.locator(".transcription-script-warning");
     await expect(warning).toBeVisible();
-    const style = await warning.evaluate(el => {
+    const danger = await tokenColor(page, "--color-danger");
+    // Crossing the phone breakpoint remounts the section; read the style once the new element is attached.
+    const readStyle = () => warning.evaluate(el => {
       const css = getComputedStyle(el);
       return { color: css.color, background: css.backgroundColor, overflow: el.scrollWidth > el.clientWidth };
     });
-    expect(style.color).toBe(await tokenColor(page, "--color-danger"));
+    await expect.poll(async () => (await readStyle()).color).toBe(danger);
+    const style = await readStyle();
     expect(style.background).not.toBe("rgb(255, 255, 255)");
     expect(style.overflow).toBe(false);
     await page.screenshot({ path: `../artifacts/stt-review-${width}.png`, fullPage: true });
