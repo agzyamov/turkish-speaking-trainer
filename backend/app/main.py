@@ -34,7 +34,7 @@ settings = get_settings()
 performance_logger = logging.getLogger("app.performance")
 performance_logger.setLevel(logging.INFO)
 
-app = FastAPI(title="TurkTalk API", version="1.4.0")
+app = FastAPI(title="TurkTalk API", version=settings.app_version)
 
 @app.exception_handler(SourceLanguageUnavailableError)
 async def source_language_unavailable(_request: Request, _exc: SourceLanguageUnavailableError):

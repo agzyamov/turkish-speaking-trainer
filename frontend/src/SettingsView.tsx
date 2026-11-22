@@ -4,7 +4,7 @@ import { t, useLanguage, setLanguage, type InterfaceLanguage } from "./i18n";
 import type { CurrentUser } from "./types/auth";
 import { ModelDebugSettings } from "./ModelDebugSettings";
 import { TranscriptionModelSettings } from "./TranscriptionModelSettings";
-import { version } from "../package.json";
+import { version as packageVersion } from "../package.json";
 import { FeedbackSettings } from "./FeedbackSettings";
 import { ShareAppSettings } from "./ShareAppSettings";
 import { setRewardPreference, useRewardPreference } from "./rewardPreferences";
@@ -13,6 +13,8 @@ import { Card, CardDescription, CardTitle } from "./shared/ui/card";
 import { RadioGroup, RadioGroupItem } from "./shared/ui/radio-group";
 import { Switch } from "./shared/ui/switch";
 
+// Web production builds carry the release version (ADR-0011); Android and local builds show package.json.
+const appVersion = import.meta.env.VITE_APP_VERSION || packageVersion;
 const groupClass = "m-0 grid min-w-0 gap-3 rounded-card border border-line bg-surface p-5 text-ink";
 const legendClass = "px-1.5 font-bold text-ink";
 const optionClass =
@@ -85,7 +87,7 @@ export function SettingsView({
       <header data-slot="settings-heading" className="flex items-center justify-between gap-4">
         <h1 className="m-0 text-title in-[.android-settings-page]:text-title-compact">{t("settings.title")}</h1>
         <span data-slot="settings-version" className="whitespace-nowrap text-caption text-ink-muted" aria-label={t("settings.appVersion")}>
-          v.{t(version.split(".").slice(0, 2).join("."))}
+          v.{t(appVersion.split(".").slice(0, 2).join("."))}
         </span>
       </header>
 

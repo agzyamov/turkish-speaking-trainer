@@ -6,4 +6,5 @@ from pydantic import BaseModel
 class HealthResponse(BaseModel):
     status: Literal["ok"] = "ok"
     service: Literal["turkish-speaking-trainer"] = "turkish-speaking-trainer"
+    version: str
 

@@ -5,7 +5,8 @@ name: Deploy
 # - CI green on a push to main (or a manual run): the "production" environment waits for the owner's approval.
 #   Every secret is a secret of that environment, so nothing can read them before the approval. The job then
 #   plans, applies that plan, deploys the backend (its production build runs migrations and the catalogue seed),
-#   checks it, and deploys the frontend.
+#   checks it, deploys the frontend, and releases (ADR-0011): semantic-release tags the deployed commit and
+#   publishes the GitHub release when the commits since the last tag call for a new version.
 # Public repository: Actions logs are public. Secrets are masked GitHub secrets and sensitive Terraform
 # variables; never echo values, never upload plans or state, never add --logs to the Vercel CLI.
 
@@ -58,6 +59,9 @@ jobs:
     environment:
       name: production
       url: ${{ steps.urls.outputs.frontend }}
+    # contents: write only for the release tag and GitHub release, after the owner's approval.
+    permissions:
+      contents: write
     env:
       TF_IN_AUTOMATION: "true"
       TF_INPUT: "false"
@@ -65,10 +69,27 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+          fetch-depth: 0 # tags and history: the version is derived from the commits since the last tag
       - uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: 1.15.8
           terraform_wrapper: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 26
+      - name: Install release tooling
+        run: npm ci --ignore-scripts
+
+      # The version this deploy will carry: the next release if the commits call for one, else the last tag.
+      - name: Next version
+        id: version
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          next="$(npx semantic-release --dry-run --no-ci 2>&1 | sed -nE 's/.*The next release version is ([0-9][^ ]*).*/\1/p' | tail -1)"
+          last="$(git describe --tags --abbrev=0 --match 'v[0-9]*' 2>/dev/null || echo v0.0.0)"
+          echo "version=${next:-${last#v}}" >> "$GITHUB_OUTPUT"
+          echo "Deploying version ${next:-${last#v}} (last release $last)"
 
       - name: Terraform plan and apply
         working-directory: infra
@@ -114,17 +135,14 @@ jobs:
             echo "api=$(terraform output -raw api_url)"
           } >> "$GITHUB_OUTPUT"
 
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-
       # Run from the repository root: each project's root directory (backend/, frontend/) is set by Terraform.
       - name: Deploy backend (its production build runs migrations and the seed)
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_API_TOKEN }}
           VERCEL_ORG_ID: ${{ vars.VERCEL_TEAM_ID }}
           VERCEL_PROJECT_ID: ${{ steps.urls.outputs.backend_project }}
-        run: npx --yes vercel@66.6.0 deploy --prod --yes --token "$VERCEL_TOKEN"
+          APP_VERSION: ${{ steps.version.outputs.version }}
+        run: npx --yes vercel@66.6.0 deploy --prod --yes --token "$VERCEL_TOKEN" --env "APP_VERSION=$APP_VERSION"
 
       - name: Check backend health
         env:
@@ -136,9 +154,16 @@ jobs:
           VERCEL_TOKEN: ${{ secrets.VERCEL_API_TOKEN }}
           VERCEL_ORG_ID: ${{ vars.VERCEL_TEAM_ID }}
           VERCEL_PROJECT_ID: ${{ steps.urls.outputs.frontend_project }}
-        run: npx --yes vercel@66.6.0 deploy --prod --yes --token "$VERCEL_TOKEN"
+          APP_VERSION: ${{ steps.version.outputs.version }}
+        run: npx --yes vercel@66.6.0 deploy --prod --yes --token "$VERCEL_TOKEN" --build-env "VITE_APP_VERSION=$APP_VERSION"
 
       - name: Check frontend
         env:
           FRONTEND_URL: ${{ steps.urls.outputs.frontend }}
         run: curl --fail --silent --show-error --retry 5 --retry-delay 5 --retry-all-errors "$FRONTEND_URL/app" > /dev/null
+
+      # Tags exactly the deployed commit. If main moved on meanwhile, semantic-release skips and the next deploy releases.
+      - name: Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npx semantic-release --no-ci
