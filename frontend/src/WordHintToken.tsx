@@ -82,7 +82,7 @@ export function WordHintToken({
     };
   }, [active, translation]);
 
-  // A dotted tea-amber underline marks a tappable word; a used hint turns solid amber. The ::before
+  // A dotted accent underline marks a tappable word; a used hint turns solid. The ::before
   // extends the tap area to about 44px without changing the line height.
   const token =
     "word-token relative [overflow-wrap:anywhere] cursor-pointer rounded-sm border-0 bg-transparent p-0 font-[inherit] text-[length:inherit] leading-[inherit] text-inherit underline decoration-2 underline-offset-[0.22em] transition-colors duration-(--duration-quick) before:absolute before:-inset-y-2 before:inset-x-0 before:content-[''] hover:text-accent-bright focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:cursor-default";

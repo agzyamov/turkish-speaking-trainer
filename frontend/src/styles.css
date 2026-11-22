@@ -76,7 +76,7 @@ button { cursor: pointer; background: var(--panel); }
 .payment-form p, .payment-form strong, .payment-form small { overflow-wrap: anywhere; }
 .payment-form button, .payment-form input, .payment-form select { background: var(--panel); color: var(--text); border: 1px solid var(--line); border-radius: 8px; padding: .65rem; min-height: 44px; }
 .payment-form button { margin: .25rem; }
-.payment-form input, .payment-form select { width: 100%; min-width: 0; color-scheme: dark; }
+.payment-form input, .payment-form select { width: 100%; min-width: 0; color-scheme: light; }
 .payment-form option { background: var(--reward-background); color: var(--text); }
 .payment-form input:disabled, .payment-form select:disabled, .payment-form button:disabled { background: var(--panel); color: var(--muted); cursor: default; opacity: .65; }
 .payment-form :is(button, input, select, a):focus-visible { outline: 2px solid var(--blue); outline-offset: 3px; }

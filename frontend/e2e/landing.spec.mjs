@@ -30,8 +30,8 @@ for (const language of ["ru", "en"])
       await expect(page.getByRole("link", { name: /Google Play/ })).toHaveCount(0);
       await expect(page.getByRole("link", { name: "TurkTalk" }).first()).toHaveAttribute("href", "#top");
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
-      await expect(page.locator(".landing-phone--hero img")).toHaveAttribute("src", `/landing/screens/phone/${language}-statistics.jpg`);
-      await expect(page.locator(".landing-phone--hero")).toHaveCSS("transform", "none");
+      await expect.poll(() => page.locator(".landing-hero-art").evaluate(el => el.complete && el.naturalWidth > 0)).toBe(true);
+      await expect(page.locator(".landing-steps .landing-phone img").first()).toHaveAttribute("src", `/landing/screens/phone/${language}-topics.jpg`);
       await expect(page.locator(".landing-calendar, .landing-speech, .landing-orbit")).toHaveCount(0);
       await expect(page.locator(".landing-ribbon, .landing-screenshot-note")).toHaveCount(0);
       await expect(page.locator(".landing-header")).toBeInViewport();
@@ -67,7 +67,7 @@ for (const language of ["ru", "en"])
       await page.screenshot({ path: `../artifacts/landing/${language}-${layout}.png`, fullPage: true });
       await page.getByRole("button", { name: language === "ru" ? "EN" : "RU", exact: true }).click();
       await expect(page.getByRole("heading", { level: 1 })).toContainText(language === "ru" ? "Now speak them." : "Пора заговорить.");
-      await expect(page.locator(".landing-phone--hero img")).toHaveAttribute("src", `/landing/screens/phone/${language === "ru" ? "en" : "ru"}-statistics.jpg`);
+      await expect(page.locator(".landing-steps .landing-phone img").first()).toHaveAttribute("src", `/landing/screens/phone/${language === "ru" ? "en" : "ru"}-topics.jpg`);
       await page.reload();
       await expect(page.locator("html")).toHaveAttribute("lang", language === "ru" ? "en" : "ru");
       expect(errors).toEqual([]);

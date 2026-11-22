@@ -35,7 +35,7 @@ const secondaryButton = cn(
   focusRing,
 );
 const select = cn(
-  "min-w-0 cursor-pointer rounded-control border border-line bg-surface-raised px-3 py-2 text-ink [color-scheme:dark] hover:border-line-strong [&>option]:bg-surface-raised [&>option]:text-ink",
+  "min-w-0 cursor-pointer rounded-control border border-line bg-surface-raised px-3 py-2 text-ink [color-scheme:light] hover:border-line-strong [&>option]:bg-surface-raised [&>option]:text-ink",
   focusRing,
 );
 const cardHeading = "m-0 font-display text-xl font-bold text-ink";
@@ -114,7 +114,7 @@ function PhraseList({ topicId, compact }: { topicId: string; compact: boolean })
           <div className="grid gap-5">
             {statistics.groups.map(group => (
               <section className="phrase-group min-w-0" key={group.topic_id ?? "custom"}>
-                <h3 className="m-0 mb-2.5 text-sm font-semibold text-accent-bright">{topicText(group.topic_id, group.topic_title, group.topic_title_en)}</h3>
+                <h3 className="m-0 mb-2.5 text-sm font-semibold text-accent">{topicText(group.topic_id, group.topic_title, group.topic_title_en)}</h3>
                 <div className={cn("max-w-full", compact ? "overflow-visible" : "overflow-x-auto rounded-control border border-line")}>
                   <table className={cn("w-full border-collapse text-sm", compact && "block")}>
                     <thead className={cn(compact && "hidden")}>
@@ -146,7 +146,7 @@ function PhraseList({ topicId, compact }: { topicId: string; compact: boolean })
                             <span
                               className={cn(
                                 `phrase-status phrase-status--${phrase.status} inline-flex whitespace-nowrap rounded-full px-2 py-0.5 text-xs font-semibold`,
-                                phrase.status === "mastered" ? "bg-success/14 text-success" : "bg-selected text-accent-bright",
+                                phrase.status === "mastered" ? "bg-success/14 text-success" : "bg-selected text-accent",
                               )}
                             >
                               {t(phrase.status === "mastered" ? "statistics.phrases.mastered" : "statistics.phrases.learning")}
@@ -445,7 +445,7 @@ export function StatisticsView({
   ) : (
     <main className={layout}>
       <ActivityTab compact={compact} />
-      <button className={cn("statistics-phrases-link", secondaryButton, "text-accent-bright hover:text-accent-bright")} type="button" onClick={() => changePage("phrases")}>
+      <button className={cn("statistics-phrases-link", secondaryButton, "text-accent hover:text-accent")} type="button" onClick={() => changePage("phrases")}>
         {t("statistics.phrasesByTopicLink")}
       </button>
     </main>

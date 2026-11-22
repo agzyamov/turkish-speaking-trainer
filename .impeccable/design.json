@@ -4,274 +4,242 @@
   "title": "Design System: TurkTalk",
   "extensions": {
     "colorMeta": {
-      "strong-tea": {
-        "role": "neutral",
-        "displayName": "Strong Tea",
-        "canonical": "#120e0b",
-        "oklch": "oklch(16.8% 0.009 59.0)",
-        "tonalRamp": [
-          "#0d0b09",
-          "#272422",
-          "#45413e",
-          "#65605d",
-          "#87817d",
-          "#a9a4a0",
-          "#ccc8c5",
-          "#f1eeeb"
-        ]
-      },
-      "walnut": {
-        "role": "neutral",
-        "displayName": "Walnut",
-        "canonical": "#1d1712",
-        "oklch": "oklch(21.0% 0.014 61.8)",
-        "tonalRamp": [
-          "#0d0b08",
-          "#282421",
-          "#46413d",
-          "#66605a",
-          "#89817a",
-          "#aba49e",
-          "#cec8c3",
-          "#f3ede9"
-        ]
-      },
-      "walnut-raised": {
-        "role": "neutral",
-        "displayName": "Raised Walnut",
-        "canonical": "#271f18",
-        "oklch": "oklch(24.6% 0.018 63.0)",
-        "tonalRamp": [
-          "#0e0a08",
-          "#292420",
-          "#47413b",
-          "#685f58",
-          "#8a8078",
-          "#aca39b",
-          "#cfc7c1",
-          "#f4ede7"
-        ]
-      },
       "porcelain": {
         "role": "neutral",
         "displayName": "Porcelain",
-        "canonical": "#f5ede3",
-        "oklch": "oklch(95.0% 0.016 73.7)",
+        "canonical": "#fbf7ef",
+        "oklch": "oklch(97.7% 0.011 84.6)",
         "tonalRamp": [
-          "#0d0b08",
-          "#282420",
-          "#46413b",
-          "#666059",
-          "#888178",
-          "#aaa49c",
-          "#cec8c1",
-          "#f2eee8"
+          "#0c0b09",
+          "#272521",
+          "#44423d",
+          "#64615b",
+          "#86837c",
+          "#a9a69f",
+          "#cdcac4",
+          "#f2f0eb"
         ]
       },
-      "porcelain-soft": {
+      "porcelain-white": {
         "role": "neutral",
-        "displayName": "Soft Porcelain",
-        "canonical": "#dccdbb",
-        "oklch": "oklch(85.6% 0.030 72.4)",
+        "displayName": "Porcelain White",
+        "canonical": "#fffdf8",
+        "oklch": "oklch(99.4% 0.007 88.6)",
         "tonalRamp": [
-          "#0f0a05",
-          "#2b241b",
-          "#494035",
-          "#6b5f51",
-          "#8e806f",
-          "#afa394",
-          "#d2c7ba",
-          "#f6ede2"
+          "#0c0b0a",
+          "#262523",
+          "#43423f",
+          "#63625e",
+          "#85837f",
+          "#a8a6a2",
+          "#cccac7",
+          "#f1f0ed"
         ]
       },
-      "steeped-taupe": {
+      "porcelain-raised": {
         "role": "neutral",
-        "displayName": "Steeped Taupe",
-        "canonical": "#a9967f",
-        "oklch": "oklch(68.4% 0.040 72.4)",
+        "displayName": "Raised Porcelain",
+        "canonical": "#f1eadc",
+        "oklch": "oklch(93.9% 0.020 84.6)",
         "tonalRamp": [
-          "#100a04",
-          "#2c2318",
-          "#4c4031",
-          "#6e5e4c",
-          "#917f69",
-          "#b3a28e",
-          "#d5c7b5",
-          "#f9ecde"
+          "#0d0b07",
+          "#28251f",
+          "#464239",
+          "#666157",
+          "#898276",
+          "#aba59a",
+          "#cfcac0",
+          "#f4f0e8"
         ]
       },
-      "copper-line": {
+      "bosphorus-ink": {
         "role": "neutral",
-        "displayName": "Copper Line",
-        "canonical": "#c98a4b",
-        "oklch": "oklch(68.4% 0.111 64.1)",
+        "displayName": "Bosphorus Ink",
+        "canonical": "#12233f",
+        "oklch": "oklch(25.8% 0.058 259.9)",
         "tonalRamp": [
-          "#190500",
-          "#3b1c00",
-          "#603705",
-          "#87541c",
-          "#b07333",
-          "#cf9864",
-          "#efbf92",
-          "#ffe6c1"
+          "#050b16",
+          "#1b2536",
+          "#35435a",
+          "#51637f",
+          "#6f84a6",
+          "#94a7c6",
+          "#bbcce7",
+          "#e3f1ff"
         ]
       },
-      "tea-amber": {
+      "bosphorus-ink-soft": {
+        "role": "neutral",
+        "displayName": "Soft Bosphorus Ink",
+        "canonical": "#33435e",
+        "oklch": "oklch(38.1% 0.051 260.6)",
+        "tonalRamp": [
+          "#060b15",
+          "#1d2534",
+          "#374357",
+          "#53627c",
+          "#7284a2",
+          "#97a7c3",
+          "#bdcbe3",
+          "#e5f1ff"
+        ]
+      },
+      "bosphorus-ink-muted": {
+        "role": "neutral",
+        "displayName": "Muted Bosphorus Ink",
+        "canonical": "#5c6a81",
+        "oklch": "oklch(52.1% 0.040 260.3)",
+        "tonalRamp": [
+          "#070b13",
+          "#1e2531",
+          "#394353",
+          "#566276",
+          "#75849c",
+          "#9aa7bd",
+          "#c0cbde",
+          "#e7f1ff"
+        ]
+      },
+      "ruby-tea": {
         "role": "primary",
-        "displayName": "Tea Amber",
-        "canonical": "#e3893a",
-        "oklch": "oklch(71.2% 0.143 58.2)",
+        "displayName": "Ruby Tea",
+        "canonical": "#b3261e",
+        "oklch": "oklch(50.1% 0.178 28.7)",
         "tonalRamp": [
-          "#1e0100",
-          "#421600",
-          "#6a3000",
-          "#944b00",
-          "#bf690c",
-          "#de9152",
-          "#fcb985",
-          "#ffe1b7"
+          "#240000",
+          "#4e0001",
+          "#7a1812",
+          "#a93228",
+          "#d94d40",
+          "#f87c6c",
+          "#ffa99a",
+          "#ffd6c9"
         ]
       },
-      "tea-amber-bright": {
+      "ruby-tea-bright": {
         "role": "primary",
-        "displayName": "Bright Tea Amber",
-        "canonical": "#f2a35a",
-        "oklch": "oklch(77.9% 0.129 61.7)",
+        "displayName": "Bright Ruby Tea",
+        "canonical": "#c8372e",
+        "oklch": "oklch(55.5% 0.183 28.2)",
         "tonalRamp": [
-          "#1c0300",
-          "#3f1900",
-          "#653300",
-          "#8e5001",
-          "#b86e1f",
-          "#d79458",
-          "#f6bc89",
-          "#ffe4ba"
+          "#240000",
+          "#4e0000",
+          "#7b1511",
+          "#ab2f27",
+          "#db4a3f",
+          "#fa7a6b",
+          "#ffa799",
+          "#ffd5c8"
         ]
       },
-      "amber-ink": {
+      "on-ruby": {
         "role": "primary",
-        "displayName": "Amber Ink",
-        "canonical": "#1b0f05",
-        "oklch": "oklch(18.2% 0.028 62.0)",
+        "displayName": "On Ruby",
+        "canonical": "#ffffff",
+        "oklch": "oklch(100.0% 0.000 89.9)",
         "tonalRamp": [
-          "#0f0a06",
-          "#2b231d",
-          "#4a4037",
-          "#6c5e53",
-          "#8f7f71",
-          "#b1a296",
-          "#d3c6bc",
-          "#f7ece3"
+          "#0b0b0b",
+          "#252525",
+          "#424242",
+          "#626262",
+          "#838383",
+          "#a6a6a6",
+          "#cacaca",
+          "#f0f0f0"
         ]
       },
-      "focus-glow": {
-        "role": "neutral",
-        "displayName": "Focus Glow",
-        "canonical": "#ffcf8a",
-        "oklch": "oklch(88.1% 0.102 75.8)",
+      "sea-teal": {
+        "role": "secondary",
+        "displayName": "Sea Teal",
+        "canonical": "#1a6878",
+        "oklch": "oklch(53.6% 0.085 214.3)",
         "tonalRamp": [
-          "#160700",
-          "#362000",
-          "#593b06",
-          "#7e591d",
-          "#a57935",
-          "#c59e65",
-          "#e5c393",
-          "#ffeac2"
+          "#000f15",
+          "#002b35",
+          "#074b57",
+          "#216d7c",
+          "#3b90a3",
+          "#6db3c3",
+          "#9cd6e4",
+          "#cbf9ff"
         ]
       },
       "tulip-gold": {
         "role": "secondary",
         "displayName": "Tulip Gold",
-        "canonical": "#e6b94f",
-        "oklch": "oklch(80.7% 0.133 85.8)",
+        "canonical": "#8a6400",
+        "oklch": "oklch(65.2% 0.132 81.6)",
         "tonalRamp": [
           "#170700",
-          "#362000",
-          "#593c00",
-          "#7e5b00",
-          "#a57b00",
-          "#c59f49",
-          "#e5c57f",
-          "#ffecb2"
+          "#381f00",
+          "#5c3b00",
+          "#835900",
+          "#ab7900",
+          "#ca9e49",
+          "#eac580",
+          "#ffecb6"
         ]
       },
       "leaf-green": {
         "role": "tertiary",
         "displayName": "Leaf Green",
-        "canonical": "#86c9a0",
-        "oklch": "oklch(78.0% 0.090 156.7)",
+        "canonical": "#17693f",
+        "oklch": "oklch(51.4% 0.113 156.1)",
         "tonalRamp": [
-          "#001004",
-          "#082d1a",
-          "#1f4d33",
-          "#376f4f",
-          "#51926c",
-          "#7cb491",
-          "#a7d7b8",
-          "#d2fae0"
+          "#001103",
+          "#002f16",
+          "#0d4f2f",
+          "#267249",
+          "#409766",
+          "#70b98c",
+          "#9edbb4",
+          "#cdfede"
         ]
       },
-      "pomegranate": {
+      "raspberry": {
         "role": "tertiary",
-        "displayName": "Pomegranate",
-        "canonical": "#f07a6a",
-        "oklch": "oklch(71.1% 0.148 29.2)",
+        "displayName": "Raspberry",
+        "canonical": "#a3145a",
+        "oklch": "oklch(47.2% 0.180 358.5)",
         "tonalRamp": [
-          "#210000",
-          "#470c07",
-          "#71241c",
-          "#9e3e33",
-          "#cb5a4c",
-          "#ea8476",
-          "#ffaea0",
-          "#ffd9cd"
+          "#22000b",
+          "#4a0024",
+          "#761541",
+          "#a32e60",
+          "#d34982",
+          "#f278a5",
+          "#ffa5c9",
+          "#ffd3ef"
         ]
       },
-      "bosphorus-blue": {
-        "role": "tertiary",
-        "displayName": "Bosphorus Blue",
-        "canonical": "#8cb8d8",
-        "oklch": "oklch(76.2% 0.066 240.3)",
-        "tonalRamp": [
-          "#010d17",
-          "#112737",
-          "#294559",
-          "#42667f",
-          "#5e88a6",
-          "#85aac5",
-          "#aecee6",
-          "#d8f3ff"
-        ]
-      },
-      "amber-selected": {
+      "ruby-selected": {
         "role": "primary",
-        "displayName": "Amber Selected",
-        "canonical": "rgb(227 137 58 / 0.16)",
+        "displayName": "Ruby Selected",
+        "canonical": "rgb(179 38 30 / 0.1)",
         "tonalRamp": [
-          "#1e0100",
-          "#421600",
-          "#6a3000",
-          "#944b00",
-          "#bf690c",
-          "#de9152",
-          "#fcb985",
-          "#ffe1b7"
+          "#240000",
+          "#4e0001",
+          "#7a1812",
+          "#a93228",
+          "#d94d40",
+          "#f87c6c",
+          "#ffa99a",
+          "#ffd6c9"
         ]
       },
       "hairline": {
         "role": "neutral",
         "displayName": "Hairline",
-        "canonical": "rgb(236 200 158 / 0.16)",
+        "canonical": "rgb(18 35 63 / 0.14)",
         "tonalRamp": [
-          "#140800",
-          "#32210c",
-          "#533d22",
-          "#775b3a",
-          "#9c7c54",
-          "#bd9f7d",
-          "#dec4a6",
-          "#ffebd2"
+          "#050b16",
+          "#1b2536",
+          "#35435a",
+          "#51637f",
+          "#6f84a6",
+          "#94a7c6",
+          "#bbcce7",
+          "#e3f1ff"
         ]
       }
     },
@@ -312,8 +280,8 @@
     "shadows": [
       {
         "name": "lift",
-        "value": "0 6px 18px rgb(0 0 0 / 0.38)",
-        "purpose": "Primary amber buttons, the microphone disc and the word-hint tooltip."
+        "value": "0 6px 18px rgb(18 35 63 / 0.14)",
+        "purpose": "Primary ruby buttons, the microphone disc, the word-hint tooltip and the landing phone frames."
       }
     ],
     "motion": [
@@ -345,19 +313,19 @@
       }
     ],
     "focus": {
-      "value": "2px ring in focus-glow (#ffcf8a), offset 2px from the surrounding surface",
+      "value": "2px ring in sea-teal (#1a6878), offset 2px from the surrounding surface",
       "purpose": "Every interactive element."
     },
-    "scope": "Covers screens migrated onto the Tailwind tokens (practice screen, Settings, shared/ui). The legacy navy stylesheet frontend/src/styles.css (lower 'legacy' cascade layer) still styles the shell and unmigrated screens and is not part of this system."
+    "scope": "Covers screens migrated onto the Tailwind tokens (practice screen, Settings, shared/ui). The legacy stylesheet frontend/src/styles.css (lower 'legacy' cascade layer) still styles the shell and unmigrated screens and is not part of this system."
   },
   "components": [
     {
       "name": "Primary Button",
       "kind": "button",
       "refersTo": "button-primary",
-      "description": "The one amber action per state: Check, Next phrase.",
+      "description": "The one ruby action per state: Check, Next phrase.",
       "html": "<button class=\"ds-btn-primary\" type=\"button\"><svg aria-hidden=\"true\" width=\"22\" height=\"22\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"m5 12 4 4L19 6\"/></svg><span>Проверить</span></button>",
-      "css": ".ds-btn-primary { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 52px; border-radius: var(--radius-control, 10px); font: 600 16px/1.2 system-ui, 'Segoe UI', Roboto, Arial, sans-serif; cursor: pointer; transition: background-color 150ms cubic-bezier(0.2, 0, 0, 1), border-color 150ms cubic-bezier(0.2, 0, 0, 1), color 150ms cubic-bezier(0.2, 0, 0, 1); width: 100%; padding: 0 20px; border: 0; background: var(--color-accent, #e3893a); color: var(--color-accent-ink, #1b0f05); box-shadow: 0 6px 18px rgb(0 0 0 / 0.38); } .ds-btn-primary:hover { background: var(--color-accent-bright, #f2a35a); } .ds-btn-primary:disabled { opacity: .55; cursor: default; } .ds-btn-primary:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--color-surface, #1d1712), 0 0 0 4px var(--color-focus, #ffcf8a); }"
+      "css": ".ds-btn-primary { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 52px; border-radius: var(--radius-control, 10px); font: 600 16px/1.2 system-ui, 'Segoe UI', Roboto, Arial, sans-serif; cursor: pointer; transition: background-color 150ms cubic-bezier(0.2, 0, 0, 1), border-color 150ms cubic-bezier(0.2, 0, 0, 1), color 150ms cubic-bezier(0.2, 0, 0, 1); width: 100%; padding: 0 20px; border: 0; background: var(--color-accent, #b3261e); color: var(--color-accent-ink, #ffffff); box-shadow: 0 6px 18px rgb(18 35 63 / 0.14); } .ds-btn-primary:hover { background: var(--color-accent-bright, #c8372e); } .ds-btn-primary:disabled { opacity: .55; cursor: default; } .ds-btn-primary:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--color-surface, #fffdf8), 0 0 0 4px var(--color-focus, #1a6878); }"
     },
     {
       "name": "Secondary Button",
@@ -365,7 +333,7 @@
       "refersTo": "button-secondary",
       "description": "Labelled secondary action beside the primary, e.g. Record again.",
       "html": "<button class=\"ds-btn-secondary\" type=\"button\"><svg aria-hidden=\"true\" width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M3 10a9 9 0 0 1 16-4l2 2M21 14a9 9 0 0 1-16 4l-2-2\" stroke-width=\"2.8\"/><path fill=\"currentColor\" stroke=\"none\" d=\"M21.4 3.7 22 9.5 16.3 8.2ZM2.6 20.3 2 14.5l5.7 1.3Z\"/></svg><span>Заново</span></button>",
-      "css": ".ds-btn-secondary { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 52px; border-radius: var(--radius-control, 10px); font: 600 16px/1.2 system-ui, 'Segoe UI', Roboto, Arial, sans-serif; cursor: pointer; transition: background-color 150ms cubic-bezier(0.2, 0, 0, 1), border-color 150ms cubic-bezier(0.2, 0, 0, 1), color 150ms cubic-bezier(0.2, 0, 0, 1); padding: 0 16px; font-size: 14px; border: 1px solid var(--color-line, rgb(236 200 158 / 0.16)); background: var(--color-surface-raised, #271f18); color: var(--color-ink-soft, #dccdbb); } .ds-btn-secondary:hover { border-color: var(--color-line-strong, #c98a4b); color: var(--color-ink, #f5ede3); } .ds-btn-secondary:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--color-surface, #1d1712), 0 0 0 4px var(--color-focus, #ffcf8a); }"
+      "css": ".ds-btn-secondary { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 52px; border-radius: var(--radius-control, 10px); font: 600 16px/1.2 system-ui, 'Segoe UI', Roboto, Arial, sans-serif; cursor: pointer; transition: background-color 150ms cubic-bezier(0.2, 0, 0, 1), border-color 150ms cubic-bezier(0.2, 0, 0, 1), color 150ms cubic-bezier(0.2, 0, 0, 1); padding: 0 16px; font-size: 14px; border: 1px solid var(--color-line, rgb(18 35 63 / 0.14)); background: var(--color-surface-raised, #f1eadc); color: var(--color-ink-soft, #33435e); } .ds-btn-secondary:hover { border-color: var(--color-line-strong, #1a6878); color: var(--color-ink, #12233f); } .ds-btn-secondary:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--color-surface, #fffdf8), 0 0 0 4px var(--color-focus, #1a6878); }"
     },
     {
       "name": "Danger Button",
@@ -373,7 +341,7 @@
       "refersTo": "button-danger",
       "description": "Destructive action in Settings.",
       "html": "<button class=\"ds-btn-danger\" type=\"button\">Удалить</button>",
-      "css": ".ds-btn-danger { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 52px; border-radius: var(--radius-control, 10px); font: 600 16px/1.2 system-ui, 'Segoe UI', Roboto, Arial, sans-serif; cursor: pointer; transition: background-color 150ms cubic-bezier(0.2, 0, 0, 1), border-color 150ms cubic-bezier(0.2, 0, 0, 1), color 150ms cubic-bezier(0.2, 0, 0, 1); min-height: 44px; padding: 8px 16px; border: 1px solid rgb(240 122 106 / 0.6); background: var(--color-surface, #1d1712); color: var(--color-danger, #f07a6a); } .ds-btn-danger:hover { border-color: var(--color-danger, #f07a6a); } .ds-btn-danger:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--color-surface, #1d1712), 0 0 0 4px var(--color-focus, #ffcf8a); }"
+      "css": ".ds-btn-danger { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 52px; border-radius: var(--radius-control, 10px); font: 600 16px/1.2 system-ui, 'Segoe UI', Roboto, Arial, sans-serif; cursor: pointer; transition: background-color 150ms cubic-bezier(0.2, 0, 0, 1), border-color 150ms cubic-bezier(0.2, 0, 0, 1), color 150ms cubic-bezier(0.2, 0, 0, 1); min-height: 44px; padding: 8px 16px; border: 1px solid rgb(163 20 90 / 0.6); background: var(--color-surface, #fffdf8); color: var(--color-danger, #a3145a); } .ds-btn-danger:hover { border-color: var(--color-danger, #a3145a); } .ds-btn-danger:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--color-surface, #fffdf8), 0 0 0 4px var(--color-focus, #1a6878); }"
     },
     {
       "name": "Microphone Disc",
@@ -381,7 +349,7 @@
       "refersTo": "mic-disc",
       "description": "The only icon-only control: start recording, in the thumb zone.",
       "html": "<button class=\"ds-mic\" type=\"button\" aria-label=\"Ответить голосом\"><svg aria-hidden=\"true\" width=\"30\" height=\"30\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect x=\"9\" y=\"3\" width=\"6\" height=\"12\" rx=\"3\"/><path d=\"M5 11a7 7 0 0 0 14 0M12 18v3M9 21h6\"/></svg></button>",
-      "css": ".ds-mic { display: grid; place-items: center; width: 72px; height: 72px; border: 0; border-radius: 9999px; background: var(--color-accent, #e3893a); color: var(--color-accent-ink, #1b0f05); box-shadow: 0 6px 18px rgb(0 0 0 / 0.38); cursor: pointer; transition: background-color 150ms cubic-bezier(0.2, 0, 0, 1), transform 150ms cubic-bezier(0.2, 0, 0, 1); } .ds-mic:hover { background: var(--color-accent-bright, #f2a35a); } .ds-mic:active { transform: scale(.95); } .ds-mic:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--color-surface, #1d1712), 0 0 0 4px var(--color-focus, #ffcf8a); }"
+      "css": ".ds-mic { display: grid; place-items: center; width: 72px; height: 72px; border: 0; border-radius: 9999px; background: var(--color-accent, #b3261e); color: var(--color-accent-ink, #ffffff); box-shadow: 0 6px 18px rgb(18 35 63 / 0.14); cursor: pointer; transition: background-color 150ms cubic-bezier(0.2, 0, 0, 1), transform 150ms cubic-bezier(0.2, 0, 0, 1); } .ds-mic:hover { background: var(--color-accent-bright, #c8372e); } .ds-mic:active { transform: scale(.95); } .ds-mic:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--color-surface, #fffdf8), 0 0 0 4px var(--color-focus, #1a6878); }"
     },
     {
       "name": "Answer Field",
@@ -389,23 +357,23 @@
       "refersTo": "input-answer",
       "description": "Editable Turkish transcript, labelled above.",
       "html": "<label class=\"ds-field\"><span class=\"ds-field-label\">Ваш ответ</span><textarea class=\"ds-input\" rows=\"3\" lang=\"tr\" placeholder=\"Введите ответ на турецком языке\">Yeni bir vadesiz hesap açmak istiyorum.</textarea></label>",
-      "css": ".ds-field { display: grid; gap: 8px; } .ds-field-label { font: 600 .8rem/1.5 system-ui, sans-serif; color: var(--color-ink-muted, #a9967f); } .ds-input { width: 100%; resize: none; padding: 16px; border: 1px solid var(--color-line, rgb(236 200 158 / 0.16)); border-radius: var(--radius-control, 10px); background: var(--color-surface-raised, #271f18); color: var(--color-ink, #f5ede3); caret-color: var(--color-accent, #e3893a); font: 400 1.25rem/1.45 system-ui, sans-serif; outline: none; } .ds-input::placeholder { color: var(--color-ink-muted, #a9967f); } .ds-input:focus { border-color: var(--color-line-strong, #c98a4b); } .ds-input:focus-visible { box-shadow: 0 0 0 2px var(--color-surface, #1d1712), 0 0 0 4px var(--color-focus, #ffcf8a); }"
+      "css": ".ds-field { display: grid; gap: 8px; } .ds-field-label { font: 600 .8rem/1.5 system-ui, sans-serif; color: var(--color-ink-muted, #5c6a81); } .ds-input { width: 100%; resize: none; padding: 16px; border: 1px solid var(--color-line, rgb(18 35 63 / 0.14)); border-radius: var(--radius-control, 10px); background: var(--color-surface-raised, #f1eadc); color: var(--color-ink, #12233f); caret-color: var(--color-accent, #b3261e); font: 400 1.25rem/1.45 system-ui, sans-serif; outline: none; } .ds-input::placeholder { color: var(--color-ink-muted, #5c6a81); } .ds-input:focus { border-color: var(--color-line-strong, #1a6878); } .ds-input:focus-visible { box-shadow: 0 0 0 2px var(--color-surface, #fffdf8), 0 0 0 4px var(--color-focus, #1a6878); }"
     },
     {
       "name": "Card",
       "kind": "card",
       "refersTo": "card",
-      "description": "Bordered walnut surface grouping related content.",
+      "description": "Bordered porcelain-white surface grouping related content.",
       "html": "<section class=\"ds-card\"><h2 class=\"ds-card-title\">Награды за успехи</h2><p class=\"ds-card-desc\">Настройки сохраняются на этом устройстве.</p></section>",
-      "css": ".ds-card { display: grid; gap: 16px; padding: 20px; border: 1px solid var(--color-line, rgb(236 200 158 / 0.16)); border-radius: var(--radius-card, 16px); background: var(--color-surface, #1d1712); color: var(--color-ink, #f5ede3); } .ds-card-title { margin: 0; font: 600 1rem/1.4 system-ui, sans-serif; } .ds-card-desc { margin: 0; font: 400 .8rem/1.5 system-ui, sans-serif; color: var(--color-ink-muted, #a9967f); }"
+      "css": ".ds-card { display: grid; gap: 16px; padding: 20px; border: 1px solid var(--color-line, rgb(18 35 63 / 0.14)); border-radius: var(--radius-card, 16px); background: var(--color-surface, #fffdf8); color: var(--color-ink, #12233f); } .ds-card-title { margin: 0; font: 600 1rem/1.4 system-ui, sans-serif; } .ds-card-desc { margin: 0; font: 400 .8rem/1.5 system-ui, sans-serif; color: var(--color-ink-muted, #5c6a81); }"
     },
     {
       "name": "Phrase with Word Hint",
       "kind": "custom",
       "refersTo": "word-tooltip",
-      "description": "The phrase in Alegreya Sans with a dotted amber hint word and its tooltip.",
+      "description": "The phrase in Alegreya Sans with a dotted ruby hint word and its tooltip.",
       "html": "<div class=\"ds-phrase-wrap\"><h2 class=\"ds-phrase\">Я хочу открыть новый <button class=\"ds-hint\" type=\"button\">текущий</button> счёт.</h2><span class=\"ds-tooltip\" lang=\"tr\">vadesiz</span></div>",
-      "css": ".ds-phrase-wrap { display: grid; gap: 12px; justify-items: start; } .ds-phrase { margin: 0; font: 500 1.875rem/1.22 'Alegreya Sans', system-ui, sans-serif; color: var(--color-ink, #f5ede3); text-wrap: balance; } .ds-hint { padding: 0; border: 0; background: none; font: inherit; color: inherit; cursor: pointer; text-decoration: underline dotted 2px rgb(227 137 58 / 0.6); text-underline-offset: .22em; transition: color 150ms; } .ds-hint:hover { color: var(--color-accent-bright, #f2a35a); } .ds-hint:focus-visible { outline: 2px solid var(--color-focus, #ffcf8a); outline-offset: 2px; } .ds-tooltip { padding: 8px 12px; border: 1px solid var(--color-line-strong, #c98a4b); border-radius: var(--radius-control, 10px); background: var(--color-surface-raised, #271f18); color: var(--color-ink, #f5ede3); font: 500 1rem/1.4 system-ui, sans-serif; box-shadow: 0 6px 18px rgb(0 0 0 / 0.38); }"
+      "css": ".ds-phrase-wrap { display: grid; gap: 12px; justify-items: start; } .ds-phrase { margin: 0; font: 500 1.875rem/1.22 'Alegreya Sans', system-ui, sans-serif; color: var(--color-ink, #12233f); text-wrap: balance; } .ds-hint { padding: 0; border: 0; background: none; font: inherit; color: inherit; cursor: pointer; text-decoration: underline dotted 2px rgb(179 38 30 / 0.6); text-underline-offset: .22em; transition: color 150ms; } .ds-hint:hover { color: var(--color-accent-bright, #c8372e); } .ds-hint:focus-visible { outline: 2px solid var(--color-focus, #1a6878); outline-offset: 2px; } .ds-tooltip { padding: 8px 12px; border: 1px solid var(--color-line-strong, #1a6878); border-radius: var(--radius-control, 10px); background: var(--color-surface-raised, #f1eadc); color: var(--color-ink, #12233f); font: 500 1rem/1.4 system-ui, sans-serif; box-shadow: 0 6px 18px rgb(18 35 63 / 0.14); }"
     },
     {
       "name": "Result Boxes",
@@ -413,50 +381,52 @@
       "refersTo": "result-phrases",
       "description": "Verdict row, the learner's marked answer and the correct version.",
       "html": "<div class=\"ds-result\"><div class=\"ds-verdict\"><span class=\"ds-score\">72%</span><strong>Почти верно</strong></div><div class=\"ds-box\"><small class=\"ds-box-label\">Ваш вариант</small><span class=\"ds-box-text\" lang=\"tr\">Yeni bir vadesiz hesap <mark class=\"ds-mark\">istiyorum açmak</mark>.</span></div><div class=\"ds-box ds-box--correct\"><small class=\"ds-box-label\">Правильный вариант</small><span class=\"ds-box-text\" lang=\"tr\">Yeni bir vadesiz hesap açmak istiyorum.</span></div></div>",
-      "css": ".ds-result { display: grid; gap: 12px; } .ds-verdict { display: flex; align-items: baseline; gap: 12px; color: var(--color-ink, #f5ede3); font: 600 1.125rem system-ui, sans-serif; } .ds-score { font: 700 2.25rem/1 'Alegreya Sans', system-ui, sans-serif; font-variant-numeric: tabular-nums; color: var(--color-reward, #e6b94f); } .ds-box { display: grid; gap: 6px; padding: 16px; border: 1px solid var(--color-line, rgb(236 200 158 / 0.16)); border-radius: var(--radius-control, 10px); background: var(--color-surface-raised, #271f18); } .ds-box--correct { border-color: rgb(134 201 160 / 0.35); background: rgb(134 201 160 / 0.08); } .ds-box-label { font: 600 .8rem/1.5 system-ui, sans-serif; color: var(--color-ink-muted, #a9967f); } .ds-box--correct .ds-box-label { color: var(--color-success, #86c9a0); } .ds-box-text { font: 400 1.25rem/1.45 system-ui, sans-serif; color: var(--color-ink, #f5ede3); } .ds-mark { padding: 0 2px; border-radius: 2px; background: rgb(240 122 106 / 0.2); color: inherit; text-decoration: underline 2px var(--color-danger, #f07a6a); text-underline-offset: 4px; }"
+      "css": ".ds-result { display: grid; gap: 12px; } .ds-verdict { display: flex; align-items: baseline; gap: 12px; color: var(--color-ink, #12233f); font: 600 1.125rem system-ui, sans-serif; } .ds-score { font: 700 2.25rem/1 'Alegreya Sans', system-ui, sans-serif; font-variant-numeric: tabular-nums; color: var(--color-reward, #8a6400); } .ds-box { display: grid; gap: 6px; padding: 16px; border: 1px solid var(--color-line, rgb(18 35 63 / 0.14)); border-radius: var(--radius-control, 10px); background: var(--color-surface-raised, #f1eadc); } .ds-box--correct { border-color: rgb(28 122 75 / 0.35); background: rgb(28 122 75 / 0.08); } .ds-box-label { font: 600 .8rem/1.5 system-ui, sans-serif; color: var(--color-ink-muted, #5c6a81); } .ds-box--correct .ds-box-label { color: var(--color-success, #17693f); } .ds-box-text { font: 400 1.25rem/1.45 system-ui, sans-serif; color: var(--color-ink, #12233f); } .ds-mark { padding: 0 2px; border-radius: 2px; background: rgb(163 20 90 / 0.2); color: inherit; text-decoration: underline 2px var(--color-danger, #a3145a); text-underline-offset: 4px; }"
     },
     {
       "name": "Pause Notice",
       "kind": "custom",
       "refersTo": "pause-notice",
-      "description": "Calm Bosphorus-blue notice when AI checking is paused, with the resume time.",
+      "description": "Calm sea-teal notice when AI checking is paused, with the resume time.",
       "html": "<section class=\"ds-pause\" role=\"alert\"><h3>Проверка ИИ на сегодня закончилась</h3><p>Снова доступна завтра в 00:00. Ответ, который точно совпадает с эталоном, можно ввести вручную — он проверяется без ИИ.</p></section>",
-      "css": ".ds-pause { display: grid; gap: 8px; padding: 16px; border: 1px solid rgb(140 184 216 / 0.4); border-radius: var(--radius-card, 16px); background: rgb(140 184 216 / 0.1); color: var(--color-ink, #f5ede3); } .ds-pause h3 { margin: 0; font: 600 1rem/1.4 system-ui, sans-serif; } .ds-pause p { margin: 0; font: 400 .875rem/1.5 system-ui, sans-serif; color: var(--color-ink-soft, #dccdbb); }"
+      "css": ".ds-pause { display: grid; gap: 8px; padding: 16px; border: 1px solid rgb(31 122 140 / 0.4); border-radius: var(--radius-card, 16px); background: rgb(31 122 140 / 0.1); color: var(--color-ink, #12233f); } .ds-pause h3 { margin: 0; font: 600 1rem/1.4 system-ui, sans-serif; } .ds-pause p { margin: 0; font: 400 .875rem/1.5 system-ui, sans-serif; color: var(--color-ink-soft, #33435e); }"
     },
     {
       "name": "Tea Glass",
       "kind": "custom",
       "refersTo": "tea-glass",
       "description": "Session progress: a tulip tea glass that fills phrase by phrase.",
-      "html": "<svg class=\"ds-glass\" viewBox=\"0 0 24 36\" role=\"img\" aria-label=\"3 из 5 фраз\"><defs><clipPath id=\"ds-glass-in\"><path d=\"M6 4h12c0 5.5-3.3 8.4-3.3 12s3.6 7.6 3.1 12.6C17.4 32.4 15.2 33 12 33s-5.4-.6-5.8-4.4C5.7 23.6 9.3 19.6 9.3 16S6 9.5 6 4Z\"/></clipPath></defs><g clip-path=\"url(#ds-glass-in)\"><rect x=\"0\" y=\"4\" width=\"24\" height=\"29\" fill=\"#271f18\"/><rect class=\"ds-glass-tea\" x=\"0\" y=\"4\" width=\"24\" height=\"29\" fill=\"#e3893a\"/></g><path d=\"M6 4h12c0 5.5-3.3 8.4-3.3 12s3.6 7.6 3.1 12.6C17.4 32.4 15.2 33 12 33s-5.4-.6-5.8-4.4C5.7 23.6 9.3 19.6 9.3 16S6 9.5 6 4Z\" fill=\"none\" stroke=\"#dccdbb\" stroke-width=\"1.2\" stroke-linejoin=\"round\"/><path d=\"M5 4h14\" stroke=\"#e6b94f\" stroke-width=\"1.6\" stroke-linecap=\"round\"/></svg>",
+      "html": "<svg class=\"ds-glass\" viewBox=\"0 0 24 36\" role=\"img\" aria-label=\"3 из 5 фраз\"><defs><clipPath id=\"ds-glass-in\"><path d=\"M6 4h12c0 5.5-3.3 8.4-3.3 12s3.6 7.6 3.1 12.6C17.4 32.4 15.2 33 12 33s-5.4-.6-5.8-4.4C5.7 23.6 9.3 19.6 9.3 16S6 9.5 6 4Z\"/></clipPath></defs><g clip-path=\"url(#ds-glass-in)\"><rect x=\"0\" y=\"4\" width=\"24\" height=\"29\" fill=\"#f1eadc\"/><rect class=\"ds-glass-tea\" x=\"0\" y=\"4\" width=\"24\" height=\"29\" fill=\"#b3261e\"/></g><path d=\"M6 4h12c0 5.5-3.3 8.4-3.3 12s3.6 7.6 3.1 12.6C17.4 32.4 15.2 33 12 33s-5.4-.6-5.8-4.4C5.7 23.6 9.3 19.6 9.3 16S6 9.5 6 4Z\" fill=\"none\" stroke=\"#33435e\" stroke-width=\"1.2\" stroke-linejoin=\"round\"/><path d=\"M5 4h14\" stroke=\"#8a6400\" stroke-width=\"1.6\" stroke-linecap=\"round\"/></svg>",
       "css": ".ds-glass { width: 24px; height: 36px; } .ds-glass-tea { transform: scaleY(.6); transform-origin: 50% 33px; transform-box: view-box; } @media (prefers-reduced-motion: no-preference) { .ds-glass-tea { transition: transform 700ms cubic-bezier(0.16, 1, 0.3, 1); } }"
     }
   ],
   "narrative": {
     "northStar": "One Glass of Tea",
-    "overview": "A practice session is one glass of tea in an Istanbul tea house in the evening: a strong-tea ground, warm walnut surfaces, porcelain-colored text, and tea held up to the light as the single accent. The screen is calm and holds one thing at a time: one phrase, one primary action, one result. Progress is literal: a small tulip tea glass in the top row fills phrase by phrase, and one session is one glass.\n\nDensity is low and phone-first. The phrase is the largest thing on screen and sits in a humanist display face. Everything else is plain system sans in porcelain and taupe tones. Color carries meaning, not decoration: amber means \"act here\" or \"tap for a hint\", and green, gold and pomegranate are kept for the verdict. A paused or limited state is calm Bosphorus blue information, never an error.\n\nDepth is quiet. Surfaces are tonal steps of walnut separated by hairlines, and one soft shadow lifts only what floats or what should be pressed. Nothing glows. This world replaces the inherited dark-navy shell with its glowing icon discs.",
+    "overview": "A practice session is one glass of tea on the Bosphorus ferry, in daylight: a porcelain ground, near-white surfaces, Bosphorus-navy text, and ruby tea as the single accent. The world is light and has no dark variant. The screen is calm and holds one thing at a time: one phrase, one primary action, one result. Progress is literal: a small tulip tea glass in the top row fills phrase by phrase, and one session is one glass.\n\nDensity is low and phone-first. The phrase is the largest thing on screen and sits in a humanist display face. Everything else is plain system sans in navy ink tones. Color carries meaning, not decoration: ruby means \"act here\" or \"tap for a hint\", and green, gold and raspberry are kept for the verdict. A paused or limited state is calm sea-teal information, never an error. Mistakes are raspberry, not red, so that they cannot be confused with the ruby accent.\n\nDepth is quiet. Surfaces are tonal steps of porcelain separated by hairlines, and one soft shadow lifts only what floats or what should be pressed. Nothing glows. This world replaced the earlier dark one (an Istanbul tea house in the evening: strong-tea ground, walnut surfaces, amber accent) on 2026-11-22; the token names in `tokens.css` and the type, spacing and shapes did not change.",
     "keyCharacteristics": [
-      "Warm near-black tea ground, two walnut surface steps, porcelain ink.",
-      "One amber accent: the primary action, hint words and the tea filling.",
-      "Verdict colors (leaf green, tulip gold, pomegranate) used only for results and recording.",
+      "Light porcelain ground, a near-white surface and one raised porcelain step, Bosphorus-navy ink.",
+      "One ruby accent: the primary action, hint words and the tea filling.",
+      "Sea teal for focus, strong lines and calm information.",
+      "Verdict colors (leaf green, tulip gold, raspberry) used only for results and recording.",
       "Alegreya Sans for the phrase and the score numeral; system sans for everything else.",
       "Flat tonal surfaces with hairline borders; one soft lift shadow, no glow.",
+      "The logo and the progress mark are the same object: a tulip tea glass.",
       "Labelled, thumb-zone actions at least 44px tall (52px for the main action)."
     ],
     "rules": [
       {
-        "name": "The One Amber Rule",
-        "body": "Each state of a screen has exactly one amber-filled control: the mic disc before an answer, \"Check\" with an answer, \"Next\" after the result. Everything else is walnut with a hairline.",
+        "name": "The One Ruby Rule",
+        "body": "Each state of a screen has exactly one ruby-filled control: the mic disc before an answer, \"Check\" with an answer, \"Next\" after the result. Everything else is porcelain with a hairline.",
         "section": "colors"
       },
       {
         "name": "The Verdict Palette Rule",
-        "body": "Leaf green, tulip gold and pomegranate map to correct, mostly correct and needs work. They are not decorative colors and do not appear on neutral chrome.",
+        "body": "Leaf green, tulip gold and raspberry map to correct, mostly correct and needs work. They are not decorative colors and do not appear on neutral chrome.",
         "section": "colors"
       },
       {
         "name": "The Calm Limits Rule",
-        "body": "A spent budget, a pause or unavailable assistance is Bosphorus blue information with the reason and the resume time. Pomegranate is for mistakes the learner can fix, not for limits.",
+        "body": "A spent budget, a pause or unavailable assistance is sea-teal information with the reason and the resume time. Raspberry is for mistakes the learner can fix, not for limits.",
         "section": "colors"
       },
       {
@@ -466,27 +436,30 @@
       },
       {
         "name": "The Sentence Case Rule",
-        "body": "Labels are short sentence-case words in taupe or verdict color. No uppercase tracking, no label above a heading that repeats it.",
+        "body": "Labels are short sentence-case words in muted ink or verdict color. No uppercase tracking, no label above a heading that repeats it.",
         "section": "typography"
       },
       {
         "name": "The Lift, Not Glow Rule",
-        "body": "Shadows are neutral black and soft. No colored or zero-offset glows around controls, medals or icons.",
+        "body": "The one shadow is soft, offset downward and tinted with the navy ink at 14%. No bright-colored or zero-offset glows around controls, medals or icons.",
         "section": "elevation"
       }
     ],
     "dos": [
       "Do use only the tokens in `frontend/src/shared/styles/tokens.css` through Tailwind utilities (bg-surface, text-ink-muted, rounded-card).",
-      "Do keep exactly one amber-filled control per state, and put a visible word on every action except the microphone disc.",
+      "Do keep exactly one ruby-filled control per state, and put a visible word on every action except the microphone disc.",
       "Do set the phrase in Alegreya Sans at 1.875rem (2.25rem from 640px) and Turkish answers in system sans at 1.25rem.",
-      "Do show limits and pauses as Bosphorus blue notices with a reason and a resume time.",
-      "Do keep touch targets at least 44px and give every interactive element the 2px focus-glow ring.",
+      "Do show limits and pauses as sea-teal notices with a reason and a resume time.",
+      "Do mark mistakes in raspberry and keep ruby for actions and hints.",
+      "Do keep touch targets at least 44px and give every interactive element the 2px sea-teal focus ring.",
       "Do gate decorative motion (tea fill, recording ping) behind `prefers-reduced-motion`."
     ],
     "donts": [
-      "Don't copy colors, glows or radii from the legacy navy stylesheet (`frontend/src/styles.css`); it is not part of this system.",
+      "Don't copy colors, glows or radii from the legacy stylesheet (`frontend/src/styles.css`); it is not part of this system.",
       "Don't add colored or zero-offset glows to buttons, icons or medals.",
-      "Don't use pomegranate for limits, pauses or neutral information.",
+      "Don't use raspberry for limits, pauses or neutral information.",
+      "Don't use ruby for errors or mistakes, and don't add a second ruby-filled control to a state.",
+      "Don't bring back the dark ground, walnut surfaces or amber accent of the earlier world.",
       "Don't use the verdict colors as decoration.",
       "Don't add uppercase tracked labels above headings.",
       "Don't hide the fix: the review list is expanded and the score stays on screen after any reward animation."

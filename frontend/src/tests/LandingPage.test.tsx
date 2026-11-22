@@ -18,8 +18,8 @@ it("presents the Turkish product with web sign-in and no previous owner's story 
   expect(screen.getAllByRole("link", { name: /Начать говорить/ })[0]).toHaveAttribute("href", "#sign-in");
   expect(screen.queryByRole("link", { name: /Google Play/ })).not.toBeInTheDocument();
   expect(screen.getAllByRole("link", { name: "TurkTalk" })[0]).toHaveAttribute("href", "#top");
-  expect(screen.getAllByRole("img", { name: /TurkTalk:/ })).toHaveLength(4);
-  expect(screen.getByRole("img", { name: "TurkTalk: статистика занятий" })).toHaveAttribute("src", "/landing/screens/phone/ru-statistics.jpg");
+  expect(screen.getAllByRole("img", { name: /TurkTalk:/ })).toHaveLength(3);
+  expect(screen.getByRole("img", { name: /Стакан турецкого чая/ })).toHaveAttribute("src", "/landing/hero.webp");
 });
 
 it("switches copy, metadata and screenshot locale together, and restores Russian", () => {
@@ -28,7 +28,7 @@ it("switches copy, metadata and screenshot locale together, and restores Russian
   expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("Now speak them.");
   expect(screen.getByRole("button", { name: "EN" })).toHaveAttribute("aria-pressed", "true");
   expect(screen.getByRole("img", { name: "TurkTalk: speaking practice" })).toHaveAttribute("src", "/landing/screens/phone/en-practice.jpg");
-  expect(screen.getByRole("img", { name: "TurkTalk: practice statistics" })).toHaveAttribute("src", "/landing/screens/phone/en-statistics.jpg");
+  expect(screen.getByRole("img", { name: /A glass of Turkish tea/ })).toHaveAttribute("src", "/landing/hero.webp");
   expect(document.title).toBe("TurkTalk — start speaking Turkish");
   expect(screen.queryByText(/Serbian/)).not.toBeInTheDocument();
   fireEvent.click(screen.getByRole("button", { name: "RU" }));

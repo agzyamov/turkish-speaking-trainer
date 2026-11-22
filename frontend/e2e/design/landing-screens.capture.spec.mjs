@@ -1,7 +1,7 @@
 // Landing screenshots, not a regression test: renders the phone layout of the current app with
-// demonstration data and writes the four images the landing page shows, in Russian and English.
+// demonstration data and writes the three images the landing page shows, in Russian and English.
 // Run: pnpm exec playwright test e2e/design/landing-screens.capture.spec.mjs
-// Output: public/landing/screens/phone/<ru|en>-<topics|practice|feedback|statistics>.jpg (1280 x 2772)
+// Output: public/landing/screens/phone/<ru|en>-<topics|practice|feedback>.jpg (1280 x 2772)
 import { test } from "@playwright/test";
 import { openDemo } from "./demoApi.mjs";
 
@@ -25,10 +25,6 @@ for (const language of ["ru", "en"]) {
     await page.locator(".android-topic-list").waitFor();
     await page.waitForTimeout(300);
     await shot("topics");
-    await page.getByRole("button", { name: ru ? "Статистика" : "Statistics", exact: true }).click();
-    await page.getByRole("heading", { name: ru ? "Календарь занятий" : "Practice calendar" }).waitFor();
-    await page.waitForTimeout(300);
-    await shot("statistics");
     await context.close();
   });
 }

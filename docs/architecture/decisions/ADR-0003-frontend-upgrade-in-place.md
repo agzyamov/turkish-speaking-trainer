@@ -23,6 +23,16 @@ Voice recording, the recording state machine and request-race handling are kept 
 - New runtime dependency `@fontsource/alegreya-sans` (OFL font files) for the phrase display face; it covers Cyrillic, Latin and Turkish, which Impeccable's own font fetcher (Latin only) does not. Three weights ship; browsers load only the subsets a page uses, but all subsets are in the Android bundle.
 - During migration the practice card and Settings use the new world while the shell (header, topic list, statistics, premium) keeps the legacy navy stylesheet; those screens move next.
 
+## Amendment, 2026-11-22: light world, tea-glass logo, illustrated landing hero
+
+- Decided by: the owner (reported in the task that requested this amendment; the logo choice is also recorded in the untracked brand-kit working files as "Owner selected candidate 1, the contour tulip glass on a saucer").
+- The dark world of the 2026-11-20 amendment is replaced by a light one, "tea on the Bosphorus ferry, in daylight": porcelain ground, near-white surfaces, Bosphorus-navy ink, ruby tea as the one accent, sea teal for focus, strong lines and calm information, leaf green for success, tulip gold for rewards, raspberry for marked mistakes. Only the values in `frontend/src/shared/styles/tokens.css` changed; the token names, type, spacing and radii did not. DESIGN.md records the system.
+- What stays: session progress is a tulip tea glass that fills phrase by phrase, and each state has one accent-filled control. Mistakes moved from a red to raspberry so that they do not look like the ruby accent.
+- The logo is a contour tulip tea glass on a saucer (`frontend/src/assets/app-logo.png`; `favicon.png` and `apple-touch-icon.png` in `frontend/public/`). In the desktop header it replaced the speech-bubble icon. The Android launcher icons are not changed.
+- The landing hero is a full-width illustration (`frontend/public/landing/hero.webp`) with the copy on its left; the hero phone screenshot and the statistics screenshots were removed. The image is generated; DESIGN.md summarises its prompt, which is not kept in git.
+- Status when written: the changes are uncommitted on the branch `tea-ferry-identity`. Checked before commit: frontend lint, types, unit tests and build, and the mocked end-to-end suite.
+- The statement in the 2026-11-20 amendment that the shell "keeps the legacy navy stylesheet" describes the state on that date; the roadmap (Phase 4) records the later migration.
+
 ## Alternatives considered
 - Rebuild from scratch: would choose the same frameworks, so gains nothing there, while discarding 43 unit test files and about 40 end-to-end specs that encode hard-won behaviour, at the same time the language conversion touches every string and type.
 - Leave the structure alone: cheapest, but the single component cannot be changed safely and the styling cannot pass a design audit.

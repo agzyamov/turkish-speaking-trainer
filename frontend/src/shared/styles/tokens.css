@@ -2,38 +2,37 @@
  * Design tokens (C-21). Components use these through Tailwind utilities
  * (bg-surface, text-ink-muted, rounded-card, ...) and never hardcode values.
  *
- * World: an Istanbul tea house in the evening. Strong-tea ground, walnut
- * surfaces, porcelain ink, tea held to the light as the accent, the tulip
- * glass's gold rim for rewards, leaf green for success, Bosphorus blue for
- * calm information. Recorded in DESIGN.md once the first surface ships.
+ * World: tea on the Bosphorus ferry, in daylight. Porcelain ground, white
+ * surfaces, Bosphorus-navy ink, ruby tea as the one accent, sea teal for calm
+ * information and focus, leaf green for success, raspberry for marked mistakes.
  */
 @theme {
   --font-sans: system-ui, "Segoe UI", Roboto, Arial, sans-serif;
   --font-display: "Alegreya Sans", system-ui, "Segoe UI", sans-serif;
 
-  --color-canvas: #120e0b;
-  --color-surface: #1d1712;
-  --color-surface-raised: #271f18;
-  --color-selected: rgb(227 137 58 / 0.16);
+  --color-canvas: #fbf7ef;
+  --color-surface: #fffdf8;
+  --color-surface-raised: #f1eadc;
+  --color-selected: rgb(179 38 30 / 0.1);
 
-  --color-ink: #f5ede3;
-  --color-ink-soft: #dccdbb;
-  --color-ink-muted: #a9967f;
+  --color-ink: #12233f;
+  --color-ink-soft: #33435e;
+  --color-ink-muted: #5c6a81;
 
-  --color-line: rgb(236 200 158 / 0.16);
-  --color-line-strong: #c98a4b;
+  --color-line: rgb(18 35 63 / 0.14);
+  --color-line-strong: #1a6878;
 
-  --color-accent: #e3893a;
-  --color-accent-bright: #f2a35a;
-  --color-accent-ink: #1b0f05;
-  --color-focus: #ffcf8a;
+  --color-accent: #b3261e;
+  --color-accent-bright: #c8372e;
+  --color-accent-ink: #ffffff;
+  --color-focus: #1a6878;
 
-  --color-success: #86c9a0;
-  --color-reward: #e6b94f;
-  --color-danger: #f07a6a;
-  --color-info: #8cb8d8;
+  --color-success: #17693f;
+  --color-reward: #8a6400;
+  --color-danger: #a3145a;
+  --color-info: #1a6878;
 
-  /* Google sign-in button: Google's brand surface, not part of the tea-house palette. */
+  /* Google sign-in button: Google's brand surface, not part of the palette. */
   --color-google: #ffffff;
   --color-google-ink: #26352d;
   --color-google-line: #d5ddd8;
@@ -67,7 +66,7 @@
   --text-micro: 0.65rem;
   --text-micro--line-height: 1.3;
 
-  --shadow-lift: 0 6px 18px rgb(0 0 0 / 0.38);
+  --shadow-lift: 0 6px 18px rgb(18 35 63 / 0.14);
 
   --ease-standard: cubic-bezier(0.2, 0, 0, 1);
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);

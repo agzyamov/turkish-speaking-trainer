@@ -65,8 +65,16 @@ export function LandingPage() {
         <AppLink compact />
       </header>
       <main id="main">
-        <section className="landing-hero landing-wrap">
-          <div className="landing-hero-copy">
+        <section className="landing-hero">
+          <img
+            className="landing-hero-art"
+            src="/landing/hero.webp"
+            alt={lt("Стакан турецкого чая и симит на палубе парома, за бортом Босфор и Стамбул")}
+            width="2200"
+            height="1245"
+            fetchPriority="high"
+          />
+          <div className="landing-hero-copy landing-wrap">
             <p className="landing-eyebrow">
               <span />
               {lt("ОТ ЗНАКОМЫХ СЛОВ — К ЖИВОЙ РЕЧИ")}
@@ -84,11 +92,6 @@ export function LandingPage() {
             <a className="landing-explore" href="#how">
               {lt("Заглянуть внутрь")} <span aria-hidden="true">↓</span>
             </a>
-          </div>
-          <div className="landing-hero-visual">
-            <div className="landing-phone landing-phone--hero">
-              <img src={`/landing/screens/phone/${language}-statistics.jpg`} alt={lt("{app}: статистика занятий")} width="1280" height="2772" fetchPriority="high" />
-            </div>
           </div>
         </section>
         <section id="how" className="landing-how landing-wrap">

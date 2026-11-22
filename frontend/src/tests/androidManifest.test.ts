@@ -15,10 +15,10 @@ describe("Android microphone permissions", () => {
 });
 
 describe("Android release metadata", () => {
-  it("keeps the 1.45 product version and required APK filename aligned", () => {
-    expect(packageJson.version).toBe("1.45.0");
-    expect(androidBuild).toContain("versionCode 55");
-    expect(androidBuild).toContain('versionName "1.45"');
-    expect(androidBuild).toContain('outputFileName = "TurkTalk-android16-1.45.apk"');
+  it("keeps the product version and required APK filename aligned", () => {
+    expect(packageJson.version).toBe("1.0.0");
+    expect(androidBuild).toContain("versionCode 1");
+    expect(androidBuild).toContain('versionName "1.0"');
+    expect(androidBuild).toContain('outputFileName = "TurkTalk-android16-1.0.apk"');
   });
 });

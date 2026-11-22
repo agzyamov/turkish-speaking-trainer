@@ -6,7 +6,7 @@ import { cn } from "../../shared/lib/utils";
 import { topicIconName } from "./topicIcons";
 
 const focusRing = "outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-canvas";
-// One card for every topic, phone and desktop: walnut tile, tea-amber when selected,
+// One card for every topic, phone and desktop: raised tile, accent-tinted when selected,
 // the glass's gold rim for the owner's personal topics.
 const card = cn(
   "relative grid w-full min-w-0 cursor-pointer content-between justify-items-start gap-1.5 rounded-card border border-line bg-surface-raised p-3 text-left text-ink",
