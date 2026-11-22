@@ -60,6 +60,10 @@ frontend-build:
 infra:
     cd infra && terraform fmt -check -recursive && terraform init -backend=false -input=false > /dev/null && terraform validate
 
+# Offline Vercel build of one project as production builds it (backend: Linux only, CI runs both)
+vercel-build project:
+    scripts/vercel-build-check.sh {{project}}
+
 # Mocked end-to-end tests (needs Chrome)
 e2e:
     cd frontend && pnpm test:e2e:mock
