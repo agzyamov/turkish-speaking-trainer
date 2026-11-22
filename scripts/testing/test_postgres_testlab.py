@@ -91,15 +91,15 @@ class PostgresTestlabSafetyTests(unittest.TestCase):
 
     def test_password_is_escaped_in_test_only_dsn(self) -> None:
         dsn = lab._make_dsn("test:password/@value")
-        self.assertIn("127.0.0.1:55432/serbotalk_concurrency_test", dsn)
+        self.assertIn("127.0.0.1:55432/turktalk_concurrency_test", dsn)
         self.assertIn("test%3Apassword%2F%40value", dsn)
         lab._validate_dsn(dsn)
 
     def test_production_or_remote_database_urls_are_rejected(self) -> None:
         for dsn in (
             "postgresql://localhost/app",
-            "postgresql+psycopg://postgres:secret@db.example.com:55432/serbotalk_concurrency_test",
-            "postgresql+psycopg://postgres:secret@127.0.0.1:5432/serbotalk_concurrency_test",
+            "postgresql+psycopg://postgres:secret@db.example.com:55432/turktalk_concurrency_test",
+            "postgresql+psycopg://postgres:secret@127.0.0.1:5432/turktalk_concurrency_test",
             "postgresql+psycopg://postgres:secret@127.0.0.1:55432/production",
         ):
             with self.subTest(dsn=dsn), self.assertRaises(lab.LabError):
@@ -130,7 +130,7 @@ class PostgresTestlabSafetyTests(unittest.TestCase):
         self.assertEqual(child["APP_ENV"], "testlab")
         self.assertEqual(child["DATABASE_URL"], dsn)
         self.assertEqual(child["TEST_POSTGRES_URL"], dsn)
-        self.assertEqual(child["SERBOTALK_TESTLAB"], "1")
+        self.assertEqual(child["TURKTALK_TESTLAB"], "1")
         self.assertNotIn("DOTENV_PATH", child)
         for key in ("PGHOSTADDR", "PGSERVICE", "PGSERVICEFILE", "PGPASSWORD"):
             self.assertNotIn(key, child)

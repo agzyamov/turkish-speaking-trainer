@@ -126,7 +126,7 @@ def test_postgres_reservation_migration_preserves_history() -> None:
     if not raw:
         pytest.skip("isolated PostgreSQL test database is unavailable")
     url = make_url(raw)
-    if url.host not in {"localhost", "127.0.0.1", "::1"} or url.port != 55432 or url.database != "serbotalk_concurrency_test":
+    if url.host not in {"localhost", "127.0.0.1", "::1"} or url.port != 55432 or url.database != "turktalk_concurrency_test":
         pytest.fail("TEST_POSTGRES_URL must point to the isolated loopback test database")
     schema = f"test_migration_{uuid4().hex}"
     backend_root = Path(__file__).resolve().parents[1]
@@ -135,7 +135,7 @@ def test_postgres_reservation_migration_preserves_history() -> None:
     config.config_file_name = None
     engine = create_database_engine(raw)
     with engine.begin() as connection:
-        assert connection.exec_driver_sql("SELECT current_database()").scalar() == "serbotalk_concurrency_test"
+        assert connection.exec_driver_sql("SELECT current_database()").scalar() == "turktalk_concurrency_test"
         connection.exec_driver_sql(f"CREATE SCHEMA {schema}")
 
     @event.listens_for(engine, "connect")

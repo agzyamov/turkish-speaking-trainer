@@ -27,8 +27,9 @@ Shows where modules live in the repository and how they are built and checked.
 ├── scripts/                    guards, testlab, benchmarks, build helpers
 └── docs/
     ├── architecture/           this documentation (authoritative)
+    ├── infrastructure-setup.md
     ├── release-process.md
-    └── (older Russian-language records of the Serbian product)
+    └── operator runbooks (payments, account deletion)
 ```
 
 ## Element catalog

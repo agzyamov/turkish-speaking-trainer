@@ -2,7 +2,7 @@
 
 These rules apply to the whole repository and to every coding agent working in it.
 
-The project is a Turkish speaking trainer being converted from a Serbian one. The state of that conversion is in [docs/architecture/roadmap.md](docs/architecture/roadmap.md).
+The project is TurkTalk, a Turkish speaking trainer. What is done and what is next is in [docs/architecture/roadmap.md](docs/architecture/roadmap.md).
 
 ## 1. The architecture documents are binding
 
@@ -70,6 +70,6 @@ just frontend         # lint, tests, build
 just secrets          # secret scan
 ```
 
-## 7. Older documents
+## 7. History
 
-`README.md`, `docs/decisions.md`, `docs/audit-roadmap.md`, the release notes under `docs/` and the spec docx describe the Serbian product and its history, mostly in Russian. They are kept as a record. Where they disagree with `docs/architecture/` or this file, this file and `docs/architecture/` win.
+The code began as a trainer for another language. Its old records were removed from the tree; git history keeps them. Do not reintroduce them. Where any other document disagrees with `docs/architecture/` or this file, this file and `docs/architecture/` win.

@@ -98,15 +98,14 @@ def seed_catalog(session: Session) -> tuple[int, int, int]:
     topics_added = 0
     phrases_added = 0
 
-    # A database seeded by the Serbian product has learner history tied to its
-    # skills and phrases. It is never converted in place: the Turkish product
-    # starts from a fresh database (roadmap, Phase 3).
+    # A database seeded with another catalogue has learner history tied to its
+    # skills and phrases. It is never converted in place: seed a fresh database.
     known = {item.key for item in SKILLS}
     foreign = sorted(set(session.scalars(select(Skill.key))) - known)
     if foreign:
         raise ForeignCatalogError(
             f"Database holds {len(foreign)} skills this catalogue does not define (for example {foreign[0]!r}). "
-            "Seed a fresh database; a database from the Serbian product is not converted in place."
+            "Seed a fresh database; a database with another catalogue is not converted in place."
         )
 
     for item in SKILLS:

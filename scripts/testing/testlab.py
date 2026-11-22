@@ -329,10 +329,10 @@ def bootstrap_testlab_database(engine: Engine) -> None:
 
     del _entities
     current = _metadata_shape(Base.metadata)
-    serbian_names = {"attempts": ("transcript_tr", "transcript_sr"), "topic_phrases": ("canonical_tr", "canonical_sr"),
+    legacy_column_names = {"attempts": ("transcript_tr", "transcript_sr"), "topic_phrases": ("canonical_tr", "canonical_sr"),
                      "review_phrases": ("intended_tr_variants_json", "intended_sr_variants_json"),
                      "word_learning_items": ("translation_tr", "translation_sr")}
-    pre_turkish_columns = {name: frozenset(columns - {serbian_names[name][0]} | {serbian_names[name][1]}) if name in serbian_names else columns
+    pre_turkish_columns = {name: frozenset(columns - {legacy_column_names[name][0]} | {legacy_column_names[name][1]}) if name in legacy_column_names else columns
                            for name, columns in current.items()}
     pre_usage_ledger = {name: columns for name, columns in pre_turkish_columns.items() if name != "ai_usage_events"}
     pre_bilingual = {name: frozenset(columns - {"source_versions_json"}) if name == "review_phrases" else columns for name, columns in pre_usage_ledger.items()}

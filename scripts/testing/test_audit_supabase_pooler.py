@@ -32,7 +32,7 @@ def test_rejects_driver_query_overrides(parameter):
         audit.validate_url(raw)
 
 
-@pytest.mark.parametrize("schema", ["public", "serbotalk_audit_", 'serbotalk_audit_"; DROP SCHEMA public CASCADE;--'])
+@pytest.mark.parametrize("schema", ["public", "turktalk_audit_", 'turktalk_audit_"; DROP SCHEMA public CASCADE;--'])
 def test_cleanup_rejects_arbitrary_schema(schema):
     with pytest.raises(ValueError):
         audit.validate_schema(schema)

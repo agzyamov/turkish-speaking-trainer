@@ -58,8 +58,8 @@ def test_seed_is_complete_and_idempotent(db_session: Session) -> None:
     assert {hint["word_ru"]: hint["translation_tr"] for hint in exercise.target_hints_json["word_hints"]}["светлую"] == "aydınlık"
 
 
-def test_seed_refuses_a_database_from_the_serbian_product(db_session: Session) -> None:
-    db_session.add(Skill(key="construction.voleo_bih", category="construction", title_ru="Voleo bih da",
+def test_seed_refuses_a_database_with_a_foreign_catalogue(db_session: Session) -> None:
+    db_session.add(Skill(key="construction.foreign_skill", category="construction", title_ru="Foreign skill",
                          explanation_ru="Вежливое выражение желания.", difficulty=0.5))
     db_session.flush()
     with pytest.raises(ForeignCatalogError, match="fresh database"):
@@ -70,8 +70,8 @@ def test_seed_refuses_a_database_from_the_serbian_product(db_session: Session) -
 def test_reseeding_refreshes_skill_text_and_topic_vocabulary(db_session: Session) -> None:
     seed_catalog(db_session)
     skill = db_session.scalar(select(Skill).where(Skill.key == "grammar.future"))
-    skill.explanation_ru = "Формы ću/ćeš/će + инфинитив."
-    db_session.get(TopicPreset, "bank").vocabulary_json = ["račun"]
+    skill.explanation_ru = "Устаревшее объяснение."
+    db_session.get(TopicPreset, "bank").vocabulary_json = ["eski"]
     db_session.flush()
     assert seed_catalog(db_session) == (0, 0, 0)
     assert skill.explanation_ru == next(s.explanation_ru for s in SKILLS if s.key == "grammar.future")

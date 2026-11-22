@@ -219,7 +219,7 @@ def test_configuration_rejects_production_auth_and_database_urls() -> None:
     for auth_url, db_url in (
         ("https://production.example", database),
         ("http://127.0.0.1:8766", "postgresql://production/db"),
-        ("http://127.0.0.1:8766", "sqlite:///backend/data/serbian_trainer.db"),
+        ("http://127.0.0.1:8766", "sqlite:///backend/data/trainer.db"),
     ):
         try:
             ensure_local_configuration(auth_url, db_url)

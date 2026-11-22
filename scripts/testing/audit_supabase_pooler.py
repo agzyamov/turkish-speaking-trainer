@@ -31,7 +31,7 @@ def validate_url(raw: str) -> URL:
 
 
 def validate_schema(schema: str) -> str:
-    if not re.fullmatch(r"serbotalk_audit_[0-9a-f]{32}", schema):
+    if not re.fullmatch(r"turktalk_audit_[0-9a-f]{32}", schema):
         raise ValueError("Only a generated audit schema is allowed")
     return schema
 
@@ -84,7 +84,7 @@ def main() -> None:
             ]
             report["mock_ai_checks"] = []
             for name, check in checks:
-                schema = validate_schema("serbotalk_audit_" + uuid4().hex)
+                schema = validate_schema("turktalk_audit_" + uuid4().hex)
                 scoped = engine.execution_options(schema_translate_map={None: schema})
                 with engine.begin() as connection:
                     connection.exec_driver_sql(f'CREATE SCHEMA "{schema}"')

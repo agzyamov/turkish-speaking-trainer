@@ -46,7 +46,7 @@ def main():
             except SourceLanguageUnavailableError:
                 db.rollback()
                 raise SystemExit(f'Validated translation unavailable at item {index}; completed items are preserved; safe to retry') from None
-            print(f'Prepared {index}/{len(pending)}; original, Serbian variants and learning progress preserved')
+            print(f'Prepared {index}/{len(pending)}; original, Turkish variants and learning progress preserved')
 
 
 if __name__ == '__main__':

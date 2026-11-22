@@ -58,7 +58,6 @@ flowchart TB
 | `shared/i18n/` | Keyed translations in Russian and English | In progress (Phase 4): `src/i18n.ts` runs i18next over `src/locales/{ru,en}/ui.json` (stable keys, Russian plural forms) and keeps the legacy Russian-as-key dictionary (`src/locales/en.json`) only for text that arrives as Russian content (preset topic titles, model feedback, phrase catalogue) and for the landing and legal pages, which are rewritten in Phase 5. All application interface strings use keys |
 | `api/` | Typed functions for every backend endpoint; the only place that calls `fetch` | Existing |
 | platform | `voiceRecorder.ts`, `auth.ts`, `emailAuth.ts`, reward audio, Capacitor plugins | Existing; kept as is |
-| `serbianScript.ts` | Latin/Cyrillic conversion | Changing: removed with the alphabet toggle (Phase 4); the backend no longer accepts the `alphabet` field |
 | `landing-entry.tsx`, `LandingPage.tsx` | Marketing page, separate HTML entry | Existing |
 | `android/` | Capacitor Android project | Existing; re-identified in Phase 5 |
 

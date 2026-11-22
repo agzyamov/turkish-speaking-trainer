@@ -39,7 +39,7 @@ Production over recognition: the learner says whole everyday sentences out loud 
 
 ## Brand Commitments
 
-- The product name is not final. "TurkTalk" is a working name held in one place (ADR-0005); do not build the identity around the name. The inherited "SerboTalk" name and assets are being replaced.
+- The product name is not final. "TurkTalk" is a working name held in one place (ADR-0005); do not build the identity around the name.
 
 ## Evidence on Hand
 

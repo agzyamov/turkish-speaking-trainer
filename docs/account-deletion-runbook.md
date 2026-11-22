@@ -1,14 +1,14 @@
-# Подтверждённое удаление аккаунта
+# Account deletion runbook
 
-Дата: 30.10.2026. Публичная инструкция: https://serbotalk.app/delete-account (RU/EN). Пользователь пишет с адреса аккаунта на support email, указанный на странице. Оператор подтверждает запрос и выполняет его в течение 7 дней. Не удалять чужой/административный аккаунт; не просить пароль, OTP или запись речи.
+The public page `/delete-account` (RU/EN) tells users to write from their account's email to the support address. The operator confirms the request and completes it within 7 days. Never delete another or an admin account on someone's request, and never ask for a password, a one-time code or a voice recording.
 
-1. Получить подтверждение с email аккаунта и проверить точный Supabase user UUID. Секреты и переписку не помещать в Git/логи.
-2. В защищённом backend/operator окружении настроить `DATABASE_URL`, `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`. Service role берётся владельцем из Supabase, хранится только в окружении оператора; не в frontend/APK, аргументах или документах.
-3. Из backend выполнить `python scripts/delete_account.py --user-id UUID --confirmed-email EMAIL` — dry run, без удаления. Проверить целевой production проект и email.
-4. После подтверждения конкретного запроса повторить с `--execute`. Это необратимое действие; агент не выполняет его без отдельного подтверждения конкретного аккаунта.
-5. Инструмент сначала фиксирует блокировку старого UUID на 30 дней, затем проверяет email/id в Supabase Auth, удаляет Auth identity, проверяет 404 и удаляет application user с каскадом тренировок, попыток, личных тем/фраз, слов, настроек, отзывов, платежных заявок, Premium и debug-данных.
-6. При сетевом сбое/несовпадении identity удаление не объявлять завершённым. Приложение блокирует старый UUID, данные сохраняются для повторной обработки. После исправления повторить тот же подтверждённый запрос; Auth 404 допустим при повторе. Сообщить пользователю о завершении только после финальной успешной проверки.
+1. Get the confirmation from the account's email and find the exact Supabase user UUID. Keep the correspondence and any secret out of git and logs.
+2. In a protected operator environment set `DATABASE_URL`, `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY`. The service-role key comes from Supabase and lives only in that environment: never in the frontend, the APK, command arguments or documents.
+3. From `backend/` run `python scripts/delete_account.py --user-id UUID --confirmed-email EMAIL`. This is a dry run. Check that it targets the production project and the right email.
+4. Repeat with `--execute`. This cannot be undone. An agent never runs it without the owner's confirmation for that specific account.
+5. The tool first records a 30-day block on the old UUID, then checks the email and id in Supabase Auth, deletes the Auth identity, confirms the 404, and deletes the application user with its sessions, attempts, personal topics and phrases, words, settings, feedback, payment requests, Premium and debug data.
+6. If the network fails or the identity does not match, the deletion is not complete. The UUID stays blocked and the data is kept for another try. Fix the cause and repeat the same confirmed request; an Auth 404 on the repeat is expected. Tell the user it is done only after the final successful check.
 
-SHA-256 UUID не содержит email/контент; он предотвращает восстановление данных старым локально валидируемым JWT. Через 30 дней guard перестаёт действовать; expired markers удаляются при следующей обработке удаления либо обращении того же UUID. Это не обещание фоновой физической очистки по точному таймеру. Повторная регистрация создаёт новый профиль с новым UUID.
+The block stores a SHA-256 of the UUID, no email or content. It stops an old, locally validated JWT from recreating data. After 30 days the block lapses; expired markers are removed on the next deletion or when the same UUID comes back. A new sign-up gets a new profile with a new UUID.
 
-Независимые сроки резервных копий и журналов провайдеров не заявляются как мгновенное физическое уничтожение. Оператор должен проверить применимые настройки провайдеров при реальном запросе. Банковские/платёжные записи вне приложения обрабатываются по соответствующим обязательствам, не этим SQL-каскадом. Live Auth purge пока не выполнялся; synthetic integration coverage и статус — [выпуск](android-1.43-release.md).
+Provider backups and logs follow their own retention; they are not claimed to be erased instantly. Payment records outside the app follow their own obligations, not this cascade.

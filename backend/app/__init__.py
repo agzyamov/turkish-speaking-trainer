@@ -1,2 +1,2 @@
-"""Serbian Speaking Trainer backend."""
+"""TurkTalk backend."""
 
