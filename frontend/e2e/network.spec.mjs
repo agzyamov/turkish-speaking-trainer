@@ -253,10 +253,11 @@ test("foreign STT letters remain editable and block grading", async ({ page }) =
     await expect(warning).toBeVisible();
     const danger = await tokenColor(page, "--color-danger");
     // Crossing the phone breakpoint remounts the section; read the style once the new element is attached.
-    const readStyle = () => warning.evaluate(el => {
-      const css = getComputedStyle(el);
-      return { color: css.color, background: css.backgroundColor, overflow: el.scrollWidth > el.clientWidth };
-    });
+    const readStyle = () =>
+      warning.evaluate(el => {
+        const css = getComputedStyle(el);
+        return { color: css.color, background: css.backgroundColor, overflow: el.scrollWidth > el.clientWidth };
+      });
     await expect.poll(async () => (await readStyle()).color).toBe(danger);
     const style = await readStyle();
     expect(style.background).not.toBe("rgb(255, 255, 255)");
