@@ -13,6 +13,7 @@ Shows where modules live in the repository and how they are built and checked.
 ├── justfile                    one entry point for every check
 ├── .github/workflows/ci.yml    continuous integration
 ├── .github/workflows/deploy.yml  Terraform plan/apply and production deploy after owner approval (ADR-0010)
+├── .github/workflows/android-release.yml  Hand-started Android release to a Play testing track (ADR-0012)
 ├── infra/                      Terraform: Vercel projects and variables, Supabase Auth settings
 ├── backend/
 │   ├── app/                    api, services, repositories, models, db, schemas, prompts

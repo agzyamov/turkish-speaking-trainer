@@ -64,7 +64,9 @@ Backward compatibility rule for migrations: a migration must work with the previ
 
 ## 5. Android release
 
-Only on the owner's explicit instruction, with the version agreed first (constraint C-24). Android changes accumulate between releases. A release builds from a tagged commit, is checked on a device, and is submitted to a testing track before production.
+Only on the owner's explicit instruction, with the version agreed first (constraint C-24). Android changes accumulate between releases. A release is checked on a device first (a test APK from `scripts/build-android.sh apk`) and is submitted to a testing track before production.
+
+The first bundle of an app is uploaded in Play Console by hand. After that the owner starts **Actions → Android release to Google Play → Run workflow** on `main`, gives the version name (for example `1.1`), the track and the status, and approves the `play` environment (ADR-0012). The job builds the current `main` with `scripts/build-android.sh`, signs with the upload key and uploads to the chosen testing track; promotion to production is done in Play Console. Start it only when production already runs the backend this `main` needs. On the owner's Mac the same script builds a test APK, and the bundle for the first, hand-made upload.
 
 ## 6. Rollback
 

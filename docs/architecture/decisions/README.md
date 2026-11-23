@@ -15,6 +15,7 @@ One file per decision. Decisions are never edited to say something different; a 
 | [0009](ADR-0009-section-urls-with-hash-history.md) | Sections as URLs: TanStack Router with hash history in the browser, memory history on Android | Accepted |
 | [0010](ADR-0010-infrastructure-as-code-and-ci-deploy.md) | Terraform in `infra/` with state in the project's Supabase Postgres; production deploys from CI after the owner's approval | Accepted |
 | [0011](ADR-0011-semantic-release.md) | Versions, tags and GitHub releases derived from commit titles by semantic-release, published by the approved production job | Accepted |
+| [0012](ADR-0012-android-releases-from-ci.md) | Android releases to Google Play testing tracks from a hand-started CI job, with keyless Google access | Accepted |
 
 ## Template
 

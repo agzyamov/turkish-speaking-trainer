@@ -1,0 +1,99 @@
+name: Android release to Google Play
+
+# Started by hand by the owner (C-24, ADR-0012). Uploads to a testing track only;
+# promoting a release to production stays a manual step in Play Console.
+on:
+  workflow_dispatch:
+    inputs:
+      version_name:
+        description: "Android version shown to users, for example 1.1"
+        required: true
+        type: string
+      track:
+        description: "Play track"
+        type: choice
+        options: [internal, alpha, beta]
+        default: internal
+      status:
+        description: "draft waits in Play Console; completed goes to testers after Google's review"
+        type: choice
+        options: [draft, completed]
+        default: draft
+
+permissions:
+  contents: read
+  id-token: write # lets the job prove to Google which repository it runs in; no key file is stored
+
+concurrency: android-release
+
+jobs:
+  release:
+    name: Play release
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    # Required reviewer and "main only" are set on this environment; the upload key exists nowhere else in GitHub.
+    environment: play
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: frontend/pnpm-lock.yaml
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+      - uses: extractions/setup-just@v3
+      - run: just frontend-install
+
+      - name: Check the version
+        env:
+          VERSION_NAME: ${{ inputs.version_name }}
+        run: |
+          [[ "$VERSION_NAME" =~ ^[0-9]+\.[0-9]+$ ]] || { echo "Version must look like 1.1" >&2; exit 1; }
+
+      # Built without the upload key: the build tools and their dependencies never see it.
+      - name: Build the bundle
+        env:
+          TURKTALK_VERSION_NAME: ${{ inputs.version_name }}
+        # Version code 1 was the first, hand-uploaded bundle; every run gets the next free number.
+        run: TURKTALK_VERSION_CODE=$((GITHUB_RUN_NUMBER + 1)) scripts/build-android.sh aab-build
+
+      - name: Restore the upload key
+        env:
+          KEYSTORE_B64: ${{ secrets.ANDROID_UPLOAD_KEYSTORE_B64 }}
+        run: |
+          umask 077
+          printf '%s' "$KEYSTORE_B64" | base64 -d > "$RUNNER_TEMP/upload.p12"
+
+      - name: Sign the bundle
+        env:
+          TURKTALK_UPLOAD_KEYSTORE: ${{ runner.temp }}/upload.p12
+          TURKTALK_UPLOAD_PASSWORD: ${{ secrets.ANDROID_UPLOAD_KEYSTORE_PASSWORD }}
+          TURKTALK_VERSION_NAME: ${{ inputs.version_name }}
+        run: TURKTALK_VERSION_CODE=$((GITHUB_RUN_NUMBER + 1)) scripts/build-android.sh aab-sign
+
+      - name: Remove the upload key
+        if: always()
+        run: rm -f "$RUNNER_TEMP/upload.p12"
+
+      - id: google
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ vars.PLAY_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ vars.PLAY_SERVICE_ACCOUNT }}
+          token_format: access_token
+          access_token_scopes: https://www.googleapis.com/auth/androidpublisher
+
+      - name: Upload to Google Play
+        env:
+          PLAY_ACCESS_TOKEN: ${{ steps.google.outputs.access_token }}
+          VERSION_NAME: ${{ inputs.version_name }}
+          TRACK: ${{ inputs.track }}
+          STATUS: ${{ inputs.status }}
+        run: scripts/play-upload.sh "artifacts/TurkTalk-android-$VERSION_NAME.aab" "$TRACK" "$STATUS"

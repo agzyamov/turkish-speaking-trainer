@@ -10,7 +10,7 @@ Shows where each component runs and what configuration it needs.
 | Backend API | Vercel project (Python function, 60 s limit) | `backend/` | `APP_ENV`, `DATABASE_URL`, `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY`, `CORS_ALLOWED_ORIGIN_REGEX`, `BRAND_NAME`, `PUBLIC_APP_URL`, `ADMIN_EMAILS`, `REVIEW_LOGIN_EMAIL` (optional), `TELEGRAM_*`, provider and budget settings below |
 | Database | Supabase PostgreSQL (transaction pooler) | Alembic migrations in `backend/alembic` | managed by Supabase |
 | Auth | Supabase Auth | Supabase dashboard | Google OAuth client, email sender |
-| Android app | Google Play (not yet published for this product) | `frontend/android` | Package `com.turktalk.trainer`; API and Supabase URLs fixed at build time from `frontend/.env.android` |
+| Android app | Google Play (not yet published for this product); uploads to testing tracks by the hand-started `android-release.yml` job in the `play` environment (ADR-0012) | `frontend/android` | Package `com.turktalk.trainer`; API and Supabase URLs and the support mailbox fixed at build time from `frontend/.env.android`; upload key and Google federation settings in the `play` environment and repository variables |
 
 Provider and budget settings on the backend (Planned, Phase 2):
 

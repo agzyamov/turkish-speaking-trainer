@@ -11,6 +11,9 @@ android {
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
         versionName "1.0"
+        // A Play release from CI passes its own numbers (ADR-0012); every other build keeps the two above.
+        if (project.hasProperty('playVersionCode')) versionCode(project.property('playVersionCode') as Integer)
+        if (project.hasProperty('playVersionName')) versionName(project.property('playVersionName') as String)
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
              // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.
