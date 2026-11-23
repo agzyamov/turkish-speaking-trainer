@@ -1,9 +1,11 @@
-import { defineConfig } from "@playwright/test";
+import { defineConfig, devices } from "@playwright/test";
 
 // Playwright's failure snapshot can serialize form values, including testlab credentials.
 process.env.PLAYWRIGHT_NO_COPY_PROMPT = "1";
 
 const live = Boolean(process.env.TESTLAB_BASE_URL);
+// Installed Google Chrome locally; CI sets E2E_BROWSER_CHANNEL=chromium for Playwright's bundled Chromium.
+const chromiumChannel = process.env.E2E_BROWSER_CHANNEL ?? "chrome";
 
 export default defineConfig({
   testDir: "./e2e",
@@ -14,12 +16,23 @@ export default defineConfig({
   outputDir: "./test-results",
   use: {
     baseURL: live ? process.env.TESTLAB_BASE_URL : "http://127.0.0.1:5179",
-    browserName: "chromium",
-    channel: process.env.E2E_BROWSER_CHANNEL ?? "chrome",
     trace: "off",
     screenshot: "off",
     video: "off",
   },
+  // Browser engines and device profiles, not real devices: Playwright WebKit is not iOS Safari (see e2e/README.md).
+  // Without `--project` every project runs; `--project chromium` keeps the previous single-browser run.
+  // The live testlab run (TESTLAB_BASE_URL) stays on Chromium only, as before.
+  projects: [
+    { name: "chromium", use: { browserName: "chromium", channel: chromiumChannel } },
+    ...(live
+      ? []
+      : [
+          { name: "webkit", use: { ...devices["Desktop Safari"] } },
+          { name: "iphone", use: { ...devices["iPhone 15"] } },
+          { name: "pixel", use: { ...devices["Pixel 7"], channel: chromiumChannel } },
+        ]),
+  ],
   webServer: live
     ? undefined
     : {

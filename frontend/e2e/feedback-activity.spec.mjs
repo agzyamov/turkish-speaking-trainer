@@ -1,6 +1,7 @@
 import { expect, test } from "@playwright/test";
 import { installAccountRoutes } from "./accountRoutes.mjs";
 import { installSyntheticMicrophone } from "./flow.mjs";
+import { desktopLayoutOnly } from "./projects.mjs";
 
 const bank = { id: "bank", title_ru: "Банк", description_ru: "", likely_intents: [], suggested_vocabulary: [], is_custom: false, phrase_count: 20 };
 const review = { ...bank, id: "review-phrases", title_ru: "Фразы для повторения" };
@@ -17,7 +18,8 @@ const account = {
 
 for (const layout of ["desktop", "mobile", "android"])
   for (const language of ["ru", "en"]) {
-    test(`${layout} ${language}: review origin, centered loading, voice feedback`, async ({ page }) => {
+    test(`${layout} ${language}: review origin, centered loading, voice feedback`, async ({ page, isMobile }) => {
+      test.skip(isMobile && layout === "desktop", desktopLayoutOnly);
       const en = language === "en";
       if (layout !== "desktop") await page.setViewportSize({ width: 393, height: 852 });
       if (layout === "android")

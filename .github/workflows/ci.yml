@@ -99,7 +99,8 @@ jobs:
       - run: just frontend-test
       - run: just frontend-build
 
-  # Mocked browser flow (all API responses are defined in the spec; no backend, no provider).
+  # Mocked browser flow (all API responses are defined in the spec; no backend, no provider), desktop Chromium only
+  # to keep pull requests fast. All four browser projects run nightly and on demand in e2e-browsers.yml.
   e2e:
     name: E2E (mocked)
     needs: changes

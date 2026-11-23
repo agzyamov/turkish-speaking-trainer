@@ -29,7 +29,8 @@ To look at the interface without a backend or keys, `cd frontend && pnpm demo` o
 
 ```bash
 just check      # secrets, backend (lint, layer rules, tests), frontend (lint, tests, build), Terraform validation
-just e2e        # mocked browser tests (needs Chrome)
+just e2e        # mocked browser tests in Chrome (the pull-request check)
+just e2e-all    # the same tests in Chromium, WebKit, iPhone and Pixel profiles (nightly in CI)
 ```
 
 Tests never call a real AI provider.

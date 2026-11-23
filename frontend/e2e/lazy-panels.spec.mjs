@@ -1,5 +1,6 @@
 import { expect, test } from "@playwright/test";
 import { installAccountRoutes } from "./accountRoutes.mjs";
+import { desktopLayoutOnly, webkitLazyRetry } from "./projects.mjs";
 
 const account = {
   id: "user-1",
@@ -13,7 +14,8 @@ const account = {
   daily_usage: { used: 0, limit: 10, remaining: 10, resets_at: "2026-09-30T00:00:00Z" },
 };
 
-test("secondary panels load on demand while practice remains usable", async ({ page }) => {
+test("secondary panels load on demand while practice remains usable", async ({ page, isMobile }) => {
+  test.skip(isMobile, desktopLayoutOnly);
   const assets = [];
   page.on("request", request => {
     if (request.url().includes("/assets/")) assets.push(request.url());
@@ -128,7 +130,8 @@ test("secondary panels load on demand while practice remains usable", async ({ p
   await expect(page.getByRole("heading", { name: "Темы для практики" })).toBeVisible();
 });
 
-test("statistics chunk can be retried after a network failure", async ({ page }) => {
+test("statistics chunk can be retried after a network failure", async ({ page, browserName }) => {
+  test.fixme(browserName === "webkit", webkitLazyRetry);
   let requests = 0;
   await page.route("**/assets/StatisticsView-*.js*", async route => {
     requests += 1;

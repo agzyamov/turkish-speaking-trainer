@@ -1,6 +1,30 @@
 # Изолированные UI-прогоны
 
-`pnpm test:e2e:mock` запускает отдельный Chrome через Playwright и production build режима `e2e` с preview на `127.0.0.1:5179`. Все `/api/*` ответы определены в тесте; Supabase session существует только в тестовом browser context. Прогон проверяет выбор темы, первую фразу, синтетический STT, ввод ответа, результат и следующую видимую фразу. Неизвестный API endpoint приводит к ошибке теста. Реальные AI-провайдеры и production-сервисы не вызываются.
+`pnpm test:e2e:mock` запускает через Playwright отдельные браузеры (см. «Браузеры и профили устройств») и production build режима `e2e` с preview на `127.0.0.1:5179`. Все `/api/*` ответы определены в тесте; Supabase session существует только в тестовом browser context. Прогон проверяет выбор темы, первую фразу, синтетический STT, ввод ответа, результат и следующую видимую фразу. Неизвестный API endpoint приводит к ошибке теста. Реальные AI-провайдеры и production-сервисы не вызываются.
+
+## Браузеры и профили устройств
+
+`playwright.config.mjs` задаёт четыре проекта, и `pnpm test:e2e:mock` (и `just e2e-all`) без аргументов запускает набор в каждом. `just e2e` запускает только `chromium`: это проверка каждого pull request в CI. Все четыре проекта CI прогоняет каждую ночь и по кнопке (workflow `e2e-browsers.yml`, Actions → «E2E in all browsers» → Run workflow):
+
+| Проект     | Движок                                                                                                                                       | Что эмулирует                                   |
+| ---------- | -------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------- |
+| `chromium` | Chromium; локально установленный Google Chrome (`channel: chrome`), в CI встроенный Chromium Playwright через `E2E_BROWSER_CHANNEL=chromium` | настольный браузер 1280×720                     |
+| `webkit`   | WebKit Playwright (`devices["Desktop Safari"]`)                                                                                              | настольный Safari 1280×720                      |
+| `iphone`   | WebKit Playwright (`devices["iPhone 15"]`)                                                                                                   | экран, user agent, touch и `isMobile` iPhone 15 |
+| `pixel`    | Chromium (`devices["Pixel 7"]`), канал как у `chromium`                                                                                      | экран, user agent, touch и `isMobile` Pixel 7   |
+
+Один проект: `pnpm test:e2e:mock --project webkit`. Браузеры ставятся один раз: `pnpm exec playwright install chromium webkit`. Живой testlab-прогон (`TESTLAB_BASE_URL`) по-прежнему использует только `chromium`.
+
+Ограничения. WebKit Playwright — это сборка движка WebKit, а не iOS Safari: он не воспроизводит системный запрос доступа к микрофону iOS, настройки разрешений iOS, Chrome для iOS, встроенные браузеры приложений (Telegram, Instagram и т. п.) и поведение настоящего устройства. Профили `iphone` и `pixel` меняют размер экрана, user agent и touch, но не операционную систему. Микрофон во всех проектах заменён заглушкой; реальный звук не записывается.
+
+Пропуски по проектам названы причиной из `e2e/projects.mjs`:
+
+- в `iphone` и `pixel` пропускаются тесты, которые опираются на настольную раскладку при размере окна по умолчанию (`desktopLayoutOnly`): на ширине телефона приложение сразу открывает первую тему без списка тем. Это `mocked.spec.mjs` (полный поток практики), `feedback-activity.spec.mjs` (вариант `desktop`), `lazy-panels.spec.mjs` (загрузка разделов по требованию) и семь тестов `network.spec.mjs`, начинающихся со списка тем;
+- в `webkit` и `iphone` помечены `fixme` два дефекта WebKit: повтор загрузки раздела после сбоя загрузки чанка (`webkitLazyRetry`) и переполнение карточки эксперимента распознавания на 320px (`webkitSelectOverflow`). Метку снимают после исправления приложения.
+
+`microphone-failures.spec.mjs` проверяет поведение при ошибках микрофона через заглушки: `getUserMedia` отклоняется с `NotAllowedError` и с `NotFoundError`, и отсутствует `navigator.mediaDevices` (нет API записи). Тексты кнопок, от которых зависит спек, собраны в одном объекте `labels` в начале файла.
+
+## Метрики
 
 Для сопоставимого набора из 30 измеренных проходов с тремя прогревами на каждый вариант раскладки:
 

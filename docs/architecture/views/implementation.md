@@ -12,6 +12,7 @@ Shows where modules live in the repository and how they are built and checked.
 ├── .githooks/, .gitleaks.toml  secret scanning before every commit
 ├── justfile                    one entry point for every check
 ├── .github/workflows/ci.yml    continuous integration
+├── .github/workflows/e2e-browsers.yml  Mocked e2e in all browser projects, nightly and on demand
 ├── .github/workflows/deploy.yml  Terraform plan/apply and production deploy after owner approval (ADR-0010)
 ├── .github/workflows/android-release.yml  Hand-started Android release to a Play testing track (ADR-0012)
 ├── infra/                      Terraform: Vercel projects and variables, Supabase Auth settings
@@ -46,12 +47,12 @@ Shows where modules live in the repository and how they are built and checked.
 | Layer enforcement | import-linter (`just backend-arch`), contracts in `backend/pyproject.toml` | Existing |
 | Frontend language and build | TypeScript strict, Vite, pnpm | Existing |
 | Frontend lint and format | Biome formats (`frontend/biome.json`, `pnpm format`; `pnpm lint` fails on unformatted code); ESLint lints, because the React hooks rules (including set-state-in-effect) and the C-20 `fetch` rule have no full Biome equivalent | Done (Phase 1) |
-| Frontend tests | Vitest + Testing Library; Playwright with mocked API | Existing |
+| Frontend tests | Vitest + Testing Library; Playwright with mocked API: `just e2e` runs desktop Chromium and is the pull-request job `E2E (mocked)`; `just e2e-all` runs four Playwright projects, nightly and on demand in `.github/workflows/e2e-browsers.yml`: desktop Chromium, desktop WebKit, the iPhone 15 profile (WebKit) and the Pixel 7 profile (Chromium). Per-project skips and known-defect `fixme` marks name a reason from `frontend/e2e/projects.mjs`. Playwright WebKit is not iOS Safari: it does not reproduce iOS permission prompts, Chrome for iOS or in-app browsers, and the device profiles change screen size, user agent and touch, not the operating system (`frontend/e2e/README.md`) | Existing |
 | Frontend boundary enforcement | dependency-cruiser (`frontend/.dependency-cruiser.cjs`, part of `pnpm lint`) and ESLint `no-restricted-globals` for `fetch` | Done (Phase 4) |
 | Styling | Tailwind v4 tokens (`src/shared/styles/tokens.css`, the light "tea on the Bosphorus ferry" world, DESIGN.md), the Alegreya Sans display face (`@fontsource/alegreya-sans`) and shadcn/ui components (`src/shared/ui`); the inherited global CSS sits in a lower cascade layer until each screen is migrated | In progress (Phase 4) |
 | Secret scanning | gitleaks through `scripts/guard/check-secrets.sh` | Existing (local hook and CI) |
 | One command for all checks | `just check` (`justfile`) | Existing; the frontend recipes need dependencies installed |
-| Continuous integration | GitHub Actions, `.github/workflows/ci.yml`, path-filtered | Existing; not yet run on GitHub |
+| Continuous integration | GitHub Actions, `.github/workflows/ci.yml`, path-filtered; `.github/workflows/e2e-browsers.yml` runs the mocked e2e suite in all browser projects nightly and on demand | Existing; not yet run on GitHub |
 
 ## Context
 

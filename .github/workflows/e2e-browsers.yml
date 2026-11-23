@@ -1,0 +1,38 @@
+name: E2E in all browsers
+
+# The mocked browser suite in every Playwright project (desktop Chromium, desktop WebKit, iPhone 15 and Pixel 7
+# profiles). Pull requests run only Chromium (ci.yml) to stay fast; this runs every night and on demand.
+# No secrets, no backend, no AI provider: every API response is mocked in the specs.
+on:
+  schedule:
+    - cron: "0 2 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: e2e-browsers
+  cancel-in-progress: true
+
+jobs:
+  e2e:
+    name: E2E (all browsers)
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: frontend/pnpm-lock.yaml
+      - uses: extractions/setup-just@v3
+      - run: just frontend-install
+      - run: cd frontend && pnpm exec playwright install --with-deps chromium webkit
+      - run: just e2e-all
+        env:
+          E2E_BROWSER_CHANNEL: chromium

@@ -3,6 +3,7 @@ import { readFileSync } from "node:fs";
 import { captureMetrics } from "./metrics.mjs";
 import { installSyntheticMicrophone, runPracticeFlow } from "./flow.mjs";
 import { tokenColor } from "./tokens.mjs";
+import { desktopLayoutOnly } from "./projects.mjs";
 const releaseVersion = JSON.parse(readFileSync(new URL("../package.json", import.meta.url), "utf8"))
   .version.split(".")
   .slice(0, 2)
@@ -262,14 +263,16 @@ for (const { label, typed, normalized } of [
   { label: "mixed", typed: "Žеlim da otvorim račun.", normalized: "Žеlim da otvorim račun." },
 ]) {
   for (let sample = -warmups; sample < measuredSamples; sample += 1) {
-    test(`mocked complete practice flow: ${label} ${sample < 0 ? `warmup ${-sample}` : `sample ${sample + 1}`}`, async ({ page }) => {
+    test(`mocked complete practice flow: ${label} ${sample < 0 ? `warmup ${-sample}` : `sample ${sample + 1}`}`, async ({ page, isMobile, browserName }) => {
+      test.skip(isMobile, desktopLayoutOnly);
       const submitted = [];
       await mockApp(page, submitted);
       const saveMetrics = captureMetrics(page);
       await page.goto("/?perf=1");
       await runPracticeFlow(page, { topic: /В банке/, transcript: typed, firstPhrase: "Я хочу открыть счёт.", expectedScore: "96%" });
       expect(submitted).toEqual([normalized]);
-      if (sample >= 0) await saveMetrics(`mock-${label}-${sample + 1}`);
+      // Metrics are comparable only in desktop Chromium; other projects would overwrite the same files.
+      if (sample >= 0 && browserName === "chromium") await saveMetrics(`mock-${label}-${sample + 1}`);
     });
   }
 }

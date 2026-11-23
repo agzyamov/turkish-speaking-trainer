@@ -2,6 +2,7 @@ import { expect, test } from "@playwright/test";
 import { installAccountRoutes } from "./accountRoutes.mjs";
 import { tokenColor } from "./tokens.mjs";
 import { installSyntheticMicrophone } from "./flow.mjs";
+import { desktopLayoutOnly } from "./projects.mjs";
 
 const topic = {
   id: "bank",
@@ -141,7 +142,8 @@ async function startPractice(page) {
   await expect(page.locator(".practice-stage .interactive-phrase")).toBeVisible();
 }
 
-test("disconnected topics request exposes an explicit retry", async ({ page }) => {
+test("disconnected topics request exposes an explicit retry", async ({ page, isMobile }) => {
+  test.skip(isMobile, desktopLayoutOnly);
   const state = await installApp(page, { failTopics: true });
   await expect(page.getByRole("status", { name: "Backend недоступен" })).toBeVisible();
   await page.getByRole("button", { name: "Повторить загрузку тем" }).click();
@@ -162,7 +164,8 @@ async function submit(page) {
   await page.getByRole("button", { name: "Проверить ответ" }).click();
 }
 
-test("failed session start can be retried from the selected topic", async ({ page }) => {
+test("failed session start can be retried from the selected topic", async ({ page, isMobile }) => {
+  test.skip(isMobile, desktopLayoutOnly);
   const state = await installApp(page, { failStart: true });
   await expect(page.getByRole("alert")).toContainText("Не удалось подготовить");
   await page
@@ -173,7 +176,8 @@ test("failed session start can be retried from the selected topic", async ({ pag
   expect(state.start).toBe(2);
 });
 
-test("transcription network failure leaves recording retry available", async ({ page }) => {
+test("transcription network failure leaves recording retry available", async ({ page, isMobile }) => {
+  test.skip(isMobile, desktopLayoutOnly);
   const state = await installApp(page, { failTranscription: true });
   await startPractice(page);
   await page.getByRole("button", { name: "Ответить голосом" }).click();
@@ -189,7 +193,8 @@ test("transcription network failure leaves recording retry available", async ({ 
   expect(state.transcription).toBe(2);
 });
 
-test("disconnected attempt preserves the draft and retries with the same ID once", async ({ page }) => {
+test("disconnected attempt preserves the draft and retries with the same ID once", async ({ page, isMobile }) => {
+  test.skip(isMobile, desktopLayoutOnly);
   const state = await installApp(page, { failAttempt: true });
   await startPractice(page);
   await transcribeSyntheticAnswer(page);
@@ -204,7 +209,8 @@ test("disconnected attempt preserves the draft and retries with the same ID once
   expect(state.savedAttempts).toBe(1);
 });
 
-test("failed next-phrase prefetch retries with the same request ID", async ({ page }) => {
+test("failed next-phrase prefetch retries with the same request ID", async ({ page, isMobile }) => {
+  test.skip(isMobile, desktopLayoutOnly);
   const state = await installApp(page, { failNext: true });
   await startPractice(page);
   await transcribeSyntheticAnswer(page);
@@ -217,7 +223,8 @@ test("failed next-phrase prefetch retries with the same request ID", async ({ pa
   expect(state.next[1].client_request_id).toBe(state.next[0].client_request_id);
 });
 
-test("late next-phrase response after leaving the session is ignored", async ({ page }) => {
+test("late next-phrase response after leaving the session is ignored", async ({ page, isMobile }) => {
+  test.skip(isMobile, desktopLayoutOnly);
   let releaseNext;
   const pendingNext = new Promise(resolve => {
     releaseNext = resolve;
@@ -238,7 +245,8 @@ async function json(route, value) {
   await route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(value) });
 }
 
-test("foreign STT letters remain editable and block grading", async ({ page }) => {
+test("foreign STT letters remain editable and block grading", async ({ page, isMobile }) => {
+  test.skip(isMobile, desktopLayoutOnly);
   const state = await installApp(page, { reviewTranscript: "Платячу банковном картицом." });
   await startPractice(page);
   await page.getByRole("button", { name: "Ответить голосом" }).click();
