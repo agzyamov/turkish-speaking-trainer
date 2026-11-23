@@ -122,6 +122,13 @@ variable "support_email" {
   type        = string
 }
 
+variable "review_login_email" {
+  description = "Email of the Supabase user that app-store reviewers sign in as. Empty switches review sign-in off. A production secret, sensitive so public CI logs hide it."
+  type        = string
+  default     = ""
+  sensitive   = true
+}
+
 variable "ai_monthly_budget_usd" {
   description = "Hard cap on AI spend per UTC month across both providers (ADR-0002)."
   type        = number

@@ -79,6 +79,9 @@ locals {
     TARGET_LANGUAGE_CODE      = ["tr", local.everywhere, false]
     AI_MONTHLY_BUDGET_USD     = [tostring(var.ai_monthly_budget_usd), local.everywhere, false]
     AI_PRICE_TABLE            = [jsonencode(var.ai_price_table), local.everywhere, false]
+    }, var.review_login_email == "" ? {} : {
+    # Store reviewers sign in with the alias "turktalkreview"; the password lives only in Supabase.
+    REVIEW_LOGIN_EMAIL = [var.review_login_email, ["production"], true]
     }, var.telegram_bot_token == "" ? {} : {
     TELEGRAM_BOT_TOKEN = [var.telegram_bot_token, ["production"], true]
     TELEGRAM_CHAT_ID   = [var.telegram_chat_id, ["production"], false]

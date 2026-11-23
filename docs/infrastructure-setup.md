@@ -42,6 +42,7 @@ What the owner does once so that CI can manage and deploy TurkTalk (Phase 5, ADR
 | `ELEVENLABS_API_KEY` | ElevenLabs key |
 | `GOOGLE_CLIENT_SECRET` | Google OAuth client secret |
 | `ADMIN_EMAILS` | The owner's sign-in email (comma-separated if several) |
+| `REVIEW_LOGIN_EMAIL` | Optional. Email of a Supabase user created for Google Play reviewers: Authentication → Users → Add user, with a long random password and "Auto Confirm User" ticked; it must not be one of `ADMIN_EMAILS`. When set, "Review access" on the sign-in screen accepts the username `turktalkreview` and that user's password; when empty it answers "unavailable". A secret so the address stays out of public logs |
 | `TELEGRAM_BOT_TOKEN` | Optional, admin notifications |
 
 **Variables** (Settings → Secrets and variables → Actions → Variables; not secret, visible in public logs):

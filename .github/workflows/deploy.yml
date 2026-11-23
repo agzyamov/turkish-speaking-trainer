@@ -114,6 +114,7 @@ jobs:
           TF_VAR_elevenlabs_api_key: ${{ secrets.ELEVENLABS_API_KEY }}
           TF_VAR_google_client_secret: ${{ secrets.GOOGLE_CLIENT_SECRET }}
           TF_VAR_admin_emails: ${{ secrets.ADMIN_EMAILS }}
+          TF_VAR_review_login_email: ${{ secrets.REVIEW_LOGIN_EMAIL }}
           TF_VAR_telegram_bot_token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
         # The plan is printed (secrets show as "(sensitive)") and exactly that plan is applied.
         run: |
