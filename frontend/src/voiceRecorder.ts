@@ -9,6 +9,25 @@ export function supportsVoiceRecording(): boolean {
   return typeof MediaRecorder !== "undefined" && Boolean(navigator.mediaDevices?.getUserMedia);
 }
 
+/**
+ * Why the microphone could not be started. "denied": the browser, the device or the app hosting the
+ * page refused access (possibly without showing a prompt); "unsupported": this browser has no
+ * recording API; "other": no device, device busy, timeout or a recorder failure.
+ */
+export type MicrophoneFailure = "denied" | "unsupported" | "other";
+
+export class VoiceRecordingUnsupportedError extends Error {
+  override name = "VoiceRecordingUnsupportedError";
+}
+
+export function microphoneFailureOf(error: unknown): MicrophoneFailure {
+  const name = typeof error === "object" && error !== null && "name" in error ? String(error.name) : "";
+  if (name === "VoiceRecordingUnsupportedError") return "unsupported";
+  // PermissionDeniedError is the legacy name some embedded webviews still use.
+  if (name === "NotAllowedError" || name === "SecurityError" || name === "PermissionDeniedError") return "denied";
+  return "other";
+}
+
 export class VoiceRecorder {
   private stream?: MediaStream;
   private recorder?: MediaRecorder;
@@ -18,7 +37,7 @@ export class VoiceRecorder {
   private discard = false;
 
   async start(): Promise<void> {
-    if (!supportsVoiceRecording()) throw new Error("Voice recording is not supported in this browser");
+    if (!supportsVoiceRecording()) throw new VoiceRecordingUnsupportedError("Voice recording is not supported in this browser");
 
     const pendingStream = navigator.mediaDevices.getUserMedia({
       audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true },

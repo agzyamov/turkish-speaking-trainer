@@ -5,7 +5,8 @@ import { transcribeAudio } from "../api/training";
 import type { Exercise } from "../types/training";
 
 const recorder = { start: vi.fn(), finish: vi.fn(), stop: vi.fn() };
-vi.mock("../voiceRecorder", () => ({
+vi.mock("../voiceRecorder", async original => ({
+  microphoneFailureOf: (await original<typeof import("../voiceRecorder")>()).microphoneFailureOf,
   VoiceRecorder: vi.fn(function VoiceRecorder() {
     return recorder;
   }),
@@ -82,6 +83,21 @@ it("interrupts a recording in progress with a message, and does nothing when idl
   expect(recorder.stop).toHaveBeenCalled();
   expect(hook.result.current.voiceState).toBe("error");
   expect(onError).toHaveBeenLastCalledWith("app.recordingInterruptedPhraseAnswer");
+});
+
+it.each([
+  ["NotAllowedError", "app.microphoneBlocked"],
+  ["SecurityError", "app.microphoneBlocked"],
+  ["VoiceRecordingUnsupportedError", "practice.voice.unavailable"],
+  ["NotFoundError", "app.microphoneFailed"],
+  ["NotReadableError", "app.microphoneFailed"],
+])("reports a microphone start failure named %s as %s", async (name, message) => {
+  recorder.start.mockRejectedValue(Object.assign(new Error("failed"), { name }));
+  const { hook, onError } = setup();
+  await act(() => hook.result.current.startVoice());
+  expect(hook.result.current.voiceState).toBe("error");
+  expect(recorder.stop).toHaveBeenCalled();
+  expect(onError).toHaveBeenLastCalledWith(message);
 });
 
 it("hands over raw text without timing when the transcript needs review", async () => {

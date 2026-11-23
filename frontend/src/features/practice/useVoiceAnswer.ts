@@ -7,8 +7,22 @@ import { transcriptionErrorMessage } from "../../transcriptionError";
 import type { AssistanceDraft } from "../../TranscriptionAssistanceView";
 import { hasUnexpectedLetterScript, latinForEvaluation } from "../../turkishText";
 import type { AttemptTimings, Exercise } from "../../types/training";
-import { VoiceRecorder } from "../../voiceRecorder";
+import { Capacitor } from "@capacitor/core";
+import { microphoneFailureOf, VoiceRecorder, type MicrophoneFailure } from "../../voiceRecorder";
 import type { VoiceState } from "./AnswerActions";
+
+const microphoneFailureMessages: Record<MicrophoneFailure, string> = {
+  denied: "app.microphoneBlocked",
+  unsupported: "practice.voice.unavailable",
+  other: "app.microphoneFailed",
+};
+
+// The Android app has no browser or site to point at: there the fix is the app permission.
+const nativeMicrophoneFailureMessages: Record<MicrophoneFailure, string> = {
+  denied: "app.microphoneBlockedNative",
+  unsupported: "practice.voice.unavailableNative",
+  other: "app.microphoneFailed",
+};
 
 /**
  * Recording a spoken answer and transcribing it. Every recording and transcription carries a voice
@@ -131,12 +145,13 @@ export function useVoiceAnswer({
     try {
       await recorder.start();
       if (voiceEpochRef.current === epoch && voiceRef.current === recorder) setVoiceState("recording");
-    } catch {
+    } catch (error) {
       recorder.stop();
       if (voiceEpochRef.current !== epoch) return;
       if (voiceRef.current === recorder) voiceRef.current = undefined;
       setVoiceState("error");
-      onError("app.couldNotAccessMicrophone");
+      const messages = Capacitor.isNativePlatform() ? nativeMicrophoneFailureMessages : microphoneFailureMessages;
+      onError(messages[microphoneFailureOf(error)]);
     }
   }
 
