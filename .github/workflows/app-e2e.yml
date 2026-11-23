@@ -1,0 +1,62 @@
+name: App E2E (iOS)
+
+# The native iOS app on a simulator, driven by the Maestro flows in frontend/maestro. It signs in with the
+# review account against production and stops before anything that calls a paid AI provider (no answer is
+# graded by a model, no recording is sent). macOS runners cost more, so this runs nightly and on demand,
+# not on pull requests.
+on:
+  schedule:
+    - cron: "30 2 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: app-e2e-ios
+  cancel-in-progress: true
+
+jobs:
+  ios:
+    name: App E2E (iOS simulator)
+    runs-on: macos-15
+    timeout-minutes: 60
+    env:
+      MAESTRO_VERSION: "2.12.1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: frontend/pnpm-lock.yaml
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+      - uses: extractions/setup-just@v3
+      # Capacitor 8 needs Xcode 26 or later; take the newest Xcode on the image.
+      - name: Select Xcode
+        run: |
+          xcode="$(find /Applications -maxdepth 1 -name "Xcode_*.app" | sort -V | tail -1)"
+          sudo xcode-select -s "$xcode/Contents/Developer"
+          xcodebuild -version
+      - run: just frontend-install
+      - name: Install Maestro
+        run: |
+          curl -fsSL "https://get.maestro.mobile.dev" | bash
+          echo "$HOME/.maestro/bin" >> "$GITHUB_PATH"
+      - name: Build the simulator app
+        run: scripts/build-ios.sh sim
+      # Runners have no audio input, so flows tagged needs-microphone run on the owner's Mac only.
+      # Do not upload Maestro's debug output as an artifact: it holds the typed text (masked locally by
+      # scripts/test-app.sh, but keep it off GitHub anyway).
+      - name: Run the flows
+        run: scripts/test-app.sh ios
+        env:
+          MAESTRO_EXCLUDE_TAGS: wip,needs-microphone
+          MAESTRO_REVIEW_EMAIL: ${{ secrets.REVIEW_LOGIN_EMAIL }}
+          MAESTRO_REVIEW_PASSWORD: ${{ secrets.REVIEW_LOGIN_PASSWORD }}

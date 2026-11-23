@@ -17,6 +17,7 @@ One file per decision. Decisions are never edited to say something different; a 
 | [0011](ADR-0011-semantic-release.md) | Versions, tags and GitHub releases derived from commit titles by semantic-release, published by the approved production job | Accepted |
 | [0012](ADR-0012-android-releases-from-ci.md) | Android releases to Google Play testing tracks from a hand-started CI job, with keyless Google access | Accepted |
 | [0013](ADR-0013-ios-app.md) | An iOS app as a third Capacitor shell, with Sign in with Apple and the same Premium gift as Android | Accepted |
+| [0014](ADR-0014-native-app-tests-with-maestro.md) | End-to-end tests of the native iOS app with Maestro, signed in with a review account, nightly on macOS | Accepted |
 
 ## Template
 

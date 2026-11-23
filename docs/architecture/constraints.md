@@ -33,7 +33,7 @@ The **Enforced by** column says how a violation is caught. "Check" means an auto
 | C-11 | Model ids, prices and the budget amount come from configuration. None is written into business logic. An account is an administrator only if configuration names it; there are no built-in administrators. | Review; adapter tests assert env-provided model ids |
 | C-12 | Every model response the program acts on is validated against a Pydantic schema. Free text from a model is never parsed with regular expressions. | Review |
 | C-13 | Every external AI call has a timeout, a bounded number of retries and a safe error. | Review |
-| C-14 | Automated tests never call a real AI provider. They use the fakes in `backend/tests/fakes.py` and the fake-client adapters in `backend/tests/providers.py`. | Review; CI has no provider keys |
+| C-14 | Automated tests never call a real AI provider. They use the fakes in `backend/tests/fakes.py` and the fake-client adapters in `backend/tests/providers.py`. The native-app flows in `frontend/maestro/` run against production (ADR-0014) and must not reach a route that calls a provider (`interfaces/rest-api.md`): no finished recording to `/transcriptions`, no answer to `/attempts` (even an exact one, to keep the rule simple), no personal topics, `/topics*`, `/review-phrases/prepare` or `/feedback/transcribe`. | Review; CI has no provider keys; new Maestro flows are reviewed against this list |
 | C-15 | The model may not add skills to the skill catalogue. Unknown `skill_key` values in model output are discarded. | Existing tests |
 | C-16 | Prompts are separate versioned files in `backend/app/prompts`. A changed prompt gets a new version file. | Review |
 
@@ -58,7 +58,7 @@ The **Enforced by** column says how a violation is caught. "Check" means an auto
 | ID | Rule | Enforced by |
 |---|---|---|
 | C-23 | No new runtime infrastructure (containers, queues, caches, additional services or databases) and no new AI provider without an owner decision. | Review |
-| C-24 | No Android or iOS sync, build, version change or store submission without an explicit owner instruction. Uploads to Google Play from CI go only through the hand-started `android-release.yml` job, which waits for the owner's approval of the `play` environment (ADR-0012). | Review |
+| C-24 | No Android or iOS sync, build, version change or store submission without an explicit owner instruction. Exception (ADR-0014): unsigned iOS simulator builds into `artifacts/` for the automated app tests (`scripts/build-ios.sh sim`, `just e2e-ios`, the nightly `app-e2e.yml`); they are never distributed. Agents still ask before running `just e2e-ios`, because the flows sign in to production. Uploads to Google Play from CI go only through the hand-started `android-release.yml` job, which waits for the owner's approval of the `play` environment (ADR-0012). | Review |
 | C-25 | No production deployment without an explicit owner instruction. Production deploys only through the `production` job of `.github/workflows/deploy.yml`, which waits for the owner's approval (ADR-0010); Vercel projects are not connected to git. | GitHub environment protection; review |
 
 ### Secrets and agent workspace

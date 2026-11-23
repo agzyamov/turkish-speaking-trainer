@@ -1,0 +1,10 @@
+appId: com.turktalk.trainer
+name: Review account signs in and reaches the app
+---
+- runFlow: common/sign-in.yaml
+- assertNotVisible: "Не удалось войти. Проверьте данные и подключение и попробуйте снова."
+# The profile loaded: the topic list is shown (an older backend that rejects platform "ios" stops here).
+- extendedWaitUntil:
+    visible: "Банк.*"
+    timeout: 30000
+- assertNotVisible: "Не удалось загрузить профиль.*"

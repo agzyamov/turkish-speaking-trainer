@@ -1,0 +1,26 @@
+appId: com.turktalk.trainer
+name: Opening a topic and tapping the microphone starts recording
+tags:
+  - needs-microphone
+# Ends before "Завершить запись": finishing would send the audio for paid transcription.
+---
+- runFlow: common/sign-in.yaml
+- extendedWaitUntil:
+    visible: "Банк.*"
+    timeout: 30000
+- tapOn: "Банк.*"
+- extendedWaitUntil:
+    visible: "Ответить голосом"
+    timeout: 30000
+- tapOn: "Ответить голосом"
+# A real iPhone asks for the microphone on the first tap (Info.plist text). The simulator follows the
+# Mac's own microphone permission and may start recording without asking, so the prompt is optional
+# here; the prompt itself is checked on a device.
+- tapOn:
+    text: "Allow|Разрешить|OK"
+    optional: true
+- extendedWaitUntil:
+    visible: "Завершить запись"
+    timeout: 15000
+- assertNotVisible: "Не удалось включить микрофон.*"
+- stopApp
