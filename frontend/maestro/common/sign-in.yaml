@@ -1,0 +1,25 @@
+appId: com.turktalk.trainer
+name: Sign in with the review account (email and password from MAESTRO_REVIEW_EMAIL / MAESTRO_REVIEW_PASSWORD)
+---
+- launchApp:
+    clearState: true
+    permissions:
+      microphone: unset
+- tapOn:
+    text: "Cancel"
+    optional: true
+- extendedWaitUntil:
+    visible: "Вход для проверки"
+    timeout: 60000
+- tapOn: "Вход для проверки"
+- tapOn: "Имя пользователя или email"
+- inputText: ${MAESTRO_REVIEW_EMAIL}
+- tapOn: "Пароль"
+- inputText:
+    text: ${MAESTRO_REVIEW_PASSWORD}
+    label: "Type the review account password"
+# Enter submits the form; hideKeyboard is unreliable inside the iOS WebView.
+- pressKey: Enter
+- extendedWaitUntil:
+    notVisible: "Вход для проверки"
+    timeout: 30000

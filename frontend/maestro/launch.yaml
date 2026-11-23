@@ -1,0 +1,14 @@
+appId: com.turktalk.trainer
+name: App starts on the sign-in screen with Google and Apple buttons
+---
+- launchApp:
+    clearState: true
+# A system "Open in TurkTalk?" prompt left over from an earlier link would cover the app.
+- tapOn:
+    text: "Cancel"
+    optional: true
+- extendedWaitUntil:
+    visible: "Войти через Google"
+    timeout: 60000
+- assertVisible: "Добро пожаловать в TurkTalk"
+- assertVisible: "Войти через Apple"

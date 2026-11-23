@@ -72,6 +72,11 @@ e2e:
 e2e-all:
     cd frontend && pnpm test:e2e:mock
 
+# The native iOS app on a simulator: build it unsigned, then run the Maestro flows (frontend/maestro).
+e2e-ios:
+    scripts/build-ios.sh sim
+    scripts/test-app.sh ios
+
 # --- run locally -------------------------------------------------------------
 
 # Regenerate frontend/src/locales/phrases.en.json from the Turkish catalogue

@@ -32,6 +32,6 @@ App Store rules shape the design:
 - Apple limits the client secret to six months, so it has to be regenerated and the secret updated twice a year, or Apple sign-in stops working.
 - The privacy policy and terms name the iOS app and Apple as a sign-in provider.
 - Apple's reviewers need a way in: Google or Apple sign-in with their own account is open to anyone.
-- Release process, version numbers and CI for iOS are not covered yet; until then iOS builds are made by hand from `main`.
+- Release process, version numbers and CI for iOS releases are not covered yet; until then iOS builds are made by hand from `main`. The backend must be deployed before an iOS build reaches users: an older backend rejects `platform: "ios"` and the app cannot load the profile (found by the first simulator run). Automated simulator tests: ADR-0014.
 - Open, needs the owner's decision before App Store review: Apple requires account deletion that starts inside the app (Guideline 5.1.1(v)) and, for accounts created with Sign in with Apple, revoking the user's Apple tokens on deletion. Today deletion is requested by email from the account-deletion page and nothing revokes Apple tokens.
 - The iOS microphone prompt text in `Info.plist` is English only; a Russian `InfoPlist.strings` is still to be added in Xcode.

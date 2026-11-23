@@ -1,7 +1,10 @@
 #!/usr/bin/env bash
-# Prepares the iOS app (ADR-0013). Run only on the owner's instruction, like the Android build (C-24).
+# Prepares the iOS app (ADR-0013). Run only on the owner's instruction, like the Android build (C-24);
+# the unsigned `sim` build for the automated app tests is the C-24 exception (ADR-0014).
 #   scripts/build-ios.sh sync   build the web app in the native-app mode and copy it into frontend/ios
 #   scripts/build-ios.sh open   sync, then open the project in Xcode
+#   scripts/build-ios.sh sim    sync, then build an unsigned simulator app into artifacts/ios-build
+#                               (used by scripts/test-app.sh ios)
 # The web build uses the "android" Vite mode, which is the native-app build mode for both shells
 # (same .env.android, same checks in frontend/build/androidEnvironment.ts).
 # Needs macOS, pnpm and a full Xcode (not only the Command Line Tools); Capacitor 8 resolves the native
@@ -11,7 +14,7 @@
 set -euo pipefail
 
 mode="${1:-}"
-case "$mode" in sync|open) ;; *) echo "Usage: $0 sync|open" >&2; exit 1 ;; esac
+case "$mode" in sync|open|sim) ;; *) echo "Usage: $0 sync|open|sim" >&2; exit 1 ;; esac
 
 [ "$(uname -s)" = Darwin ] || { echo "The iOS app can only be built on macOS." >&2; exit 1; }
 
@@ -32,4 +35,11 @@ xcodebuild -checkFirstLaunchStatus >/dev/null 2>&1 || { echo "Finish the Xcode s
 
 if [ "$mode" = open ]; then
   (cd "$root/frontend" && pnpm exec cap open ios)
+fi
+
+if [ "$mode" = sim ]; then
+  (cd "$root/frontend/ios/App" && xcodebuild -project App.xcodeproj -scheme App -configuration Debug \
+    -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' \
+    -derivedDataPath "$root/artifacts/ios-build" CODE_SIGNING_ALLOWED=NO -quiet build)
+  echo "Simulator app: $root/artifacts/ios-build/Build/Products/Debug-iphonesimulator/App.app"
 fi
