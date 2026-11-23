@@ -10,3 +10,17 @@
 @import "./styles.css" layer(legacy);
 @import "tailwindcss/utilities.css" layer(utilities);
 @import "./shared/styles/tokens.css";
+
+/*
+ * iOS zooms the page in when a field with text smaller than 16px gets focus, and keeps it zoomed after
+ * the keyboard closes, which cuts off the screen edges in the iOS app (found by the Maestro flows). On
+ * touch screens fields are therefore never smaller than 16px. Unlayered on purpose, so it wins over
+ * utility classes on the field.
+ */
+@media (pointer: coarse) {
+  input,
+  select,
+  textarea {
+    font-size: max(1rem, 1em);
+  }
+}
