@@ -16,6 +16,7 @@ One file per decision. Decisions are never edited to say something different; a 
 | [0010](ADR-0010-infrastructure-as-code-and-ci-deploy.md) | Terraform in `infra/` with state in the project's Supabase Postgres; production deploys from CI after the owner's approval | Accepted |
 | [0011](ADR-0011-semantic-release.md) | Versions, tags and GitHub releases derived from commit titles by semantic-release, published by the approved production job | Accepted |
 | [0012](ADR-0012-android-releases-from-ci.md) | Android releases to Google Play testing tracks from a hand-started CI job, with keyless Google access | Accepted |
+| [0013](ADR-0013-ios-app.md) | An iOS app as a third Capacitor shell, with Sign in with Apple and the same Premium gift as Android | Accepted |
 
 ## Template
 

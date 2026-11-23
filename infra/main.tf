@@ -103,8 +103,8 @@ resource "vercel_project_environment_variables" "backend" {
 
 resource "supabase_settings" "auth" {
   project_ref = var.supabase_project_ref
-  # sensitive(): the JSON carries the Google secret and must never print in public CI logs.
-  auth = sensitive(jsonencode({
+  # sensitive(): the JSON carries the Google and Apple secrets and must never print in public CI logs.
+  auth = sensitive(jsonencode(merge({
     site_url = local.frontend_url
     uri_allow_list = join(",", [
       "${local.frontend_url}/",
@@ -114,5 +114,19 @@ resource "supabase_settings" "auth" {
     external_google_enabled   = true
     external_google_client_id = var.google_client_id
     external_google_secret    = var.google_client_secret
-  }))
+    # Sign in with Apple for the iOS app (ADR-0013); off until the owner sets the Services ID.
+    # A list expanded into merge(), not `cond ? {} : {...}`: the conditional would coerce both
+    # branches to map(string) and send external_apple_enabled as the string "true".
+    }, [for _ in(var.apple_client_id == "" ? [] : [1]) : {
+      external_apple_enabled   = true
+      external_apple_client_id = var.apple_client_id
+      external_apple_secret    = var.apple_secret
+  }]...)))
+
+  lifecycle {
+    precondition {
+      condition     = var.apple_client_id == "" || var.apple_secret != ""
+      error_message = "APPLE_CLIENT_ID is set but the production secret APPLE_SECRET is empty; Sign in with Apple would fail."
+    }
+  }
 }

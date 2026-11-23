@@ -332,6 +332,8 @@ class User(Base):
     role: Mapped[str] = mapped_column(String(20), default="user", index=True)
     access_tier: Mapped[str] = mapped_column(String(40), default="free", index=True)
     premium_payment_id: Mapped[str | None] = mapped_column(String(36))
+    # When the native-app Premium gift was granted. Despite the name it records the gift for both the
+    # Android and the iOS app (ADR-0013); the column keeps its name so no migration is needed.
     android_premium_granted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     assistance_enabled: Mapped[bool] = mapped_column(Boolean, default=False, server_default=false())
     registered_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now)

@@ -52,16 +52,29 @@ export function onAuthStateChange(callback: (session: Session | null) => void): 
   return () => data.subscription.unsubscribe();
 }
 
-export async function signInWithGoogle(redirectPath: "/" | "/app" = "/"): Promise<void> {
+/**
+ * Supabase OAuth sign-in. On the web the page redirects to the provider and back; in a native app the
+ * provider opens in the system browser and returns through the app's deep link (handled in initializeAuth).
+ */
+async function signInWithProvider(provider: "google" | "apple", redirectPath: "/" | "/app"): Promise<void> {
   const native = Capacitor.isNativePlatform();
   const webPath = /^\/app\/?$/.test(window.location.pathname) ? "/app" : redirectPath;
   const redirectTo = native ? nativeRedirectUrl : `${window.location.origin}${webPath}`;
   const { data, error } = await getSupabase().auth.signInWithOAuth({
-    provider: "google",
+    provider,
     options: { redirectTo, skipBrowserRedirect: native },
   });
   if (error) throw error;
   if (native && data.url) await Browser.open({ url: data.url });
+}
+
+export function signInWithGoogle(redirectPath: "/" | "/app" = "/"): Promise<void> {
+  return signInWithProvider("google", redirectPath);
+}
+
+/** Sign in with Apple, offered in the iOS app next to Google (App Store guideline 4.8, ADR-0013). */
+export function signInWithApple(redirectPath: "/" | "/app" = "/"): Promise<void> {
+  return signInWithProvider("apple", redirectPath);
 }
 
 export async function signOut(): Promise<void> {

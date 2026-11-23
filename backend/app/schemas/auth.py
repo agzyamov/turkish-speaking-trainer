@@ -48,8 +48,10 @@ class UserPreferences(BaseModel):
 
 
 class AndroidPremiumClaim(BaseModel):
+    """The native-app Premium claim. Named after Android, its first platform; iOS sends it too (ADR-0013)."""
+
     model_config = ConfigDict(extra="forbid")
-    platform: Literal["android"]
+    platform: Literal["android", "ios"]
 
 
 class CurrentUserResponse(BaseModel):

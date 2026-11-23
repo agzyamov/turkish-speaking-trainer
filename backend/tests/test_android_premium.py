@@ -34,6 +34,16 @@ def test_web_stays_free_until_android_claim_and_web_then_sees_premium(api_client
     assert other.access_tier == 'free' and other.android_premium_granted_at is None
 
 
+def test_ios_app_claims_the_same_permanent_premium(api_client, db_session):
+    assert api_client.get('/api/auth/me').json()['access_tier'] == 'free'
+    response = api_client.post('/api/auth/me/android-premium', json={'platform': 'ios'})
+    assert response.status_code == 200
+    assert response.headers['cache-control'] == 'no-store'
+    assert response.json()['access_tier'] == 'premium'
+    assert db_session.get(User, LEGACY_USER_ID).android_premium_granted_at is not None
+    assert api_client.get('/api/auth/me').json()['access_tier'] == 'premium'
+
+
 def test_new_android_account_gets_permanent_premium(db_session):
     service = UserService(db_session)
     user = service.sync(AuthenticatedIdentity('11111111-1111-1111-1111-111111111111', 'native@example.invalid', None, None))
@@ -44,7 +54,18 @@ def test_new_android_account_gets_permanent_premium(db_session):
     assert service.current_response(db_session.get(User, user.id)).access_tier == 'premium'
 
 
-@pytest.mark.parametrize('body', [{}, {'platform': 'web'}, {'platform': 'android', 'user_id': 'other'}])
+@pytest.mark.parametrize(
+    'body',
+    [
+        {},
+        {'platform': 'web'},
+        {'platform': 'iOS'},
+        {'platform': 'ipados'},
+        {'platform': None},
+        {'platform': 'android', 'user_id': 'other'},
+        {'platform': 'ios', 'user_id': 'other'},
+    ],
+)
 def test_claim_validates_payload(api_client, body):
     assert api_client.post('/api/auth/me/android-premium', json=body).status_code == 422
     assert api_client.get('/api/auth/me').json()['access_tier'] == 'free'

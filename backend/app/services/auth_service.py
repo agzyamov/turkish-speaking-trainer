@@ -204,7 +204,7 @@ class UserService:
 
     def grant_android_premium(self, user: User) -> User:
         # A permanent account benefit, independent of any provisional web payment.
-        # The native client requests it explicitly; this is not Play attestation.
+        # The native client (Android or iOS) requests it explicitly; this is not Play or App Store attestation.
         locked = self.users.lock(user.id)
         if locked is None:
             raise PermissionError("Account is unavailable")

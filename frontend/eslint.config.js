@@ -5,7 +5,21 @@ import reactRefresh from "eslint-plugin-react-refresh";
 import tseslint from "typescript-eslint";
 
 export default tseslint.config(
-  { ignores: ["dist", "dist-*", "test-results", "node_modules", ".venv", "coverage", "android/**/build", "android/app/src/main/assets/public", "android/app/src/lab/assets"] },
+  {
+    ignores: [
+      "dist",
+      "dist-*",
+      "test-results",
+      "node_modules",
+      ".venv",
+      "coverage",
+      "android/**/build",
+      "android/app/src/main/assets/public",
+      "android/app/src/lab/assets",
+      "ios/App/App/public",
+      "ios/**/build",
+    ],
+  },
   {
     extends: [js.configs.recommended, ...tseslint.configs.recommended],
     files: ["**/*.{ts,tsx}"],

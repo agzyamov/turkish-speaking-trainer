@@ -36,6 +36,9 @@
   --color-google: #ffffff;
   --color-google-ink: #26352d;
   --color-google-line: #d5ddd8;
+  /* Sign in with Apple button (iOS only): Apple's black style, not part of the palette. */
+  --color-apple: #000000;
+  --color-apple-ink: #ffffff;
 
   --container-settings: 980px;
   /* Desktop workspace: topics column plus practice column. */

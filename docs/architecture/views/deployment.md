@@ -9,7 +9,8 @@ Shows where each component runs and what configuration it needs.
 | Frontend web | Vercel project (static) | `frontend/` | `VITE_API_BASE_URL` (required: `vercel.json` has no API proxy, the browser calls the backend directly under CORS), `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`, `VITE_EMAIL_OTP_ENABLED`, `VITE_PUBLIC_APP_URL`, `VITE_SUPPORT_EMAIL` |
 | Backend API | Vercel project (Python function, 60 s limit) | `backend/` | `APP_ENV`, `DATABASE_URL`, `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY`, `CORS_ALLOWED_ORIGIN_REGEX`, `BRAND_NAME`, `PUBLIC_APP_URL`, `ADMIN_EMAILS`, `REVIEW_LOGIN_EMAIL` (optional), `TELEGRAM_*`, provider and budget settings below |
 | Database | Supabase PostgreSQL (transaction pooler) | Alembic migrations in `backend/alembic` | managed by Supabase |
-| Auth | Supabase Auth | Supabase dashboard | Google OAuth client, email sender |
+| Auth | Supabase Auth | Supabase dashboard | Google OAuth client, Apple Services ID and client secret (optional, ADR-0013), email sender |
+| iOS app | App Store (not yet published); built and uploaded by hand from Xcode with the owner's Apple Developer account (ADR-0013) | `frontend/ios` | Bundle id `com.turktalk.trainer`; same native build settings as Android (`frontend/.env.android`); Sign in with Apple needs the Apple provider configured in Supabase |
 | Android app | Google Play (not yet published for this product); uploads to testing tracks by the hand-started `android-release.yml` job in the `play` environment (ADR-0012) | `frontend/android` | Package `com.turktalk.trainer`; API and Supabase URLs and the support mailbox fixed at build time from `frontend/.env.android`; upload key and Google federation settings in the `play` environment and repository variables |
 
 Provider and budget settings on the backend (Planned, Phase 2):

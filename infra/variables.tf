@@ -97,6 +97,19 @@ variable "google_client_secret" {
   sensitive = true
 }
 
+variable "apple_client_id" {
+  description = "Apple Services ID used by Supabase Auth for Sign in with Apple (ADR-0013). Empty keeps Apple sign-in off."
+  type        = string
+  default     = ""
+}
+
+variable "apple_secret" {
+  description = "Client secret (signed JWT) for Sign in with Apple. Apple limits it to six months, so it must be regenerated before it expires."
+  type        = string
+  sensitive   = true
+  default     = ""
+}
+
 variable "telegram_bot_token" {
   description = "Optional admin notifications."
   type        = string
