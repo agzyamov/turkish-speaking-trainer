@@ -1,0 +1,4 @@
+self-hosted-runner:
+  # The owner's Mac, used only by app-e2e.yml (schedule and manual runs; ADR-0014).
+  labels:
+    - turktalk-mac

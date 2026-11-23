@@ -19,7 +19,7 @@ scripts/test-app.sh ios microphone.yaml
 
 Нужны Xcode, Java 21 и Maestro (`brew install mobile-dev-inc/tap/maestro`). Почта и пароль тестового аккаунта берутся из Связки ключей (запись `turktalk-review-login`, её создаёт `scripts/create-review-account.sh`), в CI из секретов `REVIEW_LOGIN_EMAIL` и `REVIEW_LOGIN_PASSWORD`. Скрипт не печатает пароль; Maestro пишет набранный текст в свои отладочные логи, поэтому `scripts/test-app.sh` маскирует пароль в них и кладёт логи в `artifacts/maestro/last-run`.
 
-В CI сценарии запускаются каждую ночь и по кнопке: workflow `.github/workflows/app-e2e.yml` (Actions → «App E2E (iOS)» → Run workflow).
+В CI сценарии запускаются каждую ночь и по кнопке на маке владельца (свой раннер с меткой `turktalk-mac`): workflow `.github/workflows/app-e2e.yml` (Actions → «App E2E (iOS)» → Run workflow).
 
 Тестовая сборка (ADR-0014). `scripts/build-ios.sh sim` собирает веб-часть с `VITE_TEST_AUDIO=true`. В такой сборке:
 

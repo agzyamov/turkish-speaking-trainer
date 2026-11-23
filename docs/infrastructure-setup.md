@@ -93,4 +93,10 @@ Still by hand in Supabase: the email-code template (`docs/email-code.html`) and 
   4. Generate the client secret (a JWT signed with that key; Supabase's Apple provider guide has a generator). Apple limits it to six months; put a reminder in the calendar to regenerate it.
   5. Set the repository variable `APPLE_CLIENT_ID` (the Services ID) and the production secret `APPLE_SECRET` (the JWT), from the owner's own terminal: `gh variable set APPLE_CLIENT_ID` and `gh secret set APPLE_SECRET --env production`. The next production deploy turns the Apple provider on (`infra/main.tf`); while the variable is empty it stays off, and the Apple button in the iOS app opens a Supabase "provider is not enabled" page.
   6. Build: `scripts/build-ios.sh sync`, then `scripts/build-ios.sh open`; in Xcode choose the team, run on a simulator or the iPhone, and for TestFlight use Product → Archive → Distribute. Builds happen only on the owner's instruction (C-24).
+- Self-hosted Mac runner for the nightly iOS app tests (ADR-0014), set up once by the owner:
+  1. Prefer a separate macOS user for the runner, without the owner's Keychain, signing keys or browser sessions: a job can read whatever that user can.
+  2. GitHub → Settings → Actions → Runners → New self-hosted runner (macOS, ARM64); follow the commands as that user and add the label `turktalk-mac`. Install it as a service (`./svc.sh install && ./svc.sh start`) so it runs at night.
+  3. On that user: Xcode 26+ selected (`xcode-select -p`), Node 22 and pnpm, Java 21 (`brew install openjdk@21`), Maestro (`brew install mobile-dev-inc/tap/maestro`).
+  4. Settings → Actions → General: "Require approval for all external contributors" for fork pull requests. Never use the `turktalk-mac` label in a workflow that has a `pull_request` trigger: the repository is public.
+  5. Run Actions → "App E2E (iOS)" → Run workflow on `main` once to check it.
 - Live smoke test: set `ai_monthly_budget_usd = 1` in `infra/settings.auto.tfvars`, deploy, speak an answer, see the transcript and grade, check the spend ledger and the admin usage view, force the paused state, then set it back to 25.

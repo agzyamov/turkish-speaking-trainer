@@ -2,8 +2,12 @@ name: App E2E (iOS)
 
 # The native iOS app on a simulator, driven by the Maestro flows in frontend/maestro. It signs in with the
 # review account against production and stops before anything that calls a paid AI provider (no answer is
-# graded by a model; the test build transcribes its recording on the device, ADR-0014). macOS runners cost more, so this runs nightly and on demand,
-# not on pull requests.
+# graded by a model; the test build transcribes its recording on the device, ADR-0014). It runs nightly and on
+# demand on the owner's own Mac (self-hosted runner with the label "turktalk-mac").
+#
+# The repository is public. A self-hosted runner executes whatever a job gives it, so no workflow with a
+# pull_request trigger may ever use this runner: keep the triggers below to schedule and workflow_dispatch,
+# which only run code already on the default branch.
 on:
   schedule:
     - cron: "30 2 * * *"
@@ -19,10 +23,11 @@ concurrency:
 jobs:
   ios:
     name: App E2E (iOS simulator)
-    runs-on: macos-15
+    # Only jobs on the default branch reach the owner's Mac (scheduled runs always use it; a manual run
+    # from another branch is refused).
+    if: github.ref == 'refs/heads/main'
+    runs-on: [self-hosted, macOS, turktalk-mac]
     timeout-minutes: 60
-    env:
-      MAESTRO_VERSION: "2.12.1"
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
@@ -38,17 +43,14 @@ jobs:
           distribution: temurin
           java-version: "21"
       - uses: extractions/setup-just@v3
-      # Capacitor 8 needs Xcode 26 or later; take the newest Xcode on the image.
-      - name: Select Xcode
-        run: |
-          xcode="$(find /Applications -maxdepth 1 -name "Xcode_*.app" | sort -V | tail -1)"
-          sudo xcode-select -s "$xcode/Contents/Developer"
-          xcodebuild -version
+      # The Mac's selected Xcode is used as is (Capacitor 8 needs Xcode 26 or later).
+      - run: xcodebuild -version
       - run: just frontend-install
-      - name: Install Maestro
+      # Maestro is installed on the Mac once (brew install mobile-dev-inc/tap/maestro).
+      - name: Check Maestro
         run: |
-          curl -fsSL "https://get.maestro.mobile.dev" | bash
-          echo "$HOME/.maestro/bin" >> "$GITHUB_PATH"
+          echo "/opt/homebrew/bin" >> "$GITHUB_PATH"
+          PATH="/opt/homebrew/bin:$PATH" maestro --version
       - name: Build the simulator app
         run: scripts/build-ios.sh sim
       # The simulator app is the test build: it records a bundled phrase instead of the microphone (runners
