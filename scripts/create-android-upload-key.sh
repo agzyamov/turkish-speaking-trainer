@@ -21,6 +21,7 @@ keytool="${JAVA_HOME:+$JAVA_HOME/bin/}keytool"
 
 umask 077
 mkdir -p "$dir"
+set +x
 TURKTALK_UPLOAD_PASSWORD="$(openssl rand -base64 36)"
 export TURKTALK_UPLOAD_PASSWORD
 "$keytool" -genkeypair -keystore "$store" -storetype PKCS12 -alias "$alias_name" \
