@@ -7,7 +7,7 @@ Shows where each component runs and what configuration it needs.
 | Component | Runs on | Source | Configuration (names only; values live in the host, never in git) |
 |---|---|---|---|
 | Frontend web | Vercel project (static) | `frontend/` | `VITE_API_BASE_URL` (required: `vercel.json` has no API proxy, the browser calls the backend directly under CORS), `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`, `VITE_EMAIL_OTP_ENABLED`, `VITE_PUBLIC_APP_URL`, `VITE_SUPPORT_EMAIL` |
-| Backend API | Vercel project (Python function, 60 s limit) | `backend/` | `APP_ENV`, `DATABASE_URL`, `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY`, `CORS_ALLOWED_ORIGIN_REGEX`, `BRAND_NAME`, `PUBLIC_APP_URL`, `ADMIN_EMAILS`, `TELEGRAM_*`, provider and budget settings below |
+| Backend API | Vercel project (Python function, 60 s limit) | `backend/` | `APP_ENV`, `DATABASE_URL`, `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY`, `CORS_ALLOWED_ORIGIN_REGEX`, `BRAND_NAME`, `PUBLIC_APP_URL`, `ADMIN_EMAILS`, `REVIEW_LOGIN_EMAIL` (optional), `TELEGRAM_*`, provider and budget settings below |
 | Database | Supabase PostgreSQL (transaction pooler) | Alembic migrations in `backend/alembic` | managed by Supabase |
 | Auth | Supabase Auth | Supabase dashboard | Google OAuth client, email sender |
 | Android app | Google Play (not yet published for this product) | `frontend/android` | Package `com.turktalk.trainer`; API and Supabase URLs fixed at build time from `frontend/.env.android` |
