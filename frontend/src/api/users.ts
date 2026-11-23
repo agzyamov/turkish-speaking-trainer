@@ -1,7 +1,7 @@
 import { authenticatedFetch } from "../auth";
 import type { AdminUser, CurrentUser } from "../types/auth";
 import { apiUrl } from "./baseUrl";
-import { Capacitor } from "@capacitor/core";
+import { nativeAppPlatform } from "../shared/lib/platform";
 
 async function getJson<T>(path: string, signal?: AbortSignal): Promise<T> {
   const response = await authenticatedFetch(apiUrl(path), { signal });
@@ -10,17 +10,19 @@ async function getJson<T>(path: string, signal?: AbortSignal): Promise<T> {
 }
 
 export async function fetchCurrentUser(signal?: AbortSignal): Promise<CurrentUser> {
-  if (Capacitor.getPlatform() !== "android") return getJson<CurrentUser>("/api/auth/me", signal);
+  const platform = nativeAppPlatform();
+  if (!platform) return getJson<CurrentUser>("/api/auth/me", signal);
+  // Both native apps claim the Premium gift. The path keeps its Android name for released Android clients (ADR-0013).
   const response = await authenticatedFetch(apiUrl("/api/auth/me/android-premium"), {
     method: "POST",
     signal: signal ?? AbortSignal.timeout(15000),
     cache: "no-store",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ platform: "android" }),
+    body: JSON.stringify({ platform }),
   });
   if (!response.ok) throw new Error(`Backend returned ${response.status}`);
   const account = (await response.json()) as CurrentUser;
-  if (account.access_tier !== "premium") throw new Error("Android Premium activation failed");
+  if (account.access_tier !== "premium") throw new Error("Native app Premium activation failed");
   return account;
 }
 

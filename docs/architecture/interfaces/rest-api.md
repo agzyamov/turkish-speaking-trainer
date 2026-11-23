@@ -26,7 +26,7 @@ FastAPI generates the exact request and response schemas from `backend/app/schem
 | GET `/health` | Liveness | |
 | POST `/auth/review-login` | Password sign-in for the store review account | |
 | GET `/auth/me` | Profile, role, tier, daily usage | |
-| POST `/auth/me/android-premium` | Grants the Android premium tier | |
+| POST `/auth/me/android-premium` | Grants the native-app Premium tier; body `platform` is `android` or `ios` (ADR-0013) | |
 | GET, PATCH `/auth/me/preferences` | Soft-hint preference | |
 | GET `/admin/users` | Admin: users and their usage | |
 | GET `/admin/usage` | Admin: month-to-date AI spend and remaining budget | |

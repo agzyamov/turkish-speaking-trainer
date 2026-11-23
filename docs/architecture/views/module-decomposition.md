@@ -60,6 +60,7 @@ flowchart TB
 | platform | `voiceRecorder.ts`, `auth.ts`, `emailAuth.ts`, reward audio, Capacitor plugins | Existing; kept as is |
 | `landing-entry.tsx`, `LandingPage.tsx` | Marketing page, separate HTML entry | Existing |
 | `android/` | Capacitor Android project | Existing; re-identified in Phase 5 |
+| `ios/` | Capacitor iOS project: `Info.plist` microphone text and the auth link scheme (ADR-0013) | New |
 
 ### Outside the two applications
 

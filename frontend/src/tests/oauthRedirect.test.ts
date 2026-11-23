@@ -5,7 +5,7 @@ vi.mock("@capacitor/core", () => ({ Capacitor: { isNativePlatform: () => state.n
 vi.mock("@capacitor/browser", () => ({ Browser: { open: state.open } }));
 vi.stubEnv("VITE_SUPABASE_URL", "https://synthetic.supabase.co");
 vi.stubEnv("VITE_SUPABASE_PUBLISHABLE_KEY", "synthetic-public-key");
-const { signInWithGoogle } = await import("../auth");
+const { signInWithApple, signInWithGoogle } = await import("../auth");
 afterEach(() => {
   state.native = false;
   vi.clearAllMocks();
@@ -30,4 +30,23 @@ it("preserves the native callback and system browser", async () => {
   await signInWithGoogle("/app");
   expect(state.signInWithOAuth).toHaveBeenCalledWith({ provider: "google", options: { redirectTo: "com.turktalk.trainer://auth/callback", skipBrowserRedirect: true } });
   expect(state.open).toHaveBeenCalledWith({ url: "https://synthetic.supabase.co/auth/v1/authorize" });
+});
+
+it.each([false, true])("signs in with Apple through the same Supabase OAuth flow (native=%s)", async native => {
+  state.native = native;
+  const url = "https://synthetic.supabase.co/auth/v1/authorize?provider=apple";
+  state.signInWithOAuth.mockResolvedValue({ data: { url }, error: null });
+  await signInWithApple("/app");
+  expect(state.signInWithOAuth).toHaveBeenCalledWith({
+    provider: "apple",
+    options: { redirectTo: native ? "com.turktalk.trainer://auth/callback" : `${window.location.origin}/app`, skipBrowserRedirect: native },
+  });
+  expect(state.open).toHaveBeenCalledTimes(native ? 1 : 0);
+});
+
+it("does not open the browser when the SDK itself returns an Apple sign-in error", async () => {
+  state.native = true;
+  state.signInWithOAuth.mockResolvedValue({ data: { url: null }, error: new Error("Unsupported provider: provider is not enabled") });
+  await expect(signInWithApple("/app")).rejects.toThrow("provider is not enabled");
+  expect(state.open).not.toHaveBeenCalled();
 });

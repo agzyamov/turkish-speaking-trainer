@@ -19,6 +19,7 @@
           "frontend/dist-e2e/**",
           "frontend/dist/**",
           "frontend/android/app/src/main/assets/public/**",
+          "frontend/ios/App/App/public/**",
           "frontend/src/shared/styles/tokens.css"
         ],
         "createdAt": "2026-11-22T16:45:15.496Z",

@@ -8,7 +8,7 @@ Shows what runs and how the running parts communicate.
 flowchart LR
     subgraph device[Learner device]
         web[Web app in browser]
-        apk[Android app: Capacitor WebView]
+        apk[Android and iOS apps: Capacitor WebView]
     end
     subgraph vercel[Vercel]
         static[Static frontend + /api rewrite]
@@ -39,10 +39,11 @@ flowchart LR
 |---|---|---|
 | Web app | React single-page app; records audio with `MediaRecorder` | Existing |
 | Android app | The same build inside a Capacitor WebView; calls the backend by absolute URL | Existing |
+| iOS app | The same build inside a Capacitor WKWebView, like the Android app; adds Sign in with Apple through Supabase (ADR-0013) | New |
 | Static frontend | Serves the build; rewrites `/api/*` to the backend | Existing |
 | Backend function | Stateless FastAPI app, one invocation per request, 60 s limit | Existing |
 | PostgreSQL | All persistent state, including the usage ledger | Existing |
-| Supabase Auth | Issues user tokens (Google, email code, review password) | Existing |
+| Supabase Auth | Issues user tokens (Google, Apple in the iOS app, email code, review password) | Existing; Apple added by ADR-0013 |
 | Claude API | Grading, hints, phrase preparation, topic handling | Existing; not yet exercised against the live service |
 | ElevenLabs Scribe | Speech-to-text | Existing; not yet exercised against the live service |
 | Telegram | Admin notifications, including budget alerts | Existing |
@@ -61,7 +62,7 @@ Everything outside Vercel and Supabase is a third-party service the project does
 
 - Local development replaces PostgreSQL with SQLite and can replace both AI providers with fakes.
 - Testlab replaces Supabase Auth with a local fixture.
-- The Android app's API URL is fixed at build time.
+- The Android and iOS apps' API URL is fixed at build time.
 
 ## Rationale
 

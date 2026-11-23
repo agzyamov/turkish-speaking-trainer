@@ -12,8 +12,13 @@ afterEach(() => {
   setLanguage("ru");
 });
 
-it.each(["ru", "en"] as const)("never offers payment on Android, including recovery (%s)", language => {
-  vi.spyOn(Capacitor, "getPlatform").mockReturnValue("android");
+it.each([
+  ["android", "ru"],
+  ["android", "en"],
+  ["ios", "ru"],
+  ["ios", "en"],
+] as const)("never offers payment in the %s app, including recovery (%s)", (platform, language) => {
+  vi.spyOn(Capacitor, "getPlatform").mockReturnValue(platform);
   setLanguage(language);
   const { container, rerender } = render(<PremiumView {...props} active={false} />, { wrapper: QueryProvider });
   expect(screen.getByRole("status")).toHaveTextContent(language === "ru" ? "Восстанавливаем доступ Premium…" : "Restoring Premium access…");

@@ -2,14 +2,15 @@ import { useEffect, useState, type ReactNode } from "react";
 import type { Session } from "@supabase/supabase-js";
 import { t, translateIn, useLanguage, setLanguage, type TranslationOptions } from "../../i18n";
 import { fetchCurrentUser } from "../../api/users";
-import { initializeAuth, isAuthConfigured, onAuthStateChange, signInWithGoogle, signOut } from "../../auth";
+import { initializeAuth, isAuthConfigured, onAuthStateChange, signInWithApple, signInWithGoogle, signOut } from "../../auth";
 import type { CurrentUser } from "../../types/auth";
 import { EmailLogin } from "../../EmailLogin";
 import { ReviewLogin } from "../../ReviewLogin";
 import appLogo from "../../assets/app-logo.png?inline";
 import { cn } from "../../shared/lib/utils";
 import { Button } from "../../shared/ui/button";
-import { authCard, authLegal, authPage, googleButton } from "./authStyles";
+import { appleButton, authCard, authLegal, authPage, googleButton } from "./authStyles";
+import { nativeAppPlatform } from "../../shared/lib/platform";
 import { brand } from "../../shared/brand";
 
 function LoginLanguageButton() {
@@ -115,13 +116,13 @@ export function AuthGate({ children }: { children: (account: CurrentUser, onAcco
     };
   }, [authAttempt]);
 
-  async function login() {
+  async function login(provider: "google" | "apple") {
     setAuthError(undefined);
     try {
-      // The gate belongs to the app, so Google returns to the app rather than to the landing page at "/".
-      await signInWithGoogle("/app");
+      // The gate belongs to the app, so the provider returns to the app rather than to the landing page at "/".
+      await (provider === "apple" ? signInWithApple : signInWithGoogle)("/app");
     } catch {
-      setAuthError("app.couldNotOpenGoogle");
+      setAuthError(provider === "apple" ? "app.couldNotOpenApple" : "app.couldNotOpenGoogle");
     }
   }
 
@@ -171,9 +172,16 @@ export function AuthGate({ children }: { children: (account: CurrentUser, onAcco
           <LoginLanguageButton />
           <LoginCopy as="h1" text="app.welcome" options={{ app: brand.name }} />
           <LoginCopy as="p" text="app.signRegisterSaveProgress" />
-          <button className={googleButton} type="button" onClick={() => void login()}>
+          <button className={googleButton} type="button" onClick={() => void login("google")}>
             {t("app.signGoogle")}
           </button>
+          {/* App Store guideline 4.8: an app offering Google sign-in also offers Sign in with Apple (ADR-0013). */}
+          {nativeAppPlatform() === "ios" && (
+            <button className={appleButton} type="button" onClick={() => void login("apple")}>
+              <span aria-hidden="true">{"\uF8FF"}</span>
+              {t("app.signApple")}
+            </button>
+          )}
           <EmailLogin />
           <ReviewLogin />
           {authError && <p role="alert">{t(authError)}</p>}

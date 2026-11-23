@@ -8,7 +8,7 @@ import { PremiumBadge } from "./PremiumBadge";
 import twoCoffees from "./assets/premium/two-coffees.webp";
 import { PaymentForm } from "./PaymentForm";
 import { paymentRequest, type PaymentOptions } from "./api/payments";
-import { Capacitor } from "@capacitor/core";
+import { nativeAppPlatform } from "./shared/lib/platform";
 import { Button } from "./shared/ui/button";
 import { cn } from "./shared/lib/utils";
 
@@ -39,7 +39,9 @@ export function PremiumView({
   const setPaymentReported = (reported: boolean) => setUi(state => ({ ...state, paymentReported: reported }));
   const [catalogVersion, setCatalogVersion] = useState(0);
   const queryClient = useQueryClient();
-  const offerShown = !active && Capacitor.getPlatform() !== "android";
+  // The native apps sell nothing (store rules on digital goods): they receive Premium as a gift instead (ADR-0013).
+  const nativeApp = nativeAppPlatform() !== undefined;
+  const offerShown = !active && !nativeApp;
   // With no payment details configured on the backend (MANUAL_PAYMENTS empty) nothing can be bought: say so
   // instead of offering a form whose every method is disabled. While loading or on error, keep the button.
   const paymentOptions = useQuery({
@@ -52,7 +54,7 @@ export function PremiumView({
   return (
     <section className="premium-page mx-auto grid w-full max-w-[680px] gap-4 p-5 text-ink in-[.android-page]:p-0" aria-label={t("premium.title")}>
       {!active ? (
-        Capacitor.getPlatform() === "android" ? (
+        nativeApp ? (
           <p className="m-0 text-ink-soft" role="status">
             {t("premium.restoringPremiumAccess")}
           </p>

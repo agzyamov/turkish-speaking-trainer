@@ -6,6 +6,7 @@ How an element in one view corresponds to elements in the others.
 |---|---|---|---|
 | Web app | all frontend modules | `frontend/src` | Vercel static project, learner's browser |
 | Android app | all frontend modules + Capacitor project | `frontend/src`, `frontend/android` | Learner's phone |
+| iOS app | all frontend modules + Capacitor project | `frontend/src`, `frontend/ios` | Learner's iPhone |
 | Backend function | all backend modules | `backend/app` | Vercel Python function |
 | PostgreSQL | `models`, `db`, migrations | `backend/app/models`, `backend/alembic` | Supabase |
 | Claude API | Claude adapter behind the Structured AI port | `backend/app/services` | Anthropic |

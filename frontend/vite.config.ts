@@ -6,6 +6,7 @@ import { resolve } from "node:path";
 import { validateAndroidEnvironment, validateHostedWebEnvironment } from "./build/androidEnvironment.ts";
 
 export default defineConfig(({ mode }) => {
+  // The "android" mode is the native-app build mode: the iOS app uses it too (ios:sync), with the same .env.android (ADR-0013).
   if (mode === "android") validateAndroidEnvironment(loadEnv(mode, process.cwd(), "VITE_"));
   // Vercel sets VERCEL_ENV on its builds; local and CI builds may keep the API relative for mocks.
   else if (process.env.VERCEL_ENV) validateHostedWebEnvironment({ ...loadEnv(mode, process.cwd(), "VITE_"), ...process.env });

@@ -7,7 +7,7 @@ import { transcriptionErrorMessage } from "../../transcriptionError";
 import type { AssistanceDraft } from "../../TranscriptionAssistanceView";
 import { hasUnexpectedLetterScript, latinForEvaluation } from "../../turkishText";
 import type { AttemptTimings, Exercise } from "../../types/training";
-import { Capacitor } from "@capacitor/core";
+import { nativeAppPlatform, type NativeAppPlatform } from "../../shared/lib/platform";
 import { microphoneFailureOf, VoiceRecorder, type MicrophoneFailure } from "../../voiceRecorder";
 import type { VoiceState } from "./AnswerActions";
 
@@ -17,11 +17,11 @@ const microphoneFailureMessages: Record<MicrophoneFailure, string> = {
   other: "app.microphoneFailed",
 };
 
-// The Android app has no browser or site to point at: there the fix is the app permission.
-const nativeMicrophoneFailureMessages: Record<MicrophoneFailure, string> = {
-  denied: "app.microphoneBlockedNative",
-  unsupported: "practice.voice.unavailableNative",
-  other: "app.microphoneFailed",
+// The native apps have no browser or site to point at: there the fix is the app permission,
+// which each system keeps in a different place in its settings.
+const nativeMicrophoneFailureMessages: Record<NativeAppPlatform, Record<MicrophoneFailure, string>> = {
+  android: { denied: "app.microphoneBlockedAndroid", unsupported: "practice.voice.unavailableNative", other: "app.microphoneFailed" },
+  ios: { denied: "app.microphoneBlockedIos", unsupported: "practice.voice.unavailableNative", other: "app.microphoneFailed" },
 };
 
 /**
@@ -150,7 +150,8 @@ export function useVoiceAnswer({
       if (voiceEpochRef.current !== epoch) return;
       if (voiceRef.current === recorder) voiceRef.current = undefined;
       setVoiceState("error");
-      const messages = Capacitor.isNativePlatform() ? nativeMicrophoneFailureMessages : microphoneFailureMessages;
+      const platform = nativeAppPlatform();
+      const messages = platform ? nativeMicrophoneFailureMessages[platform] : microphoneFailureMessages;
       onError(messages[microphoneFailureOf(error)]);
     }
   }

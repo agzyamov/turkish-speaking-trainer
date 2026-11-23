@@ -19,7 +19,7 @@ Working product name: **TurkTalk** (placeholder, see [ADR-0005](decisions/ADR-00
 
 ```mermaid
 flowchart LR
-    learner([Learner]) --> client[Web app / Android app]
+    learner([Learner]) --> client[Web app / Android and iOS apps]
     admin([Admin]) --> client
     client -->|HTTPS REST /api| backend[Backend API]
     client -->|sign-in| supaauth[Supabase Auth]
@@ -55,7 +55,7 @@ These drive the architecture. Each names the mechanism that satisfies it.
 | Q-6 | Correctness | Program logic never depends on unvalidated model output | Every model response is parsed into a Pydantic schema |
 | Q-7 | Availability | When AI is unavailable or the budget is spent, the app still opens and explains the state | Typed error codes from the backend; exact-match grading needs no AI |
 | Q-8 | Performance | A spoken answer is transcribed and graded fast enough to keep practice flowing; the backend function limit is 60 s | Timeouts and bounded retries per call; no model call on exact matches |
-| Q-9 | Portability | One client codebase serves web and Android | Capacitor wraps the same React build |
+| Q-9 | Portability | One client codebase serves web, Android and iOS | Capacitor wraps the same React build (ADR-0013) |
 | Q-10 | Usability | Interface is consistent, accessible and available in Russian and English | Design tokens and shared components; every string in both locales; Impeccable and axe checks |
 
 ## Scope boundaries

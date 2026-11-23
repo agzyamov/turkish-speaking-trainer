@@ -33,6 +33,14 @@ it("claims account-wide Premium on every Android profile refresh", async () => {
   );
 });
 
+it("claims the same Premium gift from the iOS app on the endpoint released Android clients use", async () => {
+  vi.spyOn(Capacitor, "getPlatform").mockReturnValue("ios");
+  const request = vi.fn().mockResolvedValue({ ok: true, json: async () => ({ access_tier: "premium" }) });
+  vi.stubGlobal("fetch", request);
+  expect((await fetchCurrentUser()).access_tier).toBe("premium");
+  expect(request).toHaveBeenCalledWith("/api/auth/me/android-premium", expect.objectContaining({ method: "POST", body: JSON.stringify({ platform: "ios" }) }));
+});
+
 it.each([false, true])("does not expose a free Android account if activation fails (http=%s)", async httpFailure => {
   vi.spyOn(Capacitor, "getPlatform").mockReturnValue("android");
   vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: !httpFailure, status: 503, json: async () => ({ access_tier: "free" }) }));

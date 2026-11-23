@@ -75,6 +75,7 @@ vi.mock("../auth", () => ({
     };
   },
   signInWithGoogle: async () => undefined,
+  signInWithApple: async () => undefined,
   signInReviewAccount: async () => undefined,
   signOut: async () => undefined,
 }));
@@ -93,6 +94,39 @@ describe("App", () => {
     expect(screen.getByText("Вход для проверки")).toBeInTheDocument();
     expect(screen.queryByText("Войти по email") !== null).toBe(!native);
     expect(document.querySelector(".email-login") !== null).toBe(!native);
+  });
+
+  it.each([
+    ["web", false],
+    ["android", true],
+    ["ios", true],
+  ] as const)("offers Sign in with Apple next to Google only in the iOS app (%s)", async (platform, native) => {
+    vi.spyOn(Capacitor, "isNativePlatform").mockReturnValue(native);
+    vi.spyOn(Capacitor, "getPlatform").mockReturnValue(platform);
+    vi.spyOn(auth, "initializeAuth").mockResolvedValue(null);
+    const apple = vi.spyOn(auth, "signInWithApple").mockResolvedValue(undefined);
+    const google = vi.spyOn(auth, "signInWithGoogle").mockResolvedValue(undefined);
+    vi.stubGlobal("fetch", mockApi());
+    render(<App />);
+    expect(await screen.findByRole("button", { name: "Войти через Google" })).toBeInTheDocument();
+    const button = screen.queryByRole("button", { name: "Войти через Apple" });
+    expect(button !== null).toBe(platform === "ios");
+    if (!button) return;
+    fireEvent.click(button);
+    await waitFor(() => expect(apple).toHaveBeenCalledWith("/app"));
+    expect(google).not.toHaveBeenCalled();
+  });
+
+  it.each(["ru", "en"] as const)("explains a failed Apple sign-in like a failed Google one (%s)", async language => {
+    localStorage.setItem("turktalk.interface-language", language);
+    vi.spyOn(Capacitor, "isNativePlatform").mockReturnValue(true);
+    vi.spyOn(Capacitor, "getPlatform").mockReturnValue("ios");
+    vi.spyOn(auth, "initializeAuth").mockResolvedValue(null);
+    vi.spyOn(auth, "signInWithApple").mockRejectedValue(new Error("Unsupported provider: provider is not enabled"));
+    vi.stubGlobal("fetch", mockApi());
+    render(<App />);
+    fireEvent.click(await screen.findByRole("button", { name: language === "ru" ? "Войти через Apple" : "Sign in with Apple" }));
+    expect(await screen.findByRole("alert")).toHaveTextContent(language === "ru" ? "Не удалось открыть вход через Apple." : "Could not open Apple sign-in.");
   });
 
   it.each(["ru", "en"] as const)("shows classified checker failure and diagnostic ID without losing the draft (%s)", async language => {
@@ -1265,12 +1299,22 @@ describe("App", () => {
     expect(screen.getByRole("button", { name: "Ввести ответ вручную" })).toBeInTheDocument();
   });
 
-  it("points an Android learner to the app permission, not to a browser", async () => {
+  it.each([
+    ["android", "Настройки → Приложения → TurkTalk → Разрешения"],
+    ["ios", "Настройки → TurkTalk → Микрофон"],
+  ] as const)("points a %s learner to the app permission in that system's settings, not to a browser", async (platform, path) => {
     vi.spyOn(Capacitor, "isNativePlatform").mockReturnValue(true);
+    vi.spyOn(Capacitor, "getPlatform").mockReturnValue(platform);
     voiceMock.available = true;
     voiceMock.failStart = true;
     voiceMock.failStartName = "NotAllowedError";
-    vi.stubGlobal("fetch", mockApi());
+    const baseFetch = mockApi();
+    // The native apps claim the Premium gift instead of reading the profile.
+    vi.stubGlobal("fetch", async (input: RequestInfo | URL, init?: RequestInit) => {
+      if (!input.toString().endsWith("/api/auth/me/android-premium")) return baseFetch(input, init);
+      const result = await baseFetch("/api/auth/me", init);
+      return { ...result, json: async () => ({ ...(await result.json()), access_tier: "premium" }) };
+    });
     render(<App />);
 
     fireEvent.click(await screen.findByRole("button", { name: /В банке/ }));
@@ -1279,6 +1323,7 @@ describe("App", () => {
 
     const alert = await screen.findByRole("alert");
     expect(alert).toHaveTextContent(/Разрешите микрофон для TurkTalk в настройках устройства/);
+    expect(alert).toHaveTextContent(path);
     expect(alert).not.toHaveTextContent(/Safari|Chrome|браузер/i);
   });
 

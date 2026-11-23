@@ -24,6 +24,7 @@ Shows where modules live in the repository and how they are built and checked.
 │   ├── src/                    React client
 │   ├── e2e/                    Playwright specs
 │   ├── android/                Capacitor Android project
+│   ├── ios/                    Capacitor iOS project (ADR-0013)
 │   └── package.json
 ├── scripts/                    guards, testlab, benchmarks, build helpers
 └── docs/
