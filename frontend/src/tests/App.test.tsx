@@ -6,7 +6,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 const authEvents = vi.hoisted(() => ({
   notify: undefined as undefined | ((session: { access_token: string } | null) => void),
 }));
-const voiceMock = vi.hoisted(() => ({ available: false, failStart: false, stops: 0, startGate: undefined as Promise<void> | undefined }));
+const voiceMock = vi.hoisted(() => ({ available: false, failStart: false, failStartName: "Error", stops: 0, startGate: undefined as Promise<void> | undefined }));
 const nativeAppEvents = vi.hoisted(() => ({
   listener: undefined as ((state: { isActive: boolean }) => void) | undefined,
   lastListener: undefined as ((state: { isActive: boolean }) => void) | undefined,
@@ -44,12 +44,13 @@ vi.mock("@capacitor/app", () => ({
   },
 }));
 
-vi.mock("../voiceRecorder", () => ({
+vi.mock("../voiceRecorder", async original => ({
+  microphoneFailureOf: (await original<typeof import("../voiceRecorder")>()).microphoneFailureOf,
   supportsVoiceRecording: () => voiceMock.available,
   VoiceRecorder: class {
     async start() {
       if (voiceMock.startGate) await voiceMock.startGate;
-      if (voiceMock.failStart) throw new Error("Microphone denied");
+      if (voiceMock.failStart) throw Object.assign(new Error("Microphone failed"), { name: voiceMock.failStartName });
     }
     async finish() {
       return {
@@ -294,6 +295,7 @@ describe("App", () => {
     window.localStorage.clear();
     voiceMock.available = false;
     voiceMock.failStart = false;
+    voiceMock.failStartName = "Error";
     voiceMock.stops = 0;
     voiceMock.startGate = undefined;
     nativeAppEvents.listener = undefined;
@@ -1244,6 +1246,42 @@ describe("App", () => {
     expect(JSON.parse(startCalls[0][1]?.body as string)).toEqual({ review_mode: true, length: 10 });
   });
 
+  it.each([
+    ["NotAllowedError", /Браузер не дал доступ к микрофону.*откройте её в Safari или Chrome/],
+    ["NotFoundError", /Не удалось включить микрофон/],
+  ])("tells the learner why the microphone did not start (%s) and offers typing instead", async (name, message) => {
+    voiceMock.available = true;
+    voiceMock.failStart = true;
+    voiceMock.failStartName = name;
+    vi.stubGlobal("fetch", mockApi());
+    render(<App />);
+
+    fireEvent.click(await screen.findByRole("button", { name: /В банке/ }));
+    expect(await screen.findByRole("heading", { name: "Я хочу открыть счёт." })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: /Ответить голосом/ }));
+
+    expect(await screen.findByRole("alert")).toHaveTextContent(message);
+    expect(screen.getByRole("button", { name: /Ответить голосом/ })).toBeEnabled();
+    expect(screen.getByRole("button", { name: "Ввести ответ вручную" })).toBeInTheDocument();
+  });
+
+  it("points an Android learner to the app permission, not to a browser", async () => {
+    vi.spyOn(Capacitor, "isNativePlatform").mockReturnValue(true);
+    voiceMock.available = true;
+    voiceMock.failStart = true;
+    voiceMock.failStartName = "NotAllowedError";
+    vi.stubGlobal("fetch", mockApi());
+    render(<App />);
+
+    fireEvent.click(await screen.findByRole("button", { name: /В банке/ }));
+    expect(await screen.findByRole("heading", { name: "Я хочу открыть счёт." })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: /Ответить голосом/ }));
+
+    const alert = await screen.findByRole("alert");
+    expect(alert).toHaveTextContent(/Разрешите микрофон для TurkTalk в настройках устройства/);
+    expect(alert).not.toHaveTextContent(/Safari|Chrome|браузер/i);
+  });
+
   it("opens the Android topics panel from home while preserving the exercise and draft", async () => {
     vi.spyOn(Capacitor, "isNativePlatform").mockReturnValue(true);
     voiceMock.available = true;
@@ -1301,7 +1339,7 @@ describe("App", () => {
     expect(await screen.findByRole("heading", { name: "Я хочу открыть счёт." })).toBeInTheDocument();
     expect(screen.queryByText("modal_verbs")).not.toBeInTheDocument();
     expect(screen.getByRole("button", { name: /Ответить голосом|Записать заново/ })).toBeDisabled();
-    expect(screen.getByText(/Микрофон недоступен/)).toBeInTheDocument();
+    expect(screen.getByText(/Этот браузер не может записывать звук/)).toBeInTheDocument();
     expect(screen.queryByLabelText("Ваш ответ")).not.toBeInTheDocument();
     await waitFor(() => expect(fetchMock).toHaveBeenCalledWith("/api/sessions/start", expect.objectContaining({ method: "POST" })));
     expect(fetchMock.mock.calls.some(([url]) => url.toString().endsWith("/next-exercise"))).toBe(false);
@@ -1626,7 +1664,7 @@ describe("App", () => {
 
     voiceMock.failStart = true;
     fireEvent.click(await screen.findByRole("button", { name: /Ответить голосом|Записать заново/ }));
-    expect(await screen.findByRole("alert")).toHaveTextContent("Не удалось получить доступ к микрофону");
+    expect(await screen.findByRole("alert")).toHaveTextContent("Не удалось включить микрофон");
     expect(answer).toHaveValue("Moj odgovor");
   });
 

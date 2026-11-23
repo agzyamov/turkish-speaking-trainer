@@ -15,8 +15,8 @@ import { TeaGlass } from "./TeaGlass";
 
 const transcriptionBreakMessage = "practice.transcriptionBreak";
 
-function voiceStatus(voiceState: VoiceState, voiceSupported: boolean, hasTranscript: boolean): string {
-  if (!voiceSupported) return "practice.voice.unavailable";
+function voiceStatus(voiceState: VoiceState, voiceSupported: boolean, hasTranscript: boolean, native: boolean): string {
+  if (!voiceSupported) return native ? "practice.voice.unavailableNative" : "practice.voice.unavailable";
   if (voiceState === "connecting") return "practice.voice.connecting";
   if (voiceState === "recording") return "practice.voice.recording";
   if (voiceState === "transcribing") return "practice.voice.transcribing";
@@ -174,7 +174,7 @@ export function PracticeCard(props: {
               stopVoice={props.onStopVoice}
             />
             <div className="exercise-voice-status text-center text-sm text-ink-muted" role="status">
-              {t(voiceStatus(voiceState, voiceSupported, hasTranscript))}
+              {t(voiceStatus(voiceState, voiceSupported, hasTranscript, props.native))}
             </div>
           </>
         ) : (

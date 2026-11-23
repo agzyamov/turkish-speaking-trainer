@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { supportsVoiceRecording, VoiceRecorder } from "../voiceRecorder";
+import { microphoneFailureOf, supportsVoiceRecording, VoiceRecorder } from "../voiceRecorder";
 
 const originalMediaDevices = Object.getOwnPropertyDescriptor(navigator, "mediaDevices");
 
@@ -117,6 +117,67 @@ describe("VoiceRecorder", () => {
     await Promise.resolve();
 
     expect(stopTrack).toHaveBeenCalledOnce();
+  });
+
+  it("asks the browser for the microphone before anything asynchronous, so the tap still counts as the user's gesture", () => {
+    const getUserMedia = vi.fn(() => new Promise<MediaStream>(() => undefined));
+    Object.defineProperty(navigator, "mediaDevices", { configurable: true, value: { getUserMedia } });
+    vi.stubGlobal("MediaRecorder", FakeMediaRecorder);
+    const recorder = new VoiceRecorder();
+
+    void recorder.start();
+
+    expect(getUserMedia).toHaveBeenCalledTimes(1);
+    recorder.stop();
+  });
+
+  it("reports a browser without a recording API as unsupported, not as a permission problem", async () => {
+    // An in-app browser or an old iOS WebView: no navigator.mediaDevices at all.
+    delete (navigator as { mediaDevices?: MediaDevices }).mediaDevices;
+    vi.stubGlobal("MediaRecorder", FakeMediaRecorder);
+    expect(supportsVoiceRecording()).toBe(false);
+
+    const failure = await new VoiceRecorder().start().catch((error: unknown) => error);
+
+    expect(microphoneFailureOf(failure)).toBe("unsupported");
+  });
+
+  it.each([
+    ["NotAllowedError", "denied"],
+    ["SecurityError", "denied"],
+    ["PermissionDeniedError", "denied"],
+    ["NotFoundError", "other"],
+    ["NotReadableError", "other"],
+  ])("classifies a getUserMedia rejection named %s as %s", async (name, expected) => {
+    Object.defineProperty(navigator, "mediaDevices", {
+      configurable: true,
+      value: { getUserMedia: vi.fn(async () => Promise.reject(new DOMException("rejected", name))) },
+    });
+    vi.stubGlobal("MediaRecorder", FakeMediaRecorder);
+
+    const failure = await new VoiceRecorder().start().catch((error: unknown) => error);
+
+    expect(microphoneFailureOf(failure)).toBe(expected);
+  });
+
+  it("classifies a recorder that cannot be constructed as another failure and releases the stream", async () => {
+    const stopTrack = vi.fn();
+    Object.defineProperty(navigator, "mediaDevices", {
+      configurable: true,
+      value: { getUserMedia: vi.fn(async () => ({ getTracks: () => [{ stop: stopTrack }] }) as unknown as MediaStream) },
+    });
+    class UnsupportedFormatRecorder extends FakeMediaRecorder {
+      constructor(stream: MediaStream, options?: MediaRecorderOptions) {
+        super(stream, options);
+        throw new DOMException("mime type not supported", "NotSupportedError");
+      }
+    }
+    vi.stubGlobal("MediaRecorder", UnsupportedFormatRecorder);
+
+    const failure = await new VoiceRecorder().start().catch((error: unknown) => error);
+
+    expect(microphoneFailureOf(failure)).toBe("other");
+    expect(stopTrack).toHaveBeenCalled();
   });
 
   it("releases tracks when MediaRecorder never emits stop", async () => {
