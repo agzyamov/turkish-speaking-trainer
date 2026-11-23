@@ -101,6 +101,9 @@ export function fetchNextExercise(sessionId: string, clientRequestId: string, si
 }
 
 export function transcribeAudio(exerciseId: string, audio: Blob, signal?: AbortSignal, assistanceEnabled = false): Promise<TranscriptionResponse> {
+  // The simulator test build checks the recording on the device and answers with a canned transcript, so
+  // the app tests send no audio and call no AI provider (ADR-0014). Removed from every other build.
+  if (import.meta.env.VITE_TEST_AUDIO === "true") return import("../testBuild/fakeTranscription").then(module => module.fakeTranscription(audio, signal));
   const form = new FormData();
   form.append("exercise_id", exerciseId);
   form.append("assistance_enabled", String(assistanceEnabled));

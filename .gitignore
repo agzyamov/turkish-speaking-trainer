@@ -20,6 +20,7 @@ frontend/dist/
 frontend/dist-testlab-web/
 frontend/dist-testlab-android/
 frontend/dist-e2e/
+frontend/dist-native-check/
 frontend/android/app/src/lab/assets/
 frontend/coverage/
 frontend/android/.gradle/
