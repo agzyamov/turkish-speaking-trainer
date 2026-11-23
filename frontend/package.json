@@ -16,9 +16,9 @@
     "format": "biome format --write .",
     "depcruise": "depcruise src --config .dependency-cruiser.cjs",
     "test": "vitest",
-    "test:e2e:mock": "playwright test e2e/mocked.spec.mjs e2e/settings-account.spec.mjs e2e/mobile-premium-cards.spec.mjs e2e/calendar-legend.spec.mjs e2e/custom-content.spec.mjs e2e/share-app.spec.mjs e2e/week-navigation.spec.mjs e2e/lazy-panels.spec.mjs e2e/manual-payments.spec.mjs e2e/network.spec.mjs e2e/localization-fixes.spec.mjs e2e/premium-tab.spec.mjs e2e/login-layout.spec.mjs e2e/startup.spec.mjs e2e/feedback-activity.spec.mjs e2e/review-access.spec.mjs e2e/source-language.spec.mjs e2e/context-hints.spec.mjs e2e/failure-diagnostics.spec.mjs e2e/premium-topic-cards.spec.mjs e2e/landing.spec.mjs e2e/landing-auth.spec.mjs",
+    "test:e2e:mock": "playwright test e2e/mocked.spec.mjs e2e/settings-account.spec.mjs e2e/mobile-premium-cards.spec.mjs e2e/calendar-legend.spec.mjs e2e/custom-content.spec.mjs e2e/share-app.spec.mjs e2e/week-navigation.spec.mjs e2e/lazy-panels.spec.mjs e2e/manual-payments.spec.mjs e2e/network.spec.mjs e2e/localization-fixes.spec.mjs e2e/premium-tab.spec.mjs e2e/login-layout.spec.mjs e2e/startup.spec.mjs e2e/feedback-activity.spec.mjs e2e/review-access.spec.mjs e2e/source-language.spec.mjs e2e/context-hints.spec.mjs e2e/failure-diagnostics.spec.mjs e2e/premium-topic-cards.spec.mjs e2e/landing.spec.mjs e2e/landing-auth.spec.mjs e2e/microphone-failures.spec.mjs",
     "test:e2e:local": "playwright test local.spec.mjs",
-    "demo": "playwright test e2e/design/demo.local.spec.mjs --headed",
+    "demo": "playwright test e2e/design/demo.local.spec.mjs --headed --project chromium",
     "test:e2e:android": "node e2e/android-testlab.mjs",
     "test:e2e:summary": "node e2e/summary.mjs"
   },

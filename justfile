@@ -64,8 +64,12 @@ infra:
 vercel-build project:
     scripts/vercel-build-check.sh {{project}}
 
-# Mocked end-to-end tests (needs Chrome)
+# Mocked browser flow in desktop Chromium (the pull-request check).
 e2e:
+    cd frontend && pnpm test:e2e:mock --project chromium
+
+# The same suite in every browser project: Chromium, WebKit, iPhone and Pixel profiles (nightly in CI).
+e2e-all:
     cd frontend && pnpm test:e2e:mock
 
 # --- run locally -------------------------------------------------------------
