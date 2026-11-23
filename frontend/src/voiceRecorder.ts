@@ -39,9 +39,14 @@ export class VoiceRecorder {
   async start(): Promise<void> {
     if (!supportsVoiceRecording()) throw new VoiceRecordingUnsupportedError("Voice recording is not supported in this browser");
 
-    const pendingStream = navigator.mediaDevices.getUserMedia({
-      audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true },
-    });
+    // The simulator test build records a bundled phrase instead (ADR-0014); this branch and its module
+    // are removed from every other build. getUserMedia stays synchronous in the tap.
+    const pendingStream =
+      import.meta.env.VITE_TEST_AUDIO === "true"
+        ? testAudioStream()
+        : navigator.mediaDevices.getUserMedia({
+            audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true },
+          });
     pendingStream
       .then(stream => {
         if (this.stopped) stream.getTracks().forEach(track => track.stop());
@@ -132,6 +137,19 @@ export class VoiceRecorder {
     this.stream = undefined;
     stream?.getTracks().forEach(track => track.stop());
   }
+}
+
+function testAudioStream(): Promise<MediaStream> {
+  // Created synchronously in the tap: WKWebView starts audio only from a user gesture.
+  const context = new AudioContext();
+  void context.resume().catch(() => undefined);
+  return import("./testBuild/fakeMicrophone").then(
+    module => module.fakeMicrophoneStream(context),
+    (error: unknown) => {
+      void context.close();
+      throw error;
+    },
+  );
 }
 
 function preferredMimeType(): string | undefined {

@@ -42,6 +42,9 @@ try {
     try {
         & pnpm android:sync
         if ($LASTEXITCODE -ne 0) { throw 'Production Android assets build/sync failed.' }
+        # The web build must not contain the iOS simulator test build's fake microphone (ADR-0014).
+        & node build/checkNoTestAudio.mjs dist
+        if ($LASTEXITCODE -ne 0) { throw 'The web build contains iOS simulator test-build code.' }
         Push-Location android
         try {
             & .\gradlew.bat bundleProdRelease

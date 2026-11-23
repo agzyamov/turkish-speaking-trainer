@@ -14,6 +14,7 @@ set -euo pipefail
 
 mode="${1:-}"
 case "$mode" in apk|aab|aab-build|aab-sign) ;; *) echo "Usage: $0 apk|aab|aab-build|aab-sign" >&2; exit 1 ;; esac
+unset VITE_TEST_AUDIO # the fake microphone belongs to the iOS simulator test build only (ADR-0014)
 
 root="$(cd "$(dirname "$0")/.." && pwd)"
 store="${TURKTALK_UPLOAD_KEYSTORE:-$HOME/.android/turktalk-upload/upload.p12}"
@@ -44,7 +45,8 @@ build() { # gradle task
     done
   fi
   [ -d "${ANDROID_HOME:-}/platforms" ] || { echo "Set ANDROID_HOME to the Android SDK." >&2; exit 1; }
-  (cd "$root/frontend" && pnpm android:sync)
+  # The web build must not contain the iOS simulator test build's fake microphone (ADR-0014).
+  (cd "$root/frontend" && pnpm android:sync && node build/checkNoTestAudio.mjs dist android/app/src/main/assets/public)
   (cd "$root/frontend/android" && sh ./gradlew "$1" ${gradle_args[@]+"${gradle_args[@]}"})
 }
 

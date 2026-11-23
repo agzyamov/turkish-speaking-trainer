@@ -53,8 +53,10 @@ frontend-lint:
 frontend-test:
     cd frontend && pnpm test --run
 
+# The web build and the native-app build, each checked to contain no simulator test-build audio code (ADR-0014)
 frontend-build:
-    cd frontend && pnpm build
+    cd frontend && pnpm build && node build/checkNoTestAudio.mjs dist
+    cd frontend && env -u VITE_TEST_AUDIO pnpm exec vite build --mode android --outDir dist-native-check --emptyOutDir --logLevel warn && node build/checkNoTestAudio.mjs dist-native-check
 
 # Terraform format and validation; no credentials, no state (ADR-0010)
 infra:

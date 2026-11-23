@@ -1,8 +1,15 @@
 appId: com.turktalk.trainer
-name: Opening a topic and tapping the microphone starts recording
+name: Recording a spoken answer puts its transcript into the answer field
 tags:
-  - needs-microphone
-# Ends before "Завершить запись": finishing would send the audio for paid transcription.
+  # scripts/test-app.sh runs this flow only after checking that the app it installed is the test build.
+  - needs-test-build
+# Needs the simulator test build (scripts/build-ios.sh sim, VITE_TEST_AUDIO=true, ADR-0014): the app
+# records a bundled Turkish phrase instead of the microphone and answers the transcription request on the
+# device with a canned transcript after checking the recording, so no audio leaves the simulator and no
+# AI provider is called (C-14). An empty or broken recording shows the transcription error and fails the
+# flow. The flow never presses the answer-check button: that would send the answer to /attempts.
+# The test build replaces only the practice transcription: feedback dictation in Settings would still send
+# its recording to /feedback/transcribe (paid), so no flow may use it.
 ---
 - runFlow: common/sign-in.yaml
 - extendedWaitUntil:
@@ -13,9 +20,8 @@ tags:
     visible: "Ответить голосом"
     timeout: 30000
 - tapOn: "Ответить голосом"
-# A real iPhone asks for the microphone on the first tap (Info.plist text). The simulator follows the
-# Mac's own microphone permission and may start recording without asking, so the prompt is optional
-# here; the prompt itself is checked on a device.
+# The test build does not open the microphone, so iOS normally shows no prompt; a real iPhone asks on the
+# first tap (Info.plist text), which stays a check on a device.
 - tapOn:
     text: "Allow|Разрешить|OK"
     optional: true
@@ -23,4 +29,16 @@ tags:
     visible: "Завершить запись"
     timeout: 15000
 - assertNotVisible: "Не удалось включить микрофон.*"
+# Maestro has no plain pause: wait 3 seconds for a text that cannot appear yet, so the looped phrase
+# (about 2.6 seconds) plays once before the recording stops.
+- extendedWaitUntil:
+    visible: "Merhaba, hesap açmak istiyorum."
+    timeout: 3000
+    optional: true
+    label: Record for about three seconds
+- tapOn: "Завершить запись"
+- extendedWaitUntil:
+    visible: "Merhaba, hesap açmak istiyorum."
+    timeout: 15000
+- assertNotVisible: "Не удалось расшифровать речь.*"
 - stopApp
